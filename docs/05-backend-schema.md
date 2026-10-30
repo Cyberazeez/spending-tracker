@@ -1,6 +1,6 @@
 # 05-backend-schema
 
-Status: DRAFT for owner review. Postgres on Supabase, migrations in `supabase/migrations/`.
+Status: APPROVED by owner (2026-10-30). Postgres on Supabase, migrations in `supabase/migrations/`.
 
 ## Conventions
 - Money: `bigint` halalas (1 SAR = 100). Never floats.
@@ -22,7 +22,7 @@ Status: DRAFT for owner review. Postgres on Supabase, migrations in `supabase/mi
 
 ### own_accounts
 `id`, `user_id`, `bank text` (alrajhi, snb, alinma, barq, d360, stc), `last4 text`, `kind text` (account, debit_card, credit_card, wallet), `label text`, `is_active bool`, `is_house_card bool`.
-Unique `(user_id, bank, last4)`. Seed: Al Rajhi 1271; Alinma 6000 (account), 6698, 8119 (credit); SNB 3301; D360 5911, 0513, 7705, 8920 (house card); barq 1224, 9105; STC 6190; D360 5745 inactive.
+Unique `(user_id, bank, last4)`. Seed: Al Rajhi 6331 (account), 1271 (mada card); SNB 0102, 0103 (accounts), 3301 (mada card); Alinma 6000 (account), 6698, 8119 (credit); D360 5911, 0513 (accounts), 7705, 8920 (house card); barq 1224, 9105; STC 6190; D360 5745 inactive. Evidence: SNB "between your accounts" SMS and Al Rajhi/SNB transfers to Alinma 6000 under the owner's name.
 
 ### ingest_tokens
 `id`, `user_id`, `label`, `token_hash text` (SHA-256, service-role only), `created_at`, `last_used_at`, `revoked_at`. Created/rotated only by the `rotate-token` function, which returns the plaintext once.

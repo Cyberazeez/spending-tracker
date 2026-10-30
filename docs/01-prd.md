@@ -1,6 +1,6 @@
 # 01-prd: Personal spending tracker
 
-Status: DRAFT for owner review. Nothing is built yet.
+Status: APPROVED by owner (2026-10-30). Nothing is built yet.
 
 ## Who it's for
 One user (Azeez), Riyadh. iPhone (iOS 27), Windows laptop, no Mac. Single-user app: signups are disabled after the owner account exists. If it is ever opened to others, that is a new project phase (multi-user, Sign in with Apple), not v1.
@@ -105,7 +105,7 @@ As the owner, every bank SMS I receive reaches the app without my touching it.
 4. Delivery gaps (phone off, automation disabled). Possible-gaps view.
 
 ## Open items
-1. **Missing samples:** no Al Rajhi or SNB messages were in the screenshots I could see. I need 5 to 10 redacted per bank (purchase, refund, ATM, transfer, salary if it lands there).
+1. Samples received for all six senders plus 900. Catalog in `docs/07-sms-catalog.md`. Still missing: ATM withdrawal, and a salary SMS from banks other than Alinma.
 2. Electricity bill: no SMS found. Need a sample if one exists.
 3. Alinma salary SMS ("تم إيداع الراتب") appears to go to account 6000; confirm 6000 is the only salary account.
-4. Own accounts to confirm in the app: 6000, 5911, 0513 (assumed yours), 5745 (cancelled).
+4. Incoming transfers from family/others (SNB 6905 and 9000, Al Rajhi 5247 and 3384): count as income, or as "gifts/other" excluded from the savings rate? Default: type `transfer_in`, shown separately from salary, excluded from the savings rate.
