@@ -1,0 +1,15 @@
+# Settings the Supabase CLI applies on deploy. The project was created through the connector, so
+# these are recorded here to stop a CLI deploy from silently reverting them.
+project_id = "evepfssanoffnwtqjmyq"
+
+[auth]
+# Single-user app: the owner account is created by hand in the dashboard.
+enable_signup = false
+enable_anonymous_sign_ins = false
+
+[functions.ingest]
+# The iOS Shortcut cannot send a JWT. The function authenticates the X-Ingest-Token itself.
+verify_jwt = false
+
+[functions.rotate-token]
+verify_jwt = true

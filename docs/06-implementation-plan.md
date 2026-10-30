@@ -3,6 +3,7 @@
 Same seven milestones as the brief. Riskiest first: the SMS path (Shortcuts, parsing) is what can sink the app, so a stub of it is proven in milestone 1. After each milestone: summary, wait for the owner's go. Small PR per milestone, conventional commits, `ship-review` before every PR.
 
 ## M1. Foundation and the riskiest assumption
+Status: built 2026-10-30, waiting on the owner's Shortcuts test (README, Milestone 1 setup).
 Scope
 - Repo layout, CI (GitHub Actions), `codemagic.yaml` skeleton (not run).
 - New Supabase project in "Cyberazeez's"; migrations for **all** tables in `05-backend-schema.md` with RLS; seed categories and own accounts; signups disabled; owner user created.
@@ -20,7 +21,7 @@ Scope
 - Needs review inbox, manual quick-add, share-sheet shortcut guide, possible-gaps view, CSV import (basic).
 Tests: fixture per template (expected amount in halalas, type, merchant, last4, timestamp), replay idempotency, ambiguous-date cases, no-balance-stored assertion, OTP redaction.
 Done when: every fixture passes, unknown formats land in Needs review, a real SMS from each sender appears correctly in the app.
-Needs from owner: redacted fixtures for ATM withdrawal and any salary SMS from other banks if they exist; confirmation of the Alinma 87 SAR vs 3,857.46 deductions.
+Needs from owner: the Shortcuts test result from M1 (sender string, whether it prompts). ATM and other-bank salary fixtures are not needed (owner confirmed they are rare).
 
 ## M3. Categorization and transactions UI
 Scope
@@ -46,6 +47,8 @@ Needs from owner: bundle IDs, App Group, team ID, App Store Connect API key (ste
 Done when: widget shows live numbers on the owner's phone from a TestFlight build.
 
 ## M7. Polish
+Also: store the Supabase session in the iOS keychain (`flutter_secure_storage` as the auth `LocalStorage`) instead of the default SharedPreferences, add a "last message received" staleness warning, and mark the ingest token clipboard copy as local-only.
+
 Dark mode pass, empty/error states audit, accessibility pass (Dynamic Type, VoiceOver), full Shortcuts setup guide with screenshots, CSV import/export hardening, README, `ship-review` and security audit on the whole repo.
 
 ## Standing rules

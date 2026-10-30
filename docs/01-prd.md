@@ -108,4 +108,6 @@ As the owner, every bank SMS I receive reaches the app without my touching it.
 1. Samples received for all six senders plus 900. Catalog in `docs/07-sms-catalog.md`. Still missing: ATM withdrawal, and a salary SMS from banks other than Alinma.
 2. Electricity bill: no SMS found. Need a sample if one exists.
 3. Alinma salary SMS ("تم إيداع الراتب") appears to go to account 6000; confirm 6000 is the only salary account.
-4. Incoming transfers from family/others (SNB 6905 and 9000, Al Rajhi 5247 and 3384): count as income, or as "gifts/other" excluded from the savings rate? Default: type `transfer_in`, shown separately from salary, excluded from the savings rate.
+4. Incoming transfers from family/others (SNB 6905 and 9000, Al Rajhi 5247 and 3384): decided by the owner, excluded from income and the savings rate. Stored as `transfer_in`, shown separately.
+5. Alinma loan: one new loan; a month's installment can arrive as several deductions, which the obligation instance sums (see `docs/07-sms-catalog.md`).
+6. ATM withdrawals and salary from other banks: owner says they are rare or absent, so no fixtures are needed.

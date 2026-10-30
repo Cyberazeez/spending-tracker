@@ -1,0 +1,51 @@
+# iOS build and TestFlight delivery. Not run yet: needs the paid Apple Developer account (milestone 6).
+# Manual trigger only, so it never burns the free macOS minutes (500/month, personal account) by accident.
+#
+# One-time setup in the Codemagic UI (never commit these values):
+#   1. Teams/Personal account > Integrations > App Store Connect: add an API key (issuer id, key id, .p8).
+#      Name it "spending_tracker_asc" (or change `integrations.app_store_connect` below).
+#   2. Code signing identities: let Codemagic manage signing through that API key.
+#   3. Set the bundle id below to the one registered in the Apple Developer portal.
+
+workflows:
+  ios-testflight:
+    name: iOS to TestFlight
+    instance_type: mac_mini_m2
+    max_build_duration: 30
+    integrations:
+      app_store_connect: spending_tracker_asc
+    environment:
+      flutter: 3.47.9
+      xcode: latest
+      cocoapods: default
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.cyberazeez.spendingTracker # set to the registered bundle id
+      vars:
+        APP_STORE_APPLE_ID: "0" # numeric App Store Connect app id, set after creating the app record
+    cache:
+      cache_paths:
+        - $HOME/Library/Caches/CocoaPods
+        - $FLUTTER_ROOT/.pub-cache
+    scripts:
+      - name: Get packages
+        script: cd app && flutter pub get
+      - name: Set up code signing
+        script: xcode-project use-profiles --project app/ios/Runner.xcodeproj
+      - name: Build number from TestFlight
+        script: |
+          cd app
+          # Fails loudly if the lookup fails; for the very first upload set BUILD_NUMBER=1 by hand.
+          LATEST=$(app-store-connect get-latest-testflight-build-number "$APP_STORE_APPLE_ID")
+          echo "BUILD_NUMBER=$((LATEST + 1))" >> $CM_ENV
+      - name: Build IPA
+        script: |
+          cd app
+          flutter build ipa --release --build-number=$BUILD_NUMBER \
+            --export-options-plist=/Users/builder/export_options.plist
+    artifacts:
+      - app/build/ios/ipa/*.ipa
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
