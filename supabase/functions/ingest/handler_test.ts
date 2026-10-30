@@ -2,12 +2,13 @@ import assert from "node:assert/strict";
 import {
   handleIngest,
   type IngestDeps,
+  RATE_LIMIT_PER_DAY,
   RATE_LIMIT_PER_MINUTE,
   type RawMessageRow,
 } from "./handler.ts";
 import { generateToken, sha256Hex } from "../_shared/token.ts";
 
-async function setup(opts: { count?: number } = {}) {
+async function setup(opts: { minute?: number; day?: number } = {}) {
   const token = generateToken();
   const hash = await sha256Hex(token);
   const rows: RawMessageRow[] = [];
@@ -15,7 +16,8 @@ async function setup(opts: { count?: number } = {}) {
   let touched = 0;
   const deps: IngestDeps = {
     findToken: (h) => Promise.resolve(h === hash ? { id: "tok1", userId: "user1" } : null),
-    bumpRateLimit: () => Promise.resolve(opts.count ?? 1),
+    bumpRateLimit: (_user, window) =>
+      Promise.resolve(window === "minute" ? (opts.minute ?? 1) : (opts.day ?? 1)),
     insertRaw: (row) => {
       if (seen.has(row.dedupe_hash)) return Promise.resolve(null);
       seen.add(row.dedupe_hash);
@@ -101,7 +103,7 @@ Deno.test("ingest: OTP bodies are redacted and marked ignored", async () => {
 });
 
 Deno.test("ingest: rate limit returns 429 over the per-minute cap and stores nothing", async () => {
-  const s = await setup({ count: RATE_LIMIT_PER_MINUTE + 1 });
+  const s = await setup({ minute: RATE_LIMIT_PER_MINUTE + 1 });
   assert.equal((await s.call(SMS)).status, 429);
   assert.equal(s.rows.length, 0);
 });
@@ -118,4 +120,19 @@ Deno.test("ingest: responses never echo the message body", async () => {
   const s = await setup();
   const text = await (await s.call(SMS)).text();
   assert.ok(!text.includes("APPLE"));
+});
+
+Deno.test("ingest: the daily cap returns 429 even when the per-minute count is fine", async () => {
+  const s = await setup({ day: RATE_LIMIT_PER_DAY + 1 });
+  assert.equal((await s.call(SMS)).status, 429);
+  assert.equal(s.rows.length, 0);
+});
+
+Deno.test("ingest: the dedupe hash of an OTP message does not depend on the code", async () => {
+  const s = await setup();
+  await s.call({ sender: "D360 Bank", body: "OTP: 111111\nFor: Adding card" });
+  const second = await s.call({ sender: "D360 Bank", body: "OTP: 222222\nFor: Adding card" });
+  assert.deepEqual(await second.json(), { ok: true, duplicate: true });
+  assert.equal(s.rows.length, 1);
+  assert.ok(!JSON.stringify(s.rows).includes("111111"));
 });

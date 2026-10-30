@@ -60,7 +60,13 @@ class LockController extends Notifier<LockState> {
   Future<bool> unlock(String reason) async {
     if (state.busy) return false;
     state = state.copyWith(busy: true, failed: false);
-    final ok = await ref.read(authenticatorProvider).authenticate(reason);
+    bool ok;
+    try {
+      ok = await ref.read(authenticatorProvider).authenticate(reason);
+    } catch (_) {
+      // Any platform error counts as a failed unlock; never leave the button disabled.
+      ok = false;
+    }
     state = LockState(locked: !ok, failed: !ok);
     return ok;
   }

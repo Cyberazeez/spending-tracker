@@ -18,8 +18,12 @@ const deps: IngestDeps = {
     if (error) throw new Error("token_lookup_failed");
     return data ? { id: data.id, userId: data.user_id } : null;
   },
-  async bumpRateLimit(userId) {
-    const { data, error } = await db.rpc("bump_rate_limit", { p_user: userId, p_bucket: "ingest" });
+  async bumpRateLimit(userId, window) {
+    const { data, error } = await db.rpc("bump_rate_limit", {
+      p_user: userId,
+      p_bucket: window === "minute" ? "ingest_min" : "ingest_day",
+      p_window: window,
+    });
     if (error) throw new Error("rate_limit_failed");
     return data as number;
   },
@@ -32,10 +36,11 @@ const deps: IngestDeps = {
     return data?.id ?? null;
   },
   async touchToken(tokenId) {
-    await db.from("ingest_tokens").update({ last_used_at: new Date().toISOString() }).eq(
-      "id",
-      tokenId,
-    );
+    const { error } = await db
+      .from("ingest_tokens")
+      .update({ last_used_at: new Date().toISOString() })
+      .eq("id", tokenId);
+    if (error) console.error("touch_token_failed", error.code);
   },
 };
 

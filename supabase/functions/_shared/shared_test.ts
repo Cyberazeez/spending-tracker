@@ -58,6 +58,13 @@ Deno.test("otp: detects the code messages seen in the catalog", () => {
     "رمز التحقق لإتمام عمليتك هو: 0159\n\nلا تشارك الرمز مع الآخرين.",
     "رمز التحقق لـأبل باى هو 721532. لتنشيط بطاقتك أدخل هذا الرمز في تطبيق المحفظة.",
     "Your verification code is 1234",
+    "Your security code is 4821",
+    "One-time password 552201 for your transfer",
+    "Your passcode: 8890",
+    "رمز التأكيد 4455 لإتمام العملية",
+    "رمز الأمان الخاص بك 9911",
+    "كلمة المرور المؤقتة هي 7788",
+    "كلمة المرور لمرة واحدة: 3344",
   ];
   for (const m of otps) assert.equal(isOtpLike(m), true, m);
 });
@@ -67,6 +74,8 @@ Deno.test("otp: purchases and transfers are not OTP", () => {
     "POS Purchase\nVisa card: **9105 (Apple Pay)\nAmount: 19.00 SAR\nAt: OTTEN\n2026-10-22 20:47",
     "حوالة صادرة محلية\nمبلغ SAR 1,800\nرسوم: SAR 0.58",
     "Local Online Purchase\nAmount: SAR 90.70\nAt: HUNGERSTATION LLC",
+    "تم إيداع الراتب\nمبلغ SAR 13822.93\nلـ حساب **6000",
+    "Credit Transfer Internal\nAmount: 106.00 SAR\nSender A/C: **6784",
   ];
   for (const m of normal) assert.equal(isOtpLike(m), false, m);
 });

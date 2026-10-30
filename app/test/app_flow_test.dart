@@ -197,4 +197,51 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Email'), findsOneWidget);
   });
+
+  testWidgets(
+    'token screen: a failed status load shows an error and never offers to replace',
+    (tester) async {
+      final h = Harness(signedIn: true)..tokens.failLoad = true;
+      await tester.pumpWidget(await h.build());
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('More'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Ingest token'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Something went wrong. Try again.'), findsOneWidget);
+      expect(find.text('No active token'), findsNothing);
+      expect(find.text('Create new token'), findsNothing);
+
+      await tester.tap(find.widgetWithText(CupertinoButton, 'Try again'));
+      await tester.pumpAndSettle();
+      expect(h.tokens.loadCalls, greaterThanOrEqualTo(2));
+      expect(h.tokens.rotateCalls, 0);
+    },
+  );
+
+  testWidgets('a failed sign-in can be retried and still skips Face ID', (
+    tester,
+  ) async {
+    final h = Harness()..auth.failWith = SignInFailure.invalidCredentials;
+    await tester.pumpWidget(await h.build());
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byType(CupertinoTextField).first,
+      'me@example.com',
+    );
+    await tester.enterText(find.byType(CupertinoTextField).last, 'bad');
+    await tester.tap(find.widgetWithText(CupertinoButton, 'Sign in'));
+    await tester.pumpAndSettle();
+
+    h.auth.failWith = null;
+    await tester.tap(find.widgetWithText(CupertinoButton, 'Sign in'));
+    await tester.pumpAndSettle();
+    expect(h.auth.signInCalls, 2);
+    expect(
+      h.authenticator.calls,
+      0,
+    ); // second attempt succeeded and skipped Face ID once
+    expect(find.text('Waiting for your first SMS'), findsOneWidget);
+  });
 }

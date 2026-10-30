@@ -47,6 +47,8 @@ Needs from owner: bundle IDs, App Group, team ID, App Store Connect API key (ste
 Done when: widget shows live numbers on the owner's phone from a TestFlight build.
 
 ## M7. Polish
+Also: store the Supabase session in the iOS keychain (`flutter_secure_storage` as the auth `LocalStorage`) instead of the default SharedPreferences, add a "last message received" staleness warning, and mark the ingest token clipboard copy as local-only.
+
 Dark mode pass, empty/error states audit, accessibility pass (Dynamic Type, VoiceOver), full Shortcuts setup guide with screenshots, CSV import/export hardening, README, `ship-review` and security audit on the whole repo.
 
 ## Standing rules

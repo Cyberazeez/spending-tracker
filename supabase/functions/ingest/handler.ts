@@ -4,6 +4,7 @@ import { parseIngestPayload } from "../_shared/request.ts";
 import { isWellFormedToken, sha256Hex } from "../_shared/token.ts";
 
 export const RATE_LIMIT_PER_MINUTE = 60;
+export const RATE_LIMIT_PER_DAY = 500;
 
 export interface RawMessageRow {
   user_id: string;
@@ -18,7 +19,8 @@ export interface RawMessageRow {
 export interface IngestDeps {
   /** Returns the active (not revoked) token's owner, or null. */
   findToken(hash: string): Promise<{ id: string; userId: string } | null>;
-  bumpRateLimit(userId: string): Promise<number>;
+  /** Increments and returns the count for the current minute or day window. */
+  bumpRateLimit(userId: string, window: "minute" | "day"): Promise<number>;
   /** Returns the new id, or null when the dedupe hash already exists. */
   insertRaw(row: RawMessageRow): Promise<string | null>;
   touchToken(tokenId: string): Promise<void>;
@@ -44,7 +46,10 @@ export async function handleIngest(req: Request, deps: IngestDeps): Promise<Resp
   const found = await deps.findToken(await sha256Hex(token));
   if (!found) return json(401, { error: "unauthorized" });
 
-  if ((await deps.bumpRateLimit(found.userId)) > RATE_LIMIT_PER_MINUTE) {
+  if (
+    (await deps.bumpRateLimit(found.userId, "minute")) > RATE_LIMIT_PER_MINUTE ||
+    (await deps.bumpRateLimit(found.userId, "day")) > RATE_LIMIT_PER_DAY
+  ) {
     return json(429, { error: "rate_limited" });
   }
 
@@ -59,12 +64,14 @@ export async function handleIngest(req: Request, deps: IngestDeps): Promise<Resp
   const { sender, body, receivedAt } = parsed.value;
 
   const otp = isOtpLike(body);
+  const storedBody = otp ? REDACTED_BODY : body;
   const id = await deps.insertRaw({
     user_id: found.userId,
     sender,
-    body: otp ? REDACTED_BODY : body,
+    body: storedBody,
     received_at: receivedAt.toISOString(),
-    dedupe_hash: await dedupeKey(sender, body, receivedAt),
+    // Hash what is stored, so a one-time code can never be recovered from the hash.
+    dedupe_hash: await dedupeKey(sender, storedBody, receivedAt),
     parse_status: otp ? "ignored" : "needs_review",
     ignore_reason: otp ? "otp" : null,
   });

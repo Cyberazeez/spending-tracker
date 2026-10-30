@@ -11,8 +11,10 @@ import '../../l10n/app_localizations.dart';
 import '../../router.dart';
 import '../../ui/theme.dart';
 
+// No automatic retries: a failed load shows an error with a manual retry instead of "no token".
 final activeTokenProvider = FutureProvider.autoDispose<IngestTokenInfo?>(
   (ref) => ref.watch(tokenRepositoryProvider).activeToken(),
+  retry: (_, _) => null,
 );
 
 class TokenPage extends ConsumerStatefulWidget {
@@ -56,10 +58,11 @@ class _TokenPageState extends ConsumerState<TokenPage> {
     });
     try {
       final token = await ref.read(tokenRepositoryProvider).rotate();
+      if (!mounted) return;
       setState(() => _newToken = token);
       ref.invalidate(activeTokenProvider);
     } catch (_) {
-      setState(() => _failed = true);
+      if (mounted) setState(() => _failed = true);
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -111,6 +114,8 @@ class _TokenPageState extends ConsumerState<TokenPage> {
                   subtitle: Text(
                     active.isLoading
                         ? '…'
+                        : active.hasError
+                        ? t.genericError
                         : info == null
                         ? t.tokenNone
                         : '${t.tokenActive(formatDateTime(info.createdAt))}\n'
@@ -168,10 +173,18 @@ class _TokenPageState extends ConsumerState<TokenPage> {
               child: CupertinoButton.filled(
                 onPressed: _busy || active.isLoading
                     ? null
+                    : active.hasError
+                    ? () => ref.invalidate(activeTokenProvider)
                     : () => _rotate(info != null),
                 child: _busy
                     ? const CupertinoActivityIndicator()
-                    : Text(info == null ? t.tokenGenerate : t.tokenRotate),
+                    : Text(
+                        active.hasError
+                            ? t.tryAgain
+                            : info == null
+                            ? t.tokenGenerate
+                            : t.tokenRotate,
+                      ),
               ),
             ),
           ],

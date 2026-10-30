@@ -35,7 +35,8 @@ workflows:
       - name: Build number from TestFlight
         script: |
           cd app
-          LATEST=$(app-store-connect get-latest-testflight-build-number "$APP_STORE_APPLE_ID" || echo 0)
+          # Fails loudly if the lookup fails; for the very first upload set BUILD_NUMBER=1 by hand.
+          LATEST=$(app-store-connect get-latest-testflight-build-number "$APP_STORE_APPLE_ID")
           echo "BUILD_NUMBER=$((LATEST + 1))" >> $CM_ENV
       - name: Build IPA
         script: |

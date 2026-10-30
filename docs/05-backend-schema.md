@@ -12,6 +12,9 @@ Status: APPROVED by owner (2026-10-30). Postgres on Supabase, migrations in `sup
 ## Access model (RLS)
 - RLS enabled on every table. Default policy: `user_id = auth.uid()` for select, insert, update, delete, unless noted.
 - **Service-role only** (no client policy at all): `ingest_tokens.token_hash` column, `ai_usage`, `rate_limits`.
+- **`settings`**: the client can read it and update preferences only (`ai_enabled`, `locale`, `week_start`, `timezone`, `base_salary_halalas`, `salary_account_last4`). `ai_monthly_cap_halalas` is not client-writable, and rows cannot be inserted or deleted by the client.
+- **Tokens**: at most one active token per user (partial unique index). `rotate_ingest_token()` revokes and inserts in one transaction and is service-role only.
+- **Rate limits**: `ingest` allows 60 requests per minute and 500 per day per user (`bump_rate_limit(user, bucket, window)`), and purges windows older than 2 days.
 - Writes by Edge Functions run with the service role and set `user_id` explicitly.
 - Client never receives: service-role key, Claude API key, token hash, any IBAN/full card number.
 
@@ -30,7 +33,9 @@ Unique `(user_id, bank, last4)`. Seed: Al Rajhi 6331 (account), 1271 (mada card)
 ### raw_messages
 `id`, `user_id`, `sender text`, `body text`, `received_at timestamptz`, `dedupe_hash text`, `parse_status text` (parsed, ai_parsed, low_confidence, needs_review, ignored, failed), `ignore_reason text` (otp, marketing, declined, wallet_event, maintenance, ...), `parser text` (e.g. `alinma/v1`), `confidence real`, `transaction_id uuid null`, `created_at`.
 - Unique `(user_id, dedupe_hash)` where hash = SHA-256 of sender + normalized body + 2-minute bucket of `received_at`.
-- OTP/verification messages: body replaced with `[redacted]` before insert.
+- OTP/verification messages: body replaced with `[redacted]` before insert, and the dedupe hash is computed from the redacted body so a code cannot be recovered from it.
+- Bodies are stored in full (they are the only way to re-run a parser), so balances, names and IBANs exist in `raw_messages` even though `transactions` never stores balances. A retention or scrub policy for parsed bodies is decided in milestone 2.
+- Dedupe is best effort: a Shortcut retry that crosses a 2-minute bucket can store a message twice, and two truly identical messages in one bucket collapse to one. The parser/transaction layer is the real reconciler (same account, amount, merchant and `occurred_at`).
 - Index `(user_id, sender, received_at desc)` for the gaps view.
 
 ### categories

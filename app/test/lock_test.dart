@@ -41,6 +41,18 @@ void main() {
     expect(state().failed, isTrue);
   });
 
+  test('an authenticator error counts as a failed unlock and does not wedge the lock', () async {
+    authenticator.throws = true;
+    expect(await lock().unlock('reason'), isFalse);
+    expect(state().locked, isTrue);
+    expect(state().failed, isTrue);
+    expect(state().busy, isFalse);
+
+    authenticator.throws = false;
+    expect(await lock().unlock('reason'), isTrue);
+    expect(state().locked, isFalse);
+  });
+
   test('a short trip to the background does not lock', () async {
     await lock().unlock('r');
     lock().onBackground();

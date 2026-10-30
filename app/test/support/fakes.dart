@@ -39,11 +39,13 @@ class FakeAuthRepository implements AuthRepository {
 
 class FakeAuthenticator implements Authenticator {
   bool result = true;
+  bool throws = false;
   int calls = 0;
 
   @override
   Future<bool> authenticate(String reason) async {
     calls++;
+    if (throws) throw StateError('platform error');
     return result;
   }
 }
@@ -51,9 +53,15 @@ class FakeAuthenticator implements Authenticator {
 class FakeTokenRepository implements TokenRepository {
   IngestTokenInfo? active;
   int rotateCalls = 0;
+  int loadCalls = 0;
+  bool failLoad = false;
 
   @override
-  Future<IngestTokenInfo?> activeToken() async => active;
+  Future<IngestTokenInfo?> activeToken() async {
+    loadCalls++;
+    if (failLoad) throw StateError('offline');
+    return active;
+  }
 
   @override
   Future<String> rotate({String label = 'iPhone'}) async {

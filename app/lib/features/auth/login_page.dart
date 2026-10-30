@@ -35,13 +35,15 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     });
     if (_email.text.trim().isEmpty || _password.text.isEmpty) return;
     setState(() => _busy = true);
+    // The password is being entered now, so skip the Face ID prompt this once. Done before
+    // signing in so the redirect that follows the session never lands on the lock screen.
+    final lock = ref.read(lockProvider.notifier)..markUnlocked();
     try {
       await ref
           .read(authRepositoryProvider)
           .signIn(_email.text, _password.text);
-      // The password was just entered, so skip the Face ID prompt this once.
-      ref.read(lockProvider.notifier).markUnlocked();
     } on SignInException catch (e) {
+      lock.lockNow();
       if (mounted) setState(() => _failure = e.failure);
     } finally {
       if (mounted) setState(() => _busy = false);

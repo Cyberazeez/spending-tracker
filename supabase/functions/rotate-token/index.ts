@@ -39,18 +39,14 @@ Deno.serve(async (req) => {
   } catch { /* body is optional */ }
 
   const db = createClient(url, serviceKey, { auth: { persistSession: false } });
-  const revoke = await db
-    .from("ingest_tokens")
-    .update({ revoked_at: new Date().toISOString() })
-    .eq("user_id", userId)
-    .is("revoked_at", null);
-  if (revoke.error) return json(500, { error: "server_error" });
-
   const token = generateToken();
-  const insert = await db
-    .from("ingest_tokens")
-    .insert({ user_id: userId, label, token_hash: await sha256Hex(token) });
-  if (insert.error) return json(500, { error: "server_error" });
+  // One transaction: revoke the old token(s) and store the new hash. Never leaves zero or two active tokens.
+  const rotated = await db.rpc("rotate_ingest_token", {
+    p_user: userId,
+    p_hash: await sha256Hex(token),
+    p_label: label,
+  });
+  if (rotated.error) return json(500, { error: "server_error" });
 
   return json(200, { token });
 });
