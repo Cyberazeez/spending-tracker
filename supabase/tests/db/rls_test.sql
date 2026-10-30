@@ -39,7 +39,7 @@ begin
   denied := false;
   begin
     insert into public.budgets (user_id, category_id, monthly_limit_halalas)
-      select b, id, 1000 from public.categories where user_id = b limit 1;
+      values (b, (select id from public.categories limit 1), 1000);
   exception when others then denied := true; end;
   if not denied then raise exception 'A inserted a budget for B'; end if;
 
