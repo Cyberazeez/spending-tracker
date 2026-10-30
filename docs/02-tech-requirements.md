@@ -45,13 +45,13 @@ Supabase Free allows 2 active projects and pauses a project after about a week w
 
 ## Auth and secrets
 - Supabase Auth, email and password. Signups disabled after the owner account exists. Session persisted by the SDK; Face ID lock sits on top (re-lock on background > 30 s).
-- Ingest: 256-bit random token, sent as `X-Ingest-Token`. Only SHA-256 stored. Rotation via `rotate-token`. Rate limit 60 requests/min per token.
-- Secrets live only in: Supabase Edge Function secrets (`ANTHROPIC_API_KEY`, `INGEST_PEPPER`; service role key is provided by the runtime), Codemagic encrypted variables (App Store Connect API key: key id, issuer id, .p8), and a gitignored `.env`. `.env.example` lists names only. Nothing sensitive in logs: log message ids and parse status, never bodies.
+- Ingest: 256-bit random token (`stk_` + 43 base64url chars), sent as `X-Ingest-Token`. Only its plain SHA-256 is stored (no pepper needed at 256 bits of randomness). Rotation via `rotate-token`. Rate limit 60 requests/min per token.
+- Secrets live only in: Supabase Edge Function secrets (`ANTHROPIC_API_KEY`; the service role key is provided by the runtime), Codemagic encrypted variables (App Store Connect API key: key id, issuer id, .p8), and a gitignored `.env`. `.env.example` lists names only. Nothing sensitive in logs: log message ids and parse status, never bodies.
 
 ## CI/CD
 - **GitHub Actions (Linux, free):** `flutter analyze`, `flutter test`, `deno test`, `deno lint`, `supabase db lint` / pgTAP when Docker is available. Runs on every PR.
 - **Codemagic (macOS M2):** `codemagic.yaml` with a `ios-testflight` workflow, triggered manually or on tags only. Free plan: 500 macOS M2 minutes per month on a personal account, resets monthly, not available on a Team account, one concurrent build; extra minutes are billed (about $0.095/min) only if the owner enables billing ([Codemagic pricing docs](https://docs.codemagic.io/billing/pricing/)). Signing and TestFlight via an App Store Connect API key (`integrations.app_store_connect`). Keep builds lean: cache pub and Pods, skip tests on macOS (Linux already ran them).
-- **Deploys:** Edge Functions and migrations deploy from CI on merge to `main` with `supabase functions deploy` and `supabase db push`, using a Supabase access token stored as a GitHub secret. iOS builds are manual through Codemagic.
+- **Deploys:** in milestone 1 the migrations and functions were applied with the Supabase connector. CI deploy (`supabase functions deploy`, `supabase db push` with a GitHub secret access token) comes later, after `supabase migration repair` aligns the remote migration history with the repo files. iOS builds are manual through Codemagic.
 - codemagic.io, docs.codemagic.io and supabase.com are not reachable from this cloud session's network, so Codemagic pricing was confirmed through search results, not by opening the pages. Re-check before the first macOS build.
 
 ## Apple Developer account (needed from milestone 6)

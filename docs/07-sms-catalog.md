@@ -85,4 +85,7 @@ Two numeric orders appear for dates (`d-M-yy` and `yy-M-d`). Resolve with `recei
 `ونود فقط اشعارك بصدور فاتورة جديدة للرقم <line> بمبلغ إجمالي <amount> ريال (رقم الحساب: <acct>)`. Creates an obligation instance (expected amount, issue date = received_at) matched by line last 4: **internet 7356, mobile 0569**. Not a transaction. Ownership-transfer OTP messages are ignored.
 
 ## Not yet seen
-ATM withdrawal (any bank); salary from a bank other than Alinma; electricity bill notice; Alinma monthly "remaining 0.00" loan semantics (the 3,857.46 installment shows remaining 0.00 while an 87 deduction shows 227,641.48 remaining: two products, to confirm with the owner).
+ATM withdrawal (any bank); salary from a bank other than Alinma; electricity bill notice; Nothing else blocking.
+
+### Alinma loan deductions (owner confirmed 2026-10-30)
+One loan, just started. A month's installment can be collected in more than one deduction (an 87 SAR deduction on the 28th with 227,641.48 remaining, then 3,857.46 on the 29th once salary landed). The `المبلغ المتبقي` figure on a deduction is what is still owed for that period: `0.00` means the month is fully collected. The obligation instance for the month therefore sums all `خصم قسط تمويل` deductions until the expected installment is covered.

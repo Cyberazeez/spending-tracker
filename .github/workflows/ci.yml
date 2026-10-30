@@ -43,3 +43,41 @@ jobs:
         run: |
           pip install -r requirements.txt
           if ls tests test_*.py */test_*.py >/dev/null 2>&1; then pip install pytest && pytest; fi
+
+      # --- Spending tracker: Flutter app, Edge Functions, database ---
+      - name: Set up Flutter
+        if: hashFiles('app/pubspec.yaml') != ''
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.47.9"
+          channel: stable
+          cache: true
+
+      - name: Flutter analyze
+        if: hashFiles('app/pubspec.yaml') != ''
+        working-directory: app
+        run: |
+          flutter pub get
+          flutter analyze
+
+      - name: Flutter test
+        if: hashFiles('app/pubspec.yaml') != ''
+        working-directory: app
+        run: flutter test
+
+      - name: Set up Deno
+        if: hashFiles('supabase/functions/deno.json') != ''
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Edge Functions lint and test
+        if: hashFiles('supabase/functions/deno.json') != ''
+        working-directory: supabase/functions
+        run: |
+          deno lint
+          deno test
+
+      - name: Database migrations and RLS test
+        if: hashFiles('supabase/tests/db/run_local.sh') != ''
+        run: bash supabase/tests/db/run_local.sh
