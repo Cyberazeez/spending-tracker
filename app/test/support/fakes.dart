@@ -4,7 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:spending_tracker/app.dart';
 import 'package:spending_tracker/core/auth_repository.dart';
+import 'package:spending_tracker/core/data_repository.dart';
 import 'package:spending_tracker/core/lock.dart';
+import 'package:spending_tracker/core/models.dart';
 import 'package:spending_tracker/core/providers.dart';
 import 'package:spending_tracker/core/token_repository.dart';
 
@@ -74,15 +76,60 @@ class FakeTokenRepository implements TokenRepository {
   }
 }
 
+class FakeDataRepository implements DataRepository {
+  List<Txn> txns = [];
+  List<RawMessage> review = [];
+  List<SenderGap> gaps = [];
+  bool failLoad = false;
+  final added = <ManualTxn>[];
+  final converted = <String, ManualTxn>{};
+  final dismissed = <String>[];
+
+  @override
+  Future<List<Txn>> recentTransactions({int limit = 200}) async {
+    if (failLoad) throw StateError('offline');
+    return txns;
+  }
+
+  @override
+  Future<List<RawMessage>> needsReview() async {
+    if (failLoad) throw StateError('offline');
+    return review;
+  }
+
+  @override
+  Future<void> addManual(ManualTxn t) async => added.add(t);
+
+  @override
+  Future<void> convertRaw(String rawId, ManualTxn t) async {
+    converted[rawId] = t;
+    review = review.where((m) => m.id != rawId).toList();
+  }
+
+  @override
+  Future<void> dismissRaw(String rawId) async {
+    dismissed.add(rawId);
+    review = review.where((m) => m.id != rawId).toList();
+  }
+
+  @override
+  Future<List<SenderGap>> senderGaps() async {
+    if (failLoad) throw StateError('offline');
+    return gaps;
+  }
+}
+
 class Harness {
   Harness({bool signedIn = false})
     : auth = FakeAuthRepository(signedIn: signedIn),
       authenticator = FakeAuthenticator(),
-      tokens = FakeTokenRepository();
+      tokens = FakeTokenRepository(),
+      data = FakeDataRepository();
 
   final FakeAuthRepository auth;
   final FakeAuthenticator authenticator;
   final FakeTokenRepository tokens;
+  final FakeDataRepository data;
   DateTime now = DateTime.utc(2026, 10, 30, 12);
 
   Future<ProviderScope> build({Map<String, Object> prefs = const {}}) async {
@@ -93,6 +140,7 @@ class Harness {
         authRepositoryProvider.overrideWithValue(auth),
         authenticatorProvider.overrideWithValue(authenticator),
         tokenRepositoryProvider.overrideWithValue(tokens),
+        dataRepositoryProvider.overrideWithValue(data),
         sharedPrefsProvider.overrideWithValue(sp),
         clockProvider.overrideWithValue(() => now),
       ],

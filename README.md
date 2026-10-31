@@ -15,7 +15,7 @@ Single-user personal finance app: bank SMS arrive through an iOS Shortcut, get p
 ## Checks (same as CI)
 ```bash
 cd app && flutter pub get && flutter analyze && flutter test
-cd supabase/functions && deno lint && deno test
+cd supabase/functions && deno lint && deno test --allow-read
 bash supabase/tests/db/run_local.sh     # needs a local Postgres server (apt install postgresql)
 ```
 Flutter is pinned to 3.47.9; versions of every package are listed in `docs/02-tech-requirements.md`.
@@ -27,6 +27,9 @@ Names only, see `.env.example`. The app needs none to run: the project URL and p
 Deploying with the CLI: `supabase functions deploy ingest --no-verify-jwt` (the Shortcut cannot send a JWT; `supabase/config.toml` sets this too).
 
 Project `spending-tracker` (ref `evepfssanoffnwtqjmyq`, region ap-south-1). Migrations in this folder were applied with the Supabase connector, so their remote version numbers differ from the file names. Before wiring `supabase db push` into CI, run `supabase migration repair` to align the history.
+
+## Parsers and fixtures
+Each bank has a parser in `supabase/functions/_shared/parsers/` and real, redacted fixtures in `supabase/tests/fixtures/<sender>/` (`docs/07-sms-catalog.md` lists every template). Adding a format = add a fixture first, then make it pass. Unknown formats are never guessed: they stay in the app's *Needs review* list.
 
 ## Milestone 1 setup (owner steps)
 1. **Create your user.** Supabase dashboard, project `spending-tracker`: Authentication, Users, *Add user*, tick auto confirm. Defaults (categories, own accounts, settings) are created automatically.

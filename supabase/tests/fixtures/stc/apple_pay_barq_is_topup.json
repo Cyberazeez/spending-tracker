@@ -1,0 +1,14 @@
+{
+  "sender": "STC Bank",
+  "receivedAt": "2026-01-31T18:06:05.000Z",
+  "body": "شراء Apple Pay\nعبر:*6190\nبـ:SAR 50\nمن:barq\nفي: 21:06 31/01/26",
+  "expected": {
+    "kind": "transaction",
+    "type": "wallet_topup",
+    "direction": "out",
+    "amountHalalas": 5000,
+    "merchant": "barq",
+    "cardLast4": "6190",
+    "occurredAt": "2026-01-31T18:06:00.000Z"
+  }
+}

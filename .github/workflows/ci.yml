@@ -80,7 +80,7 @@ jobs:
         run: |
           deno lint
           deno check ingest/index.ts rotate-token/index.ts
-          deno test
+          deno test --allow-read
 
       - name: Database migrations and RLS test
         if: hashFiles('supabase/tests/db/run_local.sh') != ''

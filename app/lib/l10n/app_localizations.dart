@@ -385,6 +385,258 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Something went wrong. Try again.'**
   String get genericError;
+
+  /// No description provided for @txTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Transactions'**
+  String get txTitle;
+
+  /// No description provided for @txEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No transactions yet'**
+  String get txEmptyTitle;
+
+  /// No description provided for @txEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank SMS appear here once your Shortcut is running. You can also add one by hand.'**
+  String get txEmptyBody;
+
+  /// No description provided for @txInternal.
+  ///
+  /// In en, this message translates to:
+  /// **'Internal'**
+  String get txInternal;
+
+  /// No description provided for @txFee.
+  ///
+  /// In en, this message translates to:
+  /// **'Fee'**
+  String get txFee;
+
+  /// No description provided for @txOpenReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs review ({count})'**
+  String txOpenReview(int count);
+
+  /// No description provided for @typePurchase.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase'**
+  String get typePurchase;
+
+  /// No description provided for @typeRefund.
+  ///
+  /// In en, this message translates to:
+  /// **'Refund'**
+  String get typeRefund;
+
+  /// No description provided for @typeAtm.
+  ///
+  /// In en, this message translates to:
+  /// **'ATM withdrawal'**
+  String get typeAtm;
+
+  /// No description provided for @typeTransferOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer out'**
+  String get typeTransferOut;
+
+  /// No description provided for @typeTransferIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer in'**
+  String get typeTransferIn;
+
+  /// No description provided for @typeSalary.
+  ///
+  /// In en, this message translates to:
+  /// **'Salary'**
+  String get typeSalary;
+
+  /// No description provided for @typeBill.
+  ///
+  /// In en, this message translates to:
+  /// **'Bill payment'**
+  String get typeBill;
+
+  /// No description provided for @typeCardPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Card payment'**
+  String get typeCardPayment;
+
+  /// No description provided for @typeWalletTopup.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet top-up'**
+  String get typeWalletTopup;
+
+  /// No description provided for @typeLoan.
+  ///
+  /// In en, this message translates to:
+  /// **'Loan instalment'**
+  String get typeLoan;
+
+  /// No description provided for @typeFee.
+  ///
+  /// In en, this message translates to:
+  /// **'Fee'**
+  String get typeFee;
+
+  /// No description provided for @quickAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick add'**
+  String get quickAdd;
+
+  /// No description provided for @qaAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount (SAR)'**
+  String get qaAmount;
+
+  /// No description provided for @qaMerchant.
+  ///
+  /// In en, this message translates to:
+  /// **'Merchant or note'**
+  String get qaMerchant;
+
+  /// No description provided for @qaSpent.
+  ///
+  /// In en, this message translates to:
+  /// **'Spent'**
+  String get qaSpent;
+
+  /// No description provided for @qaReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'Received'**
+  String get qaReceived;
+
+  /// No description provided for @qaWhen.
+  ///
+  /// In en, this message translates to:
+  /// **'When'**
+  String get qaWhen;
+
+  /// No description provided for @qaSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get qaSave;
+
+  /// No description provided for @qaAmountInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter an amount like 25 or 25.50'**
+  String get qaAmountInvalid;
+
+  /// No description provided for @qaSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save. Try again.'**
+  String get qaSaveFailed;
+
+  /// No description provided for @reviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs review'**
+  String get reviewTitle;
+
+  /// No description provided for @reviewEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to review'**
+  String get reviewEmpty;
+
+  /// No description provided for @reviewEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Every message was read correctly.'**
+  String get reviewEmptyBody;
+
+  /// No description provided for @reviewFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'From {sender}'**
+  String reviewFrom(String sender);
+
+  /// No description provided for @reviewConvert.
+  ///
+  /// In en, this message translates to:
+  /// **'Add as transaction'**
+  String get reviewConvert;
+
+  /// No description provided for @reviewDismiss.
+  ///
+  /// In en, this message translates to:
+  /// **'Not a transaction'**
+  String get reviewDismiss;
+
+  /// No description provided for @reviewLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load messages.'**
+  String get reviewLoadFailed;
+
+  /// No description provided for @gapsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Possible gaps'**
+  String get gapsTitle;
+
+  /// No description provided for @gapsIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'When each sender last reached the app. A long silence may mean a Shortcut is off.'**
+  String get gapsIntro;
+
+  /// No description provided for @gapsNever.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing received yet'**
+  String get gapsNever;
+
+  /// No description provided for @gapsLast.
+  ///
+  /// In en, this message translates to:
+  /// **'Last message {when}'**
+  String gapsLast(String when);
+
+  /// No description provided for @gapsDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, =1{1 day ago} other{{days} days ago}}'**
+  String gapsDays(int days);
+
+  /// No description provided for @gapsToday.
+  ///
+  /// In en, this message translates to:
+  /// **'today'**
+  String get gapsToday;
+
+  /// No description provided for @gapsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No messages yet'**
+  String get gapsEmpty;
+
+  /// No description provided for @sar.
+  ///
+  /// In en, this message translates to:
+  /// **'SAR'**
+  String get sar;
+
+  /// No description provided for @loadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load. Pull to retry.'**
+  String get loadFailed;
 }
 
 class _AppLocalizationsDelegate

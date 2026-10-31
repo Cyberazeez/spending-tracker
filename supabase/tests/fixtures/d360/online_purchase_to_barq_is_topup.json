@@ -1,0 +1,15 @@
+{
+  "sender": "D360 Bank",
+  "receivedAt": "2026-10-31T10:57:05.000Z",
+  "body": "Local Online Purchase\nAmount: SAR 1.00\nCard: *7705 - mada (Apple Pay)\nAt: barq\nAccount number: *5911\nOn: 2026-10-31 13:56",
+  "expected": {
+    "kind": "transaction",
+    "type": "wallet_topup",
+    "direction": "out",
+    "amountHalalas": 100,
+    "merchant": "barq",
+    "cardLast4": "7705",
+    "accountLast4": "5911",
+    "occurredAt": "2026-10-31T10:56:00.000Z"
+  }
+}

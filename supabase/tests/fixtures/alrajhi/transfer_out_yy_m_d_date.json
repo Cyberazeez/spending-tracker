@@ -1,0 +1,16 @@
+{
+  "sender": "AlRajhiBank",
+  "receivedAt": "2026-07-10T22:34:05.000Z",
+  "body": "حوالة محلية صادرة بـSR 469\nمن 6331\nلـ6000;PERSON A\nرسوم:SR 0.58\n26/7/11 01:34",
+  "expected": {
+    "kind": "transaction",
+    "type": "transfer_out",
+    "direction": "out",
+    "amountHalalas": 46900,
+    "feeHalalas": 58,
+    "accountLast4": "6331",
+    "counterpartyLast4": "6000",
+    "counterpartyName": "PERSON A",
+    "occurredAt": "2026-07-10T22:34:00.000Z"
+  }
+}

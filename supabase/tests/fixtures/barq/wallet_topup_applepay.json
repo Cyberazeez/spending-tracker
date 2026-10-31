@@ -1,0 +1,14 @@
+{
+  "sender": "barq app",
+  "receivedAt": "2026-10-16T20:04:05.000Z",
+  "body": "Money Added to your Barq wallet\namount: 100.0 SAR\nvia: Apple pay\ncard number: **8119\n2026-10-16 23:04",
+  "expected": {
+    "kind": "transaction",
+    "type": "wallet_topup",
+    "direction": "in",
+    "amountHalalas": 10000,
+    "cardLast4": "8119",
+    "accountLast4": "1345",
+    "occurredAt": "2026-10-16T20:04:00.000Z"
+  }
+}

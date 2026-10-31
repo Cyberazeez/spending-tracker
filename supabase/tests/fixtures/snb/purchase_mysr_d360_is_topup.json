@@ -1,0 +1,12 @@
+{
+  "sender": "SNB-AlAhli",
+  "receivedAt": "2026-08-16T11:46:05.000Z",
+  "body": "شراء انترنت\nبـ SAR 85.40\nمن *0103\nمن MYSR D360\nمدى-ابل *3301\nفي 14:46 16/08/26",
+  "expected": {
+    "kind": "transaction",
+    "type": "wallet_topup",
+    "amountHalalas": 8540,
+    "merchant": "MYSR D360",
+    "occurredAt": "2026-08-16T11:46:00.000Z"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "sender": "alinma",
+  "receivedAt": "2026-10-21T19:04:05.000Z",
+  "body": "شراء POS-ApplePay\nبـ SAR 129.01\nبطاقة ائتمانية *8119\nلدى * SA /ORANGE AL\nفي 22:04 21-10-26\nالرصيد 1,000.00",
+  "expected": {
+    "kind": "transaction",
+    "type": "purchase",
+    "amountHalalas": 12901,
+    "merchant": "ORANGE AL",
+    "occurredAt": "2026-10-21T19:04:00.000Z"
+  }
+}

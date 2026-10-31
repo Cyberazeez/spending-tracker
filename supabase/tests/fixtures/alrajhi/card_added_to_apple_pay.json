@@ -1,0 +1,9 @@
+{
+  "sender": "AlRajhiBank",
+  "receivedAt": "2025-04-19T01:56:05.000Z",
+  "body": "Your card 1271 is successfully added to Apple Pay following your request.",
+  "expected": {
+    "kind": "ignored",
+    "reason": "wallet_event"
+  }
+}

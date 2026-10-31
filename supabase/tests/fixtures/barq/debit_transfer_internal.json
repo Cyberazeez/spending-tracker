@@ -1,0 +1,14 @@
+{
+  "sender": "barq app",
+  "receivedAt": "2026-10-16T20:05:05.000Z",
+  "body": "Debit Transfer Internal\nAmount: 67.00 SAR\nTo: PERSON C**\nTo A/C:**0908\n2026-10-16 23:05",
+  "expected": {
+    "kind": "transaction",
+    "type": "transfer_out",
+    "direction": "out",
+    "amountHalalas": 6700,
+    "counterpartyLast4": "0908",
+    "counterpartyName": "PERSON C**",
+    "occurredAt": "2026-10-16T20:05:00.000Z"
+  }
+}

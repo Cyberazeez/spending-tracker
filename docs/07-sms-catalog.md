@@ -12,7 +12,7 @@ Source: the owner's screenshots (2026-10-30). Names, phone and account numbers a
 4. **Fees** come inside the transfer SMS (Al Rajhi/Alinma 0.58, SNB 2.50): create the transfer and a separate `fee` transaction.
 5. **Dates differ per sender and sometimes per template** (see table). The SMS arrives seconds after the event, so the parser picks the candidate date closest to `received_at` when a template is ambiguous.
 6. **Repeated near-identical SMS are real** (four D360 refunds in one minute, two 20,000.50 transfers 14 minutes apart). Dedupe on exact body plus 2-minute bucket never merges different amounts.
-7. **Never stored:** balances (`الرصيد`, `Balance`, `Available balance`, `Wallet balance`), OTP bodies, phone numbers, account numbers longer than last 4.
+7. **Never stored:** balances (`الرصيد`, `Balance`, `Available balance`, `Wallet balance`: those lines are removed from the stored message body before it is saved, and the parser never reads them), OTP bodies (blanked, also when only the bank's parser recognises the code), phone numbers, account numbers longer than last 4. Amounts above 100 million SAR and dates more than 30 days before (or any time after) the SMS arrival are rejected and go to Needs review.
 
 ## alinma (Arabic)
 | Template | Fields | Type | Date format |
@@ -88,4 +88,8 @@ Two numeric orders appear for dates (`d-M-yy` and `yy-M-d`). Resolve with `recei
 ATM withdrawal (any bank); salary from a bank other than Alinma; electricity bill notice; Nothing else blocking.
 
 ### Alinma loan deductions (owner confirmed 2026-10-30)
-One loan, just started. A month's installment can be collected in more than one deduction (an 87 SAR deduction on the 28th with 227,641.48 remaining, then 3,857.46 on the 29th once salary landed). The `المبلغ المتبقي` figure on a deduction is what is still owed for that period: `0.00` means the month is fully collected. The obligation instance for the month therefore sums all `خصم قسط تمويل` deductions until the expected installment is covered.
+One loan, just started. A month's installment can be collected in more than one deduction (an 87 SAR deduction on the 28th with 227,641.48 remaining, then 3,858.33 on the 29th once salary landed). The `المبلغ المتبقي` figure on a deduction is what is still owed for that period: `0.00` means the month is fully collected. The obligation instance for the month therefore sums all `خصم قسط تمويل` deductions until the expected installment is covered.
+
+## Fixtures
+Every template above has a redacted fixture in `supabase/tests/fixtures/<sender>/` (67 files). They were transcribed from the owner's screenshots in **logical** (stored) order, with names replaced by `PERSON X` and one-time codes by `000000`. The first real Arabic SMS the ingest function stores is the check that the transcription matches the bytes the phone sends: if a parser misses one, it lands in Needs review and its stored `raw_messages.body` becomes the corrected fixture.
+Known gaps: `900` bill notices (internet 7356, mobile 0569) have no parser yet; Al Rajhi reversal ("عكس عملية") and SNB `رصيد غير كافي لشراء نقاط البيع` are only partly captured.

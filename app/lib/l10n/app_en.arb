@@ -34,9 +34,21 @@
   "tokenStatus": "Status",
   "tokenNone": "No active token",
   "tokenActive": "Active, created {created}",
-  "@tokenActive": { "placeholders": { "created": { "type": "String" } } },
+  "@tokenActive": {
+    "placeholders": {
+      "created": {
+        "type": "String"
+      }
+    }
+  },
   "tokenLastUsed": "Last message received {time}",
-  "@tokenLastUsed": { "placeholders": { "time": { "type": "String" } } },
+  "@tokenLastUsed": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
   "tokenNeverUsed": "No message received yet",
   "tokenGenerate": "Create new token",
   "tokenRotate": "Replace token",
@@ -49,5 +61,75 @@
   "continueLabel": "Continue",
   "done": "Done",
   "tryAgain": "Try again",
-  "genericError": "Something went wrong. Try again."
+  "genericError": "Something went wrong. Try again.",
+  "txTitle": "Transactions",
+  "txEmptyTitle": "No transactions yet",
+  "txEmptyBody": "Bank SMS appear here once your Shortcut is running. You can also add one by hand.",
+  "txInternal": "Internal",
+  "txFee": "Fee",
+  "txOpenReview": "Needs review ({count})",
+  "@txOpenReview": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "typePurchase": "Purchase",
+  "typeRefund": "Refund",
+  "typeAtm": "ATM withdrawal",
+  "typeTransferOut": "Transfer out",
+  "typeTransferIn": "Transfer in",
+  "typeSalary": "Salary",
+  "typeBill": "Bill payment",
+  "typeCardPayment": "Card payment",
+  "typeWalletTopup": "Wallet top-up",
+  "typeLoan": "Loan instalment",
+  "typeFee": "Fee",
+  "quickAdd": "Quick add",
+  "qaAmount": "Amount (SAR)",
+  "qaMerchant": "Merchant or note",
+  "qaSpent": "Spent",
+  "qaReceived": "Received",
+  "qaWhen": "When",
+  "qaSave": "Save",
+  "qaAmountInvalid": "Enter an amount like 25 or 25.50",
+  "qaSaveFailed": "Could not save. Try again.",
+  "reviewTitle": "Needs review",
+  "reviewEmpty": "Nothing to review",
+  "reviewEmptyBody": "Every message was read correctly.",
+  "reviewFrom": "From {sender}",
+  "@reviewFrom": {
+    "placeholders": {
+      "sender": {
+        "type": "String"
+      }
+    }
+  },
+  "reviewConvert": "Add as transaction",
+  "reviewDismiss": "Not a transaction",
+  "reviewLoadFailed": "Could not load messages.",
+  "gapsTitle": "Possible gaps",
+  "gapsIntro": "When each sender last reached the app. A long silence may mean a Shortcut is off.",
+  "gapsNever": "Nothing received yet",
+  "gapsLast": "Last message {when}",
+  "@gapsLast": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "gapsDays": "{days, plural, =1{1 day ago} other{{days} days ago}}",
+  "@gapsDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "gapsToday": "today",
+  "gapsEmpty": "No messages yet",
+  "sar": "SAR",
+  "loadFailed": "Could not load. Pull to retry."
 }

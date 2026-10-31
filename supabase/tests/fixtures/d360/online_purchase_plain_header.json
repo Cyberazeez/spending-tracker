@@ -1,0 +1,11 @@
+{
+  "sender": "D360 Bank",
+  "receivedAt": "2026-05-13T10:29:05.000Z",
+  "body": "Online Purchase\nAmount: SAR 99.00\nCard: *8920 - VISA (Apple Pay)\nAt: JUSUR AL IMDAD FOR MAN\nOn: 2026-05-13 13:29",
+  "expected": {
+    "kind": "transaction",
+    "type": "purchase",
+    "amountHalalas": 9900,
+    "occurredAt": "2026-05-13T10:29:00.000Z"
+  }
+}

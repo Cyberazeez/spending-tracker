@@ -1,0 +1,8 @@
+{
+  "sender": "SNB-AlAhli",
+  "receivedAt": "2026-08-30T09:50:05.000Z",
+  "body": "دائن مدخرات شركات سابقة\nمبلغ 944.96SAR\nحساب*0103\nفي 30/08/26 12:50",
+  "expected": {
+    "kind": "unparsed"
+  }
+}

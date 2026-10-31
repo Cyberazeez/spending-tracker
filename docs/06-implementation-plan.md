@@ -15,6 +15,7 @@ Done when: the stub receives a real SMS with no tap, or we have chosen the fallb
 Needs from owner: Supabase org confirmation, create owner user, run the Shortcuts test.
 
 ## M2. Ingest, parsers, Needs review, quick add
+Status: built 2026-10-31 (67 real-format fixtures across all six senders, ingest parses and stores transactions, app has Transactions list, Needs review inbox, Quick add and Possible gaps). Known gaps carried to later milestones: a transfer *from* another own bank *into* Alinma 6000 is stored as external income (needs out/in pairing by amount and time, M4); the manual `merchant_norm` and manual income type are simpler than the server's (M3); foreign amounts assume 2 decimals (BHD has 3). Not done yet: CSV import (moved to M7), the `900` bill-notice parser (no exact sample captured yet), pairing the two sides of a wallet top-up (both sides are already flagged internal, so spend is not double counted).
 Scope
 - Parsers test-first from `docs/07-sms-catalog.md` fixtures, one per sender: alinma, barq, D360, STC Bank, SNB-AlAhli, AlRajhiBank, 900 (bill notices). Date resolver using `received_at` proximity. Ignore rules (OTP, declined, wallet events).
 - Dedupe hash, rate limit, internal-transfer and top-up pairing (5 min window), own-account detection, fee split, foreign-currency handling.

@@ -160,4 +160,146 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get genericError => 'Something went wrong. Try again.';
+
+  @override
+  String get txTitle => 'Transactions';
+
+  @override
+  String get txEmptyTitle => 'No transactions yet';
+
+  @override
+  String get txEmptyBody =>
+      'Bank SMS appear here once your Shortcut is running. You can also add one by hand.';
+
+  @override
+  String get txInternal => 'Internal';
+
+  @override
+  String get txFee => 'Fee';
+
+  @override
+  String txOpenReview(int count) {
+    return 'Needs review ($count)';
+  }
+
+  @override
+  String get typePurchase => 'Purchase';
+
+  @override
+  String get typeRefund => 'Refund';
+
+  @override
+  String get typeAtm => 'ATM withdrawal';
+
+  @override
+  String get typeTransferOut => 'Transfer out';
+
+  @override
+  String get typeTransferIn => 'Transfer in';
+
+  @override
+  String get typeSalary => 'Salary';
+
+  @override
+  String get typeBill => 'Bill payment';
+
+  @override
+  String get typeCardPayment => 'Card payment';
+
+  @override
+  String get typeWalletTopup => 'Wallet top-up';
+
+  @override
+  String get typeLoan => 'Loan instalment';
+
+  @override
+  String get typeFee => 'Fee';
+
+  @override
+  String get quickAdd => 'Quick add';
+
+  @override
+  String get qaAmount => 'Amount (SAR)';
+
+  @override
+  String get qaMerchant => 'Merchant or note';
+
+  @override
+  String get qaSpent => 'Spent';
+
+  @override
+  String get qaReceived => 'Received';
+
+  @override
+  String get qaWhen => 'When';
+
+  @override
+  String get qaSave => 'Save';
+
+  @override
+  String get qaAmountInvalid => 'Enter an amount like 25 or 25.50';
+
+  @override
+  String get qaSaveFailed => 'Could not save. Try again.';
+
+  @override
+  String get reviewTitle => 'Needs review';
+
+  @override
+  String get reviewEmpty => 'Nothing to review';
+
+  @override
+  String get reviewEmptyBody => 'Every message was read correctly.';
+
+  @override
+  String reviewFrom(String sender) {
+    return 'From $sender';
+  }
+
+  @override
+  String get reviewConvert => 'Add as transaction';
+
+  @override
+  String get reviewDismiss => 'Not a transaction';
+
+  @override
+  String get reviewLoadFailed => 'Could not load messages.';
+
+  @override
+  String get gapsTitle => 'Possible gaps';
+
+  @override
+  String get gapsIntro =>
+      'When each sender last reached the app. A long silence may mean a Shortcut is off.';
+
+  @override
+  String get gapsNever => 'Nothing received yet';
+
+  @override
+  String gapsLast(String when) {
+    return 'Last message $when';
+  }
+
+  @override
+  String gapsDays(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days days ago',
+      one: '1 day ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get gapsToday => 'today';
+
+  @override
+  String get gapsEmpty => 'No messages yet';
+
+  @override
+  String get sar => 'SAR';
+
+  @override
+  String get loadFailed => 'Could not load. Pull to retry.';
 }

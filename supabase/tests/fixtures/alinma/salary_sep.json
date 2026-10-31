@@ -1,0 +1,13 @@
+{
+  "sender": "alinma",
+  "receivedAt": "2026-09-29T06:27:05.000Z",
+  "body": "تم إيداع الراتب\nمبلغ SAR 13822.93\nلـ حساب **6000\nفي 29-09-26 09:27",
+  "expected": {
+    "kind": "transaction",
+    "type": "salary",
+    "direction": "in",
+    "amountHalalas": 1382293,
+    "accountLast4": "6000",
+    "occurredAt": "2026-09-29T06:27:00.000Z"
+  }
+}

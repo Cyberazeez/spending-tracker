@@ -1,0 +1,13 @@
+{
+  "sender": "alinma",
+  "receivedAt": "2026-10-21T16:24:05.000Z",
+  "body": "شراء ApplePay إنترنت\nبـ SAR 16\nبطاقة ائتمانية *8119\nلدى *SA/Doc Delive\nفي 21-10-26 19:24\nرصيد 1,000.00",
+  "expected": {
+    "kind": "transaction",
+    "type": "purchase",
+    "direction": "out",
+    "amountHalalas": 1600,
+    "merchant": "Doc Delive",
+    "occurredAt": "2026-10-21T16:24:00.000Z"
+  }
+}

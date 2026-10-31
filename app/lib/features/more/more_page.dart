@@ -61,6 +61,11 @@ class MorePage extends ConsumerWidget {
                       onTap: () => _pickLanguage(context, ref),
                     ),
                     CupertinoListTile.notched(
+                      title: Text(t.gapsTitle),
+                      trailing: const CupertinoListTileChevron(),
+                      onTap: () => context.go(gapsPath),
+                    ),
+                    CupertinoListTile.notched(
                       title: Text(t.ingestToken),
                       trailing: const CupertinoListTileChevron(),
                       onTap: () => context.go(tokenPath),

@@ -1,0 +1,16 @@
+{
+  "sender": "STC Bank",
+  "receivedAt": "2025-11-13T17:04:05.000Z",
+  "body": "شراء VISA\nعبر:*6190\nبـ:USD 0.58\nمن:AWS EMEA\nفي: 20:04 13/11/25",
+  "expected": {
+    "kind": "transaction",
+    "type": "purchase",
+    "direction": "out",
+    "amountHalalas": 218,
+    "origCurrency": "USD",
+    "origAmountMinor": 58,
+    "estimated": true,
+    "merchant": "AWS EMEA",
+    "occurredAt": "2025-11-13T17:04:00.000Z"
+  }
+}

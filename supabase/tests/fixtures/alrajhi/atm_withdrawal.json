@@ -1,0 +1,14 @@
+{
+  "sender": "AlRajhiBank",
+  "receivedAt": "2025-05-03T15:45:05.000Z",
+  "body": "سحب:صراف آلي\nبطاقة:1271;مدى\nمبلغ:SAR 500\nمكان السحب:EASTERN REGION\nفي:18:45 3-5-25",
+  "expected": {
+    "kind": "transaction",
+    "type": "atm_withdrawal",
+    "direction": "out",
+    "amountHalalas": 50000,
+    "merchant": "EASTERN REGION",
+    "cardLast4": "1271",
+    "occurredAt": "2025-05-03T15:45:00.000Z"
+  }
+}

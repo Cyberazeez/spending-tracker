@@ -1,0 +1,12 @@
+{
+  "sender": "D360 Bank",
+  "receivedAt": "2026-05-03T16:55:13.000Z",
+  "body": "Account Funding via Apple Pay\nAmount: SAR 500\nCard: *6698 - mada\nTo: *5911\nOn: 03/05/2026 19:55:08",
+  "expected": {
+    "kind": "transaction",
+    "type": "wallet_topup",
+    "amountHalalas": 50000,
+    "cardLast4": "6698",
+    "occurredAt": "2026-05-03T16:55:08.000Z"
+  }
+}

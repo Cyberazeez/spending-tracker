@@ -1,0 +1,9 @@
+{
+  "sender": "alinma",
+  "receivedAt": "2026-10-02T13:01:05.000Z",
+  "body": "رمز التفعيل: 000000\nالمبلغ: SAR 1,800\nلـ تحويل محلي",
+  "expected": {
+    "kind": "ignored",
+    "reason": "otp"
+  }
+}

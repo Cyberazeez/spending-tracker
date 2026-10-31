@@ -1,0 +1,9 @@
+{
+  "sender": "D360 Bank",
+  "receivedAt": "2026-09-27T02:15:05.000Z",
+  "body": "A new device has been registered successfully into your account",
+  "expected": {
+    "kind": "ignored",
+    "reason": "notice"
+  }
+}

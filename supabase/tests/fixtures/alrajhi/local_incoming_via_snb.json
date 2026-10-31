@@ -1,0 +1,13 @@
+{
+  "sender": "AlRajhiBank",
+  "receivedAt": "2025-12-10T20:24:05.000Z",
+  "body": "حوالة محلية واردة\nعبر:SNB\nمبلغ:SAR 1000\nالى:6331\nمن:PERSON A\nمن:0102\nفي:23:24 10-12-25",
+  "expected": {
+    "kind": "transaction",
+    "type": "transfer_in",
+    "amountHalalas": 100000,
+    "accountLast4": "6331",
+    "counterpartyLast4": "0102",
+    "occurredAt": "2025-12-10T20:24:00.000Z"
+  }
+}

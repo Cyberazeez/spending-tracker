@@ -1,0 +1,14 @@
+{
+  "sender": "barq app",
+  "receivedAt": "2026-10-26T14:19:05.000Z",
+  "body": "Online Purchase\nVISA card **1224\nAmount 3.99 SAR\nBalance 1,000.00\nAt APPLE COM BILL\n2026-10-26 17:19",
+  "expected": {
+    "kind": "transaction",
+    "type": "purchase",
+    "direction": "out",
+    "amountHalalas": 399,
+    "merchant": "APPLE COM BILL",
+    "cardLast4": "1224",
+    "occurredAt": "2026-10-26T14:19:00.000Z"
+  }
+}

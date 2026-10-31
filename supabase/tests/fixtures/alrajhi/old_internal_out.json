@@ -1,0 +1,14 @@
+{
+  "sender": "AlRajhiBank",
+  "receivedAt": "2025-04-20T17:12:05.000Z",
+  "body": "حوالة داخلية\nمن:6331\nمبلغ:SAR 150\nالى:PERSON H\nفي:20:12 20-4-25",
+  "expected": {
+    "kind": "transaction",
+    "type": "transfer_out",
+    "direction": "out",
+    "amountHalalas": 15000,
+    "accountLast4": "6331",
+    "counterpartyName": "PERSON H",
+    "occurredAt": "2025-04-20T17:12:00.000Z"
+  }
+}

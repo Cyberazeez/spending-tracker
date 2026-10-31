@@ -1,0 +1,9 @@
+{
+  "sender": "STC Bank",
+  "receivedAt": "2026-03-06T20:22:05.000Z",
+  "body": "تم إضافة المستفيد: PERSON E بنجاح.",
+  "expected": {
+    "kind": "ignored",
+    "reason": "beneficiary"
+  }
+}

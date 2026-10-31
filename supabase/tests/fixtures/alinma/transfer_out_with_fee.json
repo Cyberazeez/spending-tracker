@@ -1,0 +1,15 @@
+{
+  "sender": "alinma",
+  "receivedAt": "2026-10-30T20:58:05.000Z",
+  "body": "حوالة صادرة محلية\nمبلغ SAR 1,800\nرسوم: SAR 0.58\nلـ PERSON H\nلحساب *7892\nفي 23:58 30-10-26",
+  "expected": {
+    "kind": "transaction",
+    "type": "transfer_out",
+    "direction": "out",
+    "amountHalalas": 180000,
+    "feeHalalas": 58,
+    "counterpartyLast4": "7892",
+    "accountLast4": "6000",
+    "occurredAt": "2026-10-30T20:58:00.000Z"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "sender": "STC Bank",
+  "receivedAt": "2026-05-03T16:34:05.000Z",
+  "body": "حوالة داخلية صادرة\nبـ:50.00ر.س\nإلى: PERSON D\nحساب:*4452\nفي:19:34 03/05/26",
+  "expected": {
+    "kind": "transaction",
+    "type": "transfer_out",
+    "direction": "out",
+    "amountHalalas": 5000,
+    "counterpartyLast4": "4452",
+    "counterpartyName": "PERSON D",
+    "occurredAt": "2026-05-03T16:34:00.000Z"
+  }
+}
