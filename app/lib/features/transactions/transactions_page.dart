@@ -9,6 +9,8 @@ import '../../core/providers.dart';
 import '../../l10n/app_localizations.dart';
 import '../../router.dart';
 import '../../ui/empty_state.dart';
+import '../../ui/theme.dart';
+import 'category_actions.dart';
 import 'labels.dart';
 import 'providers.dart';
 
@@ -19,24 +21,44 @@ class TransactionsPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = AppLocalizations.of(context);
     final arabic = ref.watch(localeProvider).languageCode == 'ar';
+    final filter = ref.watch(txFilterProvider);
     final txns = ref.watch(transactionsProvider);
+    final cats = ref.watch(categoriesProvider).value ?? const <Category>[];
     final review = ref.watch(needsReviewProvider).value ?? const <RawMessage>[];
+    final byId = {for (final c in cats) c.id: c};
 
     return CupertinoPageScaffold(
       child: CustomScrollView(
         slivers: [
           CupertinoSliverNavigationBar(
             largeTitle: Text(t.txTitle),
-            trailing: CupertinoButton(
-              padding: EdgeInsets.zero,
-              onPressed: () => context.go(quickAddPath),
-              child: const Icon(CupertinoIcons.add),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CupertinoButton(
+                  padding: EdgeInsets.zero,
+                  onPressed: () => showFilterSheet(context, ref),
+                  child: Icon(
+                    filter.categoryId != null ||
+                            filter.uncategorizedOnly ||
+                            filter.hideInternal
+                        ? CupertinoIcons.line_horizontal_3_decrease_circle_fill
+                        : CupertinoIcons.line_horizontal_3_decrease_circle,
+                  ),
+                ),
+                CupertinoButton(
+                  padding: const EdgeInsetsDirectional.only(start: 12),
+                  onPressed: () => context.go(quickAddPath),
+                  child: const Icon(CupertinoIcons.add),
+                ),
+              ],
             ),
           ),
           CupertinoSliverRefreshControl(
             onRefresh: () async {
               ref.invalidate(transactionsProvider);
               ref.invalidate(needsReviewProvider);
+              ref.invalidate(categoriesProvider);
               await Future.wait([
                 ref
                     .read(transactionsProvider.future)
@@ -47,7 +69,13 @@ class TransactionsPage extends ConsumerWidget {
               ]);
             },
           ),
-          if (review.isNotEmpty)
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+              child: const _SearchBox(),
+            ),
+          ),
+          if (review.isNotEmpty && !filter.isActive)
             SliverToBoxAdapter(
               child: CupertinoListSection.insetGrouped(
                 children: [
@@ -84,22 +112,36 @@ class TransactionsPage extends ConsumerWidget {
                 ? [
                     SliverFillRemaining(
                       hasScrollBody: false,
-                      child: EmptyState(
-                        icon: CupertinoIcons.tray,
-                        title: t.txEmptyTitle,
-                        body: t.txEmptyBody,
-                        action: CupertinoButton.filled(
-                          onPressed: () => context.go(quickAddPath),
-                          child: Text(t.quickAdd),
-                        ),
-                      ),
+                      child: filter.isActive
+                          ? EmptyState(
+                              icon: CupertinoIcons.search,
+                              title: t.noMatches,
+                              action: CupertinoButton(
+                                onPressed: () =>
+                                    ref.read(txFilterProvider.notifier).clear(),
+                                child: Text(t.filterClear),
+                              ),
+                            )
+                          : EmptyState(
+                              icon: CupertinoIcons.tray,
+                              title: t.txEmptyTitle,
+                              body: t.txEmptyBody,
+                              action: CupertinoButton.filled(
+                                onPressed: () => context.go(quickAddPath),
+                                child: Text(t.quickAdd),
+                              ),
+                            ),
                     ),
                   ]
                 : [
                     SliverList.builder(
                       itemCount: list.length,
-                      itemBuilder: (_, i) =>
-                          _TxnRow(txn: list[i], arabic: arabic),
+                      itemBuilder: (_, i) => _TxnRow(
+                        txn: list[i],
+                        arabic: arabic,
+                        category: byId[list[i].categoryId],
+                        onTap: () => pickCategory(context, ref, list[i], cats),
+                      ),
                     ),
                   ],
           ),
@@ -110,9 +152,16 @@ class TransactionsPage extends ConsumerWidget {
 }
 
 class _TxnRow extends StatelessWidget {
-  const _TxnRow({required this.txn, required this.arabic});
+  const _TxnRow({
+    required this.txn,
+    required this.arabic,
+    required this.category,
+    required this.onTap,
+  });
   final Txn txn;
   final bool arabic;
+  final Category? category;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -123,14 +172,28 @@ class _TxnRow extends StatelessWidget {
     final title = (txn.merchant != null && txn.merchant!.isNotEmpty)
         ? txn.merchant!
         : typeLabel(t, txn.type);
+    final categoryText = category?.label(arabic: arabic) ?? t.categoryNone;
     return CupertinoListTile(
+      onTap: onTap,
       title: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
-      subtitle: Text(
-        [
-          typeLabel(t, txn.type),
-          if (txn.isInternal) t.txInternal,
-          formatDateTime(txn.occurredAt),
-        ].join(' · '),
+      subtitle: Text.rich(
+        TextSpan(
+          children: [
+            TextSpan(
+              text: categoryText,
+              style: TextStyle(
+                color: category == null
+                    ? CupertinoColors.systemOrange.resolveFrom(context)
+                    : AppColors.accent.resolveFrom(context),
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            TextSpan(
+              text:
+                  ' · ${[if (txn.isInternal) t.txInternal, formatDateTime(txn.occurredAt)].join(' · ')}',
+            ),
+          ],
+        ),
         style: TextStyle(color: secondary),
       ),
       trailing: Directionality(
@@ -148,6 +211,41 @@ class _TxnRow extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// The search field keeps its own controller so "Clear filters" also empties the box.
+class _SearchBox extends ConsumerStatefulWidget {
+  const _SearchBox();
+
+  @override
+  ConsumerState<_SearchBox> createState() => _SearchBoxState();
+}
+
+class _SearchBoxState extends ConsumerState<_SearchBox> {
+  final _controller = TextEditingController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    ref.listen(txFilterProvider, (_, next) {
+      if (next.query.isEmpty && _controller.text.trim().isNotEmpty) {
+        _controller.clear();
+      }
+    });
+    return CupertinoSearchTextField(
+      controller: _controller,
+      placeholder: AppLocalizations.of(context).searchHint,
+      onChanged: (v) {
+        final ctl = ref.read(txFilterProvider.notifier);
+        ctl.set(ref.read(txFilterProvider).copyWith(query: v.trim()));
+      },
     );
   }
 }

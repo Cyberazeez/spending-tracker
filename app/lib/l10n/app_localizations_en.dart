@@ -302,4 +302,56 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get loadFailed => 'Could not load. Pull to retry.';
+
+  @override
+  String get searchHint => 'Search merchants';
+
+  @override
+  String get filterTitle => 'Filter';
+
+  @override
+  String get filterAll => 'All categories';
+
+  @override
+  String get filterUncategorized => 'Uncategorized only';
+
+  @override
+  String get filterHideInternal => 'Hide internal moves';
+
+  @override
+  String get filterShowInternal => 'Show internal moves';
+
+  @override
+  String get filterClear => 'Clear filters';
+
+  @override
+  String get categoryNone => 'No category';
+
+  @override
+  String get categoryPickTitle => 'Category';
+
+  @override
+  String get categoryRemove => 'Remove category';
+
+  @override
+  String applyPastTitle(int count) {
+    return 'Apply to $count other transactions?';
+  }
+
+  @override
+  String applyPastBody(String merchant, String category) {
+    return 'Always file \"$merchant\" under $category, and change the past ones too?';
+  }
+
+  @override
+  String get applyPastYes => 'Change all';
+
+  @override
+  String get applyPastNo => 'Only future ones';
+
+  @override
+  String get categorySaveFailed => 'Could not change the category. Try again.';
+
+  @override
+  String get noMatches => 'No transactions match';
 }

@@ -208,11 +208,7 @@ void main() {
     await tester.tap(find.text('العمليات').last);
     await tester.pumpAndSettle();
     expect(find.text('− 19.00 ر.س'), findsOneWidget);
-    expect(
-      find.text('شراء · 30 Oct 14:05'),
-      findsNothing,
-    ); // type and time are joined in one subtitle
-    expect(find.textContaining('شراء'), findsWidgets);
+    expect(find.textContaining('بدون فئة'), findsWidgets);
   });
 }
 

@@ -13,3 +13,6 @@ verify_jwt = false
 
 [functions.rotate-token]
 verify_jwt = true
+
+[functions.categorize-batch]
+verify_jwt = true

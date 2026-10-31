@@ -131,5 +131,38 @@
   "gapsToday": "today",
   "gapsEmpty": "No messages yet",
   "sar": "SAR",
-  "loadFailed": "Could not load. Pull to retry."
+  "loadFailed": "Could not load. Pull to retry.",
+  "searchHint": "Search merchants",
+  "filterTitle": "Filter",
+  "filterAll": "All categories",
+  "filterUncategorized": "Uncategorized only",
+  "filterHideInternal": "Hide internal moves",
+  "filterShowInternal": "Show internal moves",
+  "filterClear": "Clear filters",
+  "categoryNone": "No category",
+  "categoryPickTitle": "Category",
+  "categoryRemove": "Remove category",
+  "applyPastTitle": "Apply to {count} other transactions?",
+  "@applyPastTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "applyPastBody": "Always file \"{merchant}\" under {category}, and change the past ones too?",
+  "@applyPastBody": {
+    "placeholders": {
+      "merchant": {
+        "type": "String"
+      },
+      "category": {
+        "type": "String"
+      }
+    }
+  },
+  "applyPastYes": "Change all",
+  "applyPastNo": "Only future ones",
+  "categorySaveFailed": "Could not change the category. Try again.",
+  "noMatches": "No transactions match"
 }

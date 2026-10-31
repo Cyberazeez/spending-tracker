@@ -305,4 +305,56 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get loadFailed => 'تعذّر التحميل. اسحب لإعادة المحاولة.';
+
+  @override
+  String get searchHint => 'ابحث عن متجر';
+
+  @override
+  String get filterTitle => 'تصفية';
+
+  @override
+  String get filterAll => 'كل الفئات';
+
+  @override
+  String get filterUncategorized => 'بدون فئة فقط';
+
+  @override
+  String get filterHideInternal => 'إخفاء التحويلات الداخلية';
+
+  @override
+  String get filterShowInternal => 'إظهار التحويلات الداخلية';
+
+  @override
+  String get filterClear => 'مسح التصفية';
+
+  @override
+  String get categoryNone => 'بدون فئة';
+
+  @override
+  String get categoryPickTitle => 'الفئة';
+
+  @override
+  String get categoryRemove => 'إزالة الفئة';
+
+  @override
+  String applyPastTitle(int count) {
+    return 'تطبيق على $count عملية أخرى؟';
+  }
+
+  @override
+  String applyPastBody(String merchant, String category) {
+    return 'تصنيف \"$merchant\" دائماً ضمن $category، وتغيير العمليات السابقة أيضاً؟';
+  }
+
+  @override
+  String get applyPastYes => 'تغيير الكل';
+
+  @override
+  String get applyPastNo => 'المستقبلية فقط';
+
+  @override
+  String get categorySaveFailed => 'تعذّر تغيير الفئة. حاول مرة أخرى.';
+
+  @override
+  String get noMatches => 'لا توجد عمليات مطابقة';
 }

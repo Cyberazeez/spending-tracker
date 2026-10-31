@@ -637,6 +637,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not load. Pull to retry.'**
   String get loadFailed;
+
+  /// No description provided for @searchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search merchants'**
+  String get searchHint;
+
+  /// No description provided for @filterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter'**
+  String get filterTitle;
+
+  /// No description provided for @filterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All categories'**
+  String get filterAll;
+
+  /// No description provided for @filterUncategorized.
+  ///
+  /// In en, this message translates to:
+  /// **'Uncategorized only'**
+  String get filterUncategorized;
+
+  /// No description provided for @filterHideInternal.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide internal moves'**
+  String get filterHideInternal;
+
+  /// No description provided for @filterShowInternal.
+  ///
+  /// In en, this message translates to:
+  /// **'Show internal moves'**
+  String get filterShowInternal;
+
+  /// No description provided for @filterClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear filters'**
+  String get filterClear;
+
+  /// No description provided for @categoryNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No category'**
+  String get categoryNone;
+
+  /// No description provided for @categoryPickTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get categoryPickTitle;
+
+  /// No description provided for @categoryRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove category'**
+  String get categoryRemove;
+
+  /// No description provided for @applyPastTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply to {count} other transactions?'**
+  String applyPastTitle(int count);
+
+  /// No description provided for @applyPastBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Always file \"{merchant}\" under {category}, and change the past ones too?'**
+  String applyPastBody(String merchant, String category);
+
+  /// No description provided for @applyPastYes.
+  ///
+  /// In en, this message translates to:
+  /// **'Change all'**
+  String get applyPastYes;
+
+  /// No description provided for @applyPastNo.
+  ///
+  /// In en, this message translates to:
+  /// **'Only future ones'**
+  String get applyPastNo;
+
+  /// No description provided for @categorySaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not change the category. Try again.'**
+  String get categorySaveFailed;
+
+  /// No description provided for @noMatches.
+  ///
+  /// In en, this message translates to:
+  /// **'No transactions match'**
+  String get noMatches;
 }
 
 class _AppLocalizationsDelegate

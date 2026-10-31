@@ -131,5 +131,38 @@
   "gapsToday": "اليوم",
   "gapsEmpty": "لا توجد رسائل بعد",
   "sar": "ر.س",
-  "loadFailed": "تعذّر التحميل. اسحب لإعادة المحاولة."
+  "loadFailed": "تعذّر التحميل. اسحب لإعادة المحاولة.",
+  "searchHint": "ابحث عن متجر",
+  "filterTitle": "تصفية",
+  "filterAll": "كل الفئات",
+  "filterUncategorized": "بدون فئة فقط",
+  "filterHideInternal": "إخفاء التحويلات الداخلية",
+  "filterShowInternal": "إظهار التحويلات الداخلية",
+  "filterClear": "مسح التصفية",
+  "categoryNone": "بدون فئة",
+  "categoryPickTitle": "الفئة",
+  "categoryRemove": "إزالة الفئة",
+  "applyPastTitle": "تطبيق على {count} عملية أخرى؟",
+  "@applyPastTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "applyPastBody": "تصنيف \"{merchant}\" دائماً ضمن {category}، وتغيير العمليات السابقة أيضاً؟",
+  "@applyPastBody": {
+    "placeholders": {
+      "merchant": {
+        "type": "String"
+      },
+      "category": {
+        "type": "String"
+      }
+    }
+  },
+  "applyPastYes": "تغيير الكل",
+  "applyPastNo": "المستقبلية فقط",
+  "categorySaveFailed": "تعذّر تغيير الفئة. حاول مرة أخرى.",
+  "noMatches": "لا توجد عمليات مطابقة"
 }

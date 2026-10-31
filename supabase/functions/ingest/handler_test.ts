@@ -14,7 +14,35 @@ const OWN = [
   { bank: "d360", last4: "5911" },
 ];
 
-async function setup(opts: { minute?: number; day?: number; failSave?: boolean } = {}) {
+const CATS = {
+  Dining: "c-dining",
+  Fees: "c-fees",
+  Transfers: "c-transfers",
+  Horse: "c-horse",
+  Subscriptions: "c-subs",
+};
+const RULES = [
+  {
+    id: "r1",
+    pattern: "apple com bill",
+    matchType: "contains" as const,
+    categoryId: "c-subs",
+    status: "confirmed" as const,
+    source: "seed" as const,
+  },
+  {
+    id: "r2",
+    pattern: "acct:7892",
+    matchType: "exact" as const,
+    categoryId: "c-horse",
+    status: "confirmed" as const,
+    source: "seed" as const,
+  },
+];
+
+async function setup(
+  opts: { minute?: number; day?: number; failSave?: boolean; failRules?: boolean } = {},
+) {
   const token = generateToken();
   const hash = await sha256Hex(token);
   const rows: RawMessageRow[] = [];
@@ -36,6 +64,10 @@ async function setup(opts: { minute?: number; day?: number; failSave?: boolean }
       return Promise.resolve();
     },
     loadOwnAccounts: () => Promise.resolve(OWN),
+    loadCategorization: () =>
+      opts.failRules
+        ? Promise.reject(new Error("db down"))
+        : Promise.resolve({ ids: CATS, rules: RULES }),
     saveParsed: (a) => {
       if (opts.failSave) return Promise.reject(new Error("db down"));
       saved.push(a);
@@ -262,4 +294,42 @@ Deno.test("ingest: a duplicate delivery is not parsed twice", async () => {
   await s.call(SMS);
   await s.call(SMS);
   assert.equal(s.saved.length, 1);
+});
+
+Deno.test("ingest: transactions are categorised from the rules, and the fee row goes to Fees", async () => {
+  const s = await setup();
+  await s.call(SMS);
+  assert.equal(s.saved[0].rows[0].category_id, "c-subs");
+  assert.equal(s.saved[0].rows[0].rule_id, "r1");
+  assert.equal(s.saved[0].rows[0].category_source, "rule");
+  const t = await setup();
+  await t.call({
+    sender: "alinma",
+    body:
+      "حوالة صادرة محلية\nمبلغ SAR 1,800\nرسوم: SAR 0.58\nلـ PERSON H\nلحساب *7892\nفي 23:58 30-10-26",
+    received_at: "2026-10-30T20:58:05Z",
+  });
+  assert.deepEqual(t.saved[0].rows.map((r) => [r.type, r.category_id]), [[
+    "transfer_out",
+    "c-horse",
+  ], ["fee", "c-fees"]]);
+});
+
+Deno.test("ingest: a merchant no rule knows is saved uncategorised", async () => {
+  const s = await setup();
+  await s.call({
+    ...SMS,
+    body: SMS.body.replace("APPLE COM BILL", "SOME NEW SHOP"),
+    received_at: "2026-10-26T14:19:05Z",
+  });
+  assert.equal(s.saved[0].rows[0].category_id, undefined);
+});
+
+Deno.test("ingest: if the rules cannot be loaded the transaction is still saved, uncategorised", async () => {
+  const s = await setup({ failRules: true });
+  const res = await s.call(SMS);
+  assert.equal(res.status, 200);
+  assert.equal(s.saved.length, 1);
+  assert.equal(s.saved[0].status, "parsed");
+  assert.equal(s.saved[0].rows[0].category_id, undefined);
 });
