@@ -34,6 +34,7 @@ Tests: normalization fixtures (hamza/tashkeel/digits), rule precedence, cap enfo
 Done when: seeded history from the owner's CSV or backfilled SMS categorizes at least 80% without AI and everything left is reviewable.
 
 ## M4. Obligations
+Status: built 2026-10-31 (not yet reviewed/merged). Assumptions to confirm: bills are due the 2nd of the month after they are issued; House Card top-up due day 2; electricity skipped for now; instances before today are not invented (the first month starts from the next due date). Bill/House Card/statement payments are matched by weak hints (STC merchant, D360, Alinma), so they are suggested and need your Confirm; horse (account 7892) and loan deductions are matched automatically. Local notifications: the reminder schedule is planned and tested (`planReminders`), the iOS scheduling plugin comes with the first iOS build.
 Scope: obligations and instances, seeds (internet, mobile, electricity, horse and foal, house card, Murabahah installment, card statement), generation per period, auto-match with confirm step, bill-issued SMS (900) and card-statement SMS creating instances, upcoming/overdue/history, committed vs discretionary, local notifications.
 Tests: matching (amount tolerance, counterparty 7892, salary-day rule), overdue transitions, period generation across month ends, notification scheduling.
 Done when: a full simulated month (statement on the 2nd, salary, horse transfer) ends with every instance paid and correct totals.

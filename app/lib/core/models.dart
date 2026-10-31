@@ -131,3 +131,61 @@ class TxFilter {
 
   static const _keep = Object();
 }
+
+/// One occurrence of an obligation for one period (a bill, an installment, a statement).
+class ObligationInstance {
+  const ObligationInstance({
+    required this.id,
+    required this.obligationId,
+    required this.name,
+    required this.kind,
+    required this.dueDate,
+    required this.status,
+    this.periodStart,
+    this.expectedHalalas,
+    this.actualHalalas,
+    this.transactionId,
+    this.matchState = 'none',
+    this.graceDays = 0,
+    this.leadDays = 2,
+  });
+
+  final String id;
+  final String obligationId;
+  final String name;
+  final String kind; // bill | fixed | loan | card_statement
+  final DateTime? periodStart; // UTC midnight of a Riyadh calendar date
+  final DateTime dueDate; // UTC midnight of a Riyadh calendar date
+  final int? expectedHalalas;
+  final int? actualHalalas;
+  final String status; // pending | paid | overdue | skipped
+  final String? transactionId;
+  final String matchState; // auto | suggested | manual | none
+  final int graceDays;
+  final int leadDays;
+
+  bool get isSuggestion => matchState == 'suggested' && status == 'pending';
+
+  factory ObligationInstance.fromRow(Map<String, dynamic> r) {
+    final ob = (r['obligations'] as Map?)?.cast<String, dynamic>() ?? const {};
+    final rule = (ob['due_rule'] as Map?)?.cast<String, dynamic>() ?? const {};
+    DateTime day(String s) => DateTime.parse('${s.substring(0, 10)}T00:00:00Z');
+    return ObligationInstance(
+      id: r['id'] as String,
+      obligationId: r['obligation_id'] as String,
+      name: (ob['name'] as String?) ?? '',
+      kind: (ob['kind'] as String?) ?? 'fixed',
+      periodStart: r['period_start'] == null
+          ? null
+          : day(r['period_start'] as String),
+      dueDate: day(r['due_date'] as String),
+      expectedHalalas: (r['expected_amount_halalas'] as num?)?.toInt(),
+      actualHalalas: (r['actual_amount_halalas'] as num?)?.toInt(),
+      status: r['status'] as String,
+      transactionId: r['transaction_id'] as String?,
+      matchState: (r['match_state'] as String?) ?? 'none',
+      graceDays: (rule['grace'] as num?)?.toInt() ?? 0,
+      leadDays: (ob['lead_days'] as num?)?.toInt() ?? 2,
+    );
+  }
+}

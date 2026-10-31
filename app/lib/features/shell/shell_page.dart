@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ui/empty_state.dart';
 import '../more/more_page.dart';
+import '../obligations/obligations_page.dart';
 import '../transactions/transactions_page.dart';
 
 class ShellPage extends StatelessWidget {
@@ -46,11 +47,7 @@ class ShellPage extends StatelessWidget {
               body: t.emptyHomeBody,
             ),
             1 => const TransactionsPage(),
-            2 => _Placeholder(
-              title: t.tabObligations,
-              icon: CupertinoIcons.calendar,
-              heading: t.comingSoon,
-            ),
+            2 => const ObligationsPage(),
             3 => _Placeholder(
               title: t.tabInsights,
               icon: CupertinoIcons.chart_pie,

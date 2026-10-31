@@ -164,5 +164,57 @@
   "applyPastYes": "Change all",
   "applyPastNo": "Only future ones",
   "categorySaveFailed": "Could not change the category. Try again.",
-  "noMatches": "No transactions match"
+  "noMatches": "No transactions match",
+  "obSegUpcoming": "Upcoming",
+  "obSegOverdue": "Overdue",
+  "obSegHistory": "History",
+  "obCommitted": "Still to pay in the next 30 days",
+  "obDue": "Due {date}",
+  "@obDue": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "obExpected": "Expected {amount}",
+  "@obExpected": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "obPaidAmount": "Paid {amount}",
+  "@obPaidAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "obStatusPending": "Pending",
+  "obStatusOverdue": "Overdue",
+  "obStatusPaid": "Paid",
+  "obStatusSkipped": "Skipped",
+  "obMarkPaid": "Mark as paid",
+  "obSkip": "Skip this one",
+  "obReopen": "Re-open",
+  "obSuggestTitle": "Mark \"{name}\" as paid with this payment?",
+  "@obSuggestTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "obConfirm": "Confirm",
+  "obNotThis": "Not this",
+  "obEmptyUpcoming": "Nothing due in the next 30 days",
+  "obEmptyOverdue": "Nothing overdue",
+  "obEmptyHistory": "No history yet",
+  "obMonthTitle": "This month",
+  "obMonthCommitted": "Committed",
+  "obMonthOther": "Everything else",
+  "obSaveFailed": "Could not save. Try again."
 }

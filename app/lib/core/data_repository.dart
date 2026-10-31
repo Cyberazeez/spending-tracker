@@ -32,6 +32,20 @@ abstract class DataRepository {
   Future<void> convertRaw(String rawId, ManualTxn t);
   Future<void> dismissRaw(String rawId);
   Future<List<SenderGap>> senderGaps();
+
+  /// Creates the upcoming instances of scheduled obligations and marks late ones overdue (server side).
+  Future<void> refreshObligations();
+  Future<List<ObligationInstance>> obligationInstances();
+
+  /// [status] is `paid`, `skipped` or `pending` (re-open).
+  Future<void> setInstanceStatus(String id, String status);
+
+  /// The owner accepts / rejects the payment the server suggested for an instance.
+  Future<void> confirmMatch(String id);
+  Future<void> rejectMatch(String id);
+
+  /// Outgoing, non-internal spend in the current Riyadh month.
+  Future<int> monthSpendHalalas();
 }
 
 class SupabaseDataRepository implements DataRepository {
@@ -206,5 +220,89 @@ class SupabaseDataRepository implements DataRepository {
         .map((e) => SenderGap(sender: e.key, lastReceivedAt: e.value))
         .toList()
       ..sort((a, b) => a.lastReceivedAt!.compareTo(b.lastReceivedAt!));
+  }
+
+  @override
+  Future<void> refreshObligations() async {
+    await _db.rpc('refresh_my_obligations');
+  }
+
+  @override
+  Future<List<ObligationInstance>> obligationInstances() async {
+    final since = DateTime.now().toUtc().subtract(const Duration(days: 120));
+    final rows = await _db
+        .from('obligation_instances')
+        .select(
+          'id, obligation_id, period_start, due_date, expected_amount_halalas, actual_amount_halalas, status, transaction_id, match_state, obligations(name, kind, due_rule, lead_days)',
+        )
+        .gte('due_date', since.toIso8601String().substring(0, 10))
+        .order('due_date')
+        .limit(300);
+    return rows.map<ObligationInstance>(ObligationInstance.fromRow).toList();
+  }
+
+  @override
+  Future<void> setInstanceStatus(String id, String status) async {
+    final patch = switch (status) {
+      'paid' => {
+        'status': 'paid',
+        'paid_at': DateTime.now().toUtc().toIso8601String(),
+        'match_state': 'manual',
+      },
+      'skipped' => {'status': 'skipped'},
+      _ => {
+        'status': 'pending',
+        'paid_at': null,
+        'match_state': 'none',
+        'transaction_id': null,
+        'actual_amount_halalas': null,
+      },
+    };
+    await _db.from('obligation_instances').update(patch).eq('id', id);
+  }
+
+  @override
+  Future<void> confirmMatch(String id) async {
+    await _db
+        .from('obligation_instances')
+        .update({
+          'status': 'paid',
+          'paid_at': DateTime.now().toUtc().toIso8601String(),
+          'match_state': 'manual',
+        })
+        .eq('id', id);
+  }
+
+  @override
+  Future<void> rejectMatch(String id) async {
+    await _db
+        .from('obligation_instances')
+        .update({
+          'transaction_id': null,
+          'match_state': 'none',
+          'actual_amount_halalas': null,
+        })
+        .eq('id', id);
+  }
+
+  @override
+  Future<int> monthSpendHalalas() async {
+    final riyadh = DateTime.now().toUtc().add(const Duration(hours: 3));
+    final start = DateTime.utc(
+      riyadh.year,
+      riyadh.month,
+    ).subtract(const Duration(hours: 3));
+    final rows = await _db
+        .from('transactions')
+        .select('amount_halalas')
+        .eq('direction', 'out')
+        .eq('is_internal', false)
+        .isFilter('deleted_at', null)
+        .gte('occurred_at', start.toIso8601String())
+        .limit(5000);
+    return rows.fold<int>(
+      0,
+      (sum, r) => sum + (r['amount_halalas'] as num).toInt(),
+    );
   }
 }
