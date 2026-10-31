@@ -48,5 +48,13 @@ export type ParseResult =
     minimumDueHalalas: number;
     dueDate: string;
   }
+  | {
+    kind: "notice";
+    parser: string;
+    notice: "bill_issued";
+    /** Last 4 digits of the phone line the bill is for. */
+    lineLast4: string;
+    totalHalalas: number;
+  }
   | { kind: "ignored"; parser: string; reason: string }
   | { kind: "unparsed" };

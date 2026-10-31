@@ -64,8 +64,8 @@ const deps: IngestDeps = {
       })),
     };
   },
-  async saveParsed({ userId, rawId, parser, status, ignoreReason, redactBody, rows }) {
-    let firstId: string | null = null;
+  async saveParsed({ userId, rawId, parser, status, ignoreReason, redactBody, replaceBody, rows }) {
+    const ids: Record<string, string> = {};
     if (rows.length) {
       // (raw_message_id, type) is unique, so a retry after a half-finished save cannot duplicate rows.
       const { error } = await db.from("transactions").upsert(
@@ -73,24 +73,117 @@ const deps: IngestDeps = {
         { onConflict: "raw_message_id,type", ignoreDuplicates: true },
       );
       if (error) throw new Error("transactions_insert_failed");
-      const { data, error: readError } = await db.from("transactions").select("id").eq(
+      const { data, error: readError } = await db.from("transactions").select("id, type").eq(
         "raw_message_id",
         rawId,
-      )
-        .order("created_at", { ascending: true }).limit(1);
+      );
       if (readError) throw new Error("transactions_read_failed");
-      firstId = data?.[0]?.id ?? null;
+      for (const t of data ?? []) ids[t.type as string] = t.id as string;
     }
     const patch: Record<string, unknown> = {
       parse_status: status,
       parser,
       ignore_reason: ignoreReason ?? null,
-      transaction_id: firstId,
+      transaction_id: rows.length ? ids[rows[0].type] ?? null : null,
       confidence: 1,
     };
     if (redactBody) patch.body = "[redacted]";
+    else if (replaceBody) patch.body = replaceBody;
     const { error } = await db.from("raw_messages").update(patch).eq("id", rawId);
     if (error) throw new Error("raw_update_failed");
+    return { ids };
+  },
+  obligations: {
+    async refresh(userId) {
+      const { error } = await db.rpc("refresh_obligation_instances", { p_user: userId });
+      if (error) throw new Error("refresh_failed");
+    },
+    async loadObligations(userId) {
+      const [obs, inst] = await Promise.all([
+        db.from("obligations").select("id, name, kind, expected_amount_halalas, due_rule, match")
+          .eq("user_id", userId).eq("active", true),
+        db.from("obligation_instances").select(
+          "id, obligation_id, period_start, due_date, expected_amount_halalas, actual_amount_halalas, status, transaction_id, match_state, created_at",
+        ).eq("user_id", userId).in("status", ["pending", "overdue"]),
+      ]);
+      if (obs.error || inst.error) throw new Error("obligations_load_failed");
+      return {
+        obs: (obs.data ?? []).map((o) => ({
+          id: o.id,
+          name: o.name,
+          kind: o.kind,
+          expectedHalalas: o.expected_amount_halalas === null
+            ? null
+            : Number(o.expected_amount_halalas),
+          dueRule: o.due_rule ?? {},
+          match: o.match ?? {},
+        })),
+        open: (inst.data ?? []).map((i) => ({
+          id: i.id,
+          obligationId: i.obligation_id,
+          periodStart: i.period_start,
+          dueDate: i.due_date,
+          expectedHalalas: i.expected_amount_halalas === null
+            ? null
+            : Number(i.expected_amount_halalas),
+          actualHalalas: i.actual_amount_halalas === null ? null : Number(i.actual_amount_halalas),
+          status: i.status,
+          transactionId: i.transaction_id,
+          matchState: i.match_state,
+          createdAt: i.created_at,
+        })),
+      };
+    },
+    async upsertNoticeInstance({ userId, obligationId, rawId, inst }) {
+      const { data: existing, error } = await db.from("obligation_instances").select("id, status")
+        .eq("user_id", userId).eq("obligation_id", obligationId).eq(
+          "period_start",
+          inst.periodStart,
+        )
+        .maybeSingle();
+      if (error) throw new Error("instance_read_failed");
+      if (!existing) {
+        const { error: e } = await db.from("obligation_instances").insert({
+          user_id: userId,
+          obligation_id: obligationId,
+          period_start: inst.periodStart,
+          due_date: inst.dueDate,
+          expected_amount_halalas: inst.expectedHalalas,
+          source_raw_message_id: rawId,
+        });
+        if (e) throw new Error("instance_insert_failed");
+      } else if (existing.status === "pending" || existing.status === "overdue") {
+        const { error: e } = await db.from("obligation_instances").update({
+          due_date: inst.dueDate,
+          expected_amount_halalas: inst.expectedHalalas,
+          source_raw_message_id: rawId,
+          status: "pending",
+          // A re-issued bill starts over: a payment matched to the old amount no longer applies.
+          transaction_id: null,
+          actual_amount_halalas: null,
+          match_state: "none",
+          paid_at: null,
+        }).eq("id", existing.id).eq("user_id", userId);
+        if (e) throw new Error("instance_update_failed");
+      }
+    },
+    async applyMatch({ userId, match, paidAt }) {
+      const { error } = await db.from("obligation_instances").update({
+        status: match.status,
+        actual_amount_halalas: match.actualHalalas,
+        transaction_id: match.transactionId,
+        match_state: match.state,
+        paid_at: match.status === "paid" ? paidAt : null,
+      }).eq("id", match.instanceId).eq("user_id", userId).in("status", ["pending", "overdue"]);
+      if (error) throw new Error("instance_match_failed");
+    },
+    async setDueDate(userId, instanceId, dueDate) {
+      const { error } = await db.from("obligation_instances").update({ due_date: dueDate }).eq(
+        "id",
+        instanceId,
+      ).eq("user_id", userId).in("status", ["pending", "overdue"]);
+      if (error) throw new Error("instance_due_failed");
+    },
   },
   async touchToken(tokenId) {
     const { error } = await db

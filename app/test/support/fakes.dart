@@ -85,6 +85,10 @@ class FakeDataRepository implements DataRepository {
   ];
   TxFilter lastFilter = const TxFilter();
   final categoryCalls = <(String, String?, String?, bool)>[];
+  List<ObligationInstance> instances = [];
+  int monthSpend = 0;
+  int refreshCalls = 0;
+  final instanceCalls = <String>[];
   List<RawMessage> review = [];
   List<SenderGap> gaps = [];
   bool failLoad = false;
@@ -170,6 +174,60 @@ class FakeDataRepository implements DataRepository {
     dismissed.add(rawId);
     review = review.where((m) => m.id != rawId).toList();
   }
+
+  @override
+  Future<void> refreshObligations() async => refreshCalls++;
+
+  @override
+  Future<List<ObligationInstance>> obligationInstances() async {
+    if (failLoad) throw StateError('offline');
+    return instances;
+  }
+
+  void _patch(String id, ObligationInstance Function(ObligationInstance) f) {
+    instances = [for (final i in instances) i.id == id ? f(i) : i];
+  }
+
+  ObligationInstance _copy(
+    ObligationInstance i, {
+    String? status,
+    String? matchState,
+    bool clearTx = false,
+  }) => ObligationInstance(
+    id: i.id,
+    obligationId: i.obligationId,
+    name: i.name,
+    kind: i.kind,
+    dueDate: i.dueDate,
+    status: status ?? i.status,
+    expectedHalalas: i.expectedHalalas,
+    actualHalalas: clearTx ? null : i.actualHalalas,
+    transactionId: clearTx ? null : i.transactionId,
+    matchState: matchState ?? i.matchState,
+    graceDays: i.graceDays,
+    leadDays: i.leadDays,
+  );
+
+  @override
+  Future<void> setInstanceStatus(String id, String status) async {
+    instanceCalls.add('$status:$id');
+    _patch(id, (i) => _copy(i, status: status, matchState: 'manual'));
+  }
+
+  @override
+  Future<void> confirmMatch(String id) async {
+    instanceCalls.add('confirm:$id');
+    _patch(id, (i) => _copy(i, status: 'paid', matchState: 'manual'));
+  }
+
+  @override
+  Future<void> rejectMatch(String id) async {
+    instanceCalls.add('reject:$id');
+    _patch(id, (i) => _copy(i, matchState: 'none', clearTx: true));
+  }
+
+  @override
+  Future<int> monthSpendHalalas() async => monthSpend;
 
   @override
   Future<List<SenderGap>> senderGaps() async {

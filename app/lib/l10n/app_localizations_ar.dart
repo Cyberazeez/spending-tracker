@@ -357,4 +357,84 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get noMatches => 'لا توجد عمليات مطابقة';
+
+  @override
+  String get obSegUpcoming => 'القادمة';
+
+  @override
+  String get obSegOverdue => 'المتأخرة';
+
+  @override
+  String get obSegHistory => 'السجل';
+
+  @override
+  String get obCommitted => 'المتبقي للدفع خلال 30 يوماً';
+
+  @override
+  String obDue(String date) {
+    return 'الاستحقاق $date';
+  }
+
+  @override
+  String obExpected(String amount) {
+    return 'المتوقع $amount';
+  }
+
+  @override
+  String obPaidAmount(String amount) {
+    return 'المدفوع $amount';
+  }
+
+  @override
+  String get obStatusPending => 'قيد الانتظار';
+
+  @override
+  String get obStatusOverdue => 'متأخر';
+
+  @override
+  String get obStatusPaid => 'مدفوع';
+
+  @override
+  String get obStatusSkipped => 'تم التخطي';
+
+  @override
+  String get obMarkPaid => 'تحديد كمدفوع';
+
+  @override
+  String get obSkip => 'تخطي هذه المرة';
+
+  @override
+  String get obReopen => 'إعادة الفتح';
+
+  @override
+  String obSuggestTitle(String name) {
+    return 'هل تحدد \"$name\" كمدفوع بهذه الدفعة؟';
+  }
+
+  @override
+  String get obConfirm => 'تأكيد';
+
+  @override
+  String get obNotThis => 'ليست هذه';
+
+  @override
+  String get obEmptyUpcoming => 'لا شيء مستحق خلال 30 يوماً';
+
+  @override
+  String get obEmptyOverdue => 'لا شيء متأخر';
+
+  @override
+  String get obEmptyHistory => 'لا يوجد سجل بعد';
+
+  @override
+  String get obMonthTitle => 'هذا الشهر';
+
+  @override
+  String get obMonthCommitted => 'الالتزامات';
+
+  @override
+  String get obMonthOther => 'بقية المصروفات';
+
+  @override
+  String get obSaveFailed => 'تعذر الحفظ. حاول مرة أخرى.';
 }

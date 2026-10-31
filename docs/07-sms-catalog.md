@@ -81,8 +81,8 @@ Source: the owner's screenshots (2026-10-30). Names, phone and account numbers a
 
 Two numeric orders appear for dates (`d-M-yy` and `yy-M-d`). Resolve with `received_at` proximity.
 
-## 900 (STC telecom bill notices)
-`ونود فقط اشعارك بصدور فاتورة جديدة للرقم <line> بمبلغ إجمالي <amount> ريال (رقم الحساب: <acct>)`. Creates an obligation instance (expected amount, issue date = received_at) matched by line last 4: **internet 7356, mobile 0569**. Not a transaction. Ownership-transfer OTP messages are ignored.
+## 900 (STC telecom bill notices) - parser built in M4, fixtures `stc900/`
+`ونود فقط اشعارك بصدور فاتورة جديدة للرقم <line> بمبلغ إجمالي <amount> ريال (رقم الحساب: <acct>)`. Creates an obligation instance (expected amount = the bill total, period = the month it was issued, due the 2nd of the next month) matched by line last 4: **internet 7356, mobile 0569**. Not a transaction. Real samples received 2026-10-31 (internet 172.50, mobile 278.93); only the line's last 4 and the total are kept in the parsed result. The stored raw body still contains the payment links. Ownership-transfer OTP messages are ignored.
 
 ## Not yet seen
 ATM withdrawal (any bank); salary from a bank other than Alinma; electricity bill notice; Nothing else blocking.
@@ -92,6 +92,6 @@ One loan, just started. A month's installment can be collected in more than one 
 
 ## Fixtures
 Every template above has a redacted fixture in `supabase/tests/fixtures/<sender>/` (67 files). They were transcribed from the owner's screenshots in **logical** (stored) order, with names replaced by `PERSON X` and one-time codes by `000000`. The first real Arabic SMS the ingest function stores is the check that the transcription matches the bytes the phone sends: if a parser misses one, it lands in Needs review and its stored `raw_messages.body` becomes the corrected fixture.
-Known gaps: `900` bill notices (internet 7356, mobile 0569) have no parser yet; Al Rajhi reversal ("عكس عملية") and SNB `رصيد غير كافي لشراء نقاط البيع` are only partly captured.
+Known gaps: Al Rajhi reversal ("عكس عملية") and SNB `رصيد غير كافي لشراء نقاط البيع` are only partly captured.
 
 **Confirmed on a real message (2026-10-31):** an Alinma purchase arrived as `في 26-10-31 15:59` (year first), while the screenshot showed `29-10-26` day first. Iphone screenshots can display digit groups in a different order than the stored text, so the date reader tries every plausible order and picks the one closest to the arrival time. `purchase_pos_real_year_first_date` is a fixture copied from a real stored message.

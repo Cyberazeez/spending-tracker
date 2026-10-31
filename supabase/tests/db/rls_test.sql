@@ -23,6 +23,9 @@ begin
   select count(*) into n from public.own_accounts where user_id = a;
   if n <> 17 then raise exception 'seed: expected 17 own_accounts for A, got %', n; end if;
 
+  select count(*) into n from public.obligations where user_id in (a, b);
+  if n <> 12 then raise exception 'seed: expected 12 obligations, got %', n; end if;
+
   insert into public.ingest_tokens (user_id, token_hash) values (a, 'hash-a'), (b, 'hash-b');
   insert into public.raw_messages (user_id, sender, body, received_at, dedupe_hash)
     values (a, 'alinma', 'body-a', now(), 'h-a'), (b, 'alinma', 'body-b', now(), 'h-b');
@@ -87,6 +90,29 @@ begin
   denied := false;
   begin perform public.seed_defaults(a); exception when insufficient_privilege then denied := true; end;
   if not denied then raise exception 'A called seed_defaults'; end if;
+
+  denied := false;
+  begin perform public.refresh_obligation_instances(a); exception when insufficient_privilege then denied := true; end;
+  if not denied then raise exception 'A called refresh_obligation_instances'; end if;
+  denied := false;
+  begin perform public.seed_obligations(a); exception when insufficient_privilege then denied := true; end;
+  if not denied then raise exception 'A called seed_obligations'; end if;
+
+  -- the app's refresh only touches the caller's own obligations and is idempotent
+  perform public.refresh_my_obligations();
+  perform public.refresh_my_obligations();
+  select count(*) into n from public.obligation_instances where user_id = a;
+  if n < 3 then raise exception 'refresh created % instances for A, expected at least 3', n; end if;
+  select count(*) into n from public.obligation_instances;
+  if n <> (select count(*) from public.obligation_instances where user_id = a) then raise exception 'A sees instances of others'; end if;
+  select count(*) into n from public.obligation_instances i join public.obligations o on o.id = i.obligation_id
+    where o.kind in ('bill', 'card_statement');
+  if n <> 0 then raise exception 'refresh created bill/statement instances'; end if;
+  select count(*) into n from public.obligation_instances i join public.obligations o on o.id = i.obligation_id
+    where i.due_date + coalesce((o.due_rule->>'grace')::int, 0) < (now() at time zone 'Asia/Riyadh')::date;
+  if n <> 0 then raise exception 'refresh created instances in the past'; end if;
+  select count(*) into n from (select obligation_id, period_start from public.obligation_instances group by 1, 2 having count(*) > 1) d;
+  if n <> 0 then raise exception 'duplicate instances'; end if;
 
   -- anon sees nothing
 

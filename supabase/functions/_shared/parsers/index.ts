@@ -4,6 +4,7 @@ import { parseBarq } from "./barq.ts";
 import { parseD360 } from "./d360.ts";
 import { parseSnb } from "./snb.ts";
 import { parseStc } from "./stc.ts";
+import { parseStc900 } from "./stc900.ts";
 import type { ParseResult } from "./types.ts";
 
 export type { Bank, ParsedTxn, ParseResult, TxType } from "./types.ts";
@@ -16,6 +17,7 @@ const PARSERS: Record<string, (body: string, receivedAt: Date) => ParseResult> =
   "stc bank": parseStc,
   "snb-alahli": parseSnb,
   "alrajhibank": parseAlRajhi,
+  "900": parseStc900,
 };
 
 /** Never throws: any parser error becomes `unparsed`, which lands in Needs review. */

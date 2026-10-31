@@ -733,6 +733,150 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No transactions match'**
   String get noMatches;
+
+  /// No description provided for @obSegUpcoming.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming'**
+  String get obSegUpcoming;
+
+  /// No description provided for @obSegOverdue.
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue'**
+  String get obSegOverdue;
+
+  /// No description provided for @obSegHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get obSegHistory;
+
+  /// No description provided for @obCommitted.
+  ///
+  /// In en, this message translates to:
+  /// **'Still to pay in the next 30 days'**
+  String get obCommitted;
+
+  /// No description provided for @obDue.
+  ///
+  /// In en, this message translates to:
+  /// **'Due {date}'**
+  String obDue(String date);
+
+  /// No description provided for @obExpected.
+  ///
+  /// In en, this message translates to:
+  /// **'Expected {amount}'**
+  String obExpected(String amount);
+
+  /// No description provided for @obPaidAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid {amount}'**
+  String obPaidAmount(String amount);
+
+  /// No description provided for @obStatusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get obStatusPending;
+
+  /// No description provided for @obStatusOverdue.
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue'**
+  String get obStatusOverdue;
+
+  /// No description provided for @obStatusPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get obStatusPaid;
+
+  /// No description provided for @obStatusSkipped.
+  ///
+  /// In en, this message translates to:
+  /// **'Skipped'**
+  String get obStatusSkipped;
+
+  /// No description provided for @obMarkPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as paid'**
+  String get obMarkPaid;
+
+  /// No description provided for @obSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip this one'**
+  String get obSkip;
+
+  /// No description provided for @obReopen.
+  ///
+  /// In en, this message translates to:
+  /// **'Re-open'**
+  String get obReopen;
+
+  /// No description provided for @obSuggestTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark \"{name}\" as paid with this payment?'**
+  String obSuggestTitle(String name);
+
+  /// No description provided for @obConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get obConfirm;
+
+  /// No description provided for @obNotThis.
+  ///
+  /// In en, this message translates to:
+  /// **'Not this'**
+  String get obNotThis;
+
+  /// No description provided for @obEmptyUpcoming.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing due in the next 30 days'**
+  String get obEmptyUpcoming;
+
+  /// No description provided for @obEmptyOverdue.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing overdue'**
+  String get obEmptyOverdue;
+
+  /// No description provided for @obEmptyHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'No history yet'**
+  String get obEmptyHistory;
+
+  /// No description provided for @obMonthTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This month'**
+  String get obMonthTitle;
+
+  /// No description provided for @obMonthCommitted.
+  ///
+  /// In en, this message translates to:
+  /// **'Committed'**
+  String get obMonthCommitted;
+
+  /// No description provided for @obMonthOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything else'**
+  String get obMonthOther;
+
+  /// No description provided for @obSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save. Try again.'**
+  String get obSaveFailed;
 }
 
 class _AppLocalizationsDelegate

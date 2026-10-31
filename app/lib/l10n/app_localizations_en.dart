@@ -354,4 +354,84 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noMatches => 'No transactions match';
+
+  @override
+  String get obSegUpcoming => 'Upcoming';
+
+  @override
+  String get obSegOverdue => 'Overdue';
+
+  @override
+  String get obSegHistory => 'History';
+
+  @override
+  String get obCommitted => 'Still to pay in the next 30 days';
+
+  @override
+  String obDue(String date) {
+    return 'Due $date';
+  }
+
+  @override
+  String obExpected(String amount) {
+    return 'Expected $amount';
+  }
+
+  @override
+  String obPaidAmount(String amount) {
+    return 'Paid $amount';
+  }
+
+  @override
+  String get obStatusPending => 'Pending';
+
+  @override
+  String get obStatusOverdue => 'Overdue';
+
+  @override
+  String get obStatusPaid => 'Paid';
+
+  @override
+  String get obStatusSkipped => 'Skipped';
+
+  @override
+  String get obMarkPaid => 'Mark as paid';
+
+  @override
+  String get obSkip => 'Skip this one';
+
+  @override
+  String get obReopen => 'Re-open';
+
+  @override
+  String obSuggestTitle(String name) {
+    return 'Mark \"$name\" as paid with this payment?';
+  }
+
+  @override
+  String get obConfirm => 'Confirm';
+
+  @override
+  String get obNotThis => 'Not this';
+
+  @override
+  String get obEmptyUpcoming => 'Nothing due in the next 30 days';
+
+  @override
+  String get obEmptyOverdue => 'Nothing overdue';
+
+  @override
+  String get obEmptyHistory => 'No history yet';
+
+  @override
+  String get obMonthTitle => 'This month';
+
+  @override
+  String get obMonthCommitted => 'Committed';
+
+  @override
+  String get obMonthOther => 'Everything else';
+
+  @override
+  String get obSaveFailed => 'Could not save. Try again.';
 }
