@@ -39,16 +39,21 @@ Unique `(user_id, bank, last4)`. Seed: Al Rajhi 6331 (account), 1271 (mada card)
 - Index `(user_id, sender, received_at desc)` for the gaps view.
 
 ### categories
-`id`, `user_id`, `name`, `name_ar`, `kind text` (spend, income, transfer, fee), `excluded_from_spend bool`, `icon`, `color`, `sort_order`.
+`id`, `user_id`, `name`, `name_ar`, `kind text` (spend, income, transfer, fee). 18 seeded per user, including Loans (added in M3), `excluded_from_spend bool`, `icon`, `color`, `sort_order`.
 
 ### merchant_rules
 `id`, `user_id`, `pattern text` (normalized), `match_type text` (exact, contains, prefix), `category_id`, `status text` (confirmed, auto_unconfirmed), `source text` (user, ai, seed), `hit_count int`, `updated_at`. Unique `(user_id, pattern, match_type)`.
+- Pattern is `normalizeMerchant()` output (TS `_shared/normalize.ts`, Dart mirror `app/lib/core/normalize.dart`). Special patterns: `acct:<last4>` and `card:<last4>` match the transaction's account or card instead of the merchant text.
+- Precedence in `categorize()`: internal -> Transfers; type map (fee->Fees, salary->Income, wallet_topup->Transfers, loan_installment->Loans, atm_withdrawal->Other); then rules ranked user > confirmed seed > ai-unconfirmed, account/card over text, exact > prefix > contains, then longer pattern. `contains` means a whole-word prefix match. Unmatched incoming transfers -> Transfers; anything else stays uncategorised (reviewable in the app).
+- Seeded per user by `seed_merchant_rules(user)` (about 60 rules, e.g. `acct:7892` -> Horse, `card:8920` -> House Card).
+- A manual recategorisation upserts an exact `confirmed/user` rule; the app can also update past transactions with that merchant (never ones set manually).
+- AI rules (`source ai`, `auto_unconfirmed`) are written only by `categorize-batch`, which is off by default (settings switch + monthly cap, no key deployed).
 
 ### transactions
 `id`, `user_id`, `raw_message_id null`, `source text` (sms, manual, csv, ai), `bank text`, `account_last4 text`,
 `direction text` (in, out), `type text` (purchase, refund, atm_withdrawal, transfer_out, transfer_in, salary, bill_payment, card_payment, wallet_topup, loan_installment, fee),
 `amount_halalas bigint` (always positive, SAR), `orig_amount_minor bigint null`, `orig_currency text null`, `fx_rate numeric null`,
-`merchant_raw text`, `merchant_norm text`, `counterparty_name text null`, `counterparty_last4 text null`,
+`merchant_raw text`, `merchant_norm text`, `card_last4 text null`, `counterparty_name text null`, `counterparty_last4 text null`,
 `category_id`, `category_source text` (rule, ai, manual), `rule_id null`,
 `is_internal bool` (both sides in own_accounts), `excluded_from_spend bool` (derived from internal flag or category),
 `occurred_at timestamptz`, `note text`, `deleted_at null`.

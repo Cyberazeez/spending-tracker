@@ -79,7 +79,7 @@ jobs:
         working-directory: supabase/functions
         run: |
           deno lint
-          deno check ingest/index.ts rotate-token/index.ts
+          deno check ingest/index.ts rotate-token/index.ts categorize-batch/index.ts
           deno test --allow-read
 
       - name: Database migrations and RLS test

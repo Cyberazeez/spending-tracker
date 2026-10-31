@@ -25,6 +25,7 @@ Done when: every fixture passes, unknown formats land in Needs review, a real SM
 Needs from owner: the Shortcuts test result from M1 (sender string, whether it prompts). ATM and other-bank salary fixtures are not needed (owner confirmed they are rare).
 
 ## M3. Categorization and transactions UI
+Status: built 2026-10-31. Rules-first categorisation in `ingest` (migration `20261031130000_categorization.sql`), search/filter/recategorise-with-propagation in the app. The AI path (`_shared/ai.ts`, `categorize-batch`) is written and tested but **switched off and not deployed** (no API key yet). Not done: backfill of rows stored before M3 (one-off), a detail screen beyond the category picker (tap a row to change its category), re-check Anthropic pricing before enabling AI.
 Scope
 - Arabic-aware normalization (TS + Dart mirror), `merchant_rules`, seed rules for merchants seen in the samples (Jahez, HungerStation, Kudu, Noon, Amazon, Apple, YouTube Premium, AWS, Aldrees, Lulu...).
 - AI categorization (batched, cached as `auto_unconfirmed`) behind the switch and cap; `ai_usage` ledger.

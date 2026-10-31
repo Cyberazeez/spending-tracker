@@ -1,4 +1,5 @@
 import { normalizeMerchant } from "./normalize.ts";
+import { categorize, type CategoryIds, type Rule } from "./categorize.ts";
 import type { ParsedTxn } from "./parsers/index.ts";
 
 export interface OwnAccount {
@@ -11,6 +12,7 @@ export interface TxRow {
   source: "sms";
   bank: string;
   account_last4: string | null;
+  card_last4: string | null;
   direction: "in" | "out";
   type: string;
   amount_halalas: number;
@@ -25,6 +27,9 @@ export interface TxRow {
   is_internal: boolean;
   excluded_from_spend: boolean;
   occurred_at: string;
+  category_id?: string | null;
+  category_source?: "rule" | null;
+  rule_id?: string | null;
 }
 
 /** True when the other side of a transfer is one of the owner's own accounts. */
@@ -45,6 +50,7 @@ export function buildRows(t: ParsedTxn, own: OwnAccount[]): TxRow[] {
     source: "sms" as const,
     bank: t.bank,
     account_last4: t.accountLast4 ?? null,
+    card_last4: t.cardLast4 ?? null,
     direction: t.direction,
     type: t.type,
     amount_halalas: t.amountHalalas,
@@ -80,4 +86,29 @@ export function buildRows(t: ParsedTxn, own: OwnAccount[]): TxRow[] {
     });
   }
   return rows;
+}
+
+/** Fills in category_id / category_source / rule_id from the rules. Rows nothing matches stay uncategorised. */
+export function applyCategories(rows: TxRow[], rules: Rule[], ids: CategoryIds): TxRow[] {
+  return rows.map((r) => {
+    const c = categorize(
+      {
+        type: r.type,
+        merchantNorm: r.merchant_norm,
+        cardLast4: r.card_last4,
+        counterpartyLast4: r.counterparty_last4,
+        isInternal: r.is_internal,
+      },
+      rules,
+      ids,
+    );
+    return c
+      ? {
+        ...r,
+        category_id: c.categoryId,
+        category_source: "rule" as const,
+        rule_id: c.ruleId ?? null,
+      }
+      : r;
+  });
 }

@@ -3,7 +3,8 @@ import { isOtpLike, REDACTED_BODY } from "../_shared/otp.ts";
 import { stripBalances } from "../_shared/redact.ts";
 import { parseIngestPayload } from "../_shared/request.ts";
 import { isWellFormedToken, sha256Hex } from "../_shared/token.ts";
-import { buildRows, type OwnAccount, type TxRow } from "../_shared/enrich.ts";
+import { applyCategories, buildRows, type OwnAccount, type TxRow } from "../_shared/enrich.ts";
+import type { CategoryIds, Rule } from "../_shared/categorize.ts";
 import { parseSms } from "../_shared/parsers/index.ts";
 
 export const RATE_LIMIT_PER_MINUTE = 60;
@@ -28,6 +29,7 @@ export interface IngestDeps {
   insertRaw(row: RawMessageRow): Promise<string | null>;
   touchToken(tokenId: string): Promise<void>;
   loadOwnAccounts(userId: string): Promise<OwnAccount[]>;
+  loadCategorization(userId: string): Promise<{ ids: CategoryIds; rules: Rule[] }>;
   /** Stores the transactions (if any) and updates the raw message's parse status in one go. */
   saveParsed(args: SaveParsedArgs): Promise<void>;
 }
@@ -98,7 +100,12 @@ export async function handleIngest(req: Request, deps: IngestDeps): Promise<Resp
     try {
       const r = parseSms(sender, body, receivedAt);
       if (r.kind === "transaction") {
-        const rows = buildRows(r.txn, await deps.loadOwnAccounts(found.userId));
+        const cat = await deps.loadCategorization(found.userId);
+        const rows = applyCategories(
+          buildRows(r.txn, await deps.loadOwnAccounts(found.userId)),
+          cat.rules,
+          cat.ids,
+        );
         await deps.saveParsed({
           userId: found.userId,
           rawId: id,

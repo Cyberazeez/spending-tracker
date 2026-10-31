@@ -6,6 +6,8 @@ class Txn {
     required this.amountHalalas,
     required this.occurredAt,
     this.merchant,
+    this.merchantNorm,
+    this.categoryId,
     this.isInternal = false,
   });
 
@@ -15,6 +17,8 @@ class Txn {
   final int amountHalalas;
   final DateTime occurredAt;
   final String? merchant;
+  final String? merchantNorm;
+  final String? categoryId;
   final bool isInternal;
 
   bool get isIncoming => direction == 'in';
@@ -26,6 +30,8 @@ class Txn {
     amountHalalas: (r['amount_halalas'] as num).toInt(),
     occurredAt: DateTime.parse(r['occurred_at'] as String).toUtc(),
     merchant: r['merchant_raw'] as String?,
+    merchantNorm: r['merchant_norm'] as String?,
+    categoryId: r['category_id'] as String?,
     isInternal: (r['is_internal'] as bool?) ?? false,
   );
 }
@@ -72,4 +78,56 @@ class ManualTxn {
   final int amountHalalas;
   final DateTime occurredAt;
   final String? merchant;
+}
+
+class Category {
+  const Category({required this.id, required this.name, this.nameAr});
+  final String id;
+  final String name;
+  final String? nameAr;
+
+  String label({required bool arabic}) =>
+      arabic && (nameAr?.isNotEmpty ?? false) ? nameAr! : name;
+
+  factory Category.fromRow(Map<String, dynamic> r) => Category(
+    id: r['id'] as String,
+    name: r['name'] as String,
+    nameAr: r['name_ar'] as String?,
+  );
+}
+
+/// What the Transactions list is currently showing.
+class TxFilter {
+  const TxFilter({
+    this.query = '',
+    this.categoryId,
+    this.uncategorizedOnly = false,
+    this.hideInternal = false,
+  });
+  final String query;
+  final String? categoryId;
+  final bool uncategorizedOnly;
+  final bool hideInternal;
+
+  bool get isActive =>
+      query.isNotEmpty ||
+      categoryId != null ||
+      uncategorizedOnly ||
+      hideInternal;
+
+  TxFilter copyWith({
+    String? query,
+    Object? categoryId = _keep,
+    bool? uncategorizedOnly,
+    bool? hideInternal,
+  }) => TxFilter(
+    query: query ?? this.query,
+    categoryId: identical(categoryId, _keep)
+        ? this.categoryId
+        : categoryId as String?,
+    uncategorizedOnly: uncategorizedOnly ?? this.uncategorizedOnly,
+    hideInternal: hideInternal ?? this.hideInternal,
+  );
+
+  static const _keep = Object();
 }

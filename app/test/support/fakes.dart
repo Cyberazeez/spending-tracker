@@ -7,6 +7,7 @@ import 'package:spending_tracker/core/auth_repository.dart';
 import 'package:spending_tracker/core/data_repository.dart';
 import 'package:spending_tracker/core/lock.dart';
 import 'package:spending_tracker/core/models.dart';
+import 'package:spending_tracker/core/normalize.dart';
 import 'package:spending_tracker/core/providers.dart';
 import 'package:spending_tracker/core/token_repository.dart';
 
@@ -78,6 +79,12 @@ class FakeTokenRepository implements TokenRepository {
 
 class FakeDataRepository implements DataRepository {
   List<Txn> txns = [];
+  List<Category> cats = const [
+    Category(id: 'c-din', name: 'Dining', nameAr: 'مطاعم'),
+    Category(id: 'c-gro', name: 'Groceries', nameAr: 'بقالة'),
+  ];
+  TxFilter lastFilter = const TxFilter();
+  final categoryCalls = <(String, String?, String?, bool)>[];
   List<RawMessage> review = [];
   List<SenderGap> gaps = [];
   bool failLoad = false;
@@ -86,9 +93,61 @@ class FakeDataRepository implements DataRepository {
   final dismissed = <String>[];
 
   @override
-  Future<List<Txn>> recentTransactions({int limit = 200}) async {
+  Future<List<Txn>> recentTransactions({
+    TxFilter filter = const TxFilter(),
+    int limit = 200,
+  }) async {
     if (failLoad) throw StateError('offline');
-    return txns;
+    lastFilter = filter;
+    final q = normalizeMerchant(filter.query);
+    return txns.where((t) {
+      if (q.isNotEmpty && !(t.merchantNorm ?? '').contains(q)) return false;
+      if (filter.uncategorizedOnly && t.categoryId != null) return false;
+      if (filter.categoryId != null && t.categoryId != filter.categoryId) {
+        return false;
+      }
+      if (filter.hideInternal && t.isInternal) return false;
+      return true;
+    }).toList();
+  }
+
+  @override
+  Future<List<Category>> categories() async => cats;
+
+  @override
+  Future<int> sameMerchantCount(
+    String merchantNorm, {
+    required String excludingId,
+  }) async => txns
+      .where((t) => t.merchantNorm == merchantNorm && t.id != excludingId)
+      .length;
+
+  @override
+  Future<void> setCategory(
+    String txnId,
+    String? categoryId, {
+    String? rememberFor,
+    bool alsoPast = false,
+  }) async {
+    categoryCalls.add((txnId, categoryId, rememberFor, alsoPast));
+    txns = [
+      for (final t in txns)
+        if (t.id == txnId ||
+            (alsoPast && rememberFor != null && t.merchantNorm == rememberFor))
+          Txn(
+            id: t.id,
+            type: t.type,
+            direction: t.direction,
+            amountHalalas: t.amountHalalas,
+            occurredAt: t.occurredAt,
+            merchant: t.merchant,
+            merchantNorm: t.merchantNorm,
+            categoryId: categoryId,
+            isInternal: t.isInternal,
+          )
+        else
+          t,
+    ];
   }
 
   @override

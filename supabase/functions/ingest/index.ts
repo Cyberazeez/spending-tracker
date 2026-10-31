@@ -43,6 +43,27 @@ const deps: IngestDeps = {
     if (error) throw new Error("own_accounts_failed");
     return data ?? [];
   },
+  async loadCategorization(userId) {
+    const [cats, rules] = await Promise.all([
+      db.from("categories").select("id, name").eq("user_id", userId),
+      db.from("merchant_rules").select("id, pattern, match_type, category_id, status, source").eq(
+        "user_id",
+        userId,
+      ),
+    ]);
+    if (cats.error || rules.error) throw new Error("categorization_load_failed");
+    return {
+      ids: Object.fromEntries((cats.data ?? []).map((c) => [c.name, c.id])),
+      rules: (rules.data ?? []).map((r) => ({
+        id: r.id,
+        pattern: r.pattern,
+        matchType: r.match_type,
+        categoryId: r.category_id,
+        status: r.status,
+        source: r.source,
+      })),
+    };
+  },
   async saveParsed({ userId, rawId, parser, status, ignoreReason, redactBody, rows }) {
     let firstId: string | null = null;
     if (rows.length) {
