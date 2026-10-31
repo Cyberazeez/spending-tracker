@@ -15,7 +15,7 @@ Single-user personal finance app: bank SMS arrive through an iOS Shortcut, get p
 ## Checks (same as CI)
 ```bash
 cd app && flutter pub get && flutter analyze && flutter test
-cd supabase/functions && deno lint && deno test
+cd supabase/functions && deno lint && deno test --allow-read
 bash supabase/tests/db/run_local.sh     # needs a local Postgres server (apt install postgresql)
 ```
 Flutter is pinned to 3.47.9; versions of every package are listed in `docs/02-tech-requirements.md`.
