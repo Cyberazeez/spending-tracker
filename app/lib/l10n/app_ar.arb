@@ -34,9 +34,21 @@
   "tokenStatus": "الحالة",
   "tokenNone": "لا يوجد رمز فعّال",
   "tokenActive": "فعّال، أُنشئ {created}",
-  "@tokenActive": { "placeholders": { "created": { "type": "String" } } },
+  "@tokenActive": {
+    "placeholders": {
+      "created": {
+        "type": "String"
+      }
+    }
+  },
   "tokenLastUsed": "آخر رسالة وصلت {time}",
-  "@tokenLastUsed": { "placeholders": { "time": { "type": "String" } } },
+  "@tokenLastUsed": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
   "tokenNeverUsed": "لم تصل أي رسالة بعد",
   "tokenGenerate": "إنشاء رمز جديد",
   "tokenRotate": "استبدال الرمز",
@@ -49,5 +61,75 @@
   "continueLabel": "متابعة",
   "done": "تم",
   "tryAgain": "حاول مرة أخرى",
-  "genericError": "حدث خطأ. حاول مرة أخرى."
+  "genericError": "حدث خطأ. حاول مرة أخرى.",
+  "txTitle": "العمليات",
+  "txEmptyTitle": "لا توجد عمليات بعد",
+  "txEmptyBody": "تظهر رسائل البنك هنا بعد تشغيل الاختصار. ويمكنك أيضاً إضافة عملية يدوياً.",
+  "txInternal": "داخلي",
+  "txFee": "رسوم",
+  "txOpenReview": "تحتاج مراجعة ({count})",
+  "@txOpenReview": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "typePurchase": "شراء",
+  "typeRefund": "استرجاع",
+  "typeAtm": "سحب نقدي",
+  "typeTransferOut": "تحويل صادر",
+  "typeTransferIn": "تحويل وارد",
+  "typeSalary": "راتب",
+  "typeBill": "سداد فاتورة",
+  "typeCardPayment": "سداد بطاقة",
+  "typeWalletTopup": "تعبئة محفظة",
+  "typeLoan": "قسط تمويل",
+  "typeFee": "رسوم",
+  "quickAdd": "إضافة سريعة",
+  "qaAmount": "المبلغ (ر.س)",
+  "qaMerchant": "المتجر أو ملاحظة",
+  "qaSpent": "صرف",
+  "qaReceived": "استلام",
+  "qaWhen": "الوقت",
+  "qaSave": "حفظ",
+  "qaAmountInvalid": "أدخل مبلغاً مثل 25 أو 25.50",
+  "qaSaveFailed": "تعذّر الحفظ. حاول مرة أخرى.",
+  "reviewTitle": "تحتاج مراجعة",
+  "reviewEmpty": "لا شيء للمراجعة",
+  "reviewEmptyBody": "تمت قراءة كل الرسائل بشكل صحيح.",
+  "reviewFrom": "من {sender}",
+  "@reviewFrom": {
+    "placeholders": {
+      "sender": {
+        "type": "String"
+      }
+    }
+  },
+  "reviewConvert": "إضافة كعملية",
+  "reviewDismiss": "ليست عملية",
+  "reviewLoadFailed": "تعذّر تحميل الرسائل.",
+  "gapsTitle": "فجوات محتملة",
+  "gapsIntro": "آخر مرة وصلت فيها رسالة من كل جهة. الصمت الطويل قد يعني أن الاختصار متوقف.",
+  "gapsNever": "لم تصل أي رسالة بعد",
+  "gapsLast": "آخر رسالة {when}",
+  "@gapsLast": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "gapsDays": "قبل {days} يوم",
+  "@gapsDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "gapsToday": "اليوم",
+  "gapsEmpty": "لا توجد رسائل بعد",
+  "sar": "ر.س",
+  "loadFailed": "تعذّر التحميل. اسحب لإعادة المحاولة."
 }

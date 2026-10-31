@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'auth_repository.dart';
+import 'data_repository.dart';
 import 'token_repository.dart';
 
 final supabaseProvider = Provider<SupabaseClient>(
@@ -12,6 +13,10 @@ final supabaseProvider = Provider<SupabaseClient>(
 
 final authRepositoryProvider = Provider<AuthRepository>(
   (ref) => SupabaseAuthRepository(ref.watch(supabaseProvider)),
+);
+
+final dataRepositoryProvider = Provider<DataRepository>(
+  (ref) => SupabaseDataRepository(ref.watch(supabaseProvider)),
 );
 
 final tokenRepositoryProvider = Provider<TokenRepository>(

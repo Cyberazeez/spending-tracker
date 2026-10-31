@@ -2,6 +2,8 @@ import { dedupeKey } from "../_shared/dedupe.ts";
 import { isOtpLike, REDACTED_BODY } from "../_shared/otp.ts";
 import { parseIngestPayload } from "../_shared/request.ts";
 import { isWellFormedToken, sha256Hex } from "../_shared/token.ts";
+import { buildRows, type OwnAccount, type TxRow } from "../_shared/enrich.ts";
+import { parseSms } from "../_shared/parsers/index.ts";
 
 export const RATE_LIMIT_PER_MINUTE = 60;
 export const RATE_LIMIT_PER_DAY = 500;
@@ -24,6 +26,18 @@ export interface IngestDeps {
   /** Returns the new id, or null when the dedupe hash already exists. */
   insertRaw(row: RawMessageRow): Promise<string | null>;
   touchToken(tokenId: string): Promise<void>;
+  loadOwnAccounts(userId: string): Promise<OwnAccount[]>;
+  /** Stores the transactions (if any) and updates the raw message's parse status in one go. */
+  saveParsed(args: SaveParsedArgs): Promise<void>;
+}
+
+export interface SaveParsedArgs {
+  userId: string;
+  rawId: string;
+  parser: string;
+  status: "parsed" | "ignored";
+  ignoreReason?: string;
+  rows: TxRow[];
 }
 
 function json(status: number, body: Record<string, unknown>): Response {
@@ -34,9 +48,9 @@ function json(status: number, body: Record<string, unknown>): Response {
 }
 
 /**
- * Milestone 1 stub: authenticates, rate-limits, dedupes and stores the raw message.
- * Parsing arrives in milestone 2, so everything non-OTP lands as needs_review.
- * Never logs or echoes the message body.
+ * Authenticates, rate-limits, dedupes and stores the raw message, then parses it. A message that cannot
+ * be parsed stays `needs_review`; a failure while saving the parse result also leaves it there, so no
+ * SMS is ever lost. Never logs or echoes the message body.
  */
 export async function handleIngest(req: Request, deps: IngestDeps): Promise<Response> {
   if (req.method !== "POST") return json(405, { error: "method_not_allowed" });
@@ -76,6 +90,41 @@ export async function handleIngest(req: Request, deps: IngestDeps): Promise<Resp
     ignore_reason: otp ? "otp" : null,
   });
   await deps.touchToken(found.id);
+
+  if (id !== null && !otp) {
+    try {
+      const r = parseSms(sender, body, receivedAt);
+      if (r.kind === "transaction") {
+        const rows = buildRows(r.txn, await deps.loadOwnAccounts(found.userId));
+        await deps.saveParsed({
+          userId: found.userId,
+          rawId: id,
+          parser: r.parser,
+          status: "parsed",
+          rows,
+        });
+      } else if (r.kind === "notice") {
+        await deps.saveParsed({
+          userId: found.userId,
+          rawId: id,
+          parser: r.parser,
+          status: "parsed",
+          rows: [],
+        });
+      } else if (r.kind === "ignored") {
+        await deps.saveParsed({
+          userId: found.userId,
+          rawId: id,
+          parser: r.parser,
+          status: "ignored",
+          ignoreReason: r.reason,
+          rows: [],
+        });
+      }
+    } catch (e) {
+      console.error("parse_save_failed", (e as Error).message);
+    }
+  }
 
   return json(200, { ok: true, duplicate: id === null });
 }

@@ -1,0 +1,14 @@
+{
+  "sender": "AlRajhiBank",
+  "receivedAt": "2024-11-30T10:23:05.000Z",
+  "body": "حوالة محلية\nمصرف:SAB\nمن:6331\nمبلغ:SAR 50\nالى:PERSON I\nالرسوم:SAR 0.58\nمرجع:0000000000000000\nفي:13:23 30-11-24",
+  "expected": {
+    "kind": "transaction",
+    "type": "transfer_out",
+    "amountHalalas": 5000,
+    "feeHalalas": 58,
+    "accountLast4": "6331",
+    "counterpartyName": "PERSON I",
+    "occurredAt": "2024-11-30T10:23:00.000Z"
+  }
+}

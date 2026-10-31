@@ -1,0 +1,14 @@
+{
+  "sender": "barq app",
+  "receivedAt": "2026-10-16T23:55:05.000Z",
+  "body": "Credit Transfer Internal\nAmount: 106.00 SAR\nFrom: PERSON B**\nSender A/C: **6784\n2026-10-17 02:55",
+  "expected": {
+    "kind": "transaction",
+    "type": "transfer_in",
+    "direction": "in",
+    "amountHalalas": 10600,
+    "counterpartyLast4": "6784",
+    "counterpartyName": "PERSON B**",
+    "occurredAt": "2026-10-16T23:55:00.000Z"
+  }
+}

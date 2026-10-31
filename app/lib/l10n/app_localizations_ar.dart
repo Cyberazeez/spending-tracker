@@ -161,4 +161,140 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get genericError => 'حدث خطأ. حاول مرة أخرى.';
+
+  @override
+  String get txTitle => 'العمليات';
+
+  @override
+  String get txEmptyTitle => 'لا توجد عمليات بعد';
+
+  @override
+  String get txEmptyBody =>
+      'تظهر رسائل البنك هنا بعد تشغيل الاختصار. ويمكنك أيضاً إضافة عملية يدوياً.';
+
+  @override
+  String get txInternal => 'داخلي';
+
+  @override
+  String get txFee => 'رسوم';
+
+  @override
+  String txOpenReview(int count) {
+    return 'تحتاج مراجعة ($count)';
+  }
+
+  @override
+  String get typePurchase => 'شراء';
+
+  @override
+  String get typeRefund => 'استرجاع';
+
+  @override
+  String get typeAtm => 'سحب نقدي';
+
+  @override
+  String get typeTransferOut => 'تحويل صادر';
+
+  @override
+  String get typeTransferIn => 'تحويل وارد';
+
+  @override
+  String get typeSalary => 'راتب';
+
+  @override
+  String get typeBill => 'سداد فاتورة';
+
+  @override
+  String get typeCardPayment => 'سداد بطاقة';
+
+  @override
+  String get typeWalletTopup => 'تعبئة محفظة';
+
+  @override
+  String get typeLoan => 'قسط تمويل';
+
+  @override
+  String get typeFee => 'رسوم';
+
+  @override
+  String get quickAdd => 'إضافة سريعة';
+
+  @override
+  String get qaAmount => 'المبلغ (ر.س)';
+
+  @override
+  String get qaMerchant => 'المتجر أو ملاحظة';
+
+  @override
+  String get qaSpent => 'صرف';
+
+  @override
+  String get qaReceived => 'استلام';
+
+  @override
+  String get qaWhen => 'الوقت';
+
+  @override
+  String get qaSave => 'حفظ';
+
+  @override
+  String get qaAmountInvalid => 'أدخل مبلغاً مثل 25 أو 25.50';
+
+  @override
+  String get qaSaveFailed => 'تعذّر الحفظ. حاول مرة أخرى.';
+
+  @override
+  String get reviewTitle => 'تحتاج مراجعة';
+
+  @override
+  String get reviewEmpty => 'لا شيء للمراجعة';
+
+  @override
+  String get reviewEmptyBody => 'تمت قراءة كل الرسائل بشكل صحيح.';
+
+  @override
+  String reviewFrom(String sender) {
+    return 'من $sender';
+  }
+
+  @override
+  String get reviewConvert => 'إضافة كعملية';
+
+  @override
+  String get reviewDismiss => 'ليست عملية';
+
+  @override
+  String get reviewLoadFailed => 'تعذّر تحميل الرسائل.';
+
+  @override
+  String get gapsTitle => 'فجوات محتملة';
+
+  @override
+  String get gapsIntro =>
+      'آخر مرة وصلت فيها رسالة من كل جهة. الصمت الطويل قد يعني أن الاختصار متوقف.';
+
+  @override
+  String get gapsNever => 'لم تصل أي رسالة بعد';
+
+  @override
+  String gapsLast(String when) {
+    return 'آخر رسالة $when';
+  }
+
+  @override
+  String gapsDays(int days) {
+    return 'قبل $days يوم';
+  }
+
+  @override
+  String get gapsToday => 'اليوم';
+
+  @override
+  String get gapsEmpty => 'لا توجد رسائل بعد';
+
+  @override
+  String get sar => 'ر.س';
+
+  @override
+  String get loadFailed => 'تعذّر التحميل. اسحب لإعادة المحاولة.';
 }

@@ -1,0 +1,9 @@
+{
+  "sender": "AlRajhiBank",
+  "receivedAt": "2025-04-20T17:11:05.000Z",
+  "body": "تمت اضافة المستفيد: PERSON A",
+  "expected": {
+    "kind": "ignored",
+    "reason": "beneficiary"
+  }
+}

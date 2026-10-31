@@ -1,0 +1,12 @@
+{
+  "sender": "STC Bank",
+  "receivedAt": "2025-11-13T21:00:05.000Z",
+  "body": "شراء Apple Pay\nعبر:*6190\nبـ:SAR 5.5\nمن:THULATHEAT ALABAD\nفي: 00:00 14/11/25",
+  "expected": {
+    "kind": "transaction",
+    "type": "purchase",
+    "amountHalalas": 550,
+    "merchant": "THULATHEAT ALABAD",
+    "occurredAt": "2025-11-13T21:00:00.000Z"
+  }
+}

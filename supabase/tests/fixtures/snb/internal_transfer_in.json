@@ -1,0 +1,15 @@
+{
+  "sender": "SNB-AlAhli",
+  "receivedAt": "2026-04-07T06:53:05.000Z",
+  "body": "حوالة داخلية واردة\nمبلغ:SAR 190000\nمرسل:PERSON G\nمن:*0109\nإلى:*0201\nفي:09:53 07/04/26",
+  "expected": {
+    "kind": "transaction",
+    "type": "transfer_in",
+    "direction": "in",
+    "amountHalalas": 19000000,
+    "counterpartyLast4": "0109",
+    "accountLast4": "0201",
+    "counterpartyName": "PERSON G",
+    "occurredAt": "2026-04-07T06:53:00.000Z"
+  }
+}

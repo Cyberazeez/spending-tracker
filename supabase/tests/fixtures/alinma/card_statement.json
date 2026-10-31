@@ -1,0 +1,13 @@
+{
+  "sender": "alinma",
+  "receivedAt": "2026-10-02T02:00:05.000Z",
+  "body": "إصدار كشف حساب\nتفاصيل البطاقة **8119\nإجمالي المبلغ المستحق: SAR 16,730.73\nالحد الأدنى للسداد: SAR 1,993.98\nتاريخ الاستحقاق: 25-10-2026\nيرجى تجاهل الرسالة في حال سداد المستحقات",
+  "expected": {
+    "kind": "notice",
+    "notice": "card_statement",
+    "cardLast4": "8119",
+    "totalDueHalalas": 1673073,
+    "minimumDueHalalas": 199398,
+    "dueDate": "2026-10-25"
+  }
+}

@@ -35,6 +35,36 @@ const deps: IngestDeps = {
     }
     return data?.id ?? null;
   },
+  async loadOwnAccounts(userId) {
+    const { data, error } = await db.from("own_accounts").select("bank, last4").eq(
+      "user_id",
+      userId,
+    ).eq("is_active", true);
+    if (error) throw new Error("own_accounts_failed");
+    return data ?? [];
+  },
+  async saveParsed({ userId, rawId, parser, status, ignoreReason, rows }) {
+    let firstId: string | null = null;
+    if (rows.length) {
+      const { data, error } = await db
+        .from("transactions")
+        .insert(rows.map((r) => ({ ...r, user_id: userId, raw_message_id: rawId })))
+        .select("id");
+      if (error) throw new Error("transactions_insert_failed");
+      firstId = data?.[0]?.id ?? null;
+    }
+    const { error } = await db
+      .from("raw_messages")
+      .update({
+        parse_status: status,
+        parser,
+        ignore_reason: ignoreReason ?? null,
+        transaction_id: firstId,
+        confidence: 1,
+      })
+      .eq("id", rawId);
+    if (error) throw new Error("raw_update_failed");
+  },
   async touchToken(tokenId) {
     const { error } = await db
       .from("ingest_tokens")

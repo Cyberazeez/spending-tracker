@@ -1,0 +1,15 @@
+{
+  "sender": "SNB-AlAhli",
+  "receivedAt": "2026-09-27T18:16:05.000Z",
+  "body": "شراء انترنت\nبـ SAR 740\nمن *0103\nمن barq\nمدى-ابل *3301\nفي 21:16 27/09/26",
+  "expected": {
+    "kind": "transaction",
+    "type": "wallet_topup",
+    "direction": "out",
+    "amountHalalas": 74000,
+    "merchant": "barq",
+    "accountLast4": "0103",
+    "cardLast4": "3301",
+    "occurredAt": "2026-09-27T18:16:00.000Z"
+  }
+}

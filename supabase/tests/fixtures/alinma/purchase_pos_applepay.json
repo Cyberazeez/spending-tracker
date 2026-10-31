@@ -1,0 +1,14 @@
+{
+  "sender": "alinma",
+  "receivedAt": "2026-10-29T03:44:05.000Z",
+  "body": "شراء POS-ApplePay\nبـ SAR 19.00\nبطاقة ائتمانية *8119\nلدى *SA /modawar Mi\nفي 06:44 29-10-26\nالرصيد 1,302.52",
+  "expected": {
+    "kind": "transaction",
+    "type": "purchase",
+    "direction": "out",
+    "amountHalalas": 1900,
+    "merchant": "modawar Mi",
+    "cardLast4": "8119",
+    "occurredAt": "2026-10-29T03:44:00.000Z"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "sender": "barq app",
+  "receivedAt": "2026-09-27T15:30:05.000Z",
+  "body": "Refund\nVisa card: **1224\nAmount: 3.99 SAR\nAt: APPLE COM BILL\nOn: 2026-09-27",
+  "expected": {
+    "kind": "transaction",
+    "type": "refund",
+    "direction": "in",
+    "amountHalalas": 399,
+    "merchant": "APPLE COM BILL",
+    "occurredAt": "2026-09-27T15:30:00.000Z"
+  }
+}

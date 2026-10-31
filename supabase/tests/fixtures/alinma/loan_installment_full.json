@@ -1,0 +1,13 @@
+{
+  "sender": "alinma",
+  "receivedAt": "2026-10-28T18:58:05.000Z",
+  "body": "خصم قسط تمويل\nتمويل: Murabahah Commodity RBG\nالمبلغ: SAR 3858.33\nالمبلغ المتبقي: SAR 223783.15\nحساب: **6000\nفي: 21:58 28-10-2026",
+  "expected": {
+    "kind": "transaction",
+    "type": "loan_installment",
+    "direction": "out",
+    "amountHalalas": 385833,
+    "accountLast4": "6000",
+    "occurredAt": "2026-10-28T18:58:00.000Z"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "sender": "alinma",
+  "receivedAt": "2026-10-28T16:38:05.000Z",
+  "body": "شراء ApplePay إنترنت\nبـ SAR 195.49\nبطاقة ائتمانية *8119\nلدى SA/Govyy\nفي 28-10-26 19:38\nرصيد 1,419.02",
+  "expected": {
+    "kind": "transaction",
+    "type": "purchase",
+    "direction": "out",
+    "amountHalalas": 19549,
+    "merchant": "Govyy",
+    "cardLast4": "8119",
+    "occurredAt": "2026-10-28T16:38:00.000Z"
+  }
+}

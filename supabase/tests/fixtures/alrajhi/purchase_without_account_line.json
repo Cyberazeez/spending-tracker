@@ -1,0 +1,13 @@
+{
+  "sender": "AlRajhiBank",
+  "receivedAt": "2024-11-26T16:52:05.000Z",
+  "body": "شراء\nبطاقة:1271;مدى-ابل باي\nمبلغ:SAR 31\nلدى:HEALTHY S\nفي:19:52 26-11-24",
+  "expected": {
+    "kind": "transaction",
+    "type": "purchase",
+    "amountHalalas": 3100,
+    "merchant": "HEALTHY S",
+    "cardLast4": "1271",
+    "occurredAt": "2024-11-26T16:52:00.000Z"
+  }
+}

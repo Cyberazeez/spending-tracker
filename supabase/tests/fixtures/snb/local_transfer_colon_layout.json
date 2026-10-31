@@ -1,0 +1,13 @@
+{
+  "sender": "SNB-AlAhli",
+  "receivedAt": "2026-07-28T11:18:05.000Z",
+  "body": "حوالة صادرة محلية\nمن:*0102\nإلى:PERSON A\nعبر:AL INMA BANK\nآيبان:*6000\nمبلغ:SAR 1800.25\nفي:14:18 28/07/26",
+  "expected": {
+    "kind": "transaction",
+    "type": "transfer_out",
+    "amountHalalas": 180025,
+    "accountLast4": "0102",
+    "counterpartyLast4": "6000",
+    "occurredAt": "2026-07-28T11:18:00.000Z"
+  }
+}

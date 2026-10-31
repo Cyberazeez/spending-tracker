@@ -1,0 +1,15 @@
+{
+  "sender": "SNB-AlAhli",
+  "receivedAt": "2026-08-16T11:40:05.000Z",
+  "body": "حوالة صادرة محلية\nمبلغ SAR 156402.50\nرسوم SAR 2.50\nمن *0102\nمستفيد PERSON A\nإلى *6000\nبنك AL INMA BANK\nفي 14:40 16/08/26",
+  "expected": {
+    "kind": "transaction",
+    "type": "transfer_out",
+    "amountHalalas": 15640250,
+    "feeHalalas": 250,
+    "accountLast4": "0102",
+    "counterpartyLast4": "6000",
+    "counterpartyName": "PERSON A",
+    "occurredAt": "2026-08-16T11:40:00.000Z"
+  }
+}

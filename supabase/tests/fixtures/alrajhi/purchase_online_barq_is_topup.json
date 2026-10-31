@@ -1,0 +1,15 @@
+{
+  "sender": "AlRajhiBank",
+  "receivedAt": "2025-10-21T09:59:05.000Z",
+  "body": "شراء انترنت\nبطاقة:1271;مدى-ابل باي\nمن:6331\nمبلغ:SAR 34\nلدى:Barq\nفي:12:59 21-10-25",
+  "expected": {
+    "kind": "transaction",
+    "type": "wallet_topup",
+    "direction": "out",
+    "amountHalalas": 3400,
+    "merchant": "Barq",
+    "cardLast4": "1271",
+    "accountLast4": "6331",
+    "occurredAt": "2025-10-21T09:59:00.000Z"
+  }
+}

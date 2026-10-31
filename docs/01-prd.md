@@ -67,7 +67,7 @@ As the owner, every bank SMS I receive reaches the app without my touching it.
   | Electricity | ~658.88, varies | ~2nd | no SMS found yet; manual until a sample exists |
   | Horse and foal housing | 1,800 fixed | day salary lands | transfer to account ending 7892 |
   | House Card top-up | 500 fixed | monthly | top-up of D360 8920 |
-  | Alinma Murabahah installment | ~3,857.46 fixed | ~28th/29th until payoff | auto-deduction SMS |
+  | Alinma Murabahah installment | ~3,858.33 fixed | ~28th/29th until payoff | auto-deduction SMS |
   | Credit card statement (8119) | variable | statement date, due 25th | statement SMS gives total and minimum; settled ~2nd |
 - Instances per period with expected vs actual amount and status pending/paid/overdue/skipped, linked transaction.
 - Auto-match incoming transactions to open instances; ask to confirm when unsure; manual "mark paid" always available.

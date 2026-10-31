@@ -1,0 +1,9 @@
+{
+  "sender": "D360 Bank",
+  "receivedAt": "2026-08-22T05:26:49.000Z",
+  "body": "Transaction Declined: Insufficient balance\nAmount: SAR 374.00\nCard: *8920 - Visa\nAt: Gopray\nOn: 2026-08-22 08:26:44",
+  "expected": {
+    "kind": "ignored",
+    "reason": "declined"
+  }
+}

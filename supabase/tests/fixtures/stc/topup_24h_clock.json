@@ -1,0 +1,11 @@
+{
+  "sender": "STC Bank",
+  "receivedAt": "2025-11-13T17:01:05.000Z",
+  "body": "إضافة أموال لحسابك\nبـ:100.00 ر.س\nعبر:*XXXX\nفي: 20:01 13/11/25",
+  "expected": {
+    "kind": "transaction",
+    "type": "wallet_topup",
+    "amountHalalas": 10000,
+    "occurredAt": "2025-11-13T17:01:00.000Z"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "sender": "D360 Bank",
+  "receivedAt": "2026-09-27T02:30:05.000Z",
+  "body": "Your bank card ending with 7705 has been added to digital wallet.\nPlease complete the card activation process.\nOn: 2026-09-27 05:30",
+  "expected": {
+    "kind": "ignored",
+    "reason": "wallet_event"
+  }
+}

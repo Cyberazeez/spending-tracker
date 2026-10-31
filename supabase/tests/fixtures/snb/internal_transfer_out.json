@@ -1,0 +1,13 @@
+{
+  "sender": "SNB-AlAhli",
+  "receivedAt": "2026-07-20T13:02:05.000Z",
+  "body": "حوالة صادرة داخلية\nمبلغ:SAR 470\nمستفيد:PERSON F\nإلى:*6905\nفي:16:02 20/07/26",
+  "expected": {
+    "kind": "transaction",
+    "type": "transfer_out",
+    "amountHalalas": 47000,
+    "counterpartyLast4": "6905",
+    "counterpartyName": "PERSON F",
+    "occurredAt": "2026-07-20T13:02:00.000Z"
+  }
+}

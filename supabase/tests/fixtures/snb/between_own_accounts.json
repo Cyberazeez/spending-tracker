@@ -1,0 +1,15 @@
+{
+  "sender": "SNB-AlAhli",
+  "receivedAt": "2026-08-16T11:45:05.000Z",
+  "body": "حوالة بين حساباتك\nمن *0102\nمبلغ SAR 85.40\nإلى *0103\nفي 14:45 16/08/26",
+  "expected": {
+    "kind": "transaction",
+    "type": "transfer_out",
+    "direction": "out",
+    "amountHalalas": 8540,
+    "accountLast4": "0102",
+    "counterpartyLast4": "0103",
+    "internalHint": true,
+    "occurredAt": "2026-08-16T11:45:00.000Z"
+  }
+}

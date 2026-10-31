@@ -1,0 +1,14 @@
+{
+  "sender": "alinma",
+  "receivedAt": "2026-10-09T18:39:05.000Z",
+  "body": "حوالة واردة محلية\nمبلغ SAR 500\nمن PERSON A\nحساب *6000\nفي 09-10-26 21:39",
+  "expected": {
+    "kind": "transaction",
+    "type": "transfer_in",
+    "direction": "in",
+    "amountHalalas": 50000,
+    "accountLast4": "6000",
+    "counterpartyName": "PERSON A",
+    "occurredAt": "2026-10-09T18:39:00.000Z"
+  }
+}
