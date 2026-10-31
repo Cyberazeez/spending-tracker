@@ -40,7 +40,9 @@ const RULES = [
   },
 ];
 
-async function setup(opts: { minute?: number; day?: number; failSave?: boolean } = {}) {
+async function setup(
+  opts: { minute?: number; day?: number; failSave?: boolean; failRules?: boolean } = {},
+) {
   const token = generateToken();
   const hash = await sha256Hex(token);
   const rows: RawMessageRow[] = [];
@@ -62,7 +64,10 @@ async function setup(opts: { minute?: number; day?: number; failSave?: boolean }
       return Promise.resolve();
     },
     loadOwnAccounts: () => Promise.resolve(OWN),
-    loadCategorization: () => Promise.resolve({ ids: CATS, rules: RULES }),
+    loadCategorization: () =>
+      opts.failRules
+        ? Promise.reject(new Error("db down"))
+        : Promise.resolve({ ids: CATS, rules: RULES }),
     saveParsed: (a) => {
       if (opts.failSave) return Promise.reject(new Error("db down"));
       saved.push(a);
@@ -317,5 +322,14 @@ Deno.test("ingest: a merchant no rule knows is saved uncategorised", async () =>
     body: SMS.body.replace("APPLE COM BILL", "SOME NEW SHOP"),
     received_at: "2026-10-26T14:19:05Z",
   });
+  assert.equal(s.saved[0].rows[0].category_id, undefined);
+});
+
+Deno.test("ingest: if the rules cannot be loaded the transaction is still saved, uncategorised", async () => {
+  const s = await setup({ failRules: true });
+  const res = await s.call(SMS);
+  assert.equal(res.status, 200);
+  assert.equal(s.saved.length, 1);
+  assert.equal(s.saved[0].status, "parsed");
   assert.equal(s.saved[0].rows[0].category_id, undefined);
 });

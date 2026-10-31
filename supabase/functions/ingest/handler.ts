@@ -100,7 +100,11 @@ export async function handleIngest(req: Request, deps: IngestDeps): Promise<Resp
     try {
       const r = parseSms(sender, body, receivedAt);
       if (r.kind === "transaction") {
-        const cat = await deps.loadCategorization(found.userId);
+        // A failed rules load must not cost the transaction: save it uncategorised.
+        const cat = await deps.loadCategorization(found.userId).catch(() => ({
+          ids: {} as CategoryIds,
+          rules: [] as Rule[],
+        }));
         const rows = applyCategories(
           buildRows(r.txn, await deps.loadOwnAccounts(found.userId)),
           cat.rules,

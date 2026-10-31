@@ -38,8 +38,16 @@ class SupabaseDataRepository implements DataRepository {
   SupabaseDataRepository(this._db);
   final SupabaseClient _db;
 
-  static String _norm(String s) =>
-      s.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' ');
+  static String _norm(String s) => normalizeMerchant(s);
+
+  /// Types the server categorises by type, never by merchant: a merchant rule must not touch them.
+  static const _typeDriven = [
+    'fee',
+    'salary',
+    'wallet_topup',
+    'loan_installment',
+    'atm_withdrawal',
+  ];
 
   Map<String, dynamic> _txRow(ManualTxn t, {String? rawId}) => {
     'source': 'manual',
@@ -95,6 +103,8 @@ class SupabaseDataRepository implements DataRepository {
         .eq('merchant_norm', merchantNorm)
         .neq('id', excludingId)
         .isFilter('deleted_at', null)
+        .eq('is_internal', false)
+        .not('type', 'in', '(${_typeDriven.join(',')})')
         .or('category_source.is.null,category_source.neq.manual');
     return rows.length;
   }
@@ -125,8 +135,15 @@ class SupabaseDataRepository implements DataRepository {
     if (alsoPast) {
       await _db
           .from('transactions')
-          .update({'category_id': categoryId, 'category_source': 'rule'})
+          .update({
+            'category_id': categoryId,
+            'category_source': 'rule',
+            'rule_id': null,
+          })
           .eq('merchant_norm', rememberFor)
+          .isFilter('deleted_at', null)
+          .eq('is_internal', false)
+          .not('type', 'in', '(${_typeDriven.join(',')})')
           .or('category_source.is.null,category_source.neq.manual');
     }
   }

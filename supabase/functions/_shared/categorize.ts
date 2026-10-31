@@ -53,6 +53,7 @@ export function tokenPrefixMatch(pattern: string, merchant: string): boolean {
 }
 
 function ruleMatches(r: Rule, input: CatInput): boolean {
+  if (!r.pattern.trim()) return false;
   if (r.pattern.startsWith("acct:")) {
     return !!input.counterpartyLast4 && r.pattern === `acct:${input.counterpartyLast4}`;
   }

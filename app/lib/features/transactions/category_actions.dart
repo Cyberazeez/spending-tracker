@@ -109,7 +109,7 @@ Future<void> pickCategory(
       );
     }
   } finally {
-    ref.invalidate(transactionsProvider);
+    if (context.mounted) ref.invalidate(transactionsProvider);
   }
 }
 

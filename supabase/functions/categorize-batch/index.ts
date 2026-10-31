@@ -61,7 +61,7 @@ Deno.serve(async (req) => {
           return (data ?? []).reduce((s, r) => s + Number(r.cost_halalas), 0);
         },
         async recordUsage(x) {
-          await db.from("ai_usage").insert({
+          const { error } = await db.from("ai_usage").insert({
             user_id: userId,
             day: new Date().toISOString().slice(0, 10),
             purpose: "categorize",
@@ -69,6 +69,8 @@ Deno.serve(async (req) => {
             output_tokens: x.outputTokens,
             cost_halalas: x.costHalalas,
           });
+          // An unrecorded spend would let the cap under-count, so fail loudly.
+          if (error) throw new Error("usage_write_failed");
         },
       },
       async uncategorizedMerchants() {
@@ -76,11 +78,17 @@ Deno.serve(async (req) => {
           "user_id",
           userId,
         )
-          .is("category_id", null).eq("is_internal", false).not("merchant_norm", "is", null).limit(
-            400,
-          );
+          .is("category_id", null).is("deleted_at", null).eq("is_internal", false)
+          .not("merchant_norm", "is", null).order("occurred_at", { ascending: false }).limit(1000);
         if (error) throw new Error("read_failed");
-        return [...new Set((data ?? []).map((r) => r.merchant_norm as string))];
+        // Merchants that already have a rule (user or AI) are never second-guessed by the model.
+        const { data: ruled, error: ruleErr } = await db.from("merchant_rules").select("pattern")
+          .eq("user_id", userId).eq("match_type", "exact");
+        if (ruleErr) throw new Error("read_failed");
+        const has = new Set((ruled ?? []).map((r) => r.pattern as string));
+        return [...new Set((data ?? []).map((r) => r.merchant_norm as string))].filter((m) =>
+          !has.has(m)
+        );
       },
       async saveGuesses(guesses) {
         let updated = 0;
@@ -96,12 +104,13 @@ Deno.serve(async (req) => {
             },
             { onConflict: "user_id,pattern,match_type", ignoreDuplicates: true },
           ).select("id");
-          if (error) continue;
+          // No row back = a rule for this merchant already exists; keep it and leave its transactions alone.
+          if (error || !rule?.length) continue;
           const { data: rows } = await db.from("transactions")
             .update({
               category_id: g.categoryId,
               category_source: "ai",
-              rule_id: rule?.[0]?.id ?? null,
+              rule_id: rule[0].id,
             })
             .eq("user_id", userId).eq("merchant_norm", g.merchantNorm).is("category_id", null)
             .select("id");

@@ -72,12 +72,7 @@ class TransactionsPage extends ConsumerWidget {
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
-              child: CupertinoSearchTextField(
-                placeholder: t.searchHint,
-                onChanged: (v) => ref
-                    .read(txFilterProvider.notifier)
-                    .set(filter.copyWith(query: v.trim())),
-              ),
+              child: const _SearchBox(),
             ),
           ),
           if (review.isNotEmpty && !filter.isActive)
@@ -216,6 +211,41 @@ class _TxnRow extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// The search field keeps its own controller so "Clear filters" also empties the box.
+class _SearchBox extends ConsumerStatefulWidget {
+  const _SearchBox();
+
+  @override
+  ConsumerState<_SearchBox> createState() => _SearchBoxState();
+}
+
+class _SearchBoxState extends ConsumerState<_SearchBox> {
+  final _controller = TextEditingController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    ref.listen(txFilterProvider, (_, next) {
+      if (next.query.isEmpty && _controller.text.trim().isNotEmpty) {
+        _controller.clear();
+      }
+    });
+    return CupertinoSearchTextField(
+      controller: _controller,
+      placeholder: AppLocalizations.of(context).searchHint,
+      onChanged: (v) {
+        final ctl = ref.read(txFilterProvider.notifier);
+        ctl.set(ref.read(txFilterProvider).copyWith(query: v.trim()));
+      },
     );
   }
 }

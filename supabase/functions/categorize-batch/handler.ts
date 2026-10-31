@@ -20,7 +20,8 @@ export type BatchResult =
 
 /** The Claude answer is keyed by the masked merchant; only merchants whose masked form equals the stored key are applied. */
 export async function runBatch(deps: BatchDeps): Promise<BatchResult> {
-  const merchants = await deps.uncategorizedMerchants();
+  // A merchant whose name is altered by masking is never sent, so it cannot crowd out the rest of the batch.
+  const merchants = (await deps.uncategorizedMerchants()).filter((m) => maskMerchant(m) === m);
   if (!merchants.length) return { ok: true, guessed: 0, updated: 0, costHalalas: 0 };
   const names = Object.keys(deps.categoryIds).filter((n) =>
     n !== "Income" && n !== "Transfers" && n !== "Fees"

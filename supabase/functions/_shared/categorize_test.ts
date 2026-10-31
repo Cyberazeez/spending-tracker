@@ -153,3 +153,20 @@ Deno.test("precedence: owner's rule beats seed, confirmed beats AI guess, exact 
 Deno.test("if the category is missing for this user the transaction is left uncategorised, not mislabelled", () => {
   assert.equal(categorize(tx({ type: "fee" }), RULES, {}), null);
 });
+
+Deno.test("categorize: an empty rule pattern never matches", () => {
+  const rules = [{
+    id: "r",
+    pattern: "",
+    matchType: "prefix",
+    categoryId: "c-din",
+    status: "confirmed",
+    source: "user",
+  }] as Rule[];
+  const out = categorize(
+    { type: "purchase", isInternal: false, merchantNorm: "anything" } as CatInput,
+    rules,
+    {} as CategoryIds,
+  );
+  assert.equal(out, null);
+});
