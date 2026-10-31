@@ -6,6 +6,7 @@ import { isWellFormedToken, sha256Hex } from "../_shared/token.ts";
 import { applyCategories, buildRows, type OwnAccount, type TxRow } from "../_shared/enrich.ts";
 import type { CategoryIds, Rule } from "../_shared/categorize.ts";
 import { parseSms } from "../_shared/parsers/index.ts";
+import { applyNotice, applyTransactions, type ObligationDeps } from "./obligations_flow.ts";
 
 export const RATE_LIMIT_PER_MINUTE = 60;
 export const RATE_LIMIT_PER_DAY = 500;
@@ -31,7 +32,13 @@ export interface IngestDeps {
   loadOwnAccounts(userId: string): Promise<OwnAccount[]>;
   loadCategorization(userId: string): Promise<{ ids: CategoryIds; rules: Rule[] }>;
   /** Stores the transactions (if any) and updates the raw message's parse status in one go. */
-  saveParsed(args: SaveParsedArgs): Promise<void>;
+  saveParsed(args: SaveParsedArgs): Promise<SaveResult>;
+  obligations: ObligationDeps;
+}
+
+/** Ids of the stored transactions by type (a transfer and its fee are two rows of one SMS). */
+export interface SaveResult {
+  ids: Record<string, string>;
 }
 
 export interface SaveParsedArgs {
@@ -110,13 +117,17 @@ export async function handleIngest(req: Request, deps: IngestDeps): Promise<Resp
           cat.rules,
           cat.ids,
         );
-        await deps.saveParsed({
+        const saved = await deps.saveParsed({
           userId: found.userId,
           rawId: id,
           parser: r.parser,
           status: "parsed",
           rows,
         });
+        // The transaction is safe by now; tracking obligations is best effort and never fails the SMS.
+        await applyTransactions(deps.obligations, found.userId, rows, saved.ids).catch((e) =>
+          console.error("obligation_match_failed", (e as Error).message)
+        );
       } else if (r.kind === "notice") {
         await deps.saveParsed({
           userId: found.userId,
@@ -125,6 +136,9 @@ export async function handleIngest(req: Request, deps: IngestDeps): Promise<Resp
           status: "parsed",
           rows: [],
         });
+        await applyNotice(deps.obligations, found.userId, id, receivedAt, r).catch((e) =>
+          console.error("obligation_notice_failed", (e as Error).message)
+        );
       } else if (r.kind === "ignored") {
         await deps.saveParsed({
           userId: found.userId,

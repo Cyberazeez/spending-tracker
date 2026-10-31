@@ -7,6 +7,7 @@ import {
   type RawMessageRow,
   type SaveParsedArgs,
 } from "./handler.ts";
+import type { Inst, Ob } from "../_shared/obligations.ts";
 import { generateToken, sha256Hex } from "../_shared/token.ts";
 
 const OWN = [
@@ -41,13 +42,24 @@ const RULES = [
 ];
 
 async function setup(
-  opts: { minute?: number; day?: number; failSave?: boolean; failRules?: boolean } = {},
+  opts: {
+    minute?: number;
+    day?: number;
+    failSave?: boolean;
+    failRules?: boolean;
+    failObligations?: boolean;
+    obs?: Ob[];
+    open?: Inst[];
+  } = {},
 ) {
   const token = generateToken();
   const hash = await sha256Hex(token);
   const rows: RawMessageRow[] = [];
   const saved: SaveParsedArgs[] = [];
   const seen = new Set<string>();
+  const noticeInstances: Parameters<IngestDeps["obligations"]["upsertNoticeInstance"]>[0][] = [];
+  const matches: Parameters<IngestDeps["obligations"]["applyMatch"]>[0][] = [];
+  const dueDates: [string, string][] = [];
   let touched = 0;
   const deps: IngestDeps = {
     findToken: (h) => Promise.resolve(h === hash ? { id: "tok1", userId: "user1" } : null),
@@ -71,7 +83,27 @@ async function setup(
     saveParsed: (a) => {
       if (opts.failSave) return Promise.reject(new Error("db down"));
       saved.push(a);
-      return Promise.resolve();
+      return Promise.resolve({
+        ids: Object.fromEntries(a.rows.map((r, i) => [r.type, `tx${saved.length}-${i}`])),
+      });
+    },
+    obligations: {
+      loadObligations: () => {
+        if (opts.failObligations) return Promise.reject(new Error("db down"));
+        return Promise.resolve({ obs: opts.obs ?? [], open: opts.open ?? [] });
+      },
+      upsertNoticeInstance: (a) => {
+        noticeInstances.push(a);
+        return Promise.resolve();
+      },
+      applyMatch: (a) => {
+        matches.push(a);
+        return Promise.resolve();
+      },
+      setDueDate: (_u, id, due) => {
+        dueDates.push([id, due]);
+        return Promise.resolve();
+      },
     },
   };
   const call = (
@@ -89,7 +121,7 @@ async function setup(
       }),
       deps,
     );
-  return { call, rows, saved, token, touched: () => touched };
+  return { call, rows, saved, token, touched: () => touched, noticeInstances, matches, dueDates };
 }
 
 const SMS = {
@@ -332,4 +364,91 @@ Deno.test("ingest: if the rules cannot be loaded the transaction is still saved,
   assert.equal(s.saved.length, 1);
   assert.equal(s.saved[0].status, "parsed");
   assert.equal(s.saved[0].rows[0].category_id, undefined);
+});
+
+const BILL_BODY = Deno.readTextFileSync(
+  new URL("../../tests/fixtures/stc900/internet_bill.json", import.meta.url),
+);
+const NET_OB: Ob = {
+  id: "ob-net",
+  name: "Internet",
+  kind: "bill",
+  expectedHalalas: 17250,
+  dueRule: { day: 2, next_month: true },
+  match: { line: "7356", merchant: ["stc"] },
+};
+const HORSE_OB: Ob = {
+  id: "ob-horse",
+  name: "Horse and foal",
+  kind: "fixed",
+  expectedHalalas: 180000,
+  dueRule: { after: "salary", fallback_day: 28, grace: 3 },
+  match: { types: ["transfer_out"], counterparty_last4: "7892", tolerance_pct: 0 },
+};
+const HORSE_INST: Inst = {
+  id: "inst-horse",
+  obligationId: "ob-horse",
+  periodStart: "2026-10-01",
+  dueDate: "2026-10-28",
+  expectedHalalas: 180000,
+  actualHalalas: null,
+  status: "pending",
+  transactionId: null,
+  matchState: "none",
+  createdAt: "2026-10-01T00:00:00Z",
+};
+const HORSE_SMS = {
+  sender: "alinma",
+  body:
+    "حوالة صادرة محلية\nمبلغ SAR 1,800\nرسوم: SAR 0.58\nلـ PERSON H\nلحساب *7892\nفي 23:58 30-10-26",
+  received_at: "2026-10-30T20:58:05Z",
+};
+
+Deno.test("ingest: an STC bill SMS creates that month's internet instance", async () => {
+  const s = await setup({ obs: [NET_OB] });
+  const f = JSON.parse(BILL_BODY);
+  const res = await s.call({ sender: f.sender, body: f.body, received_at: f.receivedAt });
+  assert.equal(res.status, 200);
+  assert.equal(s.saved[0].status, "parsed");
+  assert.equal(s.noticeInstances.length, 1);
+  assert.deepEqual(s.noticeInstances[0].inst, {
+    periodStart: "2026-10-01",
+    dueDate: "2026-11-02",
+    expectedHalalas: 17250,
+  });
+});
+
+Deno.test("ingest: a bill for a line nobody tracks is parsed but creates no instance", async () => {
+  const s = await setup({ obs: [] });
+  const f = JSON.parse(BILL_BODY);
+  await s.call({ sender: f.sender, body: f.body, received_at: f.receivedAt });
+  assert.equal(s.saved[0].status, "parsed");
+  assert.equal(s.noticeInstances.length, 0);
+});
+
+Deno.test("ingest: the 1,800 transfer to 7892 pays the horse instance, the fee row does not", async () => {
+  const s = await setup({ obs: [HORSE_OB], open: [HORSE_INST] });
+  await s.call(HORSE_SMS);
+  assert.equal(s.matches.length, 1);
+  assert.equal(s.matches[0].match.instanceId, "inst-horse");
+  assert.equal(s.matches[0].match.status, "paid");
+  assert.equal(s.matches[0].match.transactionId, "tx1-0");
+});
+
+Deno.test("ingest: a salary moves an 'after salary' due date to the day it landed", async () => {
+  const s = await setup({ obs: [HORSE_OB], open: [HORSE_INST] });
+  await s.call({
+    sender: "alinma",
+    body: "تم إيداع الراتب\nمبلغ SAR 14,100.00\nلحساب *6000\nفي 05:10 29-10-26",
+    received_at: "2026-10-29T02:10:05Z",
+  });
+  assert.deepEqual(s.dueDates, [["inst-horse", "2026-10-29"]]);
+});
+
+Deno.test("ingest: if tracking obligations fails the transaction is still saved and the call succeeds", async () => {
+  const s = await setup({ failObligations: true });
+  const res = await s.call(SMS);
+  assert.equal(res.status, 200);
+  assert.equal(s.saved.length, 1);
+  assert.equal(s.saved[0].rows.length, 1);
 });

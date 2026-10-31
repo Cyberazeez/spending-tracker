@@ -10,7 +10,7 @@ interface Fixture {
   expected: Record<string, unknown>;
 }
 
-const SENDERS = ["alinma", "alrajhi", "barq", "d360", "snb", "stc"];
+const SENDERS = ["alinma", "alrajhi", "barq", "d360", "snb", "stc", "stc900"];
 let total = 0;
 
 for (const dir of SENDERS) {
