@@ -52,9 +52,11 @@ class RawMessage {
 }
 
 class SenderGap {
-  const SenderGap({required this.sender, required this.lastReceivedAt});
+  const SenderGap({required this.sender, this.lastReceivedAt});
   final String sender;
-  final DateTime lastReceivedAt;
+
+  /// Null when nothing has ever arrived from this sender.
+  final DateTime? lastReceivedAt;
 }
 
 /// What the user typed when adding or converting a transaction by hand.

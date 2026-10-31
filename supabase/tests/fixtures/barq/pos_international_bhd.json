@@ -1,7 +1,7 @@
 {
   "sender": "barq app",
   "receivedAt": "2026-09-28T18:06:05.000Z",
-  "body": "POS International Purchase\nVisa card: **9105 (Apple Pay)\nAmount: 19.1 BHD (190.23 SAR) FX 9.9597\nWallet balance: 65.49\nAt: OKAY\nCountry: Bahrain\n2026-09-28 21:06",
+  "body": "POS International Purchase\nVisa card: **9105 (Apple Pay)\nAmount: 19.1 BHD (190.23 SAR) FX 9.9597\nWallet balance: 1,000.00\nAt: OKAY\nCountry: Bahrain\n2026-09-28 21:06",
   "expected": {
     "kind": "transaction",
     "type": "purchase",

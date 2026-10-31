@@ -37,6 +37,14 @@ class TransactionsPage extends ConsumerWidget {
             onRefresh: () async {
               ref.invalidate(transactionsProvider);
               ref.invalidate(needsReviewProvider);
+              await Future.wait([
+                ref
+                    .read(transactionsProvider.future)
+                    .catchError((_) => <Txn>[]),
+                ref
+                    .read(needsReviewProvider.future)
+                    .catchError((_) => <RawMessage>[]),
+              ]);
             },
           ),
           if (review.isNotEmpty)

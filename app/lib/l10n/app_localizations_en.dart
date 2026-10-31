@@ -282,7 +282,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String gapsDays(int days) {
-    return '$days days ago';
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days days ago',
+      one: '1 day ago',
+    );
+    return '$_temp0';
   }
 
   @override

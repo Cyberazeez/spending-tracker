@@ -84,7 +84,7 @@ Deno.test("ingest: stores a message as needs_review and updates last_used", asyn
   assert.equal(s.rows.length, 1);
   assert.equal(s.rows[0].user_id, "user1");
   assert.equal(s.rows[0].parse_status, "needs_review");
-  assert.equal(s.rows[0].body, SMS.body);
+  assert.equal(s.rows[0].body, SMS.body.replace("\nBalance 621.89", ""));
   assert.equal(s.touched(), 1);
 });
 
@@ -163,6 +163,22 @@ Deno.test("ingest: a purchase SMS is parsed and saved as a transaction", async (
   assert.equal(a.rows[0].merchant_norm, "apple com bill");
   assert.equal(a.rows[0].is_internal, false);
   assert.ok(!JSON.stringify(a).includes("621.89"), "balance must not be stored");
+  assert.ok(
+    !JSON.stringify(s.rows).includes("621.89"),
+    "balance must not be stored in the raw message either",
+  );
+  assert.ok(s.rows[0].body.includes("APPLE COM BILL"));
+});
+
+Deno.test("ingest: a one-time code only the parser recognises gets its stored body blanked", async () => {
+  const s = await setup();
+  await s.call({
+    sender: "STC Bank",
+    body: "رمز العملية 4821",
+    received_at: "2026-10-26T14:19:05Z",
+  });
+  assert.equal(s.saved[0].ignoreReason, "otp");
+  assert.equal(s.saved[0].redactBody, true);
 });
 
 Deno.test("ingest: a transfer to an own account is internal and excluded from spend", async () => {

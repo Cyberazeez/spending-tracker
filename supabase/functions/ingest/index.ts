@@ -43,26 +43,32 @@ const deps: IngestDeps = {
     if (error) throw new Error("own_accounts_failed");
     return data ?? [];
   },
-  async saveParsed({ userId, rawId, parser, status, ignoreReason, rows }) {
+  async saveParsed({ userId, rawId, parser, status, ignoreReason, redactBody, rows }) {
     let firstId: string | null = null;
     if (rows.length) {
-      const { data, error } = await db
-        .from("transactions")
-        .insert(rows.map((r) => ({ ...r, user_id: userId, raw_message_id: rawId })))
-        .select("id");
+      // (raw_message_id, type) is unique, so a retry after a half-finished save cannot duplicate rows.
+      const { error } = await db.from("transactions").upsert(
+        rows.map((r) => ({ ...r, user_id: userId, raw_message_id: rawId })),
+        { onConflict: "raw_message_id,type", ignoreDuplicates: true },
+      );
       if (error) throw new Error("transactions_insert_failed");
+      const { data, error: readError } = await db.from("transactions").select("id").eq(
+        "raw_message_id",
+        rawId,
+      )
+        .order("created_at", { ascending: true }).limit(1);
+      if (readError) throw new Error("transactions_read_failed");
       firstId = data?.[0]?.id ?? null;
     }
-    const { error } = await db
-      .from("raw_messages")
-      .update({
-        parse_status: status,
-        parser,
-        ignore_reason: ignoreReason ?? null,
-        transaction_id: firstId,
-        confidence: 1,
-      })
-      .eq("id", rawId);
+    const patch: Record<string, unknown> = {
+      parse_status: status,
+      parser,
+      ignore_reason: ignoreReason ?? null,
+      transaction_id: firstId,
+      confidence: 1,
+    };
+    if (redactBody) patch.body = "[redacted]";
+    const { error } = await db.from("raw_messages").update(patch).eq("id", rawId);
     if (error) throw new Error("raw_update_failed");
   },
   async touchToken(tokenId) {

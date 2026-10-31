@@ -11,7 +11,7 @@ import {
 import { strip } from "./alinma.ts";
 
 const P = "alrajhi/v1";
-const NUM = "([\\d,]+(?:\\.\\d+)?)";
+const NUM = "([\\d,]+(?:\\.\\d+)?)(?![\\d,]|\\.\\d|[ \\t]\\d)";
 
 export function parseAlRajhi(rawBody: string, receivedAt: Date): ParseResult {
   const body = normalizeText(rawBody);

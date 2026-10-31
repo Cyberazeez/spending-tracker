@@ -1,7 +1,7 @@
 {
   "sender": "D360 Bank",
   "receivedAt": "2026-08-15T19:10:05.000Z",
-  "body": "Local Online Purchase\nAmount: SAR 72.24\nCard: *8920 - VISA (Apple Pay)\nAt: HUNGERSTATION LLC\nOn: 2026-08-15 22:10\nAvailable Balance: SAR 284.87",
+  "body": "Local Online Purchase\nAmount: SAR 72.24\nCard: *8920 - VISA (Apple Pay)\nAt: HUNGERSTATION LLC\nOn: 2026-08-15 22:10\nAvailable Balance: SAR 1,000.00",
   "expected": {
     "kind": "transaction",
     "type": "purchase",

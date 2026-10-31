@@ -611,7 +611,7 @@ abstract class AppLocalizations {
   /// No description provided for @gapsDays.
   ///
   /// In en, this message translates to:
-  /// **'{days} days ago'**
+  /// **'{days, plural, =1{1 day ago} other{{days} days ago}}'**
   String gapsDays(int days);
 
   /// No description provided for @gapsToday.

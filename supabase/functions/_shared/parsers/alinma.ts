@@ -10,7 +10,7 @@ import {
   toMinor,
 } from "./util.ts";
 
-const NUM = "([\\d,]+(?:\\.\\d+)?)";
+const NUM = "([\\d,]+(?:\\.\\d+)?)(?![\\d,]|\\.\\d|[ \\t]\\d)";
 const P = "alinma/v1";
 
 export function parseAlinma(rawBody: string, receivedAt: Date): ParseResult {
@@ -18,7 +18,7 @@ export function parseAlinma(rawBody: string, receivedAt: Date): ParseResult {
   const one = (re: RegExp) => body.match(re)?.[1];
   const when = () => pickDate(body, receivedAt);
 
-  if (/رمز\s*(ال)?تفعيل|OTP/i.test(body)) return { kind: "ignored", parser: P, reason: "otp" };
+  if (/رمز\s*(ال)?تفعيل|\bOTP\b/i.test(body)) return { kind: "ignored", parser: P, reason: "otp" };
   if (/القسط الشهري للعقد/.test(body)) {
     return { kind: "ignored", parser: P, reason: "loan_due_notice" };
   }

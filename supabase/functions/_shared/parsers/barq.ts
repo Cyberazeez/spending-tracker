@@ -11,7 +11,7 @@ import {
 import { strip } from "./alinma.ts";
 
 const P = "barq/v1";
-const NUM = "([\\d,]+(?:\\.\\d+)?)";
+const NUM = "([\\d,]+(?:\\.\\d+)?)(?![\\d,]|\\.\\d|[ \\t]\\d)";
 
 export function parseBarq(rawBody: string, receivedAt: Date): ParseResult {
   const body = normalizeText(rawBody);

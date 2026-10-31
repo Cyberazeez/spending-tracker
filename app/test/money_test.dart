@@ -20,6 +20,7 @@ void main() {
       expect(parseHalalas('25.5'), 2550);
       expect(parseHalalas('25.50'), 2550);
       expect(parseHalalas('1,250.05'), 125005);
+      expect(parseHalalas('12,345,678.9'), 1234567890);
       expect(parseHalalas('٢٥٫٥'), 2550);
       expect(parseHalalas('  0.10 '), 10);
     });

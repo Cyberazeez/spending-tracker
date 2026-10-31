@@ -1,7 +1,7 @@
 {
   "sender": "STC Bank",
   "receivedAt": "2026-02-06T04:02:05.000Z",
-  "body": "رصيد غير كافي\n2.22 ر.س\nAWS EMEA\n06/02/26 07:01\nرصيدك 0",
+  "body": "رصيد غير كافي\n2.22 ر.س\nAWS EMEA\n06/02/26 07:01\nرصيدك 1,000.00",
   "expected": {
     "kind": "ignored",
     "reason": "declined"

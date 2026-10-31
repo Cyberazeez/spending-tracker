@@ -120,7 +120,7 @@
       }
     }
   },
-  "gapsDays": "قبل {days} يوم",
+  "gapsDays": "{days, plural, =1{قبل يوم} =2{قبل يومين} few{قبل {days} أيام} other{قبل {days} يوم}}",
   "@gapsDays": {
     "placeholders": {
       "days": {

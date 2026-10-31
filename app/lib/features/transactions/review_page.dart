@@ -36,8 +36,11 @@ class ReviewPage extends ConsumerWidget {
             isDestructiveAction: true,
             onPressed: () async {
               Navigator.pop(ctx);
-              await ref.read(dataRepositoryProvider).dismissRaw(m.id);
-              ref.invalidate(needsReviewProvider);
+              try {
+                await ref.read(dataRepositoryProvider).dismissRaw(m.id);
+              } finally {
+                ref.invalidate(needsReviewProvider);
+              }
             },
             child: Text(t.reviewDismiss),
           ),

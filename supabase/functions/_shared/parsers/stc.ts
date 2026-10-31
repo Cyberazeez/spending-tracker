@@ -11,7 +11,7 @@ import {
 import { strip } from "./alinma.ts";
 
 const P = "stc/v1";
-const NUM = "([\\d,]+(?:\\.\\d+)?)";
+const NUM = "([\\d,]+(?:\\.\\d+)?)(?![\\d,]|\\.\\d|[ \\t]\\d)";
 /** SAR is pegged at 3.75 USD; used only when a USD purchase carries no SAR amount. */
 const USD_SAR_X100 = 375;
 

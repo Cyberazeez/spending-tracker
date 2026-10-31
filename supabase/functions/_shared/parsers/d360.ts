@@ -3,7 +3,7 @@ import { isWalletMerchant, last4, normalizeText, pickDate, toHalalas } from "./u
 import { strip } from "./alinma.ts";
 
 const P = "d360/v1";
-const NUM = "([\\d,]+(?:\\.\\d+)?)";
+const NUM = "([\\d,]+(?:\\.\\d+)?)(?![\\d,]|\\.\\d|[ \\t]\\d)";
 
 export function parseD360(rawBody: string, receivedAt: Date): ParseResult {
   const body = normalizeText(rawBody);

@@ -1,5 +1,6 @@
 import { dedupeKey } from "../_shared/dedupe.ts";
 import { isOtpLike, REDACTED_BODY } from "../_shared/otp.ts";
+import { stripBalances } from "../_shared/redact.ts";
 import { parseIngestPayload } from "../_shared/request.ts";
 import { isWellFormedToken, sha256Hex } from "../_shared/token.ts";
 import { buildRows, type OwnAccount, type TxRow } from "../_shared/enrich.ts";
@@ -37,6 +38,8 @@ export interface SaveParsedArgs {
   parser: string;
   status: "parsed" | "ignored";
   ignoreReason?: string;
+  /** The parser recognised a one-time code the generic filter missed: blank the stored body. */
+  redactBody?: boolean;
   rows: TxRow[];
 }
 
@@ -78,7 +81,7 @@ export async function handleIngest(req: Request, deps: IngestDeps): Promise<Resp
   const { sender, body, receivedAt } = parsed.value;
 
   const otp = isOtpLike(body);
-  const storedBody = otp ? REDACTED_BODY : body;
+  const storedBody = otp ? REDACTED_BODY : stripBalances(body);
   const id = await deps.insertRaw({
     user_id: found.userId,
     sender,
@@ -118,6 +121,7 @@ export async function handleIngest(req: Request, deps: IngestDeps): Promise<Resp
           parser: r.parser,
           status: "ignored",
           ignoreReason: r.reason,
+          redactBody: r.reason === "otp",
           rows: [],
         });
       }

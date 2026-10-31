@@ -11,18 +11,16 @@ String formatSar(int halalas, {required bool arabic}) {
 const _arabicDigits = '٠١٢٣٤٥٦٧٨٩';
 
 /// "25", "25.5", "1,250.50", "٢٥٫٥" -> halalas, or null when it is not a valid positive amount.
+/// Commas are thousands separators only: "12,50" is rejected rather than read as 1,250.
 int? parseHalalas(String input) {
-  var s = input
-      .trim()
-      .replaceAll(',', '')
-      .replaceAll('٫', '.')
-      .replaceAll('،', '');
+  var s = input.trim().replaceAll('٫', '.').replaceAll('٬', ',');
   s = s.replaceAllMapped(
     RegExp('[٠-٩]'),
     (m) => _arabicDigits.indexOf(m[0]!).toString(),
   );
-  if (!RegExp(r'^\d+(\.\d{1,2})?$').hasMatch(s)) return null;
-  final parts = s.split('.');
+  final valid = RegExp(r'^(\d{1,10}|\d{1,3}(,\d{3})+)(\.\d{1,2})?$');
+  if (!valid.hasMatch(s)) return null;
+  final parts = s.replaceAll(',', '').split('.');
   final h =
       int.parse(parts[0]) * 100 +
       (parts.length > 1 ? int.parse(parts[1].padRight(2, '0')) : 0);

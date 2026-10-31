@@ -12,7 +12,7 @@ Source: the owner's screenshots (2026-10-30). Names, phone and account numbers a
 4. **Fees** come inside the transfer SMS (Al Rajhi/Alinma 0.58, SNB 2.50): create the transfer and a separate `fee` transaction.
 5. **Dates differ per sender and sometimes per template** (see table). The SMS arrives seconds after the event, so the parser picks the candidate date closest to `received_at` when a template is ambiguous.
 6. **Repeated near-identical SMS are real** (four D360 refunds in one minute, two 20,000.50 transfers 14 minutes apart). Dedupe on exact body plus 2-minute bucket never merges different amounts.
-7. **Never stored:** balances (`الرصيد`, `Balance`, `Available balance`, `Wallet balance`), OTP bodies, phone numbers, account numbers longer than last 4.
+7. **Never stored:** balances (`الرصيد`, `Balance`, `Available balance`, `Wallet balance`: those lines are removed from the stored message body before it is saved, and the parser never reads them), OTP bodies (blanked, also when only the bank's parser recognises the code), phone numbers, account numbers longer than last 4. Amounts above 100 million SAR and dates more than 30 days before (or any time after) the SMS arrival are rejected and go to Needs review.
 
 ## alinma (Arabic)
 | Template | Fields | Type | Date format |

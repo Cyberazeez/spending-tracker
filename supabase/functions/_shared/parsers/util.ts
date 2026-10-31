@@ -10,17 +10,28 @@ export function normalizeText(s: string): string {
     .replace(BIDI, "")
     .replace(/[٠-٩]/g, (d) => String(ARABIC_INDIC.indexOf(d)))
     .replace(/[۰-۹]/g, (d) => String(EXT_INDIC.indexOf(d)))
+    .replace(/\u066c/g, ",")
+    .replace(/\u066b/g, ".")
     .replace(/\r\n?/g, "\n")
-    .replace(/[\t ]+/g, " ")
+    .replace(/[\t\u00a0 ]+/g, " ")
+    .replace(/ ?\n ?/g, "\n")
     .trim();
 }
 
+const MAX_AGE_MS = 30 * 24 * 3600 * 1000;
+export const MAX_HALALAS = 10_000_000_000;
+
 /** "1,800" / "20000.50" / "5.5" -> halalas, with string maths (no floats). */
 export function toHalalas(s: string): number {
+  // Commas are thousands separators only: "1,234.50" is fine, "12,34,56" or "12,50" is not an amount.
+  if (!/^(\d+|\d{1,3}(,\d{3})+)(\.\d+)?$/.test(s.trim())) throw new Error("bad amount");
   const t = s.replace(/,/g, "").trim();
-  if (!/^\d+(\.\d+)?$/.test(t)) throw new Error("bad amount");
+  if (!/^\d{1,12}(\.\d+)?$/.test(t)) throw new Error("bad amount");
   const [i, f = ""] = t.split(".");
-  return parseInt(i, 10) * 100 + parseInt((f + "00").slice(0, 2), 10);
+  const h = parseInt(i, 10) * 100 + parseInt((f + "00").slice(0, 2), 10);
+  // Larger than 100 million SAR is a typo or a forgery, never a real SMS.
+  if (!Number.isSafeInteger(h) || h > MAX_HALALAS) throw new Error("bad amount");
+  return h;
 }
 
 /** Minor units of a foreign currency (2 decimals assumed; BHD has 3 but is only used for display). */
@@ -96,8 +107,11 @@ export function pickDate(text: string, receivedAt: Date): string | null {
     add(+mdy[3], +mdy[1], +mdy[2], h, +clock[2]);
   }
   const ref = receivedAt.getTime();
-  const ok = c.filter((iso) => new Date(iso).getTime() - ref < 24 * 3600 * 1000);
-  const pool = ok.length ? ok : c;
+  // A reading far from the arrival time is a different date format, a typo or a forgery: never guess.
+  const pool = c.filter((iso) => {
+    const d = new Date(iso).getTime() - ref;
+    return d < 24 * 3600 * 1000 && d > -MAX_AGE_MS;
+  });
   if (!pool.length) return null;
   pool.sort((a, b) =>
     Math.abs(new Date(a).getTime() - ref) - Math.abs(new Date(b).getTime() - ref)
@@ -129,7 +143,8 @@ export function cleanMerchant(s: string): string {
 }
 
 /** Merchants that are really wallet top-ups between the owner's own accounts. */
-const WALLET_MERCHANT = /^(barq|stc(\s*(bank|pay))?|d360(\s*bank)?|mysr\s*[*]?\s*d360)$/i;
+const WALLET_MERCHANT =
+  /^(barq(\s*(app|sa))?|stc\s*bank|d360(\s*bank)?(\s*sa)?|mysr\s*[*]?\s*d360)$/i;
 export function isWalletMerchant(m?: string): boolean {
   return !!m && WALLET_MERCHANT.test(m.trim());
 }

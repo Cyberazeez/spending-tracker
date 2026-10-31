@@ -102,6 +102,6 @@ class SupabaseDataRepository implements DataRepository {
     return latest.entries
         .map((e) => SenderGap(sender: e.key, lastReceivedAt: e.value))
         .toList()
-      ..sort((a, b) => a.lastReceivedAt.compareTo(b.lastReceivedAt));
+      ..sort((a, b) => a.lastReceivedAt!.compareTo(b.lastReceivedAt!));
   }
 }

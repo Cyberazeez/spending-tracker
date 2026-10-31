@@ -3,7 +3,7 @@ import { isWalletMerchant, last4, lines, normalizeText, pickDate, toHalalas } fr
 import { strip } from "./alinma.ts";
 
 const P = "snb/v1";
-const NUM = "([\\d,]+(?:\\.\\d+)?)";
+const NUM = "([\\d,]+(?:\\.\\d+)?)(?![\\d,]|\\.\\d|[ \\t]\\d)";
 
 export function parseSnb(rawBody: string, receivedAt: Date): ParseResult {
   const body = normalizeText(rawBody);

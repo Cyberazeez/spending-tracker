@@ -1,7 +1,7 @@
 {
   "sender": "barq app",
   "receivedAt": "2026-10-22T17:47:05.000Z",
-  "body": "POS Purchase\nVisa card: **9105 (Apple Pay)\nAmount: 19.00 SAR\nBalance: 494.07\nAt: OTTEN\n2026-10-22 20:47",
+  "body": "POS Purchase\nVisa card: **9105 (Apple Pay)\nAmount: 19.00 SAR\nBalance: 1,000.00\nAt: OTTEN\n2026-10-22 20:47",
   "expected": {
     "kind": "transaction",
     "type": "purchase",

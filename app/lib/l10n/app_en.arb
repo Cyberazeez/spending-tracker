@@ -120,7 +120,7 @@
       }
     }
   },
-  "gapsDays": "{days} days ago",
+  "gapsDays": "{days, plural, =1{1 day ago} other{{days} days ago}}",
   "@gapsDays": {
     "placeholders": {
       "days": {
