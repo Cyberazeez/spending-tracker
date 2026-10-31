@@ -20,8 +20,10 @@ export interface ObMatch {
   /** Strong hint: the transfer went to this account / card (last 4). */
   counterparty_last4?: string;
   card?: string;
-  /** Weak hint: merchant words (normalised, whole-word prefix). Weak matches only ever suggest. */
+  /** Weak hint: merchant words (normalised, whole-word prefix). Alone it only suggests... */
   merchant?: string[];
+  /** ...unless this is set: merchant words plus an amount within tolerance are then enough to mark it paid. */
+  auto_merchant?: boolean;
   /** Allowed difference from the expected amount, percent. Default 1. */
   tolerance_pct?: number;
   /** Several payments add up to the expected amount (the loan can be collected in parts). */
@@ -200,7 +202,9 @@ export function matchTransaction(txn: MatchTxn, instances: Inst[], obs: Ob[]): M
     const weak = !!txn.merchantNorm &&
       (m.merchant ?? []).some((w) => tokenPrefixMatch(w, txn.merchantNorm!));
     if (!strong && !weak) continue;
-    if (!strong && inst.matchState === "suggested") continue; // a weak guess never replaces another guess
+    // Sure enough to mark paid: a strong hint, or merchant words on an obligation that opts in (amount is checked below).
+    const sure = strong || (weak && !!m.auto_merchant);
+    if (!sure && inst.matchState === "suggested") continue; // a weak guess never replaces another guess
 
     const expected = inst.expectedHalalas;
     let res: MatchResult;
@@ -221,13 +225,13 @@ export function matchTransaction(txn: MatchTxn, instances: Inst[], obs: Ob[]): M
       if (diff > Math.ceil(expected * (m.tolerance_pct ?? 1) / 100)) continue;
       res = {
         instanceId: inst.id,
-        state: strong ? "auto" : "suggested",
-        status: strong ? "paid" : "pending",
+        state: sure ? "auto" : "suggested",
+        status: sure ? "paid" : "pending",
         actualHalalas: txn.amountHalalas,
         transactionId: txn.id,
       };
     }
-    const score = strong ? 2 : 1;
+    const score = strong ? 3 : sure ? 2 : 1;
     if (
       !best || score > best.score || (score === best.score && (diff < best.diff ||
         (diff === best.diff && inst.dueDate < best.due)))

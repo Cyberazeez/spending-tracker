@@ -284,3 +284,35 @@ Deno.test("loan: the same deduction processed twice is not counted twice", () =>
     null,
   );
 });
+
+Deno.test("auto_merchant: merchant words plus the right amount mark a bill paid without asking", () => {
+  const net: Ob = { ...NET, match: { ...NET.match, auto_merchant: true } };
+  const i = [inst({ obligationId: "net", expectedHalalas: 17250 })];
+  const r = matchTransaction(
+    tx({ type: "purchase", amountHalalas: 17250, merchantNorm: "stc pay" }),
+    i,
+    [net],
+  );
+  assert.equal(r?.state, "auto");
+  assert.equal(r?.status, "paid");
+  // still needs both: the wrong amount, or no merchant words, never match
+  assert.equal(
+    matchTransaction(tx({ type: "purchase", amountHalalas: 20000, merchantNorm: "stc" }), i, [net]),
+    null,
+  );
+  assert.equal(
+    matchTransaction(tx({ type: "purchase", amountHalalas: 17250, merchantNorm: "lulu" }), i, [
+      net,
+    ]),
+    null,
+  );
+});
+
+Deno.test("auto_merchant: a bigger STC bill (overage) is not auto-paid by the usual amount", () => {
+  const net: Ob = { ...NET, match: { ...NET.match, auto_merchant: true } };
+  const i = [inst({ obligationId: "net", expectedHalalas: 25000 })];
+  assert.equal(
+    matchTransaction(tx({ type: "purchase", amountHalalas: 17250, merchantNorm: "stc" }), i, [net]),
+    null,
+  );
+});
