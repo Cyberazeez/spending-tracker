@@ -108,7 +108,8 @@ begin
   select count(*) into n from public.obligation_instances i join public.obligations o on o.id = i.obligation_id
     where o.kind in ('bill', 'card_statement');
   if n <> 0 then raise exception 'refresh created bill/statement instances'; end if;
-  select count(*) into n from public.obligation_instances where due_date < (now() at time zone 'Asia/Riyadh')::date;
+  select count(*) into n from public.obligation_instances i join public.obligations o on o.id = i.obligation_id
+    where i.due_date + coalesce((o.due_rule->>'grace')::int, 0) < (now() at time zone 'Asia/Riyadh')::date;
   if n <> 0 then raise exception 'refresh created instances in the past'; end if;
   select count(*) into n from (select obligation_id, period_start from public.obligation_instances group by 1, 2 having count(*) > 1) d;
   if n <> 0 then raise exception 'duplicate instances'; end if;

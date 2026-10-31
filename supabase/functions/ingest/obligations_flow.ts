@@ -15,6 +15,8 @@ import type { ParseResult } from "../_shared/parsers/index.ts";
 import type { TxRow } from "../_shared/enrich.ts";
 
 export interface ObligationDeps {
+  /** Makes sure this and next month's scheduled instances exist (so a payment can find its instance). */
+  refresh(userId: string): Promise<void>;
   /** Active obligations and their open (pending/overdue) instances. */
   loadObligations(userId: string): Promise<{ obs: Ob[]; open: Inst[] }>;
   /** Creates the period's instance, or refreshes an unpaid one (a re-issued bill). Never touches a paid one. */
@@ -67,6 +69,7 @@ export async function applyTransactions(
   rows: TxRow[],
   ids: Record<string, string>,
 ): Promise<void> {
+  await deps.refresh(userId).catch(() => {}); // best effort
   const { obs, open } = await deps.loadObligations(userId);
   let instances = open;
   for (const row of rows) {

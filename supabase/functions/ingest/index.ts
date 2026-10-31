@@ -64,7 +64,7 @@ const deps: IngestDeps = {
       })),
     };
   },
-  async saveParsed({ userId, rawId, parser, status, ignoreReason, redactBody, rows }) {
+  async saveParsed({ userId, rawId, parser, status, ignoreReason, redactBody, replaceBody, rows }) {
     const ids: Record<string, string> = {};
     if (rows.length) {
       // (raw_message_id, type) is unique, so a retry after a half-finished save cannot duplicate rows.
@@ -88,11 +88,16 @@ const deps: IngestDeps = {
       confidence: 1,
     };
     if (redactBody) patch.body = "[redacted]";
+    else if (replaceBody) patch.body = replaceBody;
     const { error } = await db.from("raw_messages").update(patch).eq("id", rawId);
     if (error) throw new Error("raw_update_failed");
     return { ids };
   },
   obligations: {
+    async refresh(userId) {
+      const { error } = await db.rpc("refresh_obligation_instances", { p_user: userId });
+      if (error) throw new Error("refresh_failed");
+    },
     async loadObligations(userId) {
       const [obs, inst] = await Promise.all([
         db.from("obligations").select("id, name, kind, expected_amount_halalas, due_rule, match")
@@ -131,7 +136,11 @@ const deps: IngestDeps = {
     },
     async upsertNoticeInstance({ userId, obligationId, rawId, inst }) {
       const { data: existing, error } = await db.from("obligation_instances").select("id, status")
-        .eq("obligation_id", obligationId).eq("period_start", inst.periodStart).maybeSingle();
+        .eq("user_id", userId).eq("obligation_id", obligationId).eq(
+          "period_start",
+          inst.periodStart,
+        )
+        .maybeSingle();
       if (error) throw new Error("instance_read_failed");
       if (!existing) {
         const { error: e } = await db.from("obligation_instances").insert({
@@ -149,6 +158,11 @@ const deps: IngestDeps = {
           expected_amount_halalas: inst.expectedHalalas,
           source_raw_message_id: rawId,
           status: "pending",
+          // A re-issued bill starts over: a payment matched to the old amount no longer applies.
+          transaction_id: null,
+          actual_amount_halalas: null,
+          match_state: "none",
+          paid_at: null,
         }).eq("id", existing.id).eq("user_id", userId);
         if (e) throw new Error("instance_update_failed");
       }
@@ -164,10 +178,10 @@ const deps: IngestDeps = {
       if (error) throw new Error("instance_match_failed");
     },
     async setDueDate(userId, instanceId, dueDate) {
-      const { error } = await db.from("obligation_instances").update({
-        due_date: dueDate,
-        status: "pending",
-      }).eq("id", instanceId).eq("user_id", userId).in("status", ["pending", "overdue"]);
+      const { error } = await db.from("obligation_instances").update({ due_date: dueDate }).eq(
+        "id",
+        instanceId,
+      ).eq("user_id", userId).in("status", ["pending", "overdue"]);
       if (error) throw new Error("instance_due_failed");
     },
   },

@@ -49,6 +49,8 @@ export interface SaveParsedArgs {
   ignoreReason?: string;
   /** The parser recognised a one-time code the generic filter missed: blank the stored body. */
   redactBody?: boolean;
+  /** Replaces the stored body (a bill notice keeps only its facts, not the name, account or payment links). */
+  replaceBody?: string;
   rows: TxRow[];
 }
 
@@ -134,6 +136,11 @@ export async function handleIngest(req: Request, deps: IngestDeps): Promise<Resp
           rawId: id,
           parser: r.parser,
           status: "parsed",
+          replaceBody: r.notice === "bill_issued"
+            ? `[bill notice] STC line ending ${r.lineLast4}, total ${
+              (r.totalHalalas / 100).toFixed(2)
+            } SAR`
+            : undefined,
           rows: [],
         });
         await applyNotice(deps.obligations, found.userId, id, receivedAt, r).catch((e) =>

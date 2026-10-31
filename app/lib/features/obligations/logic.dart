@@ -44,7 +44,10 @@ int committedHalalas(List<ObligationInstance> upcoming) => upcoming.fold(
   0,
   (sum, i) =>
       sum +
-      ((i.expectedHalalas ?? 0) - (i.actualHalalas ?? 0)).clamp(0, 1 << 40),
+      // A suggested payment is not confirmed yet, so it does not reduce what is still to pay.
+      ((i.expectedHalalas ?? 0) -
+              (i.matchState == 'suggested' ? 0 : (i.actualHalalas ?? 0)))
+          .clamp(0, 1 << 40),
 );
 
 /// Instances due in the Riyadh month of [today] that are not skipped: what is "committed" this month.
@@ -91,7 +94,7 @@ List<Reminder> planReminders(
     if (!fire.isAfter(now.toUtc())) continue;
     out.add(
       Reminder(
-        id: i.id.hashCode & 0x7fffffff,
+        id: _stableId(i.id),
         instanceId: i.id,
         fireAt: fire,
         name: i.name,
@@ -101,4 +104,13 @@ List<Reminder> planReminders(
   }
   out.sort((a, b) => a.fireAt.compareTo(b.fireAt));
   return out.take(max).toList();
+}
+
+/// FNV-1a: the same id gives the same notification id on every run (String.hashCode does not promise that).
+int _stableId(String s) {
+  var h = 0x811c9dc5;
+  for (final c in s.codeUnits) {
+    h = ((h ^ c) * 0x01000193) & 0x7fffffff;
+  }
+  return h;
 }

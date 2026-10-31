@@ -188,7 +188,7 @@ Deno.test("match: an instance that already has a payment is not matched again", 
       obligationId: "horse",
       expectedHalalas: 180000,
       transactionId: "old",
-      matchState: "suggested",
+      matchState: "auto",
     }),
   ];
   assert.equal(matchTransaction(tx({ counterpartyLast4: "7892" }), i, OBS), null);
@@ -249,4 +249,38 @@ Deno.test("with two open months the closer amount, then the earlier due date win
     dueDate: "2026-11-28",
   });
   assert.equal(matchTransaction(tx({ counterpartyLast4: "7892" }), [a, b], OBS)?.instanceId, "b");
+});
+
+Deno.test("a suggestion does not block a later strong payment, but a weak guess never replaces a guess", () => {
+  const sug = inst({
+    obligationId: "card",
+    expectedHalalas: 1673073,
+    transactionId: "old",
+    matchState: "suggested",
+    actualHalalas: 1673073,
+  });
+  const strong = matchTransaction(
+    tx({ id: "new", amountHalalas: 1673073, counterpartyLast4: "8119" }),
+    [sug],
+    OBS,
+  );
+  assert.equal(strong?.state, "auto");
+  assert.equal(strong?.transactionId, "new");
+  const weak = matchTransaction(tx({ id: "w", amountHalalas: 1673073, merchantNorm: "alinma" }), [
+    sug,
+  ], OBS);
+  assert.equal(weak, null);
+});
+
+Deno.test("loan: the same deduction processed twice is not counted twice", () => {
+  const i = inst({
+    obligationId: "loan",
+    expectedHalalas: 385833,
+    actualHalalas: 8700,
+    transactionId: "t1",
+  });
+  assert.equal(
+    matchTransaction(tx({ id: "t1", type: "loan_installment", amountHalalas: 8700 }), [i], OBS),
+    null,
+  );
 });

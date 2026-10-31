@@ -60,6 +60,7 @@ async function setup(
   const noticeInstances: Parameters<IngestDeps["obligations"]["upsertNoticeInstance"]>[0][] = [];
   const matches: Parameters<IngestDeps["obligations"]["applyMatch"]>[0][] = [];
   const dueDates: [string, string][] = [];
+  let refreshed = 0;
   let touched = 0;
   const deps: IngestDeps = {
     findToken: (h) => Promise.resolve(h === hash ? { id: "tok1", userId: "user1" } : null),
@@ -88,6 +89,10 @@ async function setup(
       });
     },
     obligations: {
+      refresh: () => {
+        refreshed++;
+        return Promise.resolve();
+      },
       loadObligations: () => {
         if (opts.failObligations) return Promise.reject(new Error("db down"));
         return Promise.resolve({ obs: opts.obs ?? [], open: opts.open ?? [] });
@@ -121,7 +126,17 @@ async function setup(
       }),
       deps,
     );
-  return { call, rows, saved, token, touched: () => touched, noticeInstances, matches, dueDates };
+  return {
+    call,
+    rows,
+    saved,
+    token,
+    touched: () => touched,
+    noticeInstances,
+    matches,
+    dueDates,
+    refreshed: () => refreshed,
+  };
 }
 
 const SMS = {
@@ -451,4 +466,17 @@ Deno.test("ingest: if tracking obligations fails the transaction is still saved 
   assert.equal(res.status, 200);
   assert.equal(s.saved.length, 1);
   assert.equal(s.saved[0].rows.length, 1);
+});
+
+Deno.test("ingest: instances are refreshed before a payment is matched, so an early payment finds its instance", async () => {
+  const s = await setup({ obs: [HORSE_OB], open: [HORSE_INST] });
+  await s.call(HORSE_SMS);
+  assert.equal(s.refreshed(), 1);
+});
+
+Deno.test("ingest: a bill SMS keeps only its facts in the stored body", async () => {
+  const s = await setup({ obs: [NET_OB] });
+  const f = JSON.parse(BILL_BODY);
+  await s.call({ sender: f.sender, body: f.body, received_at: f.receivedAt });
+  assert.equal(s.saved[0].replaceBody, "[bill notice] STC line ending 7356, total 172.50 SAR");
 });

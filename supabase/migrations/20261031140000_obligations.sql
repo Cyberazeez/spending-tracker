@@ -1,6 +1,6 @@
 -- Milestone 4: seed obligations and generate/overdue their instances.
 -- Bill and card-statement instances are created by the ingest function from the SMS notice;
--- fixed and loan instances are generated here, only from today forward (history before the app is not invented).
+-- fixed and loan instances are generated here, only while they are not yet past due + grace (older history is not invented).
 
 create unique index if not exists obligations_user_name_uidx on public.obligations (user_id, name);
 
@@ -78,7 +78,8 @@ begin
       p := (date_trunc('month', today) + make_interval(months => k))::date;
       wanted := coalesce((o.due_rule->>'day')::int, (o.due_rule->>'fallback_day')::int, 28);
       d := p + (least(greatest(wanted, 1), extract(day from (p + interval '1 month' - interval '1 day'))::int) - 1);
-      if d >= today then
+      -- still creatable up to its grace days late, so a payment made just after the due date finds its instance
+      if d + coalesce((o.due_rule->>'grace')::int, 0) >= today then
         insert into public.obligation_instances (user_id, obligation_id, period_start, due_date, expected_amount_halalas)
         values (p_user, o.id, p, d, o.expected_amount_halalas)
         on conflict (obligation_id, period_start) do nothing;

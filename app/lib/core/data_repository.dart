@@ -248,6 +248,18 @@ class SupabaseDataRepository implements DataRepository {
         'status': 'paid',
         'paid_at': DateTime.now().toUtc().toIso8601String(),
         'match_state': 'manual',
+        // Marked by hand: count the expected amount as paid unless a payment already set it.
+        'actual_amount_halalas':
+            (await _db
+                    .from('obligation_instances')
+                    .select('actual_amount_halalas, expected_amount_halalas')
+                    .eq('id', id)
+                    .single())
+                .let(
+                  (r) =>
+                      r['actual_amount_halalas'] ??
+                      r['expected_amount_halalas'],
+                ),
       },
       'skipped' => {'status': 'skipped'},
       _ => {
@@ -278,6 +290,8 @@ class SupabaseDataRepository implements DataRepository {
     await _db
         .from('obligation_instances')
         .update({
+          'status': 'pending',
+          'paid_at': null,
           'transaction_id': null,
           'match_state': 'none',
           'actual_amount_halalas': null,
@@ -305,4 +319,8 @@ class SupabaseDataRepository implements DataRepository {
       (sum, r) => sum + (r['amount_halalas'] as num).toInt(),
     );
   }
+}
+
+extension _Let<T> on T {
+  R let<R>(R Function(T) f) => f(this);
 }

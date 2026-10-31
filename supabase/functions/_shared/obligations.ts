@@ -191,13 +191,16 @@ export function matchTransaction(txn: MatchTxn, instances: Inst[], obs: Ob[]): M
     if (Date.parse(txn.occurredAt) < Date.parse(inst.createdAt) - DAY_MS) continue;
 
     const acc = !!m.accumulate;
-    if (!acc && inst.transactionId) continue;
+    // A payment already linked blocks the instance, except a mere suggestion, which a strong match may replace.
+    if (!acc && inst.transactionId && inst.matchState !== "suggested") continue;
+    if (acc && inst.transactionId === txn.id) continue; // the same deduction is never counted twice
     const strong = acc ||
       (!!m.counterparty_last4 && txn.counterpartyLast4 === m.counterparty_last4) ||
       (!!m.card && txn.cardLast4 === m.card);
     const weak = !!txn.merchantNorm &&
       (m.merchant ?? []).some((w) => tokenPrefixMatch(w, txn.merchantNorm!));
     if (!strong && !weak) continue;
+    if (!strong && inst.matchState === "suggested") continue; // a weak guess never replaces another guess
 
     const expected = inst.expectedHalalas;
     let res: MatchResult;
