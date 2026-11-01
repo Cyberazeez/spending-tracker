@@ -71,6 +71,21 @@ export function sanitizeAggregates(input: unknown, allowedCategories: string[]):
   };
 }
 
+/** Category names are the owner's own text: still neutralised (no newlines, no long digit runs, no emails/URLs, short). */
+export function safeName(n: string): string {
+  const noControl = Array.from(n, (ch) => {
+    const c = ch.charCodeAt(0);
+    return c < 32 || c === 127 || c === 0x2028 || c === 0x2029 ? " " : ch;
+  }).join("");
+  return noControl
+    .replace(/\S+@\S+/g, " ")
+    .replace(/https?:\/\/\S+/gi, " ")
+    .replace(/\d{4,}/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 40);
+}
+
 export interface Tip {
   text: string;
 }
@@ -83,7 +98,9 @@ const sar = (h: number) => (h / 100).toFixed(2);
 
 export function buildPrompt(a: Aggregates, language: "en" | "ar"): string {
   const lines = a.categories.map((c) =>
-    `- ${c.name}: spent ${sar(c.spentHalalas)} SAR, 3-month average ${sar(c.avg3Halalas)} SAR` +
+    `- ${safeName(c.name)}: spent ${sar(c.spentHalalas)} SAR, 3-month average ${
+      sar(c.avg3Halalas)
+    } SAR` +
     (c.budgetHalalas === null ? "" : `, budget ${sar(c.budgetHalalas)} SAR`)
   );
   return [

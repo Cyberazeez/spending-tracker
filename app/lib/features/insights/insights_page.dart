@@ -100,7 +100,7 @@ class _InsightsPageState extends ConsumerState<InsightsPage> {
               isDefaultAction: true,
               onPressed: () {
                 final v = parseHalalas(controller.text);
-                if (v == null) {
+                if (v == null || v > maxBudgetHalalas) {
                   setLocal(() => error = t.insBudgetInvalid);
                 } else {
                   Navigator.pop(ctx, v);

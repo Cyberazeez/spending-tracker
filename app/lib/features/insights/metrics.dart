@@ -1,6 +1,9 @@
 import '../../core/models.dart';
 import '../obligations/logic.dart' show riyadhToday;
 
+/// Largest budget the app accepts (100 million SAR), matching what the tips function will take.
+const maxBudgetHalalas = 10000000000;
+
 /// The salary the owner expects each month; anything above is flagged.
 const baseSalaryHalalas = 1410000;
 
