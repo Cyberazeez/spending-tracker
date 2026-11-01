@@ -212,3 +212,28 @@ BudgetLevel budgetLevel(int spent, int limit) {
   if (spent * 100 >= limit * 80) return BudgetLevel.warn;
   return BudgetLevel.ok;
 }
+
+class BudgetAlert {
+  const BudgetAlert(this.categoryId, this.level, this.percent);
+  final String? categoryId;
+  final BudgetLevel level;
+
+  /// Share of the budget used, rounded down.
+  final int percent;
+}
+
+/// Budgets at 80% or more of their limit this month, worst first.
+List<BudgetAlert> budgetAlerts(Insights ins, List<Budget> budgets) {
+  final out = <BudgetAlert>[];
+  for (final c in ins.byCategory) {
+    final id = c.categoryId;
+    if (id == null) continue;
+    final b = budgets.where((x) => x.categoryId == id).firstOrNull;
+    if (b == null) continue;
+    final level = budgetLevel(c.halalas, b.limitHalalas);
+    if (level == BudgetLevel.ok) continue;
+    out.add(BudgetAlert(id, level, (c.halalas * 100) ~/ b.limitHalalas));
+  }
+  out.sort((a, b) => b.percent.compareTo(a.percent));
+  return out;
+}

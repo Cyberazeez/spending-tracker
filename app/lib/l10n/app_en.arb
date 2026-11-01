@@ -328,5 +328,28 @@
         "type": "String"
       }
     }
-  }
+  },
+  "homeNext": "Next up",
+  "homeNothingDue": "Nothing due soon",
+  "homeStale": "No SMS for {days} days. Check that your Shortcuts are still on.",
+  "@homeStale": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "homeTop": "Top category: {name} ({amount})",
+  "@homeTop": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "homeAlerts": "Budgets",
+  "homeAddTx": "Add a transaction"
 }

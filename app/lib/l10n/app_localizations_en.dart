@@ -536,4 +536,26 @@ class AppLocalizationsEn extends AppLocalizations {
   String obPlanNote(String name, String n, String total, String amount) {
     return 'Includes $name instalment $n of $total ($amount)';
   }
+
+  @override
+  String get homeNext => 'Next up';
+
+  @override
+  String get homeNothingDue => 'Nothing due soon';
+
+  @override
+  String homeStale(String days) {
+    return 'No SMS for $days days. Check that your Shortcuts are still on.';
+  }
+
+  @override
+  String homeTop(String name, String amount) {
+    return 'Top category: $name ($amount)';
+  }
+
+  @override
+  String get homeAlerts => 'Budgets';
+
+  @override
+  String get homeAddTx => 'Add a transaction';
 }

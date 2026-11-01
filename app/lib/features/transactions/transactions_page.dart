@@ -7,6 +7,7 @@ import '../../core/models.dart';
 import '../../core/money.dart';
 import '../../core/providers.dart';
 import '../../l10n/app_localizations.dart';
+import '../../ui/info_tile.dart';
 import '../../router.dart';
 import '../../ui/empty_state.dart';
 import '../../ui/theme.dart';
@@ -173,7 +174,7 @@ class _TxnRow extends StatelessWidget {
         ? txn.merchant!
         : typeLabel(t, txn.type);
     final categoryText = category?.label(arabic: arabic) ?? t.categoryNone;
-    return CupertinoListTile(
+    return InfoTile(
       onTap: onTap,
       title: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
       subtitle: Text.rich(
@@ -196,7 +197,7 @@ class _TxnRow extends StatelessWidget {
         ),
         style: TextStyle(color: secondary),
       ),
-      trailing: Directionality(
+      additionalInfo: Directionality(
         textDirection: TextDirection.ltr,
         child: Text(
           '$sign $amount',

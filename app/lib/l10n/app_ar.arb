@@ -215,5 +215,11 @@
   "insEmpty": "لا توجد بيانات كافية بعد",
   "insEmptyBody": "سيظهر الإنفاق هنا بعد وصول أول عملياتك.",
   "insSave": "حفظ",
-  "obPlanNote": "تشمل قسط {name} {n} من {total} ({amount})"
+  "obPlanNote": "تشمل قسط {name} {n} من {total} ({amount})",
+  "homeNext": "القادم",
+  "homeNothingDue": "لا شيء مستحق قريباً",
+  "homeStale": "لم تصل رسائل منذ {days} أيام. تأكد أن الاختصارات ما زالت تعمل.",
+  "homeTop": "أعلى فئة: {name} ({amount})",
+  "homeAlerts": "الميزانيات",
+  "homeAddTx": "إضافة عملية"
 }

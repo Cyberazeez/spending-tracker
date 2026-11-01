@@ -538,4 +538,26 @@ class AppLocalizationsAr extends AppLocalizations {
   String obPlanNote(String name, String n, String total, String amount) {
     return 'تشمل قسط $name $n من $total ($amount)';
   }
+
+  @override
+  String get homeNext => 'القادم';
+
+  @override
+  String get homeNothingDue => 'لا شيء مستحق قريباً';
+
+  @override
+  String homeStale(String days) {
+    return 'لم تصل رسائل منذ $days أيام. تأكد أن الاختصارات ما زالت تعمل.';
+  }
+
+  @override
+  String homeTop(String name, String amount) {
+    return 'أعلى فئة: $name ($amount)';
+  }
+
+  @override
+  String get homeAlerts => 'الميزانيات';
+
+  @override
+  String get homeAddTx => 'إضافة عملية';
 }

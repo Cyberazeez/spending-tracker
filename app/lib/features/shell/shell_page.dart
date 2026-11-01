@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 
 import '../../l10n/app_localizations.dart';
-import '../../ui/empty_state.dart';
+import '../home/home_page.dart';
 import '../insights/insights_page.dart';
 import '../more/more_page.dart';
 import '../obligations/obligations_page.dart';
@@ -41,12 +41,7 @@ class ShellPage extends StatelessWidget {
       tabBuilder: (context, index) {
         return CupertinoTabView(
           builder: (context) => switch (index) {
-            0 => _Placeholder(
-              title: t.tabHome,
-              icon: CupertinoIcons.tray,
-              heading: t.emptyHomeTitle,
-              body: t.emptyHomeBody,
-            ),
+            0 => const HomePage(),
             1 => const TransactionsPage(),
             2 => const ObligationsPage(),
             3 => const InsightsPage(),
@@ -56,26 +51,4 @@ class ShellPage extends StatelessWidget {
       },
     );
   }
-}
-
-class _Placeholder extends StatelessWidget {
-  const _Placeholder({
-    required this.title,
-    required this.icon,
-    required this.heading,
-    this.body,
-  });
-
-  final String title;
-  final IconData icon;
-  final String heading;
-  final String? body;
-
-  @override
-  Widget build(BuildContext context) => CupertinoPageScaffold(
-    navigationBar: CupertinoNavigationBar(middle: Text(title)),
-    child: SafeArea(
-      child: EmptyState(icon: icon, title: heading, body: body),
-    ),
-  );
 }
