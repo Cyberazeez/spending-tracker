@@ -170,3 +170,30 @@ Deno.test("categorize: an empty rule pattern never matches", () => {
   );
   assert.equal(out, null);
 });
+
+Deno.test("categorize: a truncated bank merchant name still matches its seed word", () => {
+  const rules = [{
+    id: "r",
+    pattern: "tamim",
+    matchType: "contains",
+    categoryId: "c-gro",
+    status: "confirmed",
+    source: "seed",
+  }] as Rule[];
+  for (const m of ["s106 tamim", "tamimi markets", "tamimi"]) {
+    const out = categorize(
+      { type: "purchase", isInternal: false, merchantNorm: m } as CatInput,
+      rules,
+      {} as CategoryIds,
+    );
+    assert.equal(out?.categoryId, "c-gro", m);
+  }
+  assert.equal(
+    categorize(
+      { type: "purchase", isInternal: false, merchantNorm: "tamer shop" } as CatInput,
+      rules,
+      {} as CategoryIds,
+    ),
+    null,
+  );
+});

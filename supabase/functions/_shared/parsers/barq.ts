@@ -46,6 +46,22 @@ export function parseBarq(rawBody: string, receivedAt: Date): ParseResult {
     });
   }
 
+  // "Your refund of SAR 0.1 from <merchant> has been processed successfully." (no date in the SMS: use arrival time)
+  const processed = body.match(
+    new RegExp(`^Your refund of SAR\\s*${NUM}\\s*from\\s+(.+?)\\s+has been processed`, "i"),
+  );
+  if (processed) {
+    const minute = new Date(Math.floor(receivedAt.getTime() / 60000) * 60000).toISOString();
+    return tx({
+      bank: "barq",
+      type: "refund",
+      direction: "in",
+      amountHalalas: toHalalas(processed[1]),
+      merchant: processed[2].trim(),
+      occurredAt: minute,
+    });
+  }
+
   if (/^Refund\b/i.test(head)) {
     const amt = one(new RegExp(`Amount:?\\s*${NUM}\\s*SAR`));
     const on = body.match(/On:?\s*(\d{4})-(\d{2})-(\d{2})/);
