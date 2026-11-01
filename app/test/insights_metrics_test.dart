@@ -180,6 +180,32 @@ void main() {
     expect(none.salaryAboveBase, isFalse);
   });
 
+  test(
+    'excluded categories are not spending; negative categories are hidden',
+    () {
+      final i = computeInsights(
+        [
+          tx('2026-11-02 10:00', 5000, cat: 'transfers'),
+          tx('2026-11-03 10:00', 2000, cat: 'din'),
+          tx('2026-11-04 10:00', 3000, direction: 'in', type: 'refund'),
+        ],
+        now,
+        excludedCategories: {'transfers'},
+      );
+      expect(i.monthSpend, -1000);
+      expect(i.byCategory.map((c) => c.categoryId), ['din']);
+    },
+  );
+
+  test('the average divides by the months that have data, not always 3', () {
+    final i = computeInsights([
+      tx('2026-10-05 10:00', 90000, cat: 'fuel'),
+      tx('2026-11-05 10:00', 60000, cat: 'fuel'),
+    ], now);
+    expect(i.average3['fuel'], 90000);
+    expect(i.spikes, isEmpty);
+  });
+
   test('budget levels: ok below 80%, warn from 80%, over from 100%', () {
     expect(budgetLevel(7999, 10000), BudgetLevel.ok);
     expect(budgetLevel(8000, 10000), BudgetLevel.warn);

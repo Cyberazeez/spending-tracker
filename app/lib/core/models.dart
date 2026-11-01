@@ -84,10 +84,16 @@ class ManualTxn {
 }
 
 class Category {
-  const Category({required this.id, required this.name, this.nameAr});
+  const Category({
+    required this.id,
+    required this.name,
+    this.nameAr,
+    this.excludedFromSpend = false,
+  });
   final String id;
   final String name;
   final String? nameAr;
+  final bool excludedFromSpend;
 
   String label({required bool arabic}) =>
       arabic && (nameAr?.isNotEmpty ?? false) ? nameAr! : name;
@@ -96,6 +102,7 @@ class Category {
     id: r['id'] as String,
     name: r['name'] as String,
     nameAr: r['name_ar'] as String?,
+    excludedFromSpend: (r['excluded_from_spend'] as bool?) ?? false,
   );
 }
 

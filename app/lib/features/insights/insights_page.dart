@@ -57,6 +57,37 @@ class _InsightsPageState extends ConsumerState<InsightsPage> {
     await _save(() => repo.setBudget(categoryId, halalas));
   }
 
+  Future<void> _pickCategoryForBudget(
+    List<Category> cats,
+    Map<String, Budget> budgetOf,
+    bool arabic,
+  ) async {
+    final t = AppLocalizations.of(context);
+    final picked = await showCupertinoModalPopup<Category>(
+      context: context,
+      builder: (ctx) => CupertinoActionSheet(
+        title: Text(t.insBudgetSet),
+        actions: [
+          for (final c in cats)
+            CupertinoActionSheetAction(
+              onPressed: () => Navigator.pop(ctx, c),
+              child: Text(c.label(arabic: arabic)),
+            ),
+        ],
+        cancelButton: CupertinoActionSheetAction(
+          onPressed: () => Navigator.pop(ctx),
+          child: Text(t.cancel),
+        ),
+      ),
+    );
+    if (picked == null || !mounted) return;
+    await _budgetActions(
+      picked.id,
+      picked.label(arabic: arabic),
+      budgetOf[picked.id],
+    );
+  }
+
   Future<int?> _askLimit(int? current) async {
     final t = AppLocalizations.of(context);
     final controller = TextEditingController(
@@ -112,7 +143,6 @@ class _InsightsPageState extends ConsumerState<InsightsPage> {
         ),
       ),
     );
-    controller.dispose();
     return result;
   }
 
@@ -290,7 +320,15 @@ class _InsightsPageState extends ConsumerState<InsightsPage> {
                   child: CupertinoListSection.insetGrouped(
                     header: Text(t.insByCategory),
                     children: [
-                      for (final c in ins.byCategory)
+                      for (final c in [
+                        ...ins.byCategory,
+                        // a budget on a category with no spend yet still shows (and can be changed or removed)
+                        for (final b in budgets)
+                          if (!ins.byCategory.any(
+                            (c) => c.categoryId == b.categoryId,
+                          ))
+                            CategorySpend(b.categoryId, 0),
+                      ])
                         _categoryRow(
                           context,
                           c,
@@ -301,6 +339,15 @@ class _InsightsPageState extends ConsumerState<InsightsPage> {
                           ltr,
                           secondary,
                         ),
+                      CupertinoListTile(
+                        leading: const Icon(CupertinoIcons.add_circled),
+                        title: Text(t.insBudgetSet),
+                        onTap: () => _pickCategoryForBudget(
+                          cats.where((c) => !c.excludedFromSpend).toList(),
+                          budgetOf,
+                          arabic,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -397,6 +444,7 @@ class _InsightsPageState extends ConsumerState<InsightsPage> {
                   borderRadius: BorderRadius.circular(3),
                   child: SizedBox(
                     height: 6,
+                    width: double.infinity,
                     child: LinearProgressIndicatorLike(
                       value: c.halalas / budget.limitHalalas,
                       color: color,

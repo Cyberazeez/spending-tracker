@@ -6,8 +6,17 @@ import '../../core/providers.dart';
 import 'metrics.dart';
 
 final insightsProvider = FutureProvider.autoDispose<Insights>((ref) async {
-  final txns = await ref.watch(dataRepositoryProvider).spendingHistory();
-  return computeInsights(txns, ref.watch(clockProvider)());
+  final repo = ref.watch(dataRepositoryProvider);
+  final txns = await repo.spendingHistory();
+  final cats = await repo.categories();
+  return computeInsights(
+    txns,
+    ref.watch(clockProvider)(),
+    excludedCategories: {
+      for (final c in cats)
+        if (c.excludedFromSpend) c.id,
+    },
+  );
 }, retry: (_, _) => null);
 
 final budgetsProvider = FutureProvider.autoDispose<List<Budget>>(

@@ -21,8 +21,12 @@ export interface Aggregates {
 const MAX_AMOUNT = 100_000_000_00; // 100 million SAR in halalas
 const MAX_CATEGORIES = 25;
 
-function amount(v: unknown): number | null {
-  return typeof v === "number" && Number.isSafeInteger(v) && v >= 0 && v <= MAX_AMOUNT ? v : null;
+function amount(v: unknown, allowNegative = false): number | null {
+  return typeof v === "number" && Number.isSafeInteger(v) &&
+      v >= (allowNegative ? -MAX_AMOUNT : 0) &&
+      v <= MAX_AMOUNT
+    ? v
+    : null;
 }
 
 /**
@@ -33,7 +37,7 @@ export function sanitizeAggregates(input: unknown, allowedCategories: string[]):
   if (typeof input !== "object" || input === null) return null;
   const r = input as Record<string, unknown>;
   if (typeof r.month !== "string" || !/^\d{4}-(0[1-9]|1[0-2])$/.test(r.month)) return null;
-  const spend = amount(r.spendHalalas);
+  const spend = amount(r.spendHalalas, true);
   const last = amount(r.lastMonthToDateHalalas);
   const subs = amount(r.subscriptionsMonthlyHalalas);
   if (spend === null || last === null || subs === null) return null;
@@ -41,7 +45,7 @@ export function sanitizeAggregates(input: unknown, allowedCategories: string[]):
   if (r.savingsRatePct !== null && r.savingsRatePct !== undefined) {
     if (
       typeof r.savingsRatePct !== "number" || !Number.isFinite(r.savingsRatePct) ||
-      r.savingsRatePct < -1000 || r.savingsRatePct > 100
+      r.savingsRatePct < -1000 || r.savingsRatePct > 1000
     ) return null;
     savings = Math.round(r.savingsRatePct);
   }
@@ -52,7 +56,7 @@ export function sanitizeAggregates(input: unknown, allowedCategories: string[]):
     if (typeof c !== "object" || c === null) return null;
     const x = c as Record<string, unknown>;
     if (typeof x.name !== "string" || !allowed.has(x.name)) return null;
-    const spent = amount(x.spentHalalas);
+    const spent = amount(x.spentHalalas, true);
     const avg = amount(x.avg3Halalas);
     const budget = x.budgetHalalas === null || x.budgetHalalas === undefined
       ? null

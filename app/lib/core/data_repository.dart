@@ -107,7 +107,7 @@ class SupabaseDataRepository implements DataRepository {
   Future<List<Category>> categories() async {
     final rows = await _db
         .from('categories')
-        .select('id, name, name_ar')
+        .select('id, name, name_ar, excluded_from_spend')
         .order('sort_order');
     return rows.map<Category>(Category.fromRow).toList();
   }
@@ -317,9 +317,10 @@ class SupabaseDataRepository implements DataRepository {
         .select('amount_halalas')
         .eq('direction', 'out')
         .eq('is_internal', false)
+        .eq('excluded_from_spend', false)
         .isFilter('deleted_at', null)
         .gte('occurred_at', start.toIso8601String())
-        .limit(5000);
+        .limit(1000);
     return rows.fold<int>(
       0,
       (sum, r) => sum + (r['amount_halalas'] as num).toInt(),
@@ -333,16 +334,23 @@ class SupabaseDataRepository implements DataRepository {
       riyadh.year,
       riyadh.month - 3,
     ).subtract(const Duration(hours: 3));
-    final rows = await _db
-        .from('transactions')
-        .select(
-          'id, type, direction, amount_halalas, merchant_raw, merchant_norm, category_id, occurred_at, is_internal, excluded_from_spend',
-        )
-        .isFilter('deleted_at', null)
-        .gte('occurred_at', start.toIso8601String())
-        .order('occurred_at', ascending: false)
-        .limit(5000);
-    return rows.map<Txn>(Txn.fromRow).toList();
+    // The API returns at most 1000 rows per request, so read the history in pages (newest first).
+    const page = 1000;
+    final out = <Txn>[];
+    for (var from = 0; from < 10 * page; from += page) {
+      final rows = await _db
+          .from('transactions')
+          .select(
+            'id, type, direction, amount_halalas, merchant_raw, merchant_norm, category_id, occurred_at, is_internal, excluded_from_spend',
+          )
+          .isFilter('deleted_at', null)
+          .gte('occurred_at', start.toIso8601String())
+          .order('occurred_at', ascending: false)
+          .range(from, from + page - 1);
+      out.addAll(rows.map<Txn>(Txn.fromRow));
+      if (rows.length < page) break;
+    }
+    return out;
   }
 
   @override

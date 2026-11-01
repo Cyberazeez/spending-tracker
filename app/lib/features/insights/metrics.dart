@@ -89,6 +89,9 @@ Insights computeInsights(
   List<Txn> all,
   DateTime now, {
   int baseSalary = baseSalaryHalalas,
+
+  /// Categories flagged "excluded from spend" (Transfers, Income): their money is not spending.
+  Set<String> excludedCategories = const {},
 }) {
   final today = riyadhToday(now);
   final thisKey = _monthKey(today);
@@ -107,7 +110,7 @@ Insights computeInsights(
   for (final t in all) {
     final d = day(t);
     final key = _monthKey(d);
-    final spend = spendOf(t);
+    final spend = excludedCategories.contains(t.categoryId) ? 0 : spendOf(t);
     if (key == thisKey) {
       monthSpend += spend;
       if (spend != 0) cat[t.categoryId] = (cat[t.categoryId] ?? 0) + spend;
@@ -147,8 +150,10 @@ Insights computeInsights(
     }
   }
 
+  // A category can net below zero when its refunds outweigh its purchases; it is not listed then.
   final byCategory = [
-    for (final e in cat.entries) CategorySpend(e.key, e.value),
+    for (final e in cat.entries)
+      if (e.value > 0) CategorySpend(e.key, e.value),
   ]..sort((a, b) => b.halalas.compareTo(a.halalas));
 
   final top = [
@@ -157,7 +162,8 @@ Insights computeInsights(
   ]..sort((a, b) => b.halalas.compareTo(a.halalas));
 
   final average3 = {
-    for (final e in prior.entries) e.key: (e.value / 3).round(),
+    for (final e in prior.entries)
+      e.key: (e.value / priorMonthsWithData.length).round(),
   };
 
   final spikes = <Spike>[];

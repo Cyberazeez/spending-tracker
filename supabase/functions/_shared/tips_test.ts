@@ -56,7 +56,14 @@ Deno.test("sanitize: free-text category names, bad numbers and bad months are re
     }),
     null,
   );
-  assert.equal(bad({ spendHalalas: -1 }), null);
+  assert.equal(
+    bad({
+      avg3Halalas: -1,
+      categories: [{ name: "Dining", spentHalalas: 1, avg3Halalas: -5, budgetHalalas: null }],
+    }),
+    null,
+  );
+  assert.ok(bad({ spendHalalas: -100 })); // refunds can push a month's net below zero
   assert.equal(bad({ spendHalalas: 1.5 }), null);
   assert.equal(bad({ spendHalalas: "100" }), null);
   assert.equal(bad({ spendHalalas: Number.MAX_SAFE_INTEGER }), null);

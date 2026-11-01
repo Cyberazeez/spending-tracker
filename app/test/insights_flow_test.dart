@@ -99,7 +99,7 @@ void main() {
     await open(tester, h);
     await tester.tap(find.text('Dining'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Set a budget'));
+    await tester.tap(find.text('Set a budget').last);
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(CupertinoTextField), '12,50');
     await tester.tap(find.text('Save'));
@@ -110,6 +110,30 @@ void main() {
     await tester.pumpAndSettle();
     expect(h.data.budgetCalls, ['set:c-din:150050']);
     expect(find.text('of SAR 1,500.50'), findsOneWidget);
+  });
+
+  testWidgets('a budget can be created before any spending in that category', (
+    tester,
+  ) async {
+    final h = Harness(signedIn: true)
+      ..data.history = [
+        tx('1', '2026-10-05T09:00:00', 10000, cat: 'c-din', merchant: 'Otten'),
+      ];
+    await open(tester, h);
+    await tester.tap(find.text('Set a budget').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Groceries').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Set a budget').last);
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(CupertinoTextField), '800');
+    await tester.tap(find.text('Save'));
+    await tester.pumpAndSettle();
+    expect(h.data.budgetCalls, ['set:c-gro:80000']);
+    expect(
+      find.text('Groceries'),
+      findsOneWidget,
+    ); // now listed with its budget
   });
 
   testWidgets('removing a budget', (tester) async {
