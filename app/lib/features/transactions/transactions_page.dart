@@ -45,12 +45,13 @@ class TransactionsPage extends ConsumerWidget {
                             filter.hideInternal
                         ? CupertinoIcons.line_horizontal_3_decrease_circle_fill
                         : CupertinoIcons.line_horizontal_3_decrease_circle,
+                    semanticLabel: t.filterTitle,
                   ),
                 ),
                 CupertinoButton(
                   padding: const EdgeInsetsDirectional.only(start: 12),
                   onPressed: () => context.go(quickAddPath),
-                  child: const Icon(CupertinoIcons.add),
+                  child: Icon(CupertinoIcons.add, semanticLabel: t.homeAddTx),
                 ),
               ],
             ),

@@ -135,6 +135,26 @@ void main() {
     expect(find.textContaining('No SMS for 6 days'), findsOneWidget);
   });
 
+  testWidgets('an overdue obligation is listed first and marked overdue', (
+    tester,
+  ) async {
+    final h = Harness(signedIn: true)
+      ..data.history = [
+        tx('1', '2026-10-05T09:00:00', 1000, cat: 'c-din', merchant: 'Otten'),
+      ]
+      ..data.instances = [
+        ob('1', 'Internet', '2026-11-02'),
+        ob('2', 'Old bill', '2026-10-20'),
+      ];
+    await tester.pumpWidget(await h.build());
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Overdue'), findsOneWidget);
+    expect(
+      tester.getTopLeft(find.text('Old bill')).dy,
+      lessThan(tester.getTopLeft(find.text('Internet')).dy),
+    );
+  });
+
   testWidgets('arabic home', (tester) async {
     final h = Harness(signedIn: true)
       ..data.history = [

@@ -64,6 +64,7 @@ class HomePage extends ConsumerWidget {
             onRefresh: () async {
               ref.invalidate(insightsProvider);
               ref.invalidate(budgetsProvider);
+              ref.invalidate(categoriesProvider);
               ref.invalidate(obligationsProvider);
               ref.invalidate(needsReviewProvider);
               ref.invalidate(senderGapsProvider);
@@ -109,6 +110,17 @@ class HomePage extends ConsumerWidget {
               ),
             ],
             data: (ins) {
+              final settling =
+                  ref.watch(senderGapsProvider).isLoading ||
+                  ref.watch(obligationsProvider).isLoading;
+              if (settling && !ins.hasData) {
+                return [
+                  const SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: Center(child: CupertinoActivityIndicator()),
+                  ),
+                ];
+              }
               if (!ins.hasData && gaps.isEmpty && obligations.isEmpty) {
                 return [
                   SliverFillRemaining(
@@ -190,10 +202,20 @@ class HomePage extends ConsumerWidget {
                               InfoTile(
                                 title: Text(
                                   i.name,
-                                  maxLines: 1,
+                                  maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
                                 ),
-                                subtitle: Text(t.obDue(formatDay(i.dueDate))),
+                                subtitle: Text(
+                                  i.dueDate.isBefore(today)
+                                      ? '${t.obStatusOverdue} · ${t.obDue(formatDay(i.dueDate))}'
+                                      : t.obDue(formatDay(i.dueDate)),
+                                  style: i.dueDate.isBefore(today)
+                                      ? TextStyle(
+                                          color: CupertinoColors.systemRed
+                                              .resolveFrom(context),
+                                        )
+                                      : null,
+                                ),
                                 additionalInfo: i.expectedHalalas == null
                                     ? null
                                     : ltr(sar(i.expectedHalalas!)),

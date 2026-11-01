@@ -46,8 +46,12 @@ class SecureSessionStorage extends LocalStorage {
   Future<String?> accessToken() => _read();
 
   @override
-  Future<void> persistSession(String persistSessionString) =>
-      _kv.write(key, persistSessionString);
+  Future<void> persistSession(String persistSessionString) async {
+    // A keychain write failure must not break sign-in; the session just won't survive a restart.
+    try {
+      await _kv.write(key, persistSessionString);
+    } catch (_) {}
+  }
 
   @override
   Future<void> removePersistedSession() => _kv.delete(key);

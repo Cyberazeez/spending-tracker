@@ -60,13 +60,12 @@ class InfoTile extends StatelessWidget {
         Expanded(child: titleBlock),
         if (!stacked && additionalInfo != null) ...[
           const SizedBox(width: 8),
-          Flexible(
-            child: DefaultTextStyle(
-              style: base.copyWith(fontSize: 17, color: secondary),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              child: additionalInfo!,
-            ),
+          // The amount keeps its full width; the title wraps instead.
+          DefaultTextStyle(
+            style: base.copyWith(fontSize: 17, color: secondary),
+            maxLines: 1,
+            softWrap: false,
+            child: additionalInfo!,
           ),
         ],
         if (trailing != null) ...[const SizedBox(width: 8), trailing!],
@@ -84,10 +83,14 @@ class InfoTile extends StatelessWidget {
       ),
     );
     if (onTap == null) return tile;
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: onTap,
-      child: tile,
+    return Semantics(
+      button: true,
+      container: true,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: tile,
+      ),
     );
   }
 }

@@ -62,11 +62,8 @@ Deno.serve(async (req) => {
         aiEnabled: settings.data.ai_enabled,
         capHalalas: Number(settings.data.ai_monthly_cap_halalas),
         async spentHalalas() {
-          const { data, error } = await db.from("ai_usage").select("cost_halalas").eq(
-            "user_id",
-            userId,
-          )
-            .gte("created_at", monthStartUtc());
+          const { data, error } = await db.from("ai_usage").select("cost_halalas")
+            .gte("created_at", monthStartUtc()); // all users: the cap is a global ceiling
           if (error) throw new Error("usage_read_failed");
           return (data ?? []).reduce((s, r) => s + Number(r.cost_halalas), 0);
         },
