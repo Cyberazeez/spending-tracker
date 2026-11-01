@@ -1,0 +1,53 @@
+Credit Card Statement
+
+  Payment Due date                     25/08/2026                      Statement Date                        01/08/2026
+
+  Card No.
+  457998******8119
+
+  Minimum Amount Due        Total Amount Due
+  0.00        0.00
+
+  Total Fees and Charges        Purchases / Cash Advances / Fees        Previous Balance
+  0.00        859.13        0.00
+
+  Available Credit Limit        Payments
+  21,500.00        15,373.60
+
+  Transaction  Currency
+  Posting Date  Transaction No.  Transaction Description  Amt. in Foreign Currency  Fees  Amount in SAR
+  Date  Conversion Rate
+
+  17/07/2026           20/07/2026               634995725012                   CRUMBLES CAFE WLL~~MARASSI GAL                                                 19.03                10.1623                3.79                      193.39
+
+  17/07/2026           20/07/2026               634995725012                   CRUMBLES CAFE WLL~~MARASSI GAL                                                  0.00                 1.0000               0.00                          0.57
+
+   11/07/2026          12/07/2026                                                               Account to Card Transfer                                       0.00                 1.0000               0.00                   -15,373.60
+
+  28/07/2026           30/07/2026             604022608542                 MCDONALDS-RAKAA PLAZA~~KHOBAR~                                                      0.00                 1.0000               0.00                        67.00
+
+  28/07/2026           30/07/2026             604022620788                 MCDONALDS-RAKAA PLAZA~~KHOBAR~                                                      0.00                 1.0000               0.00                          2.00
+
+  03/07/2026           06/07/2026               603955754341              LULU SAUDI HYPERMARKET~~DAMMAM                                                       0.00                 1.0000               0.00                        65.89
+
+  03/07/2026           06/07/2026              603955824948            LULU HYPERMARKET DAMMA~~DAMMAM                                                          0.00                 1.0000               0.00                         15.00
+
+  04/07/2026           06/07/2026               603958670175           LULU HYPERMARKET DAMMA~~DAMMAM                                                          0.00                 1.0000               0.00                        142.75
+
+  06/07/2026           09/07/2026             603964099421             LULU HYPERMARKET DAMMA~~DAMMAM                                                          0.00                 1.0000               0.00                        24.00
+
+  10/07/2026           12/07/2026              603975646709            LULU HYPERMARKET DAMMA~~DAMMAM                                                          0.00                 1.0000               0.00                          15.91
+
+  16/07/2026           19/07/2026              603991437005            LULU HYPERMARKET DAMMA~~DAMMAM                                                          0.00                 1.0000               0.00                         34.95
+
+  16/07/2026           19/07/2026               603991610721           LULU HYPERMARKET DAMMA~~DAMMAM                                                          0.00                 1.0000               0.00                         33.50
+
+  18/07/2026           20/07/2026             603996635006             LULU HYPERMARKET DAMMA~~DAMMAM                                                          0.00                 1.0000               0.00                         21.95
+
+  18/07/2026           20/07/2026             603996608084             LULU HYPERMARKET DAMMA~~DAMMAM                                                          0.00                 1.0000               0.00                         13.00
+
+  25/07/2026           27/07/2026               604014536373           LULU HYPERMARKET DAMMA~~DAMMAM                                                          0.00                 1.0000               0.00                        156.36
+
+  30/07/2026           31/07/2026             604028622368             LULU HYPERMARKET DAMMA~~DAMMAM                                                          0.00                 1.0000               0.00                         20.13
+
+  30/07/2026           31/07/2026             604029070794             LULU HYPERMARKET DAMMA~~DAMMAM                                                          0.00                 1.0000               0.00                         52.73

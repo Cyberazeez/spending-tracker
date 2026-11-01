@@ -45,6 +45,16 @@ Scope: deterministic metrics (category, merchant, MoM, 3-month average, spikes, 
 Tests: metric math on fixed datasets, subscription detection, budget thresholds, payload-contains-no-PII test for the Claude request.
 Done when: weekly tips cite their numbers and no raw SMS, name or account number leaves Supabase.
 
+## Statement import (added 2026-11-01, between M5 and M6)
+Why: subscriptions and spikes need 3-4 months of history, and the SMS flow only started on 31 Oct. Alinma card statement PDFs (card 8119, five months May-Sep 2026) give that history.
+- `_shared/statement.ts` reads the text of the PDF (`pdftotext -layout`). Real redacted fixtures are in `supabase/tests/fixtures/statement/`. Every statement is checked against the bank's own totals (purchases and payments must add up exactly); an import is refused if they do not.
+- Card payoffs ("Account to Card Transfer") are internal and skipped. A purchase the bank moved to a payment plan appears as four cancelling lines; it is imported once at full price and the rest is dropped. A foreign purchase's VAT line becomes a fee. Top-ups to barq/D360 wallets are imported as internal wallet top-ups, so they are not spending.
+- Dates only (no times): rows are stored at 12:00 Riyadh. Rows are tagged `source = 'csv'` with an `external_ref`, so importing a statement twice changes nothing. Imported rows never touch obligations.
+- `import_statement_cli.ts` is the developer tool: it prints a dry-run summary and writes a rows file; it never touches the database. The rows go in through `import_statement_rows` (service role only).
+- Overlap with SMS: pass `--before <first SMS date>` so only earlier rows are imported. Later statements (from November) overlap the SMS capture; for those the in-app import (after the iOS build, M7) has to match against existing transactions first.
+- Categorisation uses the same rules as SMS (about 95 seed words). Unknown merchants stay uncategorised for the owner to tag.
+- Card instalment plan (Autopia 9,921, 1,653.50 a month, from the October statement): the monthly instalment is already inside each statement's total due, so a separate obligation would count it twice. Pending the owner's choice.
+
 ## M6. Widget (needs paid Apple account)
 Scope: App Group, WidgetKit extension in SwiftUI, `home_widget` data feed, Codemagic signing and first TestFlight build, optional APNs (push) for budget and due alerts.
 Needs from owner: bundle IDs, App Group, team ID, App Store Connect API key (steps given when we reach it).
