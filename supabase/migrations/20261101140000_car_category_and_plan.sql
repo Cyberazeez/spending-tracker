@@ -2,9 +2,6 @@
 -- 2. The Autopia card payment plan (9,921 SAR, 6 x 1,653.50 from the October 2026 statement) is recorded on the card
 --    statement obligation as a note, because each instalment is already inside that statement's total due.
 
--- 0. The Dining category becomes "Cafes & Restaurants" (cafes, coffee shops, restaurants, bakeries, delivery).
-update public.categories set name = 'Cafes & Restaurants', name_ar = 'مطاعم ومقاهي' where name = 'Dining';
-
 insert into public.categories (user_id, name, name_ar, kind, excluded_from_spend, sort_order)
 select id, 'Car', 'سيارة', 'spend', false, 19 from auth.users
 on conflict (user_id, name) do nothing;
@@ -20,10 +17,10 @@ declare
 begin
   for r in
     select * from (values
-      ('Cafes & Restaurants', 'hungerstation'), ('Cafes & Restaurants', 'jahez'), ('Cafes & Restaurants', 'mcdonalds'), ('Cafes & Restaurants', 'kudu'),
-      ('Cafes & Restaurants', 'albaik'), ('Cafes & Restaurants', 'al baik'), ('Cafes & Restaurants', 'herfy'), ('Cafes & Restaurants', 'otten'),
-      ('Cafes & Restaurants', 'starbucks'), ('Cafes & Restaurants', 'tim hortons'), ('Cafes & Restaurants', 'burger king'), ('Cafes & Restaurants', 'dominos'),
-      ('Cafes & Restaurants', 'pizza hut'), ('Cafes & Restaurants', 'kfc'), ('Cafes & Restaurants', 'go greek'),
+      ('Dining',        'hungerstation'), ('Dining', 'jahez'), ('Dining', 'mcdonalds'), ('Dining', 'kudu'),
+      ('Dining',        'albaik'), ('Dining', 'al baik'), ('Dining', 'herfy'), ('Dining', 'otten'),
+      ('Dining',        'starbucks'), ('Dining', 'tim hortons'), ('Dining', 'burger king'), ('Dining', 'dominos'),
+      ('Dining',        'pizza hut'), ('Dining', 'kfc'), ('Dining', 'go greek'),
       ('Groceries',     'lulu'), ('Groceries', 'panda'), ('Groceries', 'tamim'), ('Groceries', 'danube'),
       ('Groceries',     'othaim'), ('Groceries', 'carrefour'),
       ('Fuel',          'aldrees'), ('Fuel', 'aramco'), ('Fuel', 'sasco'), ('Fuel', 'petromin'),
@@ -36,10 +33,10 @@ begin
       ('Health',        'nahdi'), ('Health', 'al dawaa'), ('Health', 'aldawaa'),
       ('Entertainment', 'vox'), ('Entertainment', 'muvi'),
 
-      ('Cafes & Restaurants', 'restaura'), ('Cafes & Restaurants', 'resturant'), ('Cafes & Restaurants', 'cafe'), ('Cafes & Restaurants', 'coffee'),
-      ('Cafes & Restaurants', 'bakery'), ('Cafes & Restaurants', 'pastries'), ('Cafes & Restaurants', 'burger'), ('Cafes & Restaurants', 'burgerizzr'),
-      ('Cafes & Restaurants', 'sushi'), ('Cafes & Restaurants', 'papajohns'), ('Cafes & Restaurants', 'popeyes'), ('Cafes & Restaurants', 'dunkin'),
-      ('Cafes & Restaurants', 'mcdonald'), ('Cafes & Restaurants', 'mc donalds'), ('Cafes & Restaurants', 'ninja'), ('Cafes & Restaurants', 'hungerstation'),
+      ('Dining',        'restaurant'), ('Dining', 'resturant'), ('Dining', 'cafe'), ('Dining', 'coffee'),
+      ('Dining',        'bakery'), ('Dining', 'pastries'), ('Dining', 'burger'), ('Dining', 'burgerizzr'),
+      ('Dining',        'sushi'), ('Dining', 'papajohns'), ('Dining', 'popeyes'), ('Dining', 'dunkin'),
+      ('Dining',        'mcdonald'), ('Dining', 'mc donalds'), ('Dining', 'ninja'), ('Dining', 'hungerstation'),
       ('Groceries',     'saudi marketing'), ('Groceries', 'saudi markiting'), ('Groceries', 'saudi farm'),
       ('Groceries',     'farm superstore'),
       ('Fuel',          'adnoc'), ('Fuel', 'sahel'), ('Fuel', 'hala saudi petroleum'), ('Fuel', 'naft'),
@@ -84,7 +81,7 @@ begin
 
   insert into public.categories (user_id, name, name_ar, kind, excluded_from_spend, sort_order) values
     (p_user, 'Groceries',      'بقالة',            'spend',    false, 1),
-    (p_user, 'Cafes & Restaurants', 'مطاعم ومقاهي', 'spend', false, 2),
+    (p_user, 'Dining',         'مطاعم',            'spend',    false, 2),
     (p_user, 'Fuel',           'وقود',             'spend',    false, 3),
     (p_user, 'Utilities',      'فواتير',           'spend',    false, 4),
     (p_user, 'Rent/Housing',   'سكن',              'spend',    false, 5),
