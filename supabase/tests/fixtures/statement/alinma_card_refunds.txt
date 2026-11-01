@@ -1,0 +1,45 @@
+Credit Card Statement
+
+  Payment Due date                     25/09/2026                      Statement Date                        01/09/2026
+
+  Card No.
+  457998******8119
+
+  Minimum Amount Due        Total Amount Due
+  0.00        0.00
+
+  Total Fees and Charges        Purchases / Cash Advances / Fees        Previous Balance
+  0.00        578.13        0.00
+
+  Available Credit Limit        Payments
+  21,500.00        77,293.58
+
+  Transaction  Currency
+  Posting Date  Transaction No.  Transaction Description  Amt. in Foreign Currency  Fees  Amount in SAR
+  Date  Conversion Rate
+
+  01/08/2026           06/08/2026                601275771165                      Ninja Food company~~Riyadh~133                                              0.00                 1.0000               0.00                        -62.10
+
+  01/08/2026           06/08/2026                601275784541                      Ninja Food company~~Riyadh~133                                              0.00                 1.0000               0.00                         62.10
+
+  22/08/2026           26/08/2026               601305560212                       Ninja Food company~~Riyadh~133                                              0.00                 1.0000               0.00                         83.34
+
+  15/08/2026           18/08/2026               601295149775                                    Noon                 Riy~~adh                                  0.00                 1.0000               0.00                       102.69
+
+  16/08/2026           21/08/2026               601296521859                                    Noon                 Riy~~adh                                  0.00                 1.0000               0.00                        -13.90
+
+  05/08/2026           05/08/2026                                                               Account to Card Transfer                                       0.00                 1.0000               0.00                    -12,217.58
+
+  19/08/2026           19/08/2026                                                               Account to Card Transfer                                       0.00                 1.0000               0.00                   -41,378.00
+
+  19/08/2026           20/08/2026                                                               Account to Card Transfer                                       0.00                 1.0000               0.00                  -13,622.00
+
+  26/08/2026           27/08/2026                                                               Account to Card Transfer                                       0.00                 1.0000               0.00                  -10,000.00
+
+  30/07/2026           03/08/2026               601272916880                                MYSR*Jahez~~Riyadh~12215                                           0.00                 1.0000               0.00                        95.00
+
+  20/08/2026           24/08/2026               601302638071                                MYSR*Jahez~~Riyadh~12215                                           0.00                 1.0000               0.00                        98.00
+
+  24/08/2026           27/08/2026               601308544751                                MYSR*Jahez~~Riyadh~12215                                           0.00                 1.0000               0.00                        36.00
+
+  24/08/2026           27/08/2026              601308666022                                 MYSR*Jahez~~Riyadh~12215                                           0.00                 1.0000               0.00                        101.00

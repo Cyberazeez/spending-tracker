@@ -1,0 +1,33 @@
+Credit Card Statement
+
+  Payment Due date                     25/10/2026                      Statement Date                        01/10/2026
+
+  Card No.
+  457998******8119
+
+  Minimum Amount Due        Total Amount Due
+  0.00        0.00
+
+  Total Fees and Charges        Purchases / Cash Advances / Fees        Previous Balance
+  0.00        218.00        0.00
+
+  Available Credit Limit        Payments
+  21,500.00        21,480.16
+
+  Transaction  Currency
+  Posting Date  Transaction No.  Transaction Description  Amt. in Foreign Currency  Fees  Amount in SAR
+  Date  Conversion Rate
+
+  27/09/2026           27/09/2026              600047509037                                 MOVED TO PAYMENT PLAN                                              0.00                 1.0000               0.00                    -9,921.00
+
+  27/09/2026           27/09/2026              600047509037                              AUTOPIA~~DHAHRAN~00000                                                0.00                 1.0000               0.00                     9,921.00
+
+  02/10/2026           01/10/2026              600047509037                                             INSTALMENT ITEM                                        0.00                 1.0000               0.00                     1,653.50
+
+  02/10/2026           01/10/2026              600047509037                              AUTOPIA~~DHAHRAN~00000                                                0.00                 1.0000               0.00                    -1,653.50
+
+  11/09/2026           15/09/2026               600972190181                       CRAVIA ARABIA~~KHOBAR~00000                                                 0.00                 1.0000               0.00                       105.00
+
+  27/09/2026           27/09/2026               627018412680                                              MOI Bill Payment                                     0.00                 1.0000               0.00                        113.00
+
+  05/09/2026           04/09/2026                                                               Account to Card Transfer                                       0.00                 1.0000               0.00                   -21,480.16

@@ -1,0 +1,39 @@
+Credit Card Statement
+
+  Payment Due date                     25/06/2026                      Statement Date                        01/06/2026
+
+  Card No.
+  457998******8119
+
+  Minimum Amount Due        Total Amount Due
+  250.93        5,018.58
+
+  Total Fees and Charges        Purchases / Cash Advances / Fees        Previous Balance
+  0.00        5,018.58        0.00
+
+  Available Credit Limit        Payments
+  16,481.42        0.00
+
+  Transaction  Currency
+  Posting Date  Transaction No.  Transaction Description  Amt. in Foreign Currency  Fees  Amount in SAR
+  Date  Conversion Rate
+
+  17/05/2026           17/05/2026                                                                  CARD ACTIVATION FEE                                         0.00                 1.0000               0.00                      900.00
+
+  17/05/2026           17/05/2026                                                                                VAT on Fees                                   0.00                 1.0000               0.00                       135.00
+
+  18/05/2026           20/05/2026              601946423301                             At Spark 1282~~BGAIG~00000                                             0.00                 1.0000               0.00                          3.50
+
+  19/05/2026           21/05/2026               601170081980                   WALAA COOPERATIVE INSURAN~~RIY                                                  0.00                 1.0000               0.00                      920.66
+
+  19/05/2026           21/05/2026              603831948003               LULU SAUDI HYPERMARKET~~DAMMAM                                                       0.00                 1.0000               0.00                         27.40
+
+  20/05/2026           22/05/2026              601949140836                   ARAMCO STATION 636~~KHOBAR~0                                                     0.00                 1.0000               0.00                        139.72
+
+  20/05/2026           22/05/2026              603834437895                       OLDEN~~DHAHRAN~00000                        68                               0.00                 1.0000               0.00                         19.00
+
+  29/05/2026           31/05/2026              603860138597                       OLDEN~~DHAHRAN~00000                        68                               0.00                 1.0000               0.00                         19.00
+
+  21/05/2026           25/05/2026                 601175614551                           SAUDI AIRLINES              Riy~~adh                                  0.00                 1.0000               0.00                      1,427.15
+
+  21/05/2026           25/05/2026                601175663931                            SAUDI AIRLINES              Riy~~adh                                  0.00                 1.0000               0.00                      1,427.15

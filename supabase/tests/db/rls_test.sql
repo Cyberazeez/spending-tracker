@@ -114,6 +114,10 @@ begin
   select count(*) into n from (select obligation_id, period_start from public.obligation_instances group by 1, 2 having count(*) > 1) d;
   if n <> 0 then raise exception 'duplicate instances'; end if;
 
+  denied := false;
+  begin perform public.import_statement_rows(a, '[]'::jsonb); exception when insufficient_privilege then denied := true; end;
+  if not denied then raise exception 'A called import_statement_rows'; end if;
+
   -- anon sees nothing
 
   -- settings: preferences are editable, the AI cap and row lifecycle are not
@@ -143,6 +147,18 @@ begin
   if not denied then raise exception 'anon could read transactions'; end if;
 
   reset role;
+  -- statement import: rows land as csv history, categories map by name, a second import changes nothing
+  n := public.import_statement_rows(a, '[{"ref":"alinma:8119:1:1","date":"2026-05-19","type":"purchase","direction":"out","amount":2740,"merchant":"LULU","norm":"lulu","category":"Groceries","card":"8119","bank":"alinma"},{"ref":"alinma:8119:2:1","date":"2026-05-20","type":"refund","direction":"in","amount":100,"merchant":"X","norm":"x","category":null,"card":"8119","bank":"alinma"},{"ref":"alinma:8119:3:1","date":"2026-05-21","type":"wallet_topup","direction":"out","amount":500,"merchant":"barq","norm":"barq","category":"Transfers","card":"8119","bank":"alinma"},{"ref":"bad","date":"2026-05-20","type":"transfer_out","direction":"out","amount":100,"merchant":"X","norm":"x","category":null,"card":null,"bank":null}]'::jsonb);
+  if n <> 3 then raise exception 'import inserted %, expected 3', n; end if;
+  select count(*) into n from public.transactions where user_id = a and external_ref = 'alinma:8119:3:1' and is_internal and excluded_from_spend;
+  if n <> 1 then raise exception 'wallet top-up import is not internal'; end if;
+  n := public.import_statement_rows(a, '[{"ref":"alinma:8119:1:1","date":"2026-05-19","type":"purchase","direction":"out","amount":2740,"merchant":"LULU","norm":"lulu","category":"Groceries","card":"8119","bank":"alinma"}]'::jsonb);
+  if n <> 0 then raise exception 'second import inserted %', n; end if;
+  select count(*) into n from public.transactions t join public.categories c on c.id = t.category_id
+    where t.user_id = a and t.source = 'csv' and c.name = 'Groceries' and t.occurred_at = '2026-05-19 09:00:00+00';
+  if n <> 1 then raise exception 'imported row has wrong category or time'; end if;
+  delete from public.transactions where user_id = a and source = 'csv';
+
   -- atomic rotation: always exactly one active token, the old one is revoked
   perform public.rotate_ingest_token(a, 'hash-a2', 'iPhone');
   perform public.rotate_ingest_token(a, 'hash-a3', 'iPhone');
