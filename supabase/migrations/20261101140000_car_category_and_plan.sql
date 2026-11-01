@@ -36,7 +36,7 @@ begin
       ('Health',        'nahdi'), ('Health', 'al dawaa'), ('Health', 'aldawaa'),
       ('Entertainment', 'vox'), ('Entertainment', 'muvi'),
 
-      ('Cafes & Restaurants', 'restaurant'), ('Cafes & Restaurants', 'resturant'), ('Cafes & Restaurants', 'cafe'), ('Cafes & Restaurants', 'coffee'),
+      ('Cafes & Restaurants', 'restaura'), ('Cafes & Restaurants', 'resturant'), ('Cafes & Restaurants', 'cafe'), ('Cafes & Restaurants', 'coffee'),
       ('Cafes & Restaurants', 'bakery'), ('Cafes & Restaurants', 'pastries'), ('Cafes & Restaurants', 'burger'), ('Cafes & Restaurants', 'burgerizzr'),
       ('Cafes & Restaurants', 'sushi'), ('Cafes & Restaurants', 'papajohns'), ('Cafes & Restaurants', 'popeyes'), ('Cafes & Restaurants', 'dunkin'),
       ('Cafes & Restaurants', 'mcdonald'), ('Cafes & Restaurants', 'mc donalds'), ('Cafes & Restaurants', 'ninja'), ('Cafes & Restaurants', 'hungerstation'),
