@@ -56,6 +56,8 @@ Why: subscriptions and spikes need 3-4 months of history, and the SMS flow only 
 - Card instalment plan (Autopia 9,921, 6 x 1,653.50 from the October statement): the instalment is already inside each statement's total due, so it is a note on the statement obligation ("includes instalment n of 6"), not a second payable (owner agreed 2026-11-01).
 - Owner's category calls (2026-11-01): the car dealership (Mohamed Yousuf Naghi, SAR 50,406), Autopia, Almajdouie, Universal Motors and the insurers (Tawuniya, Walaa, United Insurance) are all **Car** spending.
 
+Import done 2026-11-01: 464 rows from the five Alinma statements (17 May to 28 Sep 2026) are in `transactions` (`source = 'csv'`), net spend SAR 134,013, 53% categorised by rules (Car 72,305; Travel 17,679; Dining 6,794). Row counts and sums per category were checked against the dry run and match exactly.
+
 ## M6. Widget (needs paid Apple account)
 Scope: App Group, WidgetKit extension in SwiftUI, `home_widget` data feed, Codemagic signing and first TestFlight build, optional APNs (push) for budget and due alerts.
 Needs from owner: bundle IDs, App Group, team ID, App Store Connect API key (steps given when we reach it).
