@@ -260,6 +260,9 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
       'overdue' => CupertinoColors.systemRed.resolveFrom(context),
       _ => secondary,
     };
+    final planNo = i.kind == 'card_statement' && i.plan != null
+        ? i.plan!.numberFor(i.periodStart ?? i.dueDate)
+        : null;
     final amounts = [
       if (i.expectedHalalas != null)
         t.obExpected(formatSar(i.expectedHalalas!, arabic: arabic)),
@@ -273,6 +276,13 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
         [
           t.obDue(formatDay(i.dueDate)),
           if (amounts.isNotEmpty) amounts,
+          if (planNo != null)
+            t.obPlanNote(
+              i.plan!.name,
+              planNo.toString(),
+              i.plan!.months.toString(),
+              formatSar(i.plan!.instalmentHalalas, arabic: arabic),
+            ),
         ].join(' · '),
       ),
       trailing: Text(

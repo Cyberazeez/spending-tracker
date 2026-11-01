@@ -158,6 +158,7 @@ class ObligationInstance {
     this.matchState = 'none',
     this.graceDays = 0,
     this.leadDays = 2,
+    this.plan,
   });
 
   final String id;
@@ -173,6 +174,9 @@ class ObligationInstance {
   final String matchState; // auto | suggested | manual | none
   final int graceDays;
   final int leadDays;
+
+  /// An instalment plan whose payments are already inside this statement's total (card statements only).
+  final InstalmentPlan? plan;
 
   bool get isSuggestion => matchState == 'suggested' && status == 'pending';
 
@@ -196,6 +200,9 @@ class ObligationInstance {
       matchState: (r['match_state'] as String?) ?? 'none',
       graceDays: (rule['grace'] as num?)?.toInt() ?? 0,
       leadDays: (ob['lead_days'] as num?)?.toInt() ?? 2,
+      plan: InstalmentPlan.fromJson(
+        ((ob['match'] as Map?)?['plan'] as Map?)?.cast<String, dynamic>(),
+      ),
     );
   }
 }
@@ -215,4 +222,46 @@ class Budget {
     categoryId: r['category_id'] as String,
     limitHalalas: (r['monthly_limit_halalas'] as num).toInt(),
   );
+}
+
+/// A card payment plan: [months] equal instalments from the statement of [first] (YYYY-MM).
+class InstalmentPlan {
+  const InstalmentPlan({
+    required this.name,
+    required this.instalmentHalalas,
+    required this.months,
+    required this.firstYear,
+    required this.firstMonth,
+  });
+  final String name;
+  final int instalmentHalalas;
+  final int months;
+  final int firstYear;
+  final int firstMonth;
+
+  static InstalmentPlan? fromJson(Map<String, dynamic>? j) {
+    if (j == null) return null;
+    final first = RegExp(r'^(\d{4})-(\d{2})$').firstMatch('${j['first']}');
+    final amount = (j['instalment_halalas'] as num?)?.toInt();
+    final months = (j['months'] as num?)?.toInt();
+    if (first == null || amount == null || months == null || months < 1) {
+      return null;
+    }
+    return InstalmentPlan(
+      name: '${j['name'] ?? ''}',
+      instalmentHalalas: amount,
+      months: months,
+      firstYear: int.parse(first.group(1)!),
+      firstMonth: int.parse(first.group(2)!),
+    );
+  }
+
+  /// Which instalment (1-based) falls in the statement of this month, or null when none does.
+  int? numberFor(DateTime statementMonth) {
+    final n =
+        (statementMonth.year * 12 + statementMonth.month) -
+        (firstYear * 12 + firstMonth) +
+        1;
+    return n >= 1 && n <= months ? n : null;
+  }
 }

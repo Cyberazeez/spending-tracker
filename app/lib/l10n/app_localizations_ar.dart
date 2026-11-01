@@ -533,4 +533,9 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get insSave => 'حفظ';
+
+  @override
+  String obPlanNote(String name, String n, String total, String amount) {
+    return 'تشمل قسط $name $n من $total ($amount)';
+  }
 }

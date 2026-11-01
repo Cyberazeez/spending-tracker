@@ -15,11 +15,16 @@ begin
 
   -- trigger seeded both users
   select count(*) into n from public.categories where user_id in (a, b);
-  if n <> 36 then raise exception 'seed: expected 36 categories, got %', n; end if;
+  if n <> 38 then raise exception 'seed: expected 38 categories, got %', n; end if;
   select count(*) into n from public.merchant_rules where user_id = a;
   if n < 50 then raise exception 'seed: expected the seed merchant rules, got %', n; end if;
   select count(*) into n from public.merchant_rules mr join public.categories c on c.id = mr.category_id where mr.user_id = a and c.user_id <> a;
   if n <> 0 then raise exception 'seed rule points at another user category'; end if;
+  select count(*) into n from public.merchant_rules mr join public.categories c on c.id = mr.category_id
+    where mr.user_id = a and c.name = 'Car' and mr.pattern in ('tawuniya', 'autopia');
+  if n <> 2 then raise exception 'seed: car rules missing'; end if;
+  select count(*) into n from public.obligations where user_id = a and match ? 'plan';
+  if n <> 1 then raise exception 'seed: the statement obligation should carry the payment plan note'; end if;
   select count(*) into n from public.own_accounts where user_id = a;
   if n <> 17 then raise exception 'seed: expected 17 own_accounts for A, got %', n; end if;
 
@@ -36,7 +41,7 @@ begin
   set local role authenticated;
 
   select count(*) into n from public.categories;
-  if n <> 18 then raise exception 'A sees % categories, expected 18', n; end if;
+  if n <> 19 then raise exception 'A sees % categories, expected 19', n; end if;
   select count(*) into n from public.raw_messages;
   if n <> 1 then raise exception 'A sees % raw_messages, expected 1', n; end if;
   select count(*) into n from public.settings;

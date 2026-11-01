@@ -214,5 +214,6 @@
   "insOfLimit": "من {limit}",
   "insEmpty": "لا توجد بيانات كافية بعد",
   "insEmptyBody": "سيظهر الإنفاق هنا بعد وصول أول عملياتك.",
-  "insSave": "حفظ"
+  "insSave": "حفظ",
+  "obPlanNote": "تشمل قسط {name} {n} من {total} ({amount})"
 }

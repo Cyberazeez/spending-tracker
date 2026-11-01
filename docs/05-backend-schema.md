@@ -39,7 +39,7 @@ Unique `(user_id, bank, last4)`. Seed: Al Rajhi 6331 (account), 1271 (mada card)
 - Index `(user_id, sender, received_at desc)` for the gaps view.
 
 ### categories
-`id`, `user_id`, `name`, `name_ar`, `kind text` (spend, income, transfer, fee). 18 seeded per user, including Loans (added in M3), `excluded_from_spend bool`, `icon`, `color`, `sort_order`.
+`id`, `user_id`, `name`, `name_ar`, `kind text` (spend, income, transfer, fee). 19 seeded per user, including Loans (M3) and Car (2026-11-01: car purchase, service and insurance), `excluded_from_spend bool`, `icon`, `color`, `sort_order`.
 
 ### merchant_rules
 `id`, `user_id`, `pattern text` (normalized), `match_type text` (exact, contains, prefix), `category_id`, `status text` (confirmed, auto_unconfirmed), `source text` (user, ai, seed), `hit_count int`, `updated_at`. Unique `(user_id, pattern, match_type)`.
@@ -66,6 +66,7 @@ Unique `(user_id, bank, last4)`. Seed: Al Rajhi 6331 (account), 1271 (mada card)
 
 - Seeded per user by `seed_obligations(user)`: Internet (STC 7356, ~172.50, bill), Mobile (STC 0569, ~278.93, bill), Horse and foal (1,800, due the day the salary lands, fallback 28th, 3 days grace, paid by a transfer to account 7892), House Card top-up (500, day 2, transfer or top-up to 8920), Murabahah installment (3,858.33, day 28, several deductions add up), Credit card 8119 statement (amount from the statement SMS, due date from the SMS). Electricity is not seeded (no SMS yet). Amounts for the two bills are only a starting guess: each bill SMS sets that month's real amount.
 - `due_rule`: `{"day":2,"next_month":true,"grace":3}` or `{"after":"salary","fallback_day":28,"grace":3}`. `match`: `types`, `counterparty_last4`/`card` (strong hint, auto-pays), `merchant` words (weak hint, only suggests unless `auto_merchant` is true, which the seeds set: merchant words plus an amount within tolerance then mark it paid by themselves), `tolerance_pct`, `accumulate` (loan), `line` (phone line of a bill SMS).
+- The card statement obligation's `match.plan` records the Autopia payment plan (9,921 SAR, 6 x 1,653.50 from the October 2026 statement). Each instalment is already inside that statement's total due, so it is shown as a note ("includes instalment n of 6"), not as a second payable.
 - `refresh_obligation_instances(user)` (service role) / `refresh_my_obligations()` (the app, signed-in user only) create this and next month's instances for fixed and loan obligations while they are not yet past due + grace days and mark pending ones overdue after due date + grace. Bill and statement instances are created by `ingest` from the SMS.
 
 ### obligation_instances

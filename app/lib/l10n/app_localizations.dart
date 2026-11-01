@@ -1033,6 +1033,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Save'**
   String get insSave;
+
+  /// No description provided for @obPlanNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Includes {name} instalment {n} of {total} ({amount})'**
+  String obPlanNote(String name, String n, String total, String amount);
 }
 
 class _AppLocalizationsDelegate

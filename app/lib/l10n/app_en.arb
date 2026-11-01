@@ -311,5 +311,22 @@
   },
   "insEmpty": "Not enough data yet",
   "insEmptyBody": "Spending shows up here once your first transactions arrive.",
-  "insSave": "Save"
+  "insSave": "Save",
+  "obPlanNote": "Includes {name} instalment {n} of {total} ({amount})",
+  "@obPlanNote": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "n": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  }
 }
