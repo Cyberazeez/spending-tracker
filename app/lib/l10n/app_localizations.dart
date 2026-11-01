@@ -1039,6 +1039,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Includes {name} instalment {n} of {total} ({amount})'**
   String obPlanNote(String name, String n, String total, String amount);
+
+  /// No description provided for @homeNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next up'**
+  String get homeNext;
+
+  /// No description provided for @homeNothingDue.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing due soon'**
+  String get homeNothingDue;
+
+  /// No description provided for @homeStale.
+  ///
+  /// In en, this message translates to:
+  /// **'No SMS for {days} days. Check that your Shortcuts are still on.'**
+  String homeStale(String days);
+
+  /// No description provided for @homeTop.
+  ///
+  /// In en, this message translates to:
+  /// **'Top category: {name} ({amount})'**
+  String homeTop(String name, String amount);
+
+  /// No description provided for @homeAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'Budgets'**
+  String get homeAlerts;
+
+  /// No description provided for @homeAddTx.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a transaction'**
+  String get homeAddTx;
 }
 
 class _AppLocalizationsDelegate

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -28,6 +30,24 @@ class _TokenPageState extends ConsumerState<TokenPage> {
   String? _newToken;
   bool _busy = false;
   bool _failed = false;
+  Timer? _clipTimer;
+  String? _copied;
+
+  /// The token is a password to the owner's data: take it off the clipboard again, but only if it is still ours.
+  Future<void> _clearClipboard() async {
+    final mine = _copied;
+    _copied = null;
+    _clipTimer?.cancel();
+    if (mine == null) return;
+    final current = (await Clipboard.getData(Clipboard.kTextPlain))?.text;
+    if (current == mine) await Clipboard.setData(const ClipboardData(text: ''));
+  }
+
+  @override
+  void dispose() {
+    _clearClipboard();
+    super.dispose();
+  }
 
   Future<void> _rotate(bool hasActive) async {
     final t = AppLocalizations.of(context);
@@ -145,6 +165,12 @@ class _TokenPageState extends ConsumerState<TokenPage> {
                       onPressed: () async {
                         await Clipboard.setData(
                           ClipboardData(text: _newToken!),
+                        );
+                        _copied = _newToken;
+                        _clipTimer?.cancel();
+                        _clipTimer = Timer(
+                          const Duration(seconds: 60),
+                          _clearClipboard,
                         );
                         if (context.mounted) {
                           ScaffoldMessengerLessToast.show(

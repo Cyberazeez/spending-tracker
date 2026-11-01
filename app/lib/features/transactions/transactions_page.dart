@@ -7,6 +7,7 @@ import '../../core/models.dart';
 import '../../core/money.dart';
 import '../../core/providers.dart';
 import '../../l10n/app_localizations.dart';
+import '../../ui/info_tile.dart';
 import '../../router.dart';
 import '../../ui/empty_state.dart';
 import '../../ui/theme.dart';
@@ -44,12 +45,13 @@ class TransactionsPage extends ConsumerWidget {
                             filter.hideInternal
                         ? CupertinoIcons.line_horizontal_3_decrease_circle_fill
                         : CupertinoIcons.line_horizontal_3_decrease_circle,
+                    semanticLabel: t.filterTitle,
                   ),
                 ),
                 CupertinoButton(
                   padding: const EdgeInsetsDirectional.only(start: 12),
                   onPressed: () => context.go(quickAddPath),
-                  child: const Icon(CupertinoIcons.add),
+                  child: Icon(CupertinoIcons.add, semanticLabel: t.homeAddTx),
                 ),
               ],
             ),
@@ -173,7 +175,7 @@ class _TxnRow extends StatelessWidget {
         ? txn.merchant!
         : typeLabel(t, txn.type);
     final categoryText = category?.label(arabic: arabic) ?? t.categoryNone;
-    return CupertinoListTile(
+    return InfoTile(
       onTap: onTap,
       title: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
       subtitle: Text.rich(
@@ -196,7 +198,7 @@ class _TxnRow extends StatelessWidget {
         ),
         style: TextStyle(color: secondary),
       ),
-      trailing: Directionality(
+      additionalInfo: Directionality(
         textDirection: TextDirection.ltr,
         child: Text(
           '$sign $amount',

@@ -5,6 +5,7 @@ import '../../core/models.dart';
 import '../../core/money.dart';
 import '../../core/providers.dart';
 import '../../l10n/app_localizations.dart';
+import '../../ui/info_tile.dart';
 import '../../ui/empty_state.dart';
 import '../transactions/providers.dart';
 import 'metrics.dart';
@@ -259,7 +260,7 @@ class _InsightsPageState extends ConsumerState<InsightsPage> {
                     child: CupertinoListSection.insetGrouped(
                       children: [
                         for (final a in alerts)
-                          CupertinoListTile(
+                          InfoTile(
                             leading: Icon(
                               CupertinoIcons.exclamationmark_circle_fill,
                               color: a.$2 == BudgetLevel.over
@@ -279,11 +280,11 @@ class _InsightsPageState extends ConsumerState<InsightsPage> {
                   child: CupertinoListSection.insetGrouped(
                     header: Text(t.insThisMonth),
                     children: [
-                      CupertinoListTile(
+                      InfoTile(
                         title: Text(t.insSpent),
                         additionalInfo: ltr(sar(ins.monthSpend)),
                       ),
-                      CupertinoListTile(
+                      InfoTile(
                         title: Text(t.insVsLast),
                         additionalInfo: ltr(sar(ins.lastMonthToDate)),
                         subtitle: Text(
@@ -295,7 +296,7 @@ class _InsightsPageState extends ConsumerState<InsightsPage> {
                         ),
                       ),
                       if (ins.savingsRate != null)
-                        CupertinoListTile(
+                        InfoTile(
                           title: Text(t.insSavings),
                           additionalInfo: ltr(
                             t.insSavingsValue(
@@ -304,7 +305,7 @@ class _InsightsPageState extends ConsumerState<InsightsPage> {
                           ),
                         ),
                       if (ins.salaryAboveBase)
-                        CupertinoListTile(
+                        InfoTile(
                           leading: Icon(
                             CupertinoIcons.exclamationmark_triangle,
                             color: CupertinoColors.systemOrange.resolveFrom(
@@ -339,7 +340,7 @@ class _InsightsPageState extends ConsumerState<InsightsPage> {
                           ltr,
                           secondary,
                         ),
-                      CupertinoListTile(
+                      InfoTile(
                         leading: const Icon(CupertinoIcons.add_circled),
                         title: Text(t.insBudgetSet),
                         onTap: () => _pickCategoryForBudget(
@@ -357,7 +358,7 @@ class _InsightsPageState extends ConsumerState<InsightsPage> {
                       header: Text(t.insTopMerchants),
                       children: [
                         for (final m in ins.topMerchants)
-                          CupertinoListTile(
+                          InfoTile(
                             title: Text(
                               m.label,
                               maxLines: 1,
@@ -374,7 +375,7 @@ class _InsightsPageState extends ConsumerState<InsightsPage> {
                       header: Text(t.insSpikes),
                       children: [
                         for (final s in ins.spikes)
-                          CupertinoListTile(
+                          InfoTile(
                             title: Text(name(s.categoryId)),
                             subtitle: Text(
                               t.insSpikeLine(sar(s.thisMonth), sar(s.average)),
@@ -392,7 +393,7 @@ class _InsightsPageState extends ConsumerState<InsightsPage> {
                       ),
                       children: [
                         for (final s in ins.subscriptions)
-                          CupertinoListTile(
+                          InfoTile(
                             title: Text(
                               s.label,
                               maxLines: 1,
@@ -429,7 +430,7 @@ class _InsightsPageState extends ConsumerState<InsightsPage> {
       BudgetLevel.warn => CupertinoColors.systemOrange.resolveFrom(context),
       BudgetLevel.ok => CupertinoColors.activeBlue.resolveFrom(context),
     };
-    return CupertinoListTile(
+    return InfoTile(
       onTap: c.categoryId == null
           ? null
           : () => _budgetActions(c.categoryId!, label, budget),

@@ -7,6 +7,7 @@ import '../../core/models.dart';
 import '../../core/money.dart';
 import '../../core/providers.dart';
 import '../../l10n/app_localizations.dart';
+import '../../ui/info_tile.dart';
 import '../../ui/empty_state.dart';
 import 'logic.dart';
 import 'providers.dart';
@@ -154,7 +155,7 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
                     child: CupertinoListSection.insetGrouped(
                       children: [
                         for (final s in suggestions)
-                          CupertinoListTile(
+                          InfoTile(
                             title: Text(t.obSuggestTitle(s.name)),
                             subtitle: Row(
                               children: [
@@ -183,20 +184,20 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
                   SliverToBoxAdapter(
                     child: CupertinoListSection.insetGrouped(
                       children: [
-                        CupertinoListTile(
+                        InfoTile(
                           title: Text(t.obCommitted),
                           additionalInfo: _amount(
                             committedHalalas(rows),
                             arabic,
                           ),
                         ),
-                        CupertinoListTile(
+                        InfoTile(
                           title: Text(t.obMonthCommitted),
                           subtitle: Text(t.obMonthTitle),
                           additionalInfo: _amount(committedMonth, arabic),
                         ),
                         if (spend != null)
-                          CupertinoListTile(
+                          InfoTile(
                             title: Text(t.obMonthOther),
                             subtitle: Text(t.obMonthTitle),
                             additionalInfo: _amount(
@@ -269,7 +270,7 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
       if (status == 'paid' && i.actualHalalas != null)
         t.obPaidAmount(formatSar(i.actualHalalas!, arabic: arabic)),
     ].join(' · ');
-    return CupertinoListTile(
+    return InfoTile(
       onTap: () => _rowActions(i, status),
       title: Text(i.name, maxLines: 1, overflow: TextOverflow.ellipsis),
       subtitle: Text(
@@ -285,7 +286,7 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
             ),
         ].join(' · '),
       ),
-      trailing: Text(
+      additionalInfo: Text(
         label,
         style: TextStyle(color: color, fontWeight: FontWeight.w600),
       ),

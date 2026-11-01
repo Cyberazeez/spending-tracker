@@ -2,12 +2,15 @@
 
 Single-user personal finance app: bank SMS arrive through an iOS Shortcut, get parsed and categorized, and feed obligations, budgets and insights. Flutter (iOS-first) + Supabase. Planning docs are in `docs/` (start with `01-prd.md`); `CLAUDE.md` holds the working rules.
 
+## Status
+Backend (SMS parsing, categories, obligations, statement import) is live on Supabase. The app (Home, Transactions, Obligations, Insights with budgets, More) is built and tested but not on a phone yet: that needs the Apple Developer account and a Codemagic build (milestone 6). Setup and running: `docs/08-setup-guide.md`.
+
 ## Layout
 | Path | What |
 |---|---|
 | `app/` | Flutter app (Cupertino, Riverpod, go_router, en/ar) |
 | `supabase/migrations/` | SQL schema, RLS policies, seed defaults |
-| `supabase/functions/` | Edge Functions (Deno): `ingest`, `rotate-token`, shared helpers |
+| `supabase/functions/` | Edge Functions (Deno): `ingest`, `rotate-token`, `categorize-batch`, `insights-tips`, shared helpers, the statement import tool |
 | `supabase/tests/db/` | RLS isolation test and a local Postgres runner |
 | `scripts/` | `get-ingest-token.ps1` (Windows) |
 | `codemagic.yaml` | iOS build to TestFlight (not run yet) |
