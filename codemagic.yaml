@@ -4,7 +4,7 @@
 # One-time setup in the Codemagic UI (never commit these values):
 #   1. Teams/Personal account > Integrations > App Store Connect: add an API key (issuer id, key id, .p8).
 #      Name it "spending_tracker_asc" (or change `integrations.app_store_connect` below).
-#   2. Code signing identities: let Codemagic manage signing through that API key.
+#   2. Variable group "signing" with one secure variable CERTIFICATE_PRIVATE_KEY (an RSA key made once with ssh-keygen).
 #   3. The bundle id below is the one registered in the Apple Developer portal (com.cyberazeez.spendingtracker).
 
 workflows:
@@ -18,10 +18,10 @@ workflows:
       flutter: 3.47.9
       xcode: latest
       cocoapods: default
-      ios_signing:
-        distribution_type: app_store
-        bundle_identifier: com.cyberazeez.spendingtracker # registered in the Apple Developer portal
+      groups:
+        - signing # Codemagic variable group holding CERTIFICATE_PRIVATE_KEY (secure), never in git
       vars:
+        BUNDLE_ID: com.cyberazeez.spendingtracker # registered in the Apple Developer portal
         APP_STORE_APPLE_ID: "6829500984" # numeric App Store Connect app id (Azeez Spending Tracker)
     cache:
       cache_paths:
@@ -31,7 +31,13 @@ workflows:
       - name: Get packages
         script: cd app && flutter pub get
       - name: Set up code signing
-        script: xcode-project use-profiles --project app/ios/Runner.xcodeproj
+        script: |
+          keychain initialize
+          # Creates the distribution certificate and App Store profile through the API key if they do not exist yet,
+          # and reuses them afterwards. CERTIFICATE_PRIVATE_KEY comes from the "signing" variable group.
+          app-store-connect fetch-signing-files "$BUNDLE_ID" --type IOS_APP_STORE --create
+          keychain add-certificates
+          xcode-project use-profiles --project app/ios/Runner.xcodeproj
       - name: Build number from TestFlight
         script: |
           cd app
