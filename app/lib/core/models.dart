@@ -9,6 +9,7 @@ class Txn {
     this.merchantNorm,
     this.categoryId,
     this.isInternal = false,
+    this.excludedFromSpend = false,
   });
 
   final String id;
@@ -20,6 +21,7 @@ class Txn {
   final String? merchantNorm;
   final String? categoryId;
   final bool isInternal;
+  final bool excludedFromSpend;
 
   bool get isIncoming => direction == 'in';
 
@@ -33,6 +35,7 @@ class Txn {
     merchantNorm: r['merchant_norm'] as String?,
     categoryId: r['category_id'] as String?,
     isInternal: (r['is_internal'] as bool?) ?? false,
+    excludedFromSpend: (r['excluded_from_spend'] as bool?) ?? false,
   );
 }
 
@@ -188,4 +191,21 @@ class ObligationInstance {
       leadDays: (ob['lead_days'] as num?)?.toInt() ?? 2,
     );
   }
+}
+
+class Budget {
+  const Budget({
+    required this.id,
+    required this.categoryId,
+    required this.limitHalalas,
+  });
+  final String id;
+  final String categoryId;
+  final int limitHalalas;
+
+  factory Budget.fromRow(Map<String, dynamic> r) => Budget(
+    id: r['id'] as String,
+    categoryId: r['category_id'] as String,
+    limitHalalas: (r['monthly_limit_halalas'] as num).toInt(),
+  );
 }

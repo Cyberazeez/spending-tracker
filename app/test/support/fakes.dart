@@ -85,6 +85,9 @@ class FakeDataRepository implements DataRepository {
   ];
   TxFilter lastFilter = const TxFilter();
   final categoryCalls = <(String, String?, String?, bool)>[];
+  List<Txn> history = [];
+  List<Budget> budgetList = [];
+  final budgetCalls = <String>[];
   List<ObligationInstance> instances = [];
   int monthSpend = 0;
   int refreshCalls = 0;
@@ -228,6 +231,38 @@ class FakeDataRepository implements DataRepository {
 
   @override
   Future<int> monthSpendHalalas() async => monthSpend;
+
+  @override
+  Future<List<Txn>> spendingHistory() async {
+    if (failLoad) throw StateError('offline');
+    return history;
+  }
+
+  @override
+  Future<List<Budget>> budgets() async => budgetList;
+
+  @override
+  Future<void> setBudget(String categoryId, int monthlyLimitHalalas) async {
+    budgetCalls.add('set:$categoryId:$monthlyLimitHalalas');
+    budgetList = [
+      for (final b in budgetList)
+        if (b.categoryId != categoryId) b,
+      Budget(
+        id: 'b-$categoryId',
+        categoryId: categoryId,
+        limitHalalas: monthlyLimitHalalas,
+      ),
+    ];
+  }
+
+  @override
+  Future<void> removeBudget(String categoryId) async {
+    budgetCalls.add('remove:$categoryId');
+    budgetList = [
+      for (final b in budgetList)
+        if (b.categoryId != categoryId) b,
+    ];
+  }
 
   @override
   Future<List<SenderGap>> senderGaps() async {

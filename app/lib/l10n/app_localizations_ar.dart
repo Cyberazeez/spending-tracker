@@ -437,4 +437,100 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get obSaveFailed => 'تعذر الحفظ. حاول مرة أخرى.';
+
+  @override
+  String get insThisMonth => 'هذا الشهر';
+
+  @override
+  String get insSpent => 'المصروف حتى الآن';
+
+  @override
+  String get insVsLast => 'نفس اليوم من الشهر الماضي';
+
+  @override
+  String insUp(String amount) {
+    return 'أعلى بـ $amount';
+  }
+
+  @override
+  String insDown(String amount) {
+    return 'أقل بـ $amount';
+  }
+
+  @override
+  String get insSame => 'تقريباً نفسه';
+
+  @override
+  String get insSavings => 'نسبة الادخار';
+
+  @override
+  String insSavingsValue(String pct) {
+    return '$pct٪';
+  }
+
+  @override
+  String insSalaryAbove(String amount) {
+    return 'الراتب أعلى من الأساس $amount';
+  }
+
+  @override
+  String get insByCategory => 'حسب الفئة';
+
+  @override
+  String get insTopMerchants => 'أكثر المتاجر';
+
+  @override
+  String get insSpikes => 'ارتفاعات الإنفاق';
+
+  @override
+  String insSpikeLine(String amount, String avg) {
+    return '$amount هذا الشهر، والمعتاد $avg';
+  }
+
+  @override
+  String get insSubs => 'الاشتراكات';
+
+  @override
+  String insSubsTotal(String amount) {
+    return '$amount شهرياً';
+  }
+
+  @override
+  String get insBudgets => 'الميزانيات';
+
+  @override
+  String get insBudgetSet => 'تحديد ميزانية';
+
+  @override
+  String get insBudgetRemove => 'إزالة الميزانية';
+
+  @override
+  String get insBudgetPrompt => 'الحد الشهري بالريال';
+
+  @override
+  String get insBudgetInvalid => 'أدخل مبلغاً مثل 1500 أو 1,500.50';
+
+  @override
+  String insBudgetWarn(String name, String pct) {
+    return '$name وصلت إلى $pct٪ من ميزانيتها';
+  }
+
+  @override
+  String insBudgetOver(String name) {
+    return '$name تجاوزت الميزانية';
+  }
+
+  @override
+  String insOfLimit(String limit) {
+    return 'من $limit';
+  }
+
+  @override
+  String get insEmpty => 'لا توجد بيانات كافية بعد';
+
+  @override
+  String get insEmptyBody => 'سيظهر الإنفاق هنا بعد وصول أول عملياتك.';
+
+  @override
+  String get insSave => 'حفظ';
 }

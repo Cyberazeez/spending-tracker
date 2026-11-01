@@ -1,0 +1,16 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../core/lock.dart';
+import '../../core/models.dart';
+import '../../core/providers.dart';
+import 'metrics.dart';
+
+final insightsProvider = FutureProvider.autoDispose<Insights>((ref) async {
+  final txns = await ref.watch(dataRepositoryProvider).spendingHistory();
+  return computeInsights(txns, ref.watch(clockProvider)());
+}, retry: (_, _) => null);
+
+final budgetsProvider = FutureProvider.autoDispose<List<Budget>>(
+  (ref) => ref.watch(dataRepositoryProvider).budgets(),
+  retry: (_, _) => null,
+);

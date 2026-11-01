@@ -46,6 +46,12 @@ abstract class DataRepository {
 
   /// Outgoing, non-internal spend in the current Riyadh month.
   Future<int> monthSpendHalalas();
+
+  /// The current Riyadh month and the three before it, for insights.
+  Future<List<Txn>> spendingHistory();
+  Future<List<Budget>> budgets();
+  Future<void> setBudget(String categoryId, int monthlyLimitHalalas);
+  Future<void> removeBudget(String categoryId);
 }
 
 class SupabaseDataRepository implements DataRepository {
@@ -318,6 +324,46 @@ class SupabaseDataRepository implements DataRepository {
       0,
       (sum, r) => sum + (r['amount_halalas'] as num).toInt(),
     );
+  }
+
+  @override
+  Future<List<Txn>> spendingHistory() async {
+    final riyadh = DateTime.now().toUtc().add(const Duration(hours: 3));
+    final start = DateTime.utc(
+      riyadh.year,
+      riyadh.month - 3,
+    ).subtract(const Duration(hours: 3));
+    final rows = await _db
+        .from('transactions')
+        .select(
+          'id, type, direction, amount_halalas, merchant_raw, merchant_norm, category_id, occurred_at, is_internal, excluded_from_spend',
+        )
+        .isFilter('deleted_at', null)
+        .gte('occurred_at', start.toIso8601String())
+        .order('occurred_at', ascending: false)
+        .limit(5000);
+    return rows.map<Txn>(Txn.fromRow).toList();
+  }
+
+  @override
+  Future<List<Budget>> budgets() async {
+    final rows = await _db
+        .from('budgets')
+        .select('id, category_id, monthly_limit_halalas');
+    return rows.map<Budget>(Budget.fromRow).toList();
+  }
+
+  @override
+  Future<void> setBudget(String categoryId, int monthlyLimitHalalas) async {
+    await _db.from('budgets').upsert({
+      'category_id': categoryId,
+      'monthly_limit_halalas': monthlyLimitHalalas,
+    }, onConflict: 'user_id,category_id');
+  }
+
+  @override
+  Future<void> removeBudget(String categoryId) async {
+    await _db.from('budgets').delete().eq('category_id', categoryId);
   }
 }
 
