@@ -9,6 +9,8 @@
 		<string>en</string>
 		<string>ar</string>
 	</array>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Unlock your spending data with Face ID.</string>
 	<key>CFBundleDevelopmentRegion</key>
