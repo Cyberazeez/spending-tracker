@@ -434,4 +434,101 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get obSaveFailed => 'Could not save. Try again.';
+
+  @override
+  String get insThisMonth => 'This month';
+
+  @override
+  String get insSpent => 'Spent so far';
+
+  @override
+  String get insVsLast => 'Same day last month';
+
+  @override
+  String insUp(String amount) {
+    return 'Up $amount';
+  }
+
+  @override
+  String insDown(String amount) {
+    return 'Down $amount';
+  }
+
+  @override
+  String get insSame => 'About the same';
+
+  @override
+  String get insSavings => 'Savings rate';
+
+  @override
+  String insSavingsValue(String pct) {
+    return '$pct%';
+  }
+
+  @override
+  String insSalaryAbove(String amount) {
+    return 'Salary is above your base of $amount';
+  }
+
+  @override
+  String get insByCategory => 'By category';
+
+  @override
+  String get insTopMerchants => 'Top merchants';
+
+  @override
+  String get insSpikes => 'Spending spikes';
+
+  @override
+  String insSpikeLine(String amount, String avg) {
+    return '$amount this month, usually $avg';
+  }
+
+  @override
+  String get insSubs => 'Subscriptions';
+
+  @override
+  String insSubsTotal(String amount) {
+    return '$amount a month';
+  }
+
+  @override
+  String get insBudgets => 'Budgets';
+
+  @override
+  String get insBudgetSet => 'Set a budget';
+
+  @override
+  String get insBudgetRemove => 'Remove budget';
+
+  @override
+  String get insBudgetPrompt => 'Monthly limit in SAR';
+
+  @override
+  String get insBudgetInvalid => 'Enter an amount like 1500 or 1,500.50';
+
+  @override
+  String insBudgetWarn(String name, String pct) {
+    return '$name is at $pct% of its budget';
+  }
+
+  @override
+  String insBudgetOver(String name) {
+    return '$name is over budget';
+  }
+
+  @override
+  String insOfLimit(String limit) {
+    return 'of $limit';
+  }
+
+  @override
+  String get insEmpty => 'Not enough data yet';
+
+  @override
+  String get insEmptyBody =>
+      'Spending shows up here once your first transactions arrive.';
+
+  @override
+  String get insSave => 'Save';
 }

@@ -16,3 +16,6 @@ verify_jwt = true
 
 [functions.categorize-batch]
 verify_jwt = true
+
+[functions.insights-tips]
+verify_jwt = true

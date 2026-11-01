@@ -877,6 +877,162 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not save. Try again.'**
   String get obSaveFailed;
+
+  /// No description provided for @insThisMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'This month'**
+  String get insThisMonth;
+
+  /// No description provided for @insSpent.
+  ///
+  /// In en, this message translates to:
+  /// **'Spent so far'**
+  String get insSpent;
+
+  /// No description provided for @insVsLast.
+  ///
+  /// In en, this message translates to:
+  /// **'Same day last month'**
+  String get insVsLast;
+
+  /// No description provided for @insUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Up {amount}'**
+  String insUp(String amount);
+
+  /// No description provided for @insDown.
+  ///
+  /// In en, this message translates to:
+  /// **'Down {amount}'**
+  String insDown(String amount);
+
+  /// No description provided for @insSame.
+  ///
+  /// In en, this message translates to:
+  /// **'About the same'**
+  String get insSame;
+
+  /// No description provided for @insSavings.
+  ///
+  /// In en, this message translates to:
+  /// **'Savings rate'**
+  String get insSavings;
+
+  /// No description provided for @insSavingsValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{pct}%'**
+  String insSavingsValue(String pct);
+
+  /// No description provided for @insSalaryAbove.
+  ///
+  /// In en, this message translates to:
+  /// **'Salary is above your base of {amount}'**
+  String insSalaryAbove(String amount);
+
+  /// No description provided for @insByCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'By category'**
+  String get insByCategory;
+
+  /// No description provided for @insTopMerchants.
+  ///
+  /// In en, this message translates to:
+  /// **'Top merchants'**
+  String get insTopMerchants;
+
+  /// No description provided for @insSpikes.
+  ///
+  /// In en, this message translates to:
+  /// **'Spending spikes'**
+  String get insSpikes;
+
+  /// No description provided for @insSpikeLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} this month, usually {avg}'**
+  String insSpikeLine(String amount, String avg);
+
+  /// No description provided for @insSubs.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscriptions'**
+  String get insSubs;
+
+  /// No description provided for @insSubsTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} a month'**
+  String insSubsTotal(String amount);
+
+  /// No description provided for @insBudgets.
+  ///
+  /// In en, this message translates to:
+  /// **'Budgets'**
+  String get insBudgets;
+
+  /// No description provided for @insBudgetSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Set a budget'**
+  String get insBudgetSet;
+
+  /// No description provided for @insBudgetRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove budget'**
+  String get insBudgetRemove;
+
+  /// No description provided for @insBudgetPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly limit in SAR'**
+  String get insBudgetPrompt;
+
+  /// No description provided for @insBudgetInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter an amount like 1500 or 1,500.50'**
+  String get insBudgetInvalid;
+
+  /// No description provided for @insBudgetWarn.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is at {pct}% of its budget'**
+  String insBudgetWarn(String name, String pct);
+
+  /// No description provided for @insBudgetOver.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is over budget'**
+  String insBudgetOver(String name);
+
+  /// No description provided for @insOfLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'of {limit}'**
+  String insOfLimit(String limit);
+
+  /// No description provided for @insEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough data yet'**
+  String get insEmpty;
+
+  /// No description provided for @insEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Spending shows up here once your first transactions arrive.'**
+  String get insEmptyBody;
+
+  /// No description provided for @insSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get insSave;
 }
 
 class _AppLocalizationsDelegate

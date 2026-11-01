@@ -216,5 +216,100 @@
   "obMonthTitle": "This month",
   "obMonthCommitted": "Committed",
   "obMonthOther": "Everything else",
-  "obSaveFailed": "Could not save. Try again."
+  "obSaveFailed": "Could not save. Try again.",
+  "insThisMonth": "This month",
+  "insSpent": "Spent so far",
+  "insVsLast": "Same day last month",
+  "insUp": "Up {amount}",
+  "@insUp": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "insDown": "Down {amount}",
+  "@insDown": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "insSame": "About the same",
+  "insSavings": "Savings rate",
+  "insSavingsValue": "{pct}%",
+  "@insSavingsValue": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "insSalaryAbove": "Salary is above your base of {amount}",
+  "@insSalaryAbove": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "insByCategory": "By category",
+  "insTopMerchants": "Top merchants",
+  "insSpikes": "Spending spikes",
+  "insSpikeLine": "{amount} this month, usually {avg}",
+  "@insSpikeLine": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "avg": {
+        "type": "String"
+      }
+    }
+  },
+  "insSubs": "Subscriptions",
+  "insSubsTotal": "{amount} a month",
+  "@insSubsTotal": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "insBudgets": "Budgets",
+  "insBudgetSet": "Set a budget",
+  "insBudgetRemove": "Remove budget",
+  "insBudgetPrompt": "Monthly limit in SAR",
+  "insBudgetInvalid": "Enter an amount like 1500 or 1,500.50",
+  "insBudgetWarn": "{name} is at {pct}% of its budget",
+  "@insBudgetWarn": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "insBudgetOver": "{name} is over budget",
+  "@insBudgetOver": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "insOfLimit": "of {limit}",
+  "@insOfLimit": {
+    "placeholders": {
+      "limit": {
+        "type": "String"
+      }
+    }
+  },
+  "insEmpty": "Not enough data yet",
+  "insEmptyBody": "Spending shows up here once your first transactions arrive.",
+  "insSave": "Save"
 }

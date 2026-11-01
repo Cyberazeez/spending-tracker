@@ -46,6 +46,12 @@ abstract class DataRepository {
 
   /// Outgoing, non-internal spend in the current Riyadh month.
   Future<int> monthSpendHalalas();
+
+  /// The current Riyadh month and the three before it, for insights.
+  Future<List<Txn>> spendingHistory();
+  Future<List<Budget>> budgets();
+  Future<void> setBudget(String categoryId, int monthlyLimitHalalas);
+  Future<void> removeBudget(String categoryId);
 }
 
 class SupabaseDataRepository implements DataRepository {
@@ -101,7 +107,7 @@ class SupabaseDataRepository implements DataRepository {
   Future<List<Category>> categories() async {
     final rows = await _db
         .from('categories')
-        .select('id, name, name_ar')
+        .select('id, name, name_ar, excluded_from_spend')
         .order('sort_order');
     return rows.map<Category>(Category.fromRow).toList();
   }
@@ -311,13 +317,61 @@ class SupabaseDataRepository implements DataRepository {
         .select('amount_halalas')
         .eq('direction', 'out')
         .eq('is_internal', false)
+        .eq('excluded_from_spend', false)
         .isFilter('deleted_at', null)
         .gte('occurred_at', start.toIso8601String())
-        .limit(5000);
+        .limit(1000);
     return rows.fold<int>(
       0,
       (sum, r) => sum + (r['amount_halalas'] as num).toInt(),
     );
+  }
+
+  @override
+  Future<List<Txn>> spendingHistory() async {
+    final riyadh = DateTime.now().toUtc().add(const Duration(hours: 3));
+    final start = DateTime.utc(
+      riyadh.year,
+      riyadh.month - 3,
+    ).subtract(const Duration(hours: 3));
+    // The API returns at most 1000 rows per request, so read the history in pages (newest first).
+    const page = 1000;
+    final out = <Txn>[];
+    for (var from = 0; from < 10 * page; from += page) {
+      final rows = await _db
+          .from('transactions')
+          .select(
+            'id, type, direction, amount_halalas, merchant_raw, merchant_norm, category_id, occurred_at, is_internal, excluded_from_spend',
+          )
+          .isFilter('deleted_at', null)
+          .gte('occurred_at', start.toIso8601String())
+          .order('occurred_at', ascending: false)
+          .range(from, from + page - 1);
+      out.addAll(rows.map<Txn>(Txn.fromRow));
+      if (rows.length < page) break;
+    }
+    return out;
+  }
+
+  @override
+  Future<List<Budget>> budgets() async {
+    final rows = await _db
+        .from('budgets')
+        .select('id, category_id, monthly_limit_halalas');
+    return rows.map<Budget>(Budget.fromRow).toList();
+  }
+
+  @override
+  Future<void> setBudget(String categoryId, int monthlyLimitHalalas) async {
+    await _db.from('budgets').upsert({
+      'category_id': categoryId,
+      'monthly_limit_halalas': monthlyLimitHalalas,
+    }, onConflict: 'user_id,category_id');
+  }
+
+  @override
+  Future<void> removeBudget(String categoryId) async {
+    await _db.from('budgets').delete().eq('category_id', categoryId);
   }
 }
 
