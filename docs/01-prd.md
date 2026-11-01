@@ -49,7 +49,7 @@ As the owner, every bank SMS I receive reaches the app without my touching it.
 - `merchant_rules` (Arabic-aware normalized merchant, then category) first.
 - Unknown merchants: batched to Claude (if AI on), result cached as a rule flagged "auto, unconfirmed".
 - Correcting a category creates/updates a rule and offers to recategorize past matches.
-- Seed categories (editable): Groceries, Dining, Fuel, Utilities, Rent/Housing, Horse (boarding, feed, farrier, vet, equipment), Transport, Shopping, Subscriptions, Health, Entertainment, Travel, Transfers, Fees, Income, Other. Plus House Card (wife's household spend, tag via card 8920).
+- Seed categories (editable): Groceries, Cafes & Restaurants (was Dining), Fuel, Utilities, Rent/Housing, Horse (boarding, feed, farrier, vet, equipment), Transport, Shopping, Subscriptions, Health, Entertainment, Travel, Transfers, Fees, Income, Other. Plus House Card (wife's household spend, tag via card 8920).
 - Transfers and own-account moves excluded from spend totals.
 - With AI off, unknown merchants stay "Uncategorized" and show in a review list.
 
