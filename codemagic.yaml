@@ -1,11 +1,11 @@
-# iOS build and TestFlight delivery. Not run yet: needs the paid Apple Developer account (milestone 6).
+# iOS build and TestFlight delivery (milestone 6).
 # Manual trigger only, so it never burns the free macOS minutes (500/month, personal account) by accident.
 #
 # One-time setup in the Codemagic UI (never commit these values):
 #   1. Teams/Personal account > Integrations > App Store Connect: add an API key (issuer id, key id, .p8).
 #      Name it "spending_tracker_asc" (or change `integrations.app_store_connect` below).
 #   2. Code signing identities: let Codemagic manage signing through that API key.
-#   3. Set the bundle id below to the one registered in the Apple Developer portal.
+#   3. The bundle id below is the one registered in the Apple Developer portal (com.cyberazeez.spendingtracker).
 
 workflows:
   ios-testflight:
@@ -20,9 +20,9 @@ workflows:
       cocoapods: default
       ios_signing:
         distribution_type: app_store
-        bundle_identifier: com.cyberazeez.spendingTracker # set to the registered bundle id
+        bundle_identifier: com.cyberazeez.spendingtracker # registered in the Apple Developer portal
       vars:
-        APP_STORE_APPLE_ID: "0" # numeric App Store Connect app id, set after creating the app record
+        APP_STORE_APPLE_ID: "6829500984" # numeric App Store Connect app id (Azeez Spending Tracker)
     cache:
       cache_paths:
         - $HOME/Library/Caches/CocoaPods
@@ -35,8 +35,10 @@ workflows:
       - name: Build number from TestFlight
         script: |
           cd app
-          # Fails loudly if the lookup fails; for the very first upload set BUILD_NUMBER=1 by hand.
-          LATEST=$(app-store-connect get-latest-testflight-build-number "$APP_STORE_APPLE_ID")
+          # The first upload has no build yet, so the lookup can come back empty: start at 1 then.
+          # If the lookup fails for another reason, Apple rejects a duplicate number at upload, so it still fails loudly.
+          LATEST=$(app-store-connect get-latest-testflight-build-number "$APP_STORE_APPLE_ID" 2>/dev/null || echo 0)
+          case "$LATEST" in ''|*[!0-9]*) LATEST=0 ;; esac
           echo "BUILD_NUMBER=$((LATEST + 1))" >> $CM_ENV
       - name: Build IPA
         script: |
