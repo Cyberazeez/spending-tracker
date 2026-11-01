@@ -209,6 +209,8 @@ class FakeDataRepository implements DataRepository {
     matchState: matchState ?? i.matchState,
     graceDays: i.graceDays,
     leadDays: i.leadDays,
+    plan: i.plan,
+    periodStart: i.periodStart,
   );
 
   @override

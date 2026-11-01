@@ -53,7 +53,8 @@ Why: subscriptions and spikes need 3-4 months of history, and the SMS flow only 
 - `import_statement_cli.ts` is the developer tool: it prints a dry-run summary and writes a rows file; it never touches the database. The rows go in through `import_statement_rows` (service role only).
 - Overlap with SMS: pass `--before <first SMS date>` so only earlier rows are imported. Later statements (from November) overlap the SMS capture; for those the in-app import (after the iOS build, M7) has to match against existing transactions first.
 - Categorisation uses the same rules as SMS (about 95 seed words). Unknown merchants stay uncategorised for the owner to tag.
-- Card instalment plan (Autopia 9,921, 1,653.50 a month, from the October statement): the monthly instalment is already inside each statement's total due, so a separate obligation would count it twice. Pending the owner's choice.
+- Card instalment plan (Autopia 9,921, 6 x 1,653.50 from the October statement): the instalment is already inside each statement's total due, so it is a note on the statement obligation ("includes instalment n of 6"), not a second payable (owner agreed 2026-11-01).
+- Owner's category calls (2026-11-01): the car dealership (Mohamed Yousuf Naghi, SAR 50,406), Autopia, Almajdouie, Universal Motors and the insurers (Tawuniya, Walaa, United Insurance) are all **Car** spending.
 
 ## M6. Widget (needs paid Apple account)
 Scope: App Group, WidgetKit extension in SwiftUI, `home_widget` data feed, Codemagic signing and first TestFlight build, optional APNs (push) for budget and due alerts.

@@ -104,6 +104,59 @@ void main() {
     expect(h.data.instances.first.status, 'paid');
   });
 
+  testWidgets(
+    'the card statement notes the instalment plan it already includes',
+    (tester) async {
+      final h = Harness(signedIn: true);
+      h.data.instances = [
+        ObligationInstance(
+          id: 'st',
+          obligationId: 'o-st',
+          name: 'Credit card 8119 statement',
+          kind: 'card_statement',
+          periodStart: DateTime.utc(2026, 11),
+          dueDate: DateTime.utc(2026, 11, 25),
+          status: 'pending',
+          expectedHalalas: 846323,
+          plan: const InstalmentPlan(
+            name: 'Autopia',
+            instalmentHalalas: 165350,
+            months: 6,
+            firstYear: 2026,
+            firstMonth: 10,
+          ),
+        ),
+      ];
+      await tester.pumpWidget(await h.build());
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Obligations').last);
+      await tester.pumpAndSettle();
+      expect(
+        find.textContaining(
+          'Includes Autopia instalment 2 of 6 (SAR 1,653.50)',
+        ),
+        findsOneWidget,
+      );
+    },
+  );
+
+  test('instalment plan numbering stays inside the plan', () {
+    const plan = InstalmentPlan(
+      name: 'x',
+      instalmentHalalas: 1,
+      months: 6,
+      firstYear: 2026,
+      firstMonth: 10,
+    );
+    expect(plan.numberFor(DateTime.utc(2026, 9)), isNull);
+    expect(plan.numberFor(DateTime.utc(2026, 10)), 1);
+    expect(plan.numberFor(DateTime.utc(2027, 1)), 4);
+    expect(plan.numberFor(DateTime.utc(2027, 3)), 6);
+    expect(plan.numberFor(DateTime.utc(2027, 4)), isNull);
+    expect(InstalmentPlan.fromJson({'first': 'bad'}), isNull);
+    expect(InstalmentPlan.fromJson(null), isNull);
+  });
+
   testWidgets('a failed load shows retry', (tester) async {
     final h = Harness(signedIn: true);
     h.data.failLoad = true;

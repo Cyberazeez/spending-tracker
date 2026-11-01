@@ -239,7 +239,7 @@ class SupabaseDataRepository implements DataRepository {
     final rows = await _db
         .from('obligation_instances')
         .select(
-          'id, obligation_id, period_start, due_date, expected_amount_halalas, actual_amount_halalas, status, transaction_id, match_state, obligations(name, kind, due_rule, lead_days)',
+          'id, obligation_id, period_start, due_date, expected_amount_halalas, actual_amount_halalas, status, transaction_id, match_state, obligations(name, kind, due_rule, lead_days, match)',
         )
         .gte('due_date', since.toIso8601String().substring(0, 10))
         .order('due_date')

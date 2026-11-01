@@ -531,4 +531,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get insSave => 'Save';
+
+  @override
+  String obPlanNote(String name, String n, String total, String amount) {
+    return 'Includes $name instalment $n of $total ($amount)';
+  }
 }
