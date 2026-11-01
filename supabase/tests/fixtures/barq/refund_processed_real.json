@@ -1,0 +1,13 @@
+{
+  "sender": "barq app",
+  "receivedAt": "2026-10-31T13:22:04.343Z",
+  "body": "Your refund of SAR 0.1 from BAHRAIN OMANI GENERAL T has been processed successfully.",
+  "expected": {
+    "kind": "transaction",
+    "type": "refund",
+    "direction": "in",
+    "amountHalalas": 10,
+    "merchant": "BAHRAIN OMANI GENERAL T",
+    "occurredAt": "2026-10-31T13:22:00.000Z"
+  }
+}
