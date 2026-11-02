@@ -49,6 +49,25 @@ void main() {
     expect(find.text('SAR 4,038.33'), findsOneWidget); // 180.00 + 3,858.33
   });
 
+  testWidgets('upcoming is split into this month and next month boxes', (
+    tester,
+  ) async {
+    await open(tester, [
+      inst('1', 'House Card', '2026-10-31'),
+      inst('2', 'Horse and foal', '2026-11-05'),
+      inst('3', 'Murabahah', '2026-11-28'),
+      inst('4', 'Far one', '2026-11-29'),
+    ]);
+    expect(find.text('This month · October'), findsOneWidget);
+    expect(find.text('Next month · November'), findsOneWidget);
+    expect(find.text('Obligations this month'), findsOneWidget);
+    // October box comes before the November box
+    expect(
+      tester.getTopLeft(find.text('House Card')).dy,
+      lessThan(tester.getTopLeft(find.text('Horse and foal')).dy),
+    );
+  });
+
   testWidgets('overdue and history segments', (tester) async {
     await open(tester, [
       inst('1', 'Old one', '2026-10-01'),

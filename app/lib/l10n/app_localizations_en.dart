@@ -427,7 +427,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get obMonthTitle => 'This month';
 
   @override
-  String get obMonthCommitted => 'Committed';
+  String get obMonthCommitted => 'Obligations this month';
+
+  @override
+  String obGroupThis(String month) {
+    return 'This month · $month';
+  }
+
+  @override
+  String obGroupNext(String month) {
+    return 'Next month · $month';
+  }
+
+  @override
+  String obGroupLater(String month, String year) {
+    return '$month $year';
+  }
+
+  @override
+  String get obMonthCommittedNote => 'Paid and still to pay';
 
   @override
   String get obMonthOther => 'Everything else';

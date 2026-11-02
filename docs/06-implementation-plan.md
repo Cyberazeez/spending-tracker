@@ -72,3 +72,8 @@ Dark mode pass, empty/error states audit, accessibility pass (Dynamic Type, Voic
 - Never commit raw SMS with real names or numbers; fixtures are redacted.
 - Every milestone ends with a short list: what works, what was not tested, what I need from the owner.
 - Update the docs when a decision changes.
+
+## Obligations list changes (2026-11-02)
+- Upcoming is split into one box per month ("This month · November", "Next month · December"). The summary box "Committed" was renamed **Obligations this month** (everything due this month, paid and unpaid).
+- STC bills and the card statement now appear **before** their SMS arrives (migration `20261102120000`). Bills show the usual amount (due the 2nd of the month after the bill month); the card statement shows with no amount until the statement SMS arrives. The SMS later fills in the real amount and due date on the same instance.
+- Electricity is not an obligation yet: it needs a usual amount and due day from the owner, and a real SMS template for the notice parser.

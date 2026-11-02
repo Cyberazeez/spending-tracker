@@ -863,8 +863,32 @@ abstract class AppLocalizations {
   /// No description provided for @obMonthCommitted.
   ///
   /// In en, this message translates to:
-  /// **'Committed'**
+  /// **'Obligations this month'**
   String get obMonthCommitted;
+
+  /// No description provided for @obGroupThis.
+  ///
+  /// In en, this message translates to:
+  /// **'This month · {month}'**
+  String obGroupThis(String month);
+
+  /// No description provided for @obGroupNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next month · {month}'**
+  String obGroupNext(String month);
+
+  /// No description provided for @obGroupLater.
+  ///
+  /// In en, this message translates to:
+  /// **'{month} {year}'**
+  String obGroupLater(String month, String year);
+
+  /// No description provided for @obMonthCommittedNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid and still to pay'**
+  String get obMonthCommittedNote;
 
   /// No description provided for @obMonthOther.
   ///

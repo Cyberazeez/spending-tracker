@@ -193,7 +193,7 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
                         ),
                         InfoTile(
                           title: Text(t.obMonthCommitted),
-                          subtitle: Text(t.obMonthTitle),
+                          subtitle: Text(t.obMonthCommittedNote),
                           additionalInfo: _amount(committedMonth, arabic),
                         ),
                         if (spend != null)
@@ -220,6 +220,20 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
                       },
                     ),
                   )
+                else if (_section == ObSection.upcoming)
+                  // One box per month so "this month" and "next month" never blur together.
+                  for (final g in groupByMonth(rows, today))
+                    SliverToBoxAdapter(
+                      child: CupertinoListSection.insetGrouped(
+                        header: Text(
+                          _groupTitle(g.monthStart, today, arabic, t),
+                        ),
+                        children: [
+                          for (final i in g.items)
+                            _row(i, today, arabic, secondary, t),
+                        ],
+                      ),
+                    )
                 else
                   SliverToBoxAdapter(
                     child: CupertinoListSection.insetGrouped(
@@ -235,6 +249,20 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
         ],
       ),
     );
+  }
+
+  String _groupTitle(
+    DateTime monthStart,
+    DateTime today,
+    bool arabic,
+    AppLocalizations t,
+  ) {
+    final name = monthName(monthStart, arabic: arabic);
+    final diff =
+        (monthStart.year - today.year) * 12 + monthStart.month - today.month;
+    if (diff == 0) return t.obGroupThis(name);
+    if (diff == 1) return t.obGroupNext(name);
+    return t.obGroupLater(name, monthStart.year.toString());
   }
 
   Widget _amount(int halalas, bool arabic) => Directionality(

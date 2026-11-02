@@ -430,7 +430,25 @@ class AppLocalizationsAr extends AppLocalizations {
   String get obMonthTitle => 'هذا الشهر';
 
   @override
-  String get obMonthCommitted => 'الالتزامات';
+  String get obMonthCommitted => 'التزامات هذا الشهر';
+
+  @override
+  String obGroupThis(String month) {
+    return 'هذا الشهر · $month';
+  }
+
+  @override
+  String obGroupNext(String month) {
+    return 'الشهر القادم · $month';
+  }
+
+  @override
+  String obGroupLater(String month, String year) {
+    return '$month $year';
+  }
+
+  @override
+  String get obMonthCommittedNote => 'المدفوعة والمتبقية';
 
   @override
   String get obMonthOther => 'بقية المصروفات';

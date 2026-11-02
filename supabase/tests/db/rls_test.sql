@@ -110,9 +110,13 @@ begin
   if n < 3 then raise exception 'refresh created % instances for A, expected at least 3', n; end if;
   select count(*) into n from public.obligation_instances;
   if n <> (select count(*) from public.obligation_instances where user_id = a) then raise exception 'A sees instances of others'; end if;
+  -- bills and the card statement are shown before their SMS arrives: bills with the usual amount, statements without one
   select count(*) into n from public.obligation_instances i join public.obligations o on o.id = i.obligation_id
-    where o.kind in ('bill', 'card_statement');
-  if n <> 0 then raise exception 'refresh created bill/statement instances'; end if;
+    where o.kind = 'bill' and i.expected_amount_halalas is not null;
+  if n < 2 then raise exception 'refresh created % bill instances, expected at least 2', n; end if;
+  select count(*) into n from public.obligation_instances i join public.obligations o on o.id = i.obligation_id
+    where o.kind = 'card_statement' and i.expected_amount_halalas is null;
+  if n < 1 then raise exception 'refresh created no card statement instance'; end if;
   select count(*) into n from public.obligation_instances i join public.obligations o on o.id = i.obligation_id
     where i.due_date + coalesce((o.due_rule->>'grace')::int, 0) < (now() at time zone 'Asia/Riyadh')::date;
   if n <> 0 then raise exception 'refresh created instances in the past'; end if;
