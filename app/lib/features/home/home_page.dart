@@ -10,6 +10,7 @@ import '../../core/providers.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ui/info_tile.dart';
 import '../../router.dart';
+import '../../ui/bottom_inset.dart';
 import '../../ui/empty_state.dart';
 import '../insights/metrics.dart';
 import '../insights/providers.dart';
@@ -249,6 +250,7 @@ class HomePage extends ConsumerWidget {
               ];
             },
           ),
+          const BottomInset(),
         ],
       ),
     );

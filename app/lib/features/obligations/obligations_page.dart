@@ -8,6 +8,7 @@ import '../../core/money.dart';
 import '../../core/providers.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ui/info_tile.dart';
+import '../../ui/bottom_inset.dart';
 import '../../ui/empty_state.dart';
 import '../insights/metrics.dart';
 import 'logic.dart';
@@ -320,6 +321,7 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
               ];
             },
           ),
+          const BottomInset(),
         ],
       ),
     );
