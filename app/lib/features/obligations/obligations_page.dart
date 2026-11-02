@@ -9,6 +9,7 @@ import '../../core/providers.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ui/info_tile.dart';
 import '../../ui/empty_state.dart';
+import '../insights/metrics.dart';
 import 'logic.dart';
 import 'providers.dart';
 
@@ -56,6 +57,10 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
       builder: (ctx) => CupertinoActionSheet(
         title: Text(i.name),
         actions: [
+          CupertinoActionSheetAction(
+            onPressed: () => Navigator.pop(ctx, 'amount'),
+            child: Text(t.obEditAmount),
+          ),
           if (status == 'pending' || status == 'overdue') ...[
             CupertinoActionSheetAction(
               onPressed: () => Navigator.pop(ctx, 'paid'),
@@ -78,7 +83,76 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
       ),
     );
     if (choice == null) return;
+    if (choice == 'amount') {
+      final paid = status == 'paid';
+      final current = paid
+          ? (i.actualHalalas ?? i.expectedHalalas)
+          : i.expectedHalalas;
+      final v = await _askAmount(current);
+      if (v == null) return;
+      await _run(() => repo.setInstanceAmount(i.id, v, paid: paid));
+      return;
+    }
     await _run(() => repo.setInstanceStatus(i.id, choice));
+  }
+
+  Future<int?> _askAmount(int? current) async {
+    final t = AppLocalizations.of(context);
+    final controller = TextEditingController(
+      text: current == null ? '' : (current / 100).toStringAsFixed(2),
+    );
+    String? error;
+    final result = await showCupertinoDialog<int>(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setLocal) => CupertinoAlertDialog(
+          title: Text(t.obEditAmountPrompt),
+          content: Column(
+            children: [
+              const SizedBox(height: 8),
+              CupertinoTextField(
+                controller: controller,
+                autofocus: true,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+              ),
+              if (error != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Text(
+                    error!,
+                    style: TextStyle(
+                      color: CupertinoColors.systemRed.resolveFrom(ctx),
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          actions: [
+            CupertinoDialogAction(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(t.cancel),
+            ),
+            CupertinoDialogAction(
+              isDefaultAction: true,
+              onPressed: () {
+                final v = parseHalalas(controller.text);
+                if (v == null || v > maxBudgetHalalas) {
+                  setLocal(() => error = t.obAmountInvalid);
+                } else {
+                  Navigator.pop(ctx, v);
+                }
+              },
+              child: Text(t.insSave),
+            ),
+          ],
+        ),
+      ),
+    );
+    controller.dispose();
+    return result;
   }
 
   @override
@@ -293,15 +367,15 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
         ? i.plan!.numberFor(i.periodStart ?? i.dueDate)
         : null;
     final amounts = [
+      if (i.expectedHalalas != null)
+        t.obExpected(formatSar(i.expectedHalalas!, arabic: arabic)),
       if (i.usualMinHalalas != null &&
           i.usualMaxHalalas != null &&
           i.status != 'paid')
         t.obUsually(
           formatSar(i.usualMinHalalas!, arabic: arabic),
           formatSar(i.usualMaxHalalas!, arabic: arabic),
-        )
-      else if (i.expectedHalalas != null)
-        t.obExpected(formatSar(i.expectedHalalas!, arabic: arabic)),
+        ),
       if (status == 'paid' && i.actualHalalas != null)
         t.obPaidAmount(formatSar(i.actualHalalas!, arabic: arabic)),
     ].join(' · ');

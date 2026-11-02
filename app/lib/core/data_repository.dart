@@ -40,6 +40,9 @@ abstract class DataRepository {
   /// [status] is `paid`, `skipped` or `pending` (re-open).
   Future<void> setInstanceStatus(String id, String status);
 
+  /// Changes the amount of one instance by hand: the expected amount while it is open, the paid amount once paid.
+  Future<void> setInstanceAmount(String id, int halalas, {required bool paid});
+
   /// The owner accepts / rejects the payment the server suggested for an instance.
   Future<void> confirmMatch(String id);
   Future<void> rejectMatch(String id);
@@ -277,6 +280,20 @@ class SupabaseDataRepository implements DataRepository {
       },
     };
     await _db.from('obligation_instances').update(patch).eq('id', id);
+  }
+
+  @override
+  Future<void> setInstanceAmount(
+    String id,
+    int halalas, {
+    required bool paid,
+  }) async {
+    await _db
+        .from('obligation_instances')
+        .update({
+          paid ? 'actual_amount_halalas' : 'expected_amount_halalas': halalas,
+        })
+        .eq('id', id);
   }
 
   @override

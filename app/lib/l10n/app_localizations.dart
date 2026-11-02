@@ -896,6 +896,24 @@ abstract class AppLocalizations {
   /// **'Usually {min} to {max}'**
   String obUsually(String min, String max);
 
+  /// No description provided for @obEditAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit amount'**
+  String get obEditAmount;
+
+  /// No description provided for @obEditAmountPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount in SAR'**
+  String get obEditAmountPrompt;
+
+  /// No description provided for @obAmountInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter an amount like 700 or 1,250.50'**
+  String get obAmountInvalid;
+
   /// No description provided for @obMonthOther.
   ///
   /// In en, this message translates to:

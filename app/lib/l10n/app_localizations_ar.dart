@@ -456,6 +456,15 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String get obEditAmount => 'تعديل المبلغ';
+
+  @override
+  String get obEditAmountPrompt => 'المبلغ بالريال';
+
+  @override
+  String get obAmountInvalid => 'أدخل مبلغاً مثل 700 أو 1,250.50';
+
+  @override
   String get obMonthOther => 'بقية المصروفات';
 
   @override

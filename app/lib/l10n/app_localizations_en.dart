@@ -453,6 +453,15 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get obEditAmount => 'Edit amount';
+
+  @override
+  String get obEditAmountPrompt => 'Amount in SAR';
+
+  @override
+  String get obAmountInvalid => 'Enter an amount like 700 or 1,250.50';
+
+  @override
   String get obMonthOther => 'Everything else';
 
   @override

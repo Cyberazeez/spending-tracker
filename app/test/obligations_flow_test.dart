@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:spending_tracker/core/models.dart';
 
@@ -87,7 +88,33 @@ void main() {
       find.textContaining('Usually SAR 658.00 to SAR 726.00'),
       findsOneWidget,
     );
-    expect(find.textContaining('Expected'), findsNothing);
+    expect(find.textContaining('Expected SAR 692.00'), findsOneWidget);
+  });
+
+  testWidgets('an amount can be edited by hand', (tester) async {
+    final h = await open(tester, [inst('1', 'Electricity', '2026-11-05')]);
+    await tester.tap(find.text('Electricity'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Edit amount'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(CupertinoTextField), '700.50');
+    await tester.tap(find.text('Save'));
+    await tester.pumpAndSettle();
+    expect(h.data.instanceCalls, contains('amount:1:70050'));
+    expect(find.textContaining('Expected SAR 700.50'), findsOneWidget);
+  });
+
+  testWidgets('an invalid edited amount is refused', (tester) async {
+    final h = await open(tester, [inst('1', 'Electricity', '2026-11-05')]);
+    await tester.tap(find.text('Electricity'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Edit amount'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(CupertinoTextField), '12,50');
+    await tester.tap(find.text('Save'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Enter an amount like'), findsOneWidget);
+    expect(h.data.instanceCalls.where((c) => c.startsWith('amount')), isEmpty);
   });
 
   testWidgets('overdue and history segments', (tester) async {
