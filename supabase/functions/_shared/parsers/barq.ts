@@ -24,9 +24,11 @@ export function parseBarq(rawBody: string, receivedAt: Date): ParseResult {
     const merchant = one(/^At:?\s*(.+)$/m);
     const card = last4(one(/(?:Visa\s*)?card:?\s*\*+(\d{4})/i));
     const acct = last4(one(/A\/C\s*\*+(\d{4})/));
-    // "Amount: 19.1 BHD (190.23 SAR) FX 9.9597" | "Amount: 55.42 SAR FX 1.0000" | "Amount 3.99 SAR"
+    // "Amount: 19.1 BHD (190.23 SAR) FX 9.9597" | "Amount 5.75 USD (21.59 SAR)" (no FX) | "Amount: 55.42 SAR FX 1.0000" | "Amount 3.99 SAR"
     const fx = body.match(
-      new RegExp(`Amount:?\\s*${NUM}\\s*([A-Z]{3})\\s*\\(${NUM}\\s*SAR\\)\\s*FX\\s*([\\d.]+)`),
+      new RegExp(
+        `Amount:?\\s*${NUM}\\s*([A-Z]{3})\\s*\\(${NUM}\\s*SAR\\)(?:\\s*FX\\s*([\\d.]+))?`,
+      ),
     );
     const plain = body.match(new RegExp(`Amount:?\\s*${NUM}\\s*SAR`));
     if (!at || !merchant || (!fx && !plain)) return { kind: "unparsed" };
@@ -41,7 +43,7 @@ export function parseBarq(rawBody: string, receivedAt: Date): ParseResult {
       accountLast4: acct,
       origAmountMinor: fx ? toMinor(fx[1]) : undefined,
       origCurrency: fx ? fx[2] : undefined,
-      fxRate: fx ? Number(fx[4]) : undefined,
+      fxRate: fx?.[4] ? Number(fx[4]) : undefined,
       occurredAt: at,
     });
   }

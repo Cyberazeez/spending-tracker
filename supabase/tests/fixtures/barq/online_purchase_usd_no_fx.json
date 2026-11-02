@@ -1,0 +1,16 @@
+{
+  "sender": "barq app",
+  "receivedAt": "2026-11-01T11:48:04.306Z",
+  "body": "Online Purchase\nVISA card **0000\nAmount 5.75 USD (21.59 SAR)\nAt ANTHROPIC\n2026-11-01 14:47",
+  "expected": {
+    "kind": "transaction",
+    "type": "purchase",
+    "direction": "out",
+    "amountHalalas": 2159,
+    "origCurrency": "USD",
+    "origAmountMinor": 575,
+    "merchant": "ANTHROPIC",
+    "cardLast4": "0000",
+    "occurredAt": "2026-11-01T11:47:00.000Z"
+  }
+}
