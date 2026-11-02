@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/capture_bridge.dart';
+import '../../core/capture_setup.dart';
 import '../../core/lock.dart';
 import '../../core/models.dart';
 import '../../core/providers.dart';
@@ -29,6 +31,15 @@ class _ShellPageState extends ConsumerState<ShellPage>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _syncCapture();
+  }
+
+  /// Gives the "Add bank message" Shortcuts action its token (once) and sends anything it queued offline.
+  void _syncCapture() {
+    ensureCaptureReady(
+      ref.read(captureBridgeProvider),
+      ref.read(tokenRepositoryProvider),
+    );
   }
 
   @override
@@ -41,6 +52,7 @@ class _ShellPageState extends ConsumerState<ShellPage>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
+      _syncCapture();
       ref.invalidate(insightsProvider);
       ref.invalidate(todaySpendProvider);
       ref.invalidate(monthlyBudgetProvider);

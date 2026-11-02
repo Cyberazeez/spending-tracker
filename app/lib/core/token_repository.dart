@@ -16,7 +16,10 @@ abstract class TokenRepository {
   Future<IngestTokenInfo?> activeToken();
 
   /// Creates a new token, revokes the old ones, returns the plaintext once.
-  Future<String> rotate({String label = 'iPhone'});
+  Future<String> rotate({String label = 'iPhone', String kind = 'shortcut'});
+
+  /// Revokes every active token of [kind] (used on sign-out for the app's own token).
+  Future<void> revoke({String kind = 'app'});
 }
 
 class SupabaseTokenRepository implements TokenRepository {
@@ -44,13 +47,24 @@ class SupabaseTokenRepository implements TokenRepository {
   }
 
   @override
-  Future<String> rotate({String label = 'iPhone'}) async {
+  Future<String> rotate({
+    String label = 'iPhone',
+    String kind = 'shortcut',
+  }) async {
     final res = await _client.functions.invoke(
       'rotate-token',
-      body: {'label': label},
+      body: {'label': label, 'kind': kind},
     );
     final data = res.data;
     if (data is Map && data['token'] is String) return data['token'] as String;
     throw StateError('rotate-token returned no token');
+  }
+
+  @override
+  Future<void> revoke({String kind = 'app'}) async {
+    await _client.functions.invoke(
+      'rotate-token',
+      body: {'kind': kind, 'action': 'revoke'},
+    );
   }
 }

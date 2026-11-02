@@ -16,6 +16,11 @@ import WidgetKit
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
     registerWidgetBridge(engineBridge)
     registerReminderBridge(engineBridge)
+    registerCaptureBridge(engineBridge)
+    // Messages queued by the Shortcuts action are sent whenever the app becomes active.
+    NotificationCenter.default.addObserver(
+      forName: UIApplication.didBecomeActiveNotification, object: nil, queue: .main
+    ) { _ in Task { await CaptureStore.shared.flush() } }
   }
 
   /// Dart saves the widget's numbers here ("spending_tracker/widget" / "save"): they go into the shared App Group
@@ -101,6 +106,44 @@ import WidgetKit
           }
           DispatchQueue.main.async { result(nil) }
         }
+      default:
+        result(FlutterMethodNotImplemented)
+      }
+    }
+  }
+
+  /// Credentials and queue for the "Add bank message" Shortcuts action ("spending_tracker/capture").
+  private func registerCaptureBridge(_ engineBridge: FlutterImplicitEngineBridge) {
+    guard let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "SpendingCaptureBridge") else {
+      return
+    }
+    let channel = FlutterMethodChannel(
+      name: "spending_tracker/capture",
+      binaryMessenger: registrar.messenger()
+    )
+    channel.setMethodCallHandler { call, result in
+      let store = CaptureStore.shared
+      switch call.method {
+      case "saveCredentials":
+        guard let args = call.arguments as? [String: Any],
+          let url = args["url"] as? String,
+          let token = args["token"] as? String
+        else {
+          result(FlutterMethodNotImplemented)
+          return
+        }
+        store.saveCredentials(url: url, token: token)
+        result(nil)
+      case "clearCredentials":
+        store.clearCredentials()
+        result(nil)
+      case "flush":
+        Task {
+          await store.flush()
+          result(nil)
+        }
+      case "status":
+        result(["hasToken": store.credentials() != nil, "pending": store.pendingCount()])
       default:
         result(FlutterMethodNotImplemented)
       }
