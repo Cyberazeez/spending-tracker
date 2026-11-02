@@ -97,11 +97,17 @@ As the owner, every bank SMS I receive reaches the app without my touching it.
 ### F10. Data tools
 - CSV import/export, manual backfill, possible-gaps view (days with no captured SMS per sender vs usual cadence).
 
+### F11. Apple Wallet capture (last on the roadmap, added 2026-11-02)
+- iOS cannot read other apps' notifications, so the route is the Shortcuts **"Transaction"** automation (iOS 17+): it fires when a card in Wallet is used and passes the merchant, amount and card name. The automation sends them to the same ingest function as SMS, as a new source `wallet`.
+- Each purchase can arrive twice (the wallet event and the bank SMS). They are matched on amount, merchant and time (a few minutes) and stored once; the SMS stays the source of truth when both exist, the wallet event fills the gap when the SMS never comes.
+- Needs: a real sample of what the automation passes (merchant, amount, currency, card name) before any parser is written; fixtures follow the same privacy rules as SMS.
+- Open question: whether the Transaction trigger covers all of the owner's cards (mada, credit) or only some.
+
 ## Cost control
 - AI is an on/off switch in settings, default off until you flip it. Monthly cap 5 USD, enforced from an `ai_usage` ledger. At the cap, AI calls stop and the app degrades to rules-only.
 
 ## Out of scope
-- Wallet/app-notification capture, email parsing, Open Banking, other users, Android polish (only must not crash), investment tracking, multi-currency budgets, tax/zakat.
+- Reading other apps' notifications (iOS does not allow it), email parsing, Open Banking, other users, Android polish (only must not crash), investment tracking, multi-currency budgets, tax/zakat.
 
 ## Known risks
 1. Shortcuts "Message" automation may prompt for confirmation on some iOS versions. Tested on iOS 27.0.1 during milestone 2. Fallback: confirmation tap, share-sheet shortcut, CSV backfill.

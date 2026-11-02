@@ -37,6 +37,6 @@ Single-user personal finance app for Azeez (Riyadh, iPhone, no Mac). Captures ev
 - Money is integer halalas. Never floats.
 - Internal transfers (own accounts, wallet top-ups, credit card payoff) are excluded from spend and income.
 - Salary: expected net deposit 14,100 SAR; anything above is flagged as an anomaly.
-- Only SMS ingestion. No wallet notifications, email parsing or Open Banking.
+- Ingestion is SMS today. Owner decision 2026-11-02: Apple Wallet / Apple Pay purchases will be captured too (last item of the roadmap in `docs/06-implementation-plan.md`, via the Shortcuts "Transaction" automation). Still no email parsing or Open Banking.
 - Sender IDs: `alinma`, `barq app`, `D360 Bank`, `STC Bank`, `SNB-AlAhli`, `AlRajhiBank`, `900`.
 - Unrelated project in the same session: `weekly-lunch-bot`. Do not read, change or deploy it from here.
