@@ -10,6 +10,7 @@ import 'package:spending_tracker/core/models.dart';
 import 'package:spending_tracker/core/normalize.dart';
 import 'package:spending_tracker/core/providers.dart';
 import 'package:spending_tracker/core/token_repository.dart';
+import 'package:spending_tracker/core/widget_bridge.dart';
 
 class FakeAuthRepository implements AuthRepository {
   FakeAuthRepository({this._signedIn = false});
@@ -304,17 +305,28 @@ class FakeDataRepository implements DataRepository {
   }
 }
 
+class FakeWidgetBridge implements WidgetBridge {
+  final List<WidgetSnapshot> saved = [];
+
+  @override
+  Future<void> save(WidgetSnapshot snapshot, DateTime now) async {
+    saved.add(snapshot);
+  }
+}
+
 class Harness {
   Harness({bool signedIn = false})
     : auth = FakeAuthRepository(signedIn: signedIn),
       authenticator = FakeAuthenticator(),
       tokens = FakeTokenRepository(),
-      data = FakeDataRepository();
+      data = FakeDataRepository(),
+      widget = FakeWidgetBridge();
 
   final FakeAuthRepository auth;
   final FakeAuthenticator authenticator;
   final FakeTokenRepository tokens;
   final FakeDataRepository data;
+  final FakeWidgetBridge widget;
   DateTime now = DateTime.utc(2026, 10, 30, 12);
 
   Future<ProviderScope> build({Map<String, Object> prefs = const {}}) async {
@@ -326,6 +338,7 @@ class Harness {
         authenticatorProvider.overrideWithValue(authenticator),
         tokenRepositoryProvider.overrideWithValue(tokens),
         dataRepositoryProvider.overrideWithValue(data),
+        widgetBridgeProvider.overrideWithValue(widget),
         sharedPrefsProvider.overrideWithValue(sp),
         clockProvider.overrideWithValue(() => now),
       ],
