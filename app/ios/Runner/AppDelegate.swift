@@ -127,23 +127,27 @@ import WidgetKit
       case "saveCredentials":
         guard let args = call.arguments as? [String: Any],
           let url = args["url"] as? String,
-          let token = args["token"] as? String
+          let token = args["token"] as? String,
+          let userId = args["userId"] as? String
         else {
           result(FlutterMethodNotImplemented)
           return
         }
-        store.saveCredentials(url: url, token: token)
+        store.saveCredentials(url: url, token: token, userId: userId)
         result(nil)
       case "clearCredentials":
         store.clearCredentials()
         result(nil)
       case "flush":
-        Task {
+        Task { @MainActor in
           await store.flush()
           result(nil)
         }
       case "status":
-        result(["hasToken": store.credentials() != nil, "pending": store.pendingCount()])
+        let creds = store.credentials()
+        result([
+          "hasToken": creds != nil, "userId": creds?.userId as Any, "pending": store.pendingCount(),
+        ])
       default:
         result(FlutterMethodNotImplemented)
       }

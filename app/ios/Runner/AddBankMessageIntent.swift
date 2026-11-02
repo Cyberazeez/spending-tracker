@@ -5,8 +5,8 @@ import Foundation
 /// shortcut that calls this with the sender and the text; it needs no token pasted by hand.
 @available(iOS 16.0, *)
 struct AddBankMessageIntent: AppIntent {
-  static var title: LocalizedStringResource = "Add bank message"
-  static var description = IntentDescription(
+  static let title: LocalizedStringResource = "Add bank message"
+  static let description = IntentDescription(
     "Sends a bank SMS to your Spending Tracker so the purchase is recorded.")
   static var openAppWhenRun: Bool = false
 

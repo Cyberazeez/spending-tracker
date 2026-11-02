@@ -25,6 +25,11 @@ class FakeAuthRepository implements AuthRepository {
   @override
   bool get hasSession => _signedIn;
 
+  String? currentUser = 'user-1';
+
+  @override
+  String? get userId => _signedIn ? currentUser : null;
+
   @override
   Stream<bool> get signedIn => _controller.stream;
 
@@ -96,25 +101,28 @@ class FakeTokenRepository implements TokenRepository {
 
 class FakeCaptureBridge implements CaptureBridge {
   bool hasToken = false;
+  String? tokenUser;
   int pending = 0;
   int flushes = 0;
   int clears = 0;
-  final List<(String, String)> saved = [];
+  final List<(String, String, String)> saved = [];
 
   @override
   Future<CaptureStatus> status() async =>
-      CaptureStatus(hasToken: hasToken, pending: pending);
+      CaptureStatus(hasToken: hasToken, pending: pending, userId: tokenUser);
 
   @override
-  Future<void> saveCredentials(String url, String token) async {
-    saved.add((url, token));
+  Future<void> saveCredentials(String url, String token, String userId) async {
+    saved.add((url, token, userId));
     hasToken = true;
+    tokenUser = userId;
   }
 
   @override
   Future<void> clearCredentials() async {
     clears++;
     hasToken = false;
+    tokenUser = null;
   }
 
   @override

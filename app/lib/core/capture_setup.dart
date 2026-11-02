@@ -2,17 +2,40 @@ import '../config.dart';
 import 'capture_bridge.dart';
 import 'token_repository.dart';
 
-/// Makes sure the native Shortcuts action has its own token, then sends anything it queued offline.
-/// Safe to call often; it only rotates when the device has no token.
+Future<void>? _running;
+
+/// Makes sure the native Shortcuts action has its own token for [userId], then sends anything it queued offline.
+/// Safe to call often: only one run happens at a time (two overlapping rotations would revoke each other), and it
+/// only rotates when the phone has no token or the stored one belongs to someone else.
+/// [currentUser] is read again after the network call so a sign-out in between never leaves a token behind.
 Future<void> ensureCaptureReady(
   CaptureBridge bridge,
   TokenRepository tokens,
+  String? Function() currentUser,
+) {
+  return _running ??= _ensure(bridge, tokens, currentUser).whenComplete(() {
+    _running = null;
+  });
+}
+
+Future<void> _ensure(
+  CaptureBridge bridge,
+  TokenRepository tokens,
+  String? Function() currentUser,
 ) async {
+  final userId = currentUser();
+  if (userId == null) return;
   try {
-    final status = await bridge.status();
+    var status = await bridge.status();
+    if (status.hasToken && status.userId != userId) {
+      // Left over from another account (or from before accounts were recorded): never upload into it.
+      await bridge.clearCredentials();
+      status = await bridge.status();
+    }
     if (!status.hasToken) {
       final token = await tokens.rotate(label: 'App', kind: 'app');
-      await bridge.saveCredentials(AppConfig.supabaseUrl, token);
+      if (currentUser() != userId) return; // signed out meanwhile
+      await bridge.saveCredentials(AppConfig.supabaseUrl, token, userId);
     }
     await bridge.flush();
   } catch (_) {
@@ -24,7 +47,9 @@ Future<void> ensureCaptureReady(
 /// Needs the session, so call it before the actual sign-out.
 Future<void> releaseCapture(CaptureBridge bridge, TokenRepository tokens) async {
   try {
-    await tokens.revoke(kind: 'app');
+    await tokens
+        .revoke(kind: 'app')
+        .timeout(const Duration(seconds: 5));
   } catch (_) {
     // Offline: the token still gets wiped locally below.
   }

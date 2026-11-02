@@ -10,6 +10,7 @@ class SignInException implements Exception {
 /// Thin seam over Supabase auth so screens and tests do not touch the SDK directly.
 abstract class AuthRepository {
   bool get hasSession;
+  String? get userId;
   Stream<bool> get signedIn;
   Future<void> signIn(String email, String password);
   Future<void> signOut();
@@ -21,6 +22,9 @@ class SupabaseAuthRepository implements AuthRepository {
 
   @override
   bool get hasSession => _client.auth.currentSession != null;
+
+  @override
+  String? get userId => _client.auth.currentUser?.id;
 
   @override
   Stream<bool> get signedIn =>

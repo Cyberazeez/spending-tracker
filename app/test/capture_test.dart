@@ -13,6 +13,7 @@ void main() {
 
     expect(h.tokens.appRotateCalls, 1);
     expect(h.capture.saved.single.$2, 'stk_APPTOKEN');
+    expect(h.capture.saved.single.$3, 'user-1');
     expect(h.capture.saved.single.$1, startsWith('https://'));
     // The shortcut token on the Ingest token screen is untouched.
     expect(h.tokens.rotateCalls, 0);
@@ -20,7 +21,8 @@ void main() {
   });
 
   testWidgets('no new token when the phone already has one', (tester) async {
-    final h = Harness(signedIn: true)..capture.hasToken = true;
+    final h = Harness(signedIn: true)..capture.hasToken = true
+      ..capture.tokenUser = 'user-1';
     await tester.pumpWidget(await h.build());
     await tester.pumpAndSettle();
 
@@ -32,7 +34,8 @@ void main() {
   testWidgets('coming back to the app sends the queued messages', (
     tester,
   ) async {
-    final h = Harness(signedIn: true)..capture.hasToken = true;
+    final h = Harness(signedIn: true)..capture.hasToken = true
+      ..capture.tokenUser = 'user-1';
     await tester.pumpWidget(await h.build());
     await tester.pumpAndSettle();
     final before = h.capture.flushes;
@@ -66,5 +69,19 @@ void main() {
     expect(h.tokens.appRevokeCalls, 1);
     expect(h.capture.clears, 1);
     expect(h.capture.hasToken, isFalse);
+  });
+
+  testWidgets('a token left by another account is wiped and replaced', (
+    tester,
+  ) async {
+    final h = Harness(signedIn: true)
+      ..capture.hasToken = true
+      ..capture.tokenUser = 'someone-else';
+    await tester.pumpWidget(await h.build());
+    await tester.pumpAndSettle();
+
+    expect(h.capture.clears, 1);
+    expect(h.tokens.appRotateCalls, 1);
+    expect(h.capture.saved.single.$3, 'user-1');
   });
 }

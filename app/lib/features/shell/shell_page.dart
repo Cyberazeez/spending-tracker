@@ -39,6 +39,7 @@ class _ShellPageState extends ConsumerState<ShellPage>
     ensureCaptureReady(
       ref.read(captureBridgeProvider),
       ref.read(tokenRepositoryProvider),
+      () => ref.read(authRepositoryProvider).userId,
     );
   }
 

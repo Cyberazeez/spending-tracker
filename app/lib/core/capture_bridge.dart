@@ -3,8 +3,15 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class CaptureStatus {
-  const CaptureStatus({required this.hasToken, required this.pending});
+  const CaptureStatus({
+    required this.hasToken,
+    required this.pending,
+    this.userId,
+  });
   final bool hasToken;
+
+  /// The account the stored token belongs to.
+  final String? userId;
 
   /// Bank messages the Shortcuts action queued but could not send yet.
   final int pending;
@@ -14,7 +21,7 @@ class CaptureStatus {
 /// ingest token in the Keychain and a small offline queue; Dart only provisions and clears the credentials.
 abstract class CaptureBridge {
   Future<CaptureStatus> status();
-  Future<void> saveCredentials(String url, String token);
+  Future<void> saveCredentials(String url, String token, String userId);
   Future<void> clearCredentials();
   Future<void> flush();
 }
@@ -29,6 +36,7 @@ class MethodChannelCaptureBridge implements CaptureBridge {
       return CaptureStatus(
         hasToken: r?['hasToken'] == true,
         pending: (r?['pending'] as num?)?.toInt() ?? 0,
+        userId: r?['userId'] as String?,
       );
     } on MissingPluginException {
       return const CaptureStatus(hasToken: true, pending: 0);
@@ -38,8 +46,10 @@ class MethodChannelCaptureBridge implements CaptureBridge {
   }
 
   @override
-  Future<void> saveCredentials(String url, String token) =>
-      _call('saveCredentials', {'url': url, 'token': token});
+  Future<void> saveCredentials(String url, String token, String userId) => _call(
+    'saveCredentials',
+    {'url': url, 'token': token, 'userId': userId},
+  );
 
   @override
   Future<void> clearCredentials() => _call('clearCredentials');
@@ -64,7 +74,7 @@ class NoopCaptureBridge implements CaptureBridge {
   Future<CaptureStatus> status() async =>
       const CaptureStatus(hasToken: true, pending: 0);
   @override
-  Future<void> saveCredentials(String url, String token) async {}
+  Future<void> saveCredentials(String url, String token, String userId) async {}
   @override
   Future<void> clearCredentials() async {}
   @override

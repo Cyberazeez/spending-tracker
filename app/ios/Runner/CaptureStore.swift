@@ -10,13 +10,16 @@ final class CaptureStore {
 
   private let service = "spending_tracker.capture"
   private let account = "credentials"
-  private let pendingKey = "capture.pending"
+  private let queueFile = "capture-queue.json"
+  private let maxAge: TimeInterval = 14 * 24 * 3600
+  private var flushing = false
   private let maxPending = 200
   private let lock = NSLock()
 
   struct Credentials: Codable {
     let url: String
     let token: String
+    let userId: String
   }
 
   struct Pending: Codable {
@@ -28,13 +31,14 @@ final class CaptureStore {
   enum Outcome {
     case sent  // the server took it (or it was a duplicate)
     case dropped  // the server will never accept it (bad input): do not retry
-    case retry  // offline, rate limited, server trouble or an invalid token: keep it
+    case retry  // offline, rate limited or server trouble: keep it and stop for now
+    case unauthorized  // the token is no longer valid
   }
 
   // MARK: Credentials (Keychain)
 
-  func saveCredentials(url: String, token: String) {
-    guard let data = try? JSONEncoder().encode(Credentials(url: url, token: token)) else { return }
+  func saveCredentials(url: String, token: String, userId: String) {
+    guard let data = try? JSONEncoder().encode(Credentials(url: url, token: token, userId: userId)) else { return }
     let query: [String: Any] = [
       kSecClass as String: kSecClassGenericPassword,
       kSecAttrService as String: service,
@@ -45,18 +49,27 @@ final class CaptureStore {
     add[kSecValueData as String] = data
     // Readable after the first unlock so a Shortcut can run while the phone is locked; never leaves this device.
     add[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
-    SecItemAdd(add as CFDictionary, nil)
+    if SecItemAdd(add as CFDictionary, nil) != errSecSuccess {
+      // Could not store it (for example before first unlock): leave no half state so the app provisions again.
+      SecItemDelete(query as CFDictionary)
+    }
   }
 
   func clearCredentials() {
+    removeKeychainItem()
+    // A different person may sign in next: their phone must not upload the previous user's queue.
+    lock.lock()
+    defer { lock.unlock() }
+    try? FileManager.default.removeItem(at: queueURL())
+  }
+
+  private func removeKeychainItem() {
     let query: [String: Any] = [
       kSecClass as String: kSecClassGenericPassword,
       kSecAttrService as String: service,
       kSecAttrAccount as String: account,
     ]
     SecItemDelete(query as CFDictionary)
-    // A different person may sign in next: their phone must not upload the previous user's queue.
-    UserDefaults.standard.removeObject(forKey: pendingKey)
   }
 
   func credentials() -> Credentials? {
@@ -76,18 +89,33 @@ final class CaptureStore {
 
   // MARK: Queue
 
-  func pendingCount() -> Int { loadPending().count }
+  func pendingCount() -> Int {
+    lock.lock()
+    defer { lock.unlock() }
+    return loadPending().count
+  }
+
+  /// Bank SMS can hold balances and card digits, so the queue is a file that is encrypted until first unlock
+  /// and left out of backups, not UserDefaults.
+  private func queueURL() -> URL {
+    let dir = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+    try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+    return dir.appendingPathComponent(queueFile)
+  }
 
   private func loadPending() -> [Pending] {
-    guard let data = UserDefaults.standard.data(forKey: pendingKey) else { return [] }
+    guard let data = try? Data(contentsOf: queueURL()) else { return [] }
     return (try? JSONDecoder().decode([Pending].self, from: data)) ?? []
   }
 
   private func savePending(_ items: [Pending]) {
     let capped = Array(items.suffix(maxPending))
-    if let data = try? JSONEncoder().encode(capped) {
-      UserDefaults.standard.set(data, forKey: pendingKey)
-    }
+    guard let data = try? JSONEncoder().encode(capped) else { return }
+    var url = queueURL()
+    try? data.write(to: url, options: [.atomic, .completeFileProtectionUntilFirstUserAuthentication])
+    var values = URLResourceValues()
+    values.isExcludedFromBackup = true
+    try? url.setResourceValues(values)
   }
 
   private func enqueue(_ item: Pending) {
@@ -121,13 +149,38 @@ final class CaptureStore {
     return true
   }
 
-  /// Sends the queue in order. Stops at the first message that should be retried later.
+  /// Sends the queue in order. One flush at a time (resume, the app and the intent all call it).
+  /// Skips past a message the server keeps refusing for a non-auth reason, so one bad item cannot block the rest.
   func flush() async {
+    lock.lock()
+    if flushing {
+      lock.unlock()
+      return
+    }
+    flushing = true
+    lock.unlock()
+    defer {
+      lock.lock()
+      flushing = false
+      lock.unlock()
+    }
     guard let creds = credentials() else { return }
-    for item in loadPending() {
+    lock.lock()
+    let items = loadPending()
+    lock.unlock()
+    let now = Date()
+    for item in items {
+      if let at = ISO8601DateFormatter().date(from: item.receivedAt), now.timeIntervalSince(at) > maxAge {
+        remove(item)  // too old to matter and it would only block the queue
+        continue
+      }
       switch await send(item, creds) {
       case .sent, .dropped:
         remove(item)
+      case .unauthorized:
+        // Token revoked or replaced: forget it (keep the queue) so the app provisions a new one on next open.
+        removeKeychainItem()
+        return
       case .retry:
         return
       }
@@ -135,7 +188,7 @@ final class CaptureStore {
   }
 
   private func send(_ item: Pending, _ creds: Credentials) async -> Outcome {
-    guard let url = URL(string: creds.url + "/functions/v1/ingest") else { return .dropped }
+    guard let url = URL(string: creds.url.trimmingCharacters(in: CharacterSet(charactersIn: "/")) + "/functions/v1/ingest") else { return .dropped }
     var request = URLRequest(url: url, timeoutInterval: 20)
     request.httpMethod = "POST"
     request.setValue("application/json", forHTTPHeaderField: "content-type")
@@ -151,7 +204,8 @@ final class CaptureStore {
       switch http.statusCode {
       case 200..<300: return .sent
       case 400, 413, 422: return .dropped
-      default: return .retry  // 401 (token revoked: the app re-provisions on next open), 429, 5xx
+      case 401, 403: return .unauthorized
+      default: return .retry  // 429, 5xx
       }
     } catch {
       return .retry
