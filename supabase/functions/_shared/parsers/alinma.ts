@@ -98,7 +98,8 @@ export function parseAlinma(rawBody: string, receivedAt: Date): ParseResult {
 
   // Card purchase (POS / Apple Pay / online)
   if (/^\s*(?:POS-)?(?:ApplePay\s+)?.*شراء|شراء/.test(lines(body)[0] ?? "")) {
-    const amt = one(new RegExp(`بـ\\s*SAR\\s*${NUM}`));
+    // "بـ SAR 79.00" and the newer "بـ 10 SAR"
+    const amt = one(new RegExp(`بـ\\s*SAR\\s*${NUM}`)) ?? one(new RegExp(`بـ\\s*${NUM}\\s*SAR`));
     const merchantLine = lines(body).find((l) => l.startsWith("لدى"));
     const at = when();
     if (!amt || !merchantLine || !at) return { kind: "unparsed" };

@@ -83,6 +83,10 @@ export function pickDate(text: string, receivedAt: Date): string | null {
   ) {
     add(+m[6], +m[5], +m[4], +m[1], +m[2], +(m[3] ?? 0));
   }
+  // HH:mm yy-MM-dd (Alinma Apple Pay online purchases print the time first, then the date year-first)
+  for (m of text.matchAll(/(\d{1,2}):(\d{2})\s+(\d{2})-(\d{2})-(\d{2})(?!\d)/g)) {
+    add(+m[3], +m[4], +m[5], +m[1], +m[2]);
+  }
   // dd-MM-yy(yy) HH:mm
   for (
     m of text.matchAll(

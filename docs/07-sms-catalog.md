@@ -95,3 +95,8 @@ Every template above has a redacted fixture in `supabase/tests/fixtures/<sender>
 Known gaps: Al Rajhi reversal ("عكس عملية") and SNB `رصيد غير كافي لشراء نقاط البيع` are only partly captured.
 
 **Confirmed on a real message (2026-10-31):** an Alinma purchase arrived as `في 26-10-31 15:59` (year first), while the screenshot showed `29-10-26` day first. Iphone screenshots can display digit groups in a different order than the stored text, so the date reader tries every plausible order and picks the one closest to the arrival time. `purchase_pos_real_year_first_date` is a fixture copied from a real stored message.
+
+**Two more real formats (2026-11-01):** both landed in Needs review until the parsers learned them. Fixtures are copies of the real stored messages.
+- Alinma Apple Pay online purchase with the amount first and the time before a year-first date: `شراء إنترنت ApplePay` / `بـ 10 SAR` / `... لدى SA/barq` / `في 23:07 26-11-01` (`purchase_online_applepay_amount_first`). A barq merchant makes it a wallet top-up.
+- Barq online purchase in a foreign currency with no FX rate: `Amount 5.75 USD (21.59 SAR)` / `At ANTHROPIC` (`online_purchase_usd_no_fx`).
+- Messages stored before a parser existed stay in Needs review until they are re-run through the parser by hand. A Shortcut that sends its own label (`Shortcut Input`) instead of the SMS text can only be dismissed.

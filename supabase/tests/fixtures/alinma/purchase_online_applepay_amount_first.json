@@ -1,0 +1,14 @@
+{
+  "sender": "alinma",
+  "receivedAt": "2026-11-01T20:08:04.808Z",
+  "body": "شراء إنترنت ApplePay\nبـ 10 SAR\nبطاقة ائتمانية *8119\nلدى SA/barq\nفي 23:07 26-11-01",
+  "expected": {
+    "kind": "transaction",
+    "type": "wallet_topup",
+    "direction": "out",
+    "amountHalalas": 1000,
+    "merchant": "barq",
+    "cardLast4": "8119",
+    "occurredAt": "2026-11-01T20:07:00.000Z"
+  }
+}
