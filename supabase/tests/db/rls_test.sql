@@ -153,6 +153,9 @@ begin
   denied := false;
   begin perform public.rotate_ingest_token(a, 'x', 'y'); exception when insufficient_privilege then denied := true; end;
   if not denied then raise exception 'A called rotate_ingest_token'; end if;
+  denied := false;
+  begin perform public.revoke_ingest_token(a, 'app'); exception when insufficient_privilege then denied := true; end;
+  if not denied then raise exception 'A called revoke_ingest_token'; end if;
 
   reset role;
   perform set_config('request.jwt.claims', '{"role":"anon"}', true);
@@ -185,6 +188,22 @@ begin
   begin insert into public.ingest_tokens (user_id, token_hash) values (a, 'second-active');
   exception when unique_violation then denied := true; end;
   if not denied then raise exception 'two active tokens were allowed'; end if;
+
+  -- a second kind: the app token lives next to the shortcut token and rotates on its own
+  perform public.rotate_ingest_token(a, 'hash-app1', 'App', 'app');
+  perform public.rotate_ingest_token(a, 'hash-app2', 'App', 'app');
+  select count(*) into n from public.ingest_tokens where user_id = a and kind = 'app' and revoked_at is null;
+  if n <> 1 then raise exception 'expected 1 active app token, got %', n; end if;
+  select count(*) into n from public.ingest_tokens where user_id = a and kind = 'shortcut' and revoked_at is null and token_hash = 'hash-a3';
+  if n <> 1 then raise exception 'creating the app token touched the shortcut token'; end if;
+  perform public.revoke_ingest_token(a, 'app');
+  select count(*) into n from public.ingest_tokens where user_id = a and kind = 'app' and revoked_at is null;
+  if n <> 0 then raise exception 'app token was not revoked'; end if;
+  select count(*) into n from public.ingest_tokens where user_id = a and kind = 'shortcut' and revoked_at is null;
+  if n <> 1 then raise exception 'revoking the app token revoked the shortcut token'; end if;
+  denied := false;
+  begin perform public.rotate_ingest_token(a, 'hash-bad', 'x', 'admin'); exception when others then denied := true; end;
+  if not denied then raise exception 'unknown token kind was accepted'; end if;
 
   -- rate limiter counts per window and rejects unknown windows
   if public.bump_rate_limit(a, 'ingest_min', 'minute') <> 1 then raise exception 'first bump should be 1'; end if;
