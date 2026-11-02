@@ -137,6 +137,62 @@ void main() {
     expect(find.text('15%'), findsOneWidget); // 1,200 of 8,000
   });
 
+  testWidgets(
+    'with no spending last month Home says there is nothing to compare',
+    (tester) async {
+      final h = Harness(signedIn: true)
+        ..data.history = [
+          tx(
+            '1',
+            '2026-10-05T09:00:00',
+            90000,
+            cat: 'c-din',
+            merchant: 'Otten',
+          ),
+        ];
+      await tester.pumpWidget(await h.build());
+      await tester.pumpAndSettle();
+      expect(find.textContaining('Nothing to compare yet'), findsOneWidget);
+      expect(find.textContaining('Up SAR'), findsNothing);
+    },
+  );
+
+  testWidgets('with spending last month Home compares as before', (
+    tester,
+  ) async {
+    final h = Harness(signedIn: true)
+      ..data.history = [
+        tx('1', '2026-10-05T09:00:00', 90000, cat: 'c-din', merchant: 'Otten'),
+        tx('2', '2026-09-05T09:00:00', 40000, cat: 'c-din', merchant: 'Otten'),
+      ];
+    await tester.pumpWidget(await h.build());
+    await tester.pumpAndSettle();
+    expect(find.text('Up SAR 500.00'), findsOneWidget);
+    expect(find.textContaining('Nothing to compare yet'), findsNothing);
+  });
+
+  testWidgets('the monthly budget warns at 80% and says when it is passed', (
+    tester,
+  ) async {
+    final warn = Harness(signedIn: true)
+      ..data.monthlyBudget = 140000
+      ..data.history = [
+        tx('1', '2026-10-05T09:00:00', 120000, cat: 'c-din', merchant: 'Otten'),
+      ];
+    await tester.pumpWidget(await warn.build());
+    await tester.pumpAndSettle();
+    expect(find.text('Monthly budget at 85%'), findsOneWidget);
+
+    final over = Harness(signedIn: true)
+      ..data.monthlyBudget = 100000
+      ..data.history = [
+        tx('1', '2026-10-05T09:00:00', 120000, cat: 'c-din', merchant: 'Otten'),
+      ];
+    await tester.pumpWidget(await over.build());
+    await tester.pumpAndSettle();
+    expect(find.text('Over the monthly budget'), findsOneWidget);
+  });
+
   testWidgets('no SMS for days shows a warning', (tester) async {
     final h = Harness(signedIn: true)
       ..data.history = [

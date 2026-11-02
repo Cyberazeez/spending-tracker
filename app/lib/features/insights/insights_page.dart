@@ -345,9 +345,15 @@ class _InsightsPageState extends ConsumerState<InsightsPage> {
                       ),
                       InfoTile(
                         title: Text(t.insVsLast),
-                        additionalInfo: ltr(sar(ins.lastMonthToDate)),
+                        additionalInfo: ltr(
+                          ins.lastMonthHasData
+                              ? sar(ins.lastMonthToDate)
+                              : '--',
+                        ),
                         subtitle: Text(
-                          diff == 0
+                          !ins.lastMonthHasData
+                              ? t.insNoCompare
+                              : diff == 0
                               ? t.insSame
                               : diff > 0
                               ? t.insUp(sar(diff))

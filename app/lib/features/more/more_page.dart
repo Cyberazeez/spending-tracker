@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/lock.dart';
 import '../../core/providers.dart';
+import '../../core/reminders.dart';
 import '../../l10n/app_localizations.dart';
 import '../../router.dart';
 import '../../ui/theme.dart';
@@ -36,6 +37,33 @@ class MorePage extends ConsumerWidget {
     if (choice != null) await ref.read(localeProvider.notifier).set(choice);
   }
 
+  Future<void> _toggleReminders(
+    BuildContext context,
+    WidgetRef ref,
+    bool on,
+  ) async {
+    final controller = ref.read(remindersEnabledProvider.notifier);
+    if (!on) {
+      await controller.disable();
+      return;
+    }
+    final t = AppLocalizations.of(context);
+    final granted = await controller.enable();
+    if (granted || !context.mounted) return;
+    await showCupertinoDialog<void>(
+      context: context,
+      builder: (ctx) => CupertinoAlertDialog(
+        content: Text(t.remindersDenied),
+        actions: [
+          CupertinoDialogAction(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(t.done),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = AppLocalizations.of(context);
@@ -59,6 +87,14 @@ class MorePage extends ConsumerWidget {
                       ),
                       trailing: const CupertinoListTileChevron(),
                       onTap: () => _pickLanguage(context, ref),
+                    ),
+                    CupertinoListTile.notched(
+                      title: Text(t.remindersTitle),
+                      subtitle: Text(t.remindersHelp),
+                      trailing: CupertinoSwitch(
+                        value: ref.watch(remindersEnabledProvider),
+                        onChanged: (on) => _toggleReminders(context, ref, on),
+                      ),
                     ),
                     CupertinoListTile.notched(
                       title: Text(t.gapsTitle),

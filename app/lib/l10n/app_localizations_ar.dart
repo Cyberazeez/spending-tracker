@@ -491,6 +491,41 @@ class AppLocalizationsAr extends AppLocalizations {
   String get homeBudgetUsed => 'المستخدم من الميزانية الشهرية';
 
   @override
+  String homeMonthlyWarn(String percent) {
+    return 'الميزانية الشهرية عند $percent%';
+  }
+
+  @override
+  String get homeMonthlyOver => 'تجاوزت الميزانية الشهرية';
+
+  @override
+  String get remindersTitle => 'تذكير بالفواتير';
+
+  @override
+  String get remindersOn => 'مفعّل';
+
+  @override
+  String get remindersOff => 'متوقف';
+
+  @override
+  String get remindersHelp =>
+      'إشعار الساعة 9:00 قبل موعد الفاتورة أو الدفعة بيومين تقريباً.';
+
+  @override
+  String get remindersDenied =>
+      'الإشعارات متوقفة لهذا التطبيق. فعّلها من إعدادات الآيفون ثم حاول مرة أخرى.';
+
+  @override
+  String reminderBody(String date) {
+    return 'الاستحقاق $date';
+  }
+
+  @override
+  String reminderBodyAmount(String date, String amount) {
+    return 'الاستحقاق $date · نحو $amount';
+  }
+
+  @override
   String get insThisMonth => 'هذا الشهر';
 
   @override
@@ -511,6 +546,10 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get insSame => 'تقريباً نفسه';
+
+  @override
+  String get insNoCompare =>
+      'لا يوجد ما يمكن مقارنته بعد: لا مصروفات مسجلة لنفس أيام الشهر الماضي';
 
   @override
   String get insSavings => 'نسبة الادخار';

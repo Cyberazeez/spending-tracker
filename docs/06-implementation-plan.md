@@ -77,7 +77,7 @@ Widget build notes (2026-11-02): the extension is `app/ios/SpendingWidget` (bund
 
 ## Roadmap after M6 (agreed with the owner 2026-11-02, in this order)
 1. Home wording: say there is no data for last month yet instead of "Up SAR ..." when last month has none; record the roadmap here.
-2. Alerts: local notifications before a bill is due and at 80% / 100% of the budgets.
+2. Alerts (phone-only, built 2026-11-02): local bill reminders (switch in More) and the monthly budget at 80% / 100% in Home alerts. Real push for budget alerts is deferred (needs an APNs key and a server function).
 3. App-provided Shortcuts action (App Intent) so the shortcut carries no token; guided in-app setup for the SMS automation; share-into-app fallback.
 4. Self-refreshing widget: the widget fetches its own numbers with a read-only token, so "spent today" is fresh without opening the app.
 5. Apple Wallet capture (PRD F11): purchases made with Apple Pay arrive through the Shortcuts "Transaction" automation, matched against the SMS so nothing is counted twice. Needs a real sample from the owner first.

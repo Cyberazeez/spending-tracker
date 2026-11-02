@@ -39,6 +39,7 @@ class Insights {
   const Insights({
     required this.monthSpend,
     required this.lastMonthToDate,
+    required this.lastMonthHasData,
     required this.byCategory,
     required this.topMerchants,
     required this.average3,
@@ -54,6 +55,10 @@ class Insights {
 
   /// Spend in the previous month up to the same day of the month as today.
   final int lastMonthToDate;
+
+  /// Any spending was recorded in the same days of last month. False means "nothing to compare" (for example the
+  /// app only started receiving messages recently), not "you spent nothing".
+  final bool lastMonthHasData;
   final List<CategorySpend> byCategory;
   final List<MerchantSpend> topMerchants;
 
@@ -99,6 +104,7 @@ Insights computeInsights(
 
   var monthSpend = 0;
   var lastToDate = 0;
+  var lastToDateRows = 0;
   var salary = 0;
   final cat = <String?, int>{};
   final merch = <String, ({String label, int sum, int n})>{};
@@ -128,6 +134,7 @@ Insights computeInsights(
       }
     } else if (key == thisKey - 1 && d.day <= today.day) {
       lastToDate += spend;
+      if (spend != 0) lastToDateRows++;
     }
     if (key < thisKey && key >= thisKey - 3 && spend != 0) {
       prior[t.categoryId] = (prior[t.categoryId] ?? 0) + spend;
@@ -191,6 +198,7 @@ Insights computeInsights(
   return Insights(
     monthSpend: monthSpend,
     lastMonthToDate: lastToDate,
+    lastMonthHasData: lastToDateRows > 0,
     byCategory: byCategory,
     topMerchants: top.take(5).toList(),
     average3: average3,
