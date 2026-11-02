@@ -63,6 +63,16 @@ Scope: App Group, WidgetKit extension in SwiftUI, `home_widget` data feed, Codem
 Needs from owner: bundle IDs, App Group, team ID, App Store Connect API key (steps given when we reach it).
 Done when: widget shows live numbers on the owner's phone from a TestFlight build.
 
+Status 2026-11-02: Apple account, bundle ID `com.cyberazeez.spendingtracker`, App Store Connect app (Apple id 6829500984), Codemagic signing and TestFlight delivery are done; builds install on the owner's phone.
+Remaining widget steps, in order:
+1. App: one overall monthly budget setting (`settings.monthly_budget_halalas`, migration + a field in Insights) and a "spent today" figure. Tests first.
+2. Owner, on the Apple developer site: register the App Group `group.com.cyberazeez.spendingtracker` and the widget App ID `com.cyberazeez.spendingtracker.widget`, and enable App Groups on both IDs.
+3. Widget extension target in the iOS project (SwiftUI, small / medium / lock screen) and the `home_widget` data feed through the App Group. The project file is edited without Xcode, so the first Codemagic build is the real test.
+4. `codemagic.yaml`: create and use signing files for both bundle IDs.
+Done when the three widgets show real numbers on the owner's phone.
+
+After the widget: app-provided Shortcuts action (App Intent) so the shortcut carries no token; guided in-app setup for the SMS automation; share-into-app fallback.
+
 ## M7. Polish
 Also: store the Supabase session in the iOS keychain (`flutter_secure_storage` as the auth `LocalStorage`) instead of the default SharedPreferences, add a "last message received" staleness warning, and mark the ingest token clipboard copy as local-only.
 

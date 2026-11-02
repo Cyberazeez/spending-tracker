@@ -12,7 +12,7 @@ Status: APPROVED by owner (2026-10-30). Postgres on Supabase, migrations in `sup
 ## Access model (RLS)
 - RLS enabled on every table. Default policy: `user_id = auth.uid()` for select, insert, update, delete, unless noted.
 - **Service-role only** (no client policy at all): `ingest_tokens.token_hash` column, `ai_usage`, `rate_limits`.
-- **`settings`**: the client can read it and update preferences only (`ai_enabled`, `locale`, `week_start`, `timezone`, `base_salary_halalas`, `salary_account_last4`). `ai_monthly_cap_halalas` is not client-writable, and rows cannot be inserted or deleted by the client.
+- **`settings`**: the client can read it and update preferences only (`ai_enabled`, `locale`, `week_start`, `timezone`, `base_salary_halalas`, `salary_account_last4`, `monthly_budget_halalas`). `ai_monthly_cap_halalas` is not client-writable, and rows cannot be inserted or deleted by the client.
 - **Tokens**: at most one active token per user (partial unique index). `rotate_ingest_token()` revokes and inserts in one transaction and is service-role only.
 - **Rate limits**: `ingest` allows 60 requests per minute and 500 per day per user (`bump_rate_limit(user, bucket, window)`), and purges windows older than 2 days.
 - Writes by Edge Functions run with the service role and set `user_id` explicitly.
@@ -21,7 +21,7 @@ Status: APPROVED by owner (2026-10-30). Postgres on Supabase, migrations in `sup
 ## Tables
 
 ### settings (1 row per user)
-`user_id pk`, `base_salary_halalas bigint` (1,410,000), `salary_account_last4 text[]`, `ai_enabled bool default false`, `ai_monthly_cap_halalas bigint` (default 1,900 = about 5 USD, adjustable), `locale text` ('en'|'ar'), `week_start smallint default 0`, `timezone text default 'Asia/Riyadh'`.
+`user_id pk`, `base_salary_halalas bigint` (1,410,000), `salary_account_last4 text[]`, `ai_enabled bool default false`, `ai_monthly_cap_halalas bigint` (default 1,900 = about 5 USD, adjustable), `locale text` ('en'|'ar'), `week_start smallint default 0`, `timezone text default 'Asia/Riyadh'`, `monthly_budget_halalas bigint null` (one overall monthly spending limit; null = not set; client-writable, must be positive).
 
 ### own_accounts
 `id`, `user_id`, `bank text` (alrajhi, snb, alinma, barq, d360, stc), `last4 text`, `kind text` (account, debit_card, credit_card, wallet), `label text`, `is_active bool`, `is_house_card bool`.
