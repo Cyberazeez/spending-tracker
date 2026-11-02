@@ -103,13 +103,14 @@ class FakeCaptureBridge implements CaptureBridge {
   bool hasToken = false;
   String? tokenUser;
   int pending = 0;
+  String last = '';
   int flushes = 0;
   int clears = 0;
   final List<(String, String, String)> saved = [];
 
   @override
   Future<CaptureStatus> status() async =>
-      CaptureStatus(hasToken: hasToken, pending: pending, userId: tokenUser);
+      CaptureStatus(hasToken: hasToken, pending: pending, userId: tokenUser, last: last);
 
   @override
   Future<void> saveCredentials(String url, String token, String userId) async {

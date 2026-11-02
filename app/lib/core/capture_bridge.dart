@@ -7,11 +7,15 @@ class CaptureStatus {
     required this.hasToken,
     required this.pending,
     this.userId,
+    this.last = '',
   });
   final bool hasToken;
 
   /// The account the stored token belongs to.
   final String? userId;
+
+  /// Result of the last send, e.g. "19:02:11 HTTP 200". Empty if nothing was sent yet.
+  final String last;
 
   /// Bank messages the Shortcuts action queued but could not send yet.
   final int pending;
@@ -37,6 +41,7 @@ class MethodChannelCaptureBridge implements CaptureBridge {
         hasToken: r?['hasToken'] == true,
         pending: (r?['pending'] as num?)?.toInt() ?? 0,
         userId: r?['userId'] as String?,
+        last: (r?['last'] as String?) ?? '',
       );
     } on MissingPluginException {
       return const CaptureStatus(hasToken: true, pending: 0);
@@ -85,4 +90,9 @@ final captureBridgeProvider = Provider<CaptureBridge>(
   (ref) => !kIsWeb && defaultTargetPlatform == TargetPlatform.iOS
       ? MethodChannelCaptureBridge()
       : NoopCaptureBridge(),
+);
+
+/// Queue size and last send result for the More tab. Refreshed on open and by pull/tap.
+final captureStatusProvider = FutureProvider.autoDispose<CaptureStatus>(
+  (ref) => ref.watch(captureBridgeProvider).status(),
 );

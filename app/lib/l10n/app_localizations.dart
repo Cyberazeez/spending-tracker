@@ -260,6 +260,24 @@ abstract class AppLocalizations {
   /// **'Ingest token'**
   String get ingestToken;
 
+  /// No description provided for @captureStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'SMS capture'**
+  String get captureStatus;
+
+  /// No description provided for @captureWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} waiting'**
+  String captureWaiting(int count);
+
+  /// No description provided for @captureNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing waiting'**
+  String get captureNone;
+
   /// No description provided for @tokenScreenTitle.
   ///
   /// In en, this message translates to:
