@@ -58,4 +58,6 @@ workflows:
     publishing:
       app_store_connect:
         auth: integration
-        submit_to_testflight: true
+        # Internal testers get the build as soon as Apple finishes processing it. Submitting for beta review (external
+        # testing) needs test contact details in App Store Connect and made the build "fail" at the last step.
+        submit_to_testflight: false
