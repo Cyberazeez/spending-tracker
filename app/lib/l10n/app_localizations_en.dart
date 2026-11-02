@@ -488,6 +488,41 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeBudgetUsed => 'Monthly budget used';
 
   @override
+  String homeMonthlyWarn(String percent) {
+    return 'Monthly budget at $percent%';
+  }
+
+  @override
+  String get homeMonthlyOver => 'Over the monthly budget';
+
+  @override
+  String get remindersTitle => 'Bill reminders';
+
+  @override
+  String get remindersOn => 'On';
+
+  @override
+  String get remindersOff => 'Off';
+
+  @override
+  String get remindersHelp =>
+      'A notification at 9:00 about two days before a bill or payment is due.';
+
+  @override
+  String get remindersDenied =>
+      'Notifications are turned off for this app. Turn them on in iPhone Settings, then try again.';
+
+  @override
+  String reminderBody(String date) {
+    return 'Due $date';
+  }
+
+  @override
+  String reminderBodyAmount(String date, String amount) {
+    return 'Due $date · about $amount';
+  }
+
+  @override
   String get insThisMonth => 'This month';
 
   @override

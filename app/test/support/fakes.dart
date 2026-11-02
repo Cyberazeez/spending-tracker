@@ -9,6 +9,7 @@ import 'package:spending_tracker/core/lock.dart';
 import 'package:spending_tracker/core/models.dart';
 import 'package:spending_tracker/core/normalize.dart';
 import 'package:spending_tracker/core/providers.dart';
+import 'package:spending_tracker/core/reminder_bridge.dart';
 import 'package:spending_tracker/core/token_repository.dart';
 import 'package:spending_tracker/core/widget_bridge.dart';
 
@@ -314,19 +315,44 @@ class FakeWidgetBridge implements WidgetBridge {
   }
 }
 
+class FakeReminderBridge implements ReminderBridge {
+  bool grant = true;
+  int permissionAsks = 0;
+  int clears = 0;
+  final List<List<ReminderItem>> replaced = [];
+
+  @override
+  Future<bool> requestPermission() async {
+    permissionAsks++;
+    return grant;
+  }
+
+  @override
+  Future<void> replace(List<ReminderItem> items) async {
+    replaced.add(items);
+  }
+
+  @override
+  Future<void> clear() async {
+    clears++;
+  }
+}
+
 class Harness {
   Harness({bool signedIn = false})
     : auth = FakeAuthRepository(signedIn: signedIn),
       authenticator = FakeAuthenticator(),
       tokens = FakeTokenRepository(),
       data = FakeDataRepository(),
-      widget = FakeWidgetBridge();
+      widget = FakeWidgetBridge(),
+      reminders = FakeReminderBridge();
 
   final FakeAuthRepository auth;
   final FakeAuthenticator authenticator;
   final FakeTokenRepository tokens;
   final FakeDataRepository data;
   final FakeWidgetBridge widget;
+  final FakeReminderBridge reminders;
   DateTime now = DateTime.utc(2026, 10, 30, 12);
 
   Future<ProviderScope> build({Map<String, Object> prefs = const {}}) async {
@@ -339,6 +365,7 @@ class Harness {
         tokenRepositoryProvider.overrideWithValue(tokens),
         dataRepositoryProvider.overrideWithValue(data),
         widgetBridgeProvider.overrideWithValue(widget),
+        reminderBridgeProvider.overrideWithValue(reminders),
         sharedPrefsProvider.overrideWithValue(sp),
         clockProvider.overrideWithValue(() => now),
       ],

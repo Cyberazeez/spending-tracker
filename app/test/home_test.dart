@@ -171,6 +171,28 @@ void main() {
     expect(find.textContaining('Nothing to compare yet'), findsNothing);
   });
 
+  testWidgets('the monthly budget warns at 80% and says when it is passed', (
+    tester,
+  ) async {
+    final warn = Harness(signedIn: true)
+      ..data.monthlyBudget = 140000
+      ..data.history = [
+        tx('1', '2026-10-05T09:00:00', 120000, cat: 'c-din', merchant: 'Otten'),
+      ];
+    await tester.pumpWidget(await warn.build());
+    await tester.pumpAndSettle();
+    expect(find.text('Monthly budget at 85%'), findsOneWidget);
+
+    final over = Harness(signedIn: true)
+      ..data.monthlyBudget = 100000
+      ..data.history = [
+        tx('1', '2026-10-05T09:00:00', 120000, cat: 'c-din', merchant: 'Otten'),
+      ];
+    await tester.pumpWidget(await over.build());
+    await tester.pumpAndSettle();
+    expect(find.text('Over the monthly budget'), findsOneWidget);
+  });
+
   testWidgets('no SMS for days shows a warning', (tester) async {
     final h = Harness(signedIn: true)
       ..data.history = [

@@ -140,6 +140,9 @@ class HomePage extends ConsumerWidget {
               }
               final diff = ins.monthSpend - ins.lastMonthToDate;
               final alerts = budgetAlerts(ins, budgets);
+              final monthlyLevel = monthlyBudget == null
+                  ? BudgetLevel.ok
+                  : budgetLevel(ins.monthSpend, monthlyBudget);
               return [
                 SliverToBoxAdapter(
                   child: CupertinoListSection.insetGrouped(
@@ -183,11 +186,34 @@ class HomePage extends ConsumerWidget {
                     ],
                   ),
                 ),
-                if (alerts.isNotEmpty)
+                if (alerts.isNotEmpty || monthlyLevel != BudgetLevel.ok)
                   SliverToBoxAdapter(
                     child: CupertinoListSection.insetGrouped(
                       header: Text(t.homeAlerts),
                       children: [
+                        if (monthlyLevel != BudgetLevel.ok)
+                          InfoTile(
+                            leading: Icon(
+                              CupertinoIcons.exclamationmark_circle_fill,
+                              color: monthlyLevel == BudgetLevel.over
+                                  ? CupertinoColors.systemRed.resolveFrom(
+                                      context,
+                                    )
+                                  : CupertinoColors.systemOrange.resolveFrom(
+                                      context,
+                                    ),
+                            ),
+                            title: Text(
+                              monthlyLevel == BudgetLevel.over
+                                  ? t.homeMonthlyOver
+                                  : t.homeMonthlyWarn(
+                                      budgetPercent(
+                                        ins.monthSpend,
+                                        monthlyBudget,
+                                      ).toString(),
+                                    ),
+                            ),
+                          ),
                         for (final a in alerts)
                           InfoTile(
                             leading: Icon(

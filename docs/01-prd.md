@@ -80,7 +80,9 @@ As the owner, every bank SMS I receive reaches the app without my touching it.
 
 ### F7. Budgets
 - Monthly limit per category, progress bars, warnings at 80% and 100%.
-- Alerts: local notifications on sync/app open (v1). APNs push as a later milestone (needs paid Apple account).
+- Alerts, decided with the owner 2026-11-02 (phone-only first):
+  - **Bill reminders:** local notifications scheduled on the phone at 09:00 Riyadh time, `lead_days` (2) before each unpaid due date; they fire even when the app is closed. Off by default; switching on in More > Bill reminders asks iOS for permission. They are rebuilt every time the obligations refresh or the app returns to the foreground, so one already paid (seen by the app) is removed; a payment the app has not yet seen can still produce a reminder.
+  - **Budget alerts** (80% and 100%, category budgets and the monthly budget) are shown in the app (Home > Alerts). A notification at the moment of a purchase needs real push (APNs) and a server function; deliberately deferred.
 
 ### F8. Home screen widget
 - Native WidgetKit (SwiftUI), fed via `home_widget` and an App Group. Decided with the owner 2026-11-02:

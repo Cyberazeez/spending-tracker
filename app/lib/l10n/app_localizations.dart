@@ -962,6 +962,60 @@ abstract class AppLocalizations {
   /// **'Monthly budget used'**
   String get homeBudgetUsed;
 
+  /// No description provided for @homeMonthlyWarn.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly budget at {percent}%'**
+  String homeMonthlyWarn(String percent);
+
+  /// No description provided for @homeMonthlyOver.
+  ///
+  /// In en, this message translates to:
+  /// **'Over the monthly budget'**
+  String get homeMonthlyOver;
+
+  /// No description provided for @remindersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bill reminders'**
+  String get remindersTitle;
+
+  /// No description provided for @remindersOn.
+  ///
+  /// In en, this message translates to:
+  /// **'On'**
+  String get remindersOn;
+
+  /// No description provided for @remindersOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get remindersOff;
+
+  /// No description provided for @remindersHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'A notification at 9:00 about two days before a bill or payment is due.'**
+  String get remindersHelp;
+
+  /// No description provided for @remindersDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications are turned off for this app. Turn them on in iPhone Settings, then try again.'**
+  String get remindersDenied;
+
+  /// No description provided for @reminderBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Due {date}'**
+  String reminderBody(String date);
+
+  /// No description provided for @reminderBodyAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Due {date} · about {amount}'**
+  String reminderBodyAmount(String date, String amount);
+
   /// No description provided for @insThisMonth.
   ///
   /// In en, this message translates to:
