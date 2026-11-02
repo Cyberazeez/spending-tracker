@@ -149,7 +149,9 @@ class HomePage extends ConsumerWidget {
                         title: Text(t.insSpent),
                         additionalInfo: ltr(sar(ins.monthSpend)),
                         subtitle: Text(
-                          diff == 0
+                          !ins.lastMonthHasData
+                              ? t.insNoCompare
+                              : diff == 0
                               ? t.insSame
                               : diff > 0
                               ? t.insUp(sar(diff))

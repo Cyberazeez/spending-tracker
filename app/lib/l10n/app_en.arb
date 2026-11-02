@@ -256,6 +256,7 @@
     }
   },
   "insSame": "About the same",
+  "insNoCompare": "Nothing to compare yet: no spending recorded for the same days last month",
   "insSavings": "Savings rate",
   "insSavingsValue": "{pct}%",
   "@insSavingsValue": {

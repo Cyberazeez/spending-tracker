@@ -998,6 +998,12 @@ abstract class AppLocalizations {
   /// **'About the same'**
   String get insSame;
 
+  /// No description provided for @insNoCompare.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to compare yet: no spending recorded for the same days last month'**
+  String get insNoCompare;
+
   /// No description provided for @insSavings.
   ///
   /// In en, this message translates to:

@@ -209,6 +209,7 @@
   "insUp": "أعلى بـ {amount}",
   "insDown": "أقل بـ {amount}",
   "insSame": "تقريباً نفسه",
+  "insNoCompare": "لا يوجد ما يمكن مقارنته بعد: لا مصروفات مسجلة لنفس أيام الشهر الماضي",
   "insSavings": "نسبة الادخار",
   "insSavingsValue": "{pct}٪",
   "insSalaryAbove": "الراتب أعلى من الأساس {amount}",

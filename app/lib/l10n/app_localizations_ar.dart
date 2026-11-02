@@ -513,6 +513,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get insSame => 'تقريباً نفسه';
 
   @override
+  String get insNoCompare =>
+      'لا يوجد ما يمكن مقارنته بعد: لا مصروفات مسجلة لنفس أيام الشهر الماضي';
+
+  @override
   String get insSavings => 'نسبة الادخار';
 
   @override

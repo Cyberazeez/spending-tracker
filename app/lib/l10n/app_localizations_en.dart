@@ -510,6 +510,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get insSame => 'About the same';
 
   @override
+  String get insNoCompare =>
+      'Nothing to compare yet: no spending recorded for the same days last month';
+
+  @override
   String get insSavings => 'Savings rate';
 
   @override
