@@ -196,6 +196,8 @@ class FakeDataRepository implements DataRepository {
     String? status,
     String? matchState,
     bool clearTx = false,
+    int? expected,
+    int? actual,
   }) => ObligationInstance(
     id: i.id,
     obligationId: i.obligationId,
@@ -203,20 +205,35 @@ class FakeDataRepository implements DataRepository {
     kind: i.kind,
     dueDate: i.dueDate,
     status: status ?? i.status,
-    expectedHalalas: i.expectedHalalas,
-    actualHalalas: clearTx ? null : i.actualHalalas,
+    expectedHalalas: expected ?? i.expectedHalalas,
+    actualHalalas: clearTx ? null : (actual ?? i.actualHalalas),
     transactionId: clearTx ? null : i.transactionId,
     matchState: matchState ?? i.matchState,
     graceDays: i.graceDays,
     leadDays: i.leadDays,
     plan: i.plan,
     periodStart: i.periodStart,
+    usualMinHalalas: i.usualMinHalalas,
+    usualMaxHalalas: i.usualMaxHalalas,
   );
 
   @override
   Future<void> setInstanceStatus(String id, String status) async {
     instanceCalls.add('$status:$id');
     _patch(id, (i) => _copy(i, status: status, matchState: 'manual'));
+  }
+
+  @override
+  Future<void> setInstanceAmount(
+    String id,
+    int halalas, {
+    required bool paid,
+  }) async {
+    instanceCalls.add('amount:$id:$halalas${paid ? ':paid' : ''}');
+    _patch(
+      id,
+      (i) => paid ? _copy(i, actual: halalas) : _copy(i, expected: halalas),
+    );
   }
 
   @override

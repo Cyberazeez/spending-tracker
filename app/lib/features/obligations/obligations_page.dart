@@ -9,6 +9,7 @@ import '../../core/providers.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ui/info_tile.dart';
 import '../../ui/empty_state.dart';
+import '../insights/metrics.dart';
 import 'logic.dart';
 import 'providers.dart';
 
@@ -56,6 +57,10 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
       builder: (ctx) => CupertinoActionSheet(
         title: Text(i.name),
         actions: [
+          CupertinoActionSheetAction(
+            onPressed: () => Navigator.pop(ctx, 'amount'),
+            child: Text(t.obEditAmount),
+          ),
           if (status == 'pending' || status == 'overdue') ...[
             CupertinoActionSheetAction(
               onPressed: () => Navigator.pop(ctx, 'paid'),
@@ -78,7 +83,76 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
       ),
     );
     if (choice == null) return;
+    if (choice == 'amount') {
+      final paid = status == 'paid';
+      final current = paid
+          ? (i.actualHalalas ?? i.expectedHalalas)
+          : i.expectedHalalas;
+      final v = await _askAmount(current);
+      if (v == null) return;
+      await _run(() => repo.setInstanceAmount(i.id, v, paid: paid));
+      return;
+    }
     await _run(() => repo.setInstanceStatus(i.id, choice));
+  }
+
+  Future<int?> _askAmount(int? current) async {
+    final t = AppLocalizations.of(context);
+    final controller = TextEditingController(
+      text: current == null ? '' : (current / 100).toStringAsFixed(2),
+    );
+    String? error;
+    final result = await showCupertinoDialog<int>(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setLocal) => CupertinoAlertDialog(
+          title: Text(t.obEditAmountPrompt),
+          content: Column(
+            children: [
+              const SizedBox(height: 8),
+              CupertinoTextField(
+                controller: controller,
+                autofocus: true,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+              ),
+              if (error != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Text(
+                    error!,
+                    style: TextStyle(
+                      color: CupertinoColors.systemRed.resolveFrom(ctx),
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          actions: [
+            CupertinoDialogAction(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(t.cancel),
+            ),
+            CupertinoDialogAction(
+              isDefaultAction: true,
+              onPressed: () {
+                final v = parseHalalas(controller.text);
+                if (v == null || v > maxBudgetHalalas) {
+                  setLocal(() => error = t.obAmountInvalid);
+                } else {
+                  Navigator.pop(ctx, v);
+                }
+              },
+              child: Text(t.insSave),
+            ),
+          ],
+        ),
+      ),
+    );
+    controller.dispose();
+    return result;
   }
 
   @override
@@ -193,7 +267,7 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
                         ),
                         InfoTile(
                           title: Text(t.obMonthCommitted),
-                          subtitle: Text(t.obMonthTitle),
+                          subtitle: Text(t.obMonthCommittedNote),
                           additionalInfo: _amount(committedMonth, arabic),
                         ),
                         if (spend != null)
@@ -220,6 +294,20 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
                       },
                     ),
                   )
+                else if (_section == ObSection.upcoming)
+                  // One box per month so "this month" and "next month" never blur together.
+                  for (final g in groupByMonth(rows, today))
+                    SliverToBoxAdapter(
+                      child: CupertinoListSection.insetGrouped(
+                        header: Text(
+                          _groupTitle(g.monthStart, today, arabic, t),
+                        ),
+                        children: [
+                          for (final i in g.items)
+                            _row(i, today, arabic, secondary, t),
+                        ],
+                      ),
+                    )
                 else
                   SliverToBoxAdapter(
                     child: CupertinoListSection.insetGrouped(
@@ -235,6 +323,20 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
         ],
       ),
     );
+  }
+
+  String _groupTitle(
+    DateTime monthStart,
+    DateTime today,
+    bool arabic,
+    AppLocalizations t,
+  ) {
+    final name = monthName(monthStart, arabic: arabic);
+    final diff =
+        (monthStart.year - today.year) * 12 + monthStart.month - today.month;
+    if (diff == 0) return t.obGroupThis(name);
+    if (diff == 1) return t.obGroupNext(name);
+    return t.obGroupLater(name, monthStart.year.toString());
   }
 
   Widget _amount(int halalas, bool arabic) => Directionality(
@@ -267,6 +369,13 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
     final amounts = [
       if (i.expectedHalalas != null)
         t.obExpected(formatSar(i.expectedHalalas!, arabic: arabic)),
+      if (i.usualMinHalalas != null &&
+          i.usualMaxHalalas != null &&
+          i.status != 'paid')
+        t.obUsually(
+          formatSar(i.usualMinHalalas!, arabic: arabic),
+          formatSar(i.usualMaxHalalas!, arabic: arabic),
+        ),
       if (status == 'paid' && i.actualHalalas != null)
         t.obPaidAmount(formatSar(i.actualHalalas!, arabic: arabic)),
     ].join(' · ');

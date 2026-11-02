@@ -430,7 +430,39 @@ class AppLocalizationsAr extends AppLocalizations {
   String get obMonthTitle => 'هذا الشهر';
 
   @override
-  String get obMonthCommitted => 'الالتزامات';
+  String get obMonthCommitted => 'التزامات هذا الشهر';
+
+  @override
+  String obGroupThis(String month) {
+    return 'هذا الشهر · $month';
+  }
+
+  @override
+  String obGroupNext(String month) {
+    return 'الشهر القادم · $month';
+  }
+
+  @override
+  String obGroupLater(String month, String year) {
+    return '$month $year';
+  }
+
+  @override
+  String get obMonthCommittedNote => 'المدفوعة والمتبقية';
+
+  @override
+  String obUsually(String min, String max) {
+    return 'عادةً من $min إلى $max';
+  }
+
+  @override
+  String get obEditAmount => 'تعديل المبلغ';
+
+  @override
+  String get obEditAmountPrompt => 'المبلغ بالريال';
+
+  @override
+  String get obAmountInvalid => 'أدخل مبلغاً مثل 700 أو 1,250.50';
 
   @override
   String get obMonthOther => 'بقية المصروفات';

@@ -7,6 +7,39 @@ DateTime toRiyadh(DateTime t) => t.toUtc().add(const Duration(hours: 3));
 String formatDateTime(DateTime t) =>
     '\u2066${DateFormat('d MMM HH:mm', 'en').format(toRiyadh(t))}\u2069';
 
+const _monthsEn = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+];
+const _monthsAr = [
+  'يناير',
+  'فبراير',
+  'مارس',
+  'أبريل',
+  'مايو',
+  'يونيو',
+  'يوليو',
+  'أغسطس',
+  'سبتمبر',
+  'أكتوبر',
+  'نوفمبر',
+  'ديسمبر',
+];
+
+/// Month name for a Riyadh calendar date (held as UTC midnight).
+String monthName(DateTime d, {required bool arabic}) =>
+    (arabic ? _monthsAr : _monthsEn)[d.month - 1];
+
 /// A Riyadh calendar date held as UTC midnight, e.g. "2 Nov".
 String formatDay(DateTime d) =>
     '\u2066${DateFormat('d MMM', 'en').format(d.toUtc())}\u2069';

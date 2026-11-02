@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:spending_tracker/core/models.dart';
 
@@ -47,6 +48,73 @@ void main() {
     expect(find.text('Murabahah'), findsOneWidget);
     expect(find.text('Old one'), findsNothing);
     expect(find.text('SAR 4,038.33'), findsOneWidget); // 180.00 + 3,858.33
+  });
+
+  testWidgets('upcoming is split into this month and next month boxes', (
+    tester,
+  ) async {
+    await open(tester, [
+      inst('1', 'House Card', '2026-10-31'),
+      inst('2', 'Horse and foal', '2026-11-05'),
+      inst('3', 'Murabahah', '2026-11-28'),
+      inst('4', 'Far one', '2026-11-29'),
+    ]);
+    expect(find.text('This month · October'), findsOneWidget);
+    expect(find.text('Next month · November'), findsOneWidget);
+    expect(find.text('Obligations this month'), findsOneWidget);
+    // October box comes before the November box
+    expect(
+      tester.getTopLeft(find.text('House Card')).dy,
+      lessThan(tester.getTopLeft(find.text('Horse and foal')).dy),
+    );
+  });
+
+  testWidgets('a bill with a usual range shows the range, not one figure', (
+    tester,
+  ) async {
+    final range = ObligationInstance(
+      id: 'e',
+      obligationId: 'o-e',
+      name: 'Electricity (SEC)',
+      kind: 'bill',
+      dueDate: DateTime.utc(2026, 11, 28),
+      status: 'pending',
+      expectedHalalas: 69200,
+      usualMinHalalas: 65800,
+      usualMaxHalalas: 72600,
+    );
+    await open(tester, [range]);
+    expect(
+      find.textContaining('Usually SAR 658.00 to SAR 726.00'),
+      findsOneWidget,
+    );
+    expect(find.textContaining('Expected SAR 692.00'), findsOneWidget);
+  });
+
+  testWidgets('an amount can be edited by hand', (tester) async {
+    final h = await open(tester, [inst('1', 'Electricity', '2026-11-05')]);
+    await tester.tap(find.text('Electricity'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Edit amount'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(CupertinoTextField), '700.50');
+    await tester.tap(find.text('Save'));
+    await tester.pumpAndSettle();
+    expect(h.data.instanceCalls, contains('amount:1:70050'));
+    expect(find.textContaining('Expected SAR 700.50'), findsOneWidget);
+  });
+
+  testWidgets('an invalid edited amount is refused', (tester) async {
+    final h = await open(tester, [inst('1', 'Electricity', '2026-11-05')]);
+    await tester.tap(find.text('Electricity'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Edit amount'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(CupertinoTextField), '12,50');
+    await tester.tap(find.text('Save'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Enter an amount like'), findsOneWidget);
+    expect(h.data.instanceCalls.where((c) => c.startsWith('amount')), isEmpty);
   });
 
   testWidgets('overdue and history segments', (tester) async {

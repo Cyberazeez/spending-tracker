@@ -427,7 +427,39 @@ class AppLocalizationsEn extends AppLocalizations {
   String get obMonthTitle => 'This month';
 
   @override
-  String get obMonthCommitted => 'Committed';
+  String get obMonthCommitted => 'Obligations this month';
+
+  @override
+  String obGroupThis(String month) {
+    return 'This month · $month';
+  }
+
+  @override
+  String obGroupNext(String month) {
+    return 'Next month · $month';
+  }
+
+  @override
+  String obGroupLater(String month, String year) {
+    return '$month $year';
+  }
+
+  @override
+  String get obMonthCommittedNote => 'Paid and still to pay';
+
+  @override
+  String obUsually(String min, String max) {
+    return 'Usually $min to $max';
+  }
+
+  @override
+  String get obEditAmount => 'Edit amount';
+
+  @override
+  String get obEditAmountPrompt => 'Amount in SAR';
+
+  @override
+  String get obAmountInvalid => 'Enter an amount like 700 or 1,250.50';
 
   @override
   String get obMonthOther => 'Everything else';

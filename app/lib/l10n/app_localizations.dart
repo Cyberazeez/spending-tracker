@@ -863,8 +863,56 @@ abstract class AppLocalizations {
   /// No description provided for @obMonthCommitted.
   ///
   /// In en, this message translates to:
-  /// **'Committed'**
+  /// **'Obligations this month'**
   String get obMonthCommitted;
+
+  /// No description provided for @obGroupThis.
+  ///
+  /// In en, this message translates to:
+  /// **'This month · {month}'**
+  String obGroupThis(String month);
+
+  /// No description provided for @obGroupNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next month · {month}'**
+  String obGroupNext(String month);
+
+  /// No description provided for @obGroupLater.
+  ///
+  /// In en, this message translates to:
+  /// **'{month} {year}'**
+  String obGroupLater(String month, String year);
+
+  /// No description provided for @obMonthCommittedNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid and still to pay'**
+  String get obMonthCommittedNote;
+
+  /// No description provided for @obUsually.
+  ///
+  /// In en, this message translates to:
+  /// **'Usually {min} to {max}'**
+  String obUsually(String min, String max);
+
+  /// No description provided for @obEditAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit amount'**
+  String get obEditAmount;
+
+  /// No description provided for @obEditAmountPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount in SAR'**
+  String get obEditAmountPrompt;
+
+  /// No description provided for @obAmountInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter an amount like 700 or 1,250.50'**
+  String get obAmountInvalid;
 
   /// No description provided for @obMonthOther.
   ///

@@ -114,3 +114,23 @@ int _stableId(String s) {
   }
   return h;
 }
+
+/// A month of instances: [monthStart] is the first of the month (UTC midnight of a Riyadh date).
+class MonthGroup {
+  const MonthGroup(this.monthStart, this.items);
+  final DateTime monthStart;
+  final List<ObligationInstance> items;
+}
+
+/// Groups an already sorted list by the month of the due date, keeping the order.
+List<MonthGroup> groupByMonth(List<ObligationInstance> rows, DateTime today) {
+  final out = <MonthGroup>[];
+  for (final i in rows) {
+    final start = DateTime.utc(i.dueDate.year, i.dueDate.month);
+    if (out.isEmpty || out.last.monthStart != start) {
+      out.add(MonthGroup(start, []));
+    }
+    out.last.items.add(i);
+  }
+  return out;
+}

@@ -159,6 +159,8 @@ class ObligationInstance {
     this.graceDays = 0,
     this.leadDays = 2,
     this.plan,
+    this.usualMinHalalas,
+    this.usualMaxHalalas,
   });
 
   final String id;
@@ -177,6 +179,10 @@ class ObligationInstance {
 
   /// An instalment plan whose payments are already inside this statement's total (card statements only).
   final InstalmentPlan? plan;
+
+  /// The usual range of a bill whose amount varies (electricity), shown instead of one exact figure.
+  final int? usualMinHalalas;
+  final int? usualMaxHalalas;
 
   bool get isSuggestion => matchState == 'suggested' && status == 'pending';
 
@@ -203,6 +209,12 @@ class ObligationInstance {
       plan: InstalmentPlan.fromJson(
         ((ob['match'] as Map?)?['plan'] as Map?)?.cast<String, dynamic>(),
       ),
+      usualMinHalalas:
+          (((ob['match'] as Map?)?['range'] as Map?)?['min_halalas'] as num?)
+              ?.toInt(),
+      usualMaxHalalas:
+          (((ob['match'] as Map?)?['range'] as Map?)?['max_halalas'] as num?)
+              ?.toInt(),
     );
   }
 }
