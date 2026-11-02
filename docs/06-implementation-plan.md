@@ -63,6 +63,8 @@ Scope: App Group, WidgetKit extension in SwiftUI, `home_widget` data feed, Codem
 Needs from owner: bundle IDs, App Group, team ID, App Store Connect API key (steps given when we reach it).
 Done when: widget shows live numbers on the owner's phone from a TestFlight build.
 
+**M6 done 2026-11-02:** small, medium and lock-screen widgets show real numbers on the owner's phone from a TestFlight build (PR #25, first Codemagic build).
+
 Status 2026-11-02: Apple account, bundle ID `com.cyberazeez.spendingtracker`, App Store Connect app (Apple id 6829500984), Codemagic signing and TestFlight delivery are done; builds install on the owner's phone.
 Remaining widget steps, in order:
 1. App: one overall monthly budget setting (`settings.monthly_budget_halalas`, migration + a field in Insights) and a "spent today" figure. Tests first.
@@ -73,7 +75,12 @@ Done when the three widgets show real numbers on the owner's phone.
 
 Widget build notes (2026-11-02): the extension is `app/ios/SpendingWidget` (bundle id `com.cyberazeez.spendingtracker.widget`, iOS 16+, App Group `group.com.cyberazeez.spendingtracker`). It was added to `Runner.xcodeproj` by `scripts/ios_add_widget_target.rb` (Ruby `xcodeproj`), because there is no Xcode here; the first Codemagic build is the first time it is compiled. The widget only shows what the app last saved (the app saves when opened, on pull-to-refresh and on returning to the app), so "spent today" is stale until the app runs; a figure from an earlier day shows `--`. A later step can let the widget fetch by itself with a read-only token.
 
-After the widget: app-provided Shortcuts action (App Intent) so the shortcut carries no token; guided in-app setup for the SMS automation; share-into-app fallback.
+## Roadmap after M6 (agreed with the owner 2026-11-02, in this order)
+1. Home wording: say there is no data for last month yet instead of "Up SAR ..." when last month has none; record the roadmap here.
+2. Alerts: local notifications before a bill is due and at 80% / 100% of the budgets.
+3. App-provided Shortcuts action (App Intent) so the shortcut carries no token; guided in-app setup for the SMS automation; share-into-app fallback.
+4. Self-refreshing widget: the widget fetches its own numbers with a read-only token, so "spent today" is fresh without opening the app.
+5. Apple Wallet capture (PRD F11): purchases made with Apple Pay arrive through the Shortcuts "Transaction" automation, matched against the SMS so nothing is counted twice. Needs a real sample from the owner first.
 
 ## M7. Polish
 Also: store the Supabase session in the iOS keychain (`flutter_secure_storage` as the auth `LocalStorage`) instead of the default SharedPreferences, add a "last message received" staleness warning, and mark the ingest token clipboard copy as local-only.
