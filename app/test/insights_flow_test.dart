@@ -72,6 +72,39 @@ void main() {
     expect(find.text('65%'), findsOneWidget); // (14,100 - 5,000) / 14,100
   });
 
+  testWidgets(
+    'the monthly budget can be set, shows percent used, and removed',
+    (tester) async {
+      final h = Harness(signedIn: true)
+        ..data.history = [
+          tx(
+            '1',
+            '2026-10-05T09:00:00',
+            90000,
+            cat: 'c-din',
+            merchant: 'Otten',
+          ),
+        ];
+      await open(tester, h);
+      expect(find.text('Not set'), findsOneWidget);
+      await tester.tap(find.text('Monthly budget'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Set a budget').last);
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(CupertinoTextField), '3000');
+      await tester.tap(find.text('Save'));
+      await tester.pumpAndSettle();
+      expect(h.data.instanceCalls, contains('monthlybudget:300000'));
+      expect(find.text('30% used'), findsOneWidget); // 900 of 3,000
+      await tester.tap(find.text('Monthly budget'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Remove budget'));
+      await tester.pumpAndSettle();
+      expect(h.data.instanceCalls, contains('monthlybudget:null'));
+      expect(find.text('Not set'), findsOneWidget);
+    },
+  );
+
   testWidgets('a budget at 80% or more raises an alert, over 100% says so', (
     tester,
   ) async {

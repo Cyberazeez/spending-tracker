@@ -468,6 +468,26 @@ class AppLocalizationsEn extends AppLocalizations {
   String get obSaveFailed => 'Could not save. Try again.';
 
   @override
+  String get insMonthlyBudget => 'Monthly budget';
+
+  @override
+  String get insMonthlyBudgetNotSet => 'Not set';
+
+  @override
+  String insMonthlyBudgetUsed(String percent) {
+    return '$percent% used';
+  }
+
+  @override
+  String get insMonthlyBudgetPrompt => 'Monthly budget in SAR';
+
+  @override
+  String get homeToday => 'Spent today';
+
+  @override
+  String get homeBudgetUsed => 'Monthly budget used';
+
+  @override
   String get insThisMonth => 'This month';
 
   @override

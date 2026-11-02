@@ -133,6 +133,12 @@ begin
   update public.settings set ai_enabled = true, locale = 'ar';
   get diagnostics n = row_count;
   if n <> 1 then raise exception 'A could not update own settings preferences'; end if;
+  update public.settings set monthly_budget_halalas = 800000;
+  select count(*) into n from public.settings where monthly_budget_halalas = 800000;
+  if n <> 1 then raise exception 'A could not set the monthly budget'; end if;
+  denied := false;
+  begin update public.settings set monthly_budget_halalas = 0; exception when check_violation then denied := true; end;
+  if not denied then raise exception 'A set a zero monthly budget'; end if;
   denied := false;
   begin update public.settings set ai_monthly_cap_halalas = 999999999; exception when insufficient_privilege then denied := true; end;
   if not denied then raise exception 'A raised their own AI cap'; end if;

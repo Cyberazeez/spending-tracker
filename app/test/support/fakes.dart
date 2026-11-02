@@ -90,6 +90,8 @@ class FakeDataRepository implements DataRepository {
   final budgetCalls = <String>[];
   List<ObligationInstance> instances = [];
   int monthSpend = 0;
+  int todaySpend = 0;
+  int? monthlyBudget;
   int refreshCalls = 0;
   final instanceCalls = <String>[];
   List<RawMessage> review = [];
@@ -250,6 +252,18 @@ class FakeDataRepository implements DataRepository {
 
   @override
   Future<int> monthSpendHalalas() async => monthSpend;
+
+  @override
+  Future<int> todaySpendHalalas() async => todaySpend;
+
+  @override
+  Future<int?> monthlyBudgetHalalas() async => monthlyBudget;
+
+  @override
+  Future<void> setMonthlyBudget(int? halalas) async {
+    instanceCalls.add('monthlybudget:$halalas');
+    monthlyBudget = halalas;
+  }
 
   @override
   Future<List<Txn>> spendingHistory() async {

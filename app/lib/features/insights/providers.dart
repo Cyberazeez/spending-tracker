@@ -19,6 +19,16 @@ final insightsProvider = FutureProvider.autoDispose<Insights>((ref) async {
   );
 }, retry: (_, _) => null);
 
+final todaySpendProvider = FutureProvider.autoDispose<int>(
+  (ref) => ref.watch(dataRepositoryProvider).todaySpendHalalas(),
+  retry: (_, _) => null,
+);
+
+final monthlyBudgetProvider = FutureProvider.autoDispose<int?>(
+  (ref) => ref.watch(dataRepositoryProvider).monthlyBudgetHalalas(),
+  retry: (_, _) => null,
+);
+
 final budgetsProvider = FutureProvider.autoDispose<List<Budget>>(
   (ref) => ref.watch(dataRepositoryProvider).budgets(),
   retry: (_, _) => null,

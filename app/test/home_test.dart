@@ -119,6 +119,24 @@ void main() {
     },
   );
 
+  testWidgets('home shows spent today and the monthly budget used', (
+    tester,
+  ) async {
+    final h = Harness(signedIn: true)
+      ..data.todaySpend = 4500
+      ..data.monthlyBudget = 800000
+      ..data.history = [
+        tx('1', '2026-10-05T09:00:00', 90000, cat: 'c-din', merchant: 'Otten'),
+        tx('2', '2026-10-06T09:00:00', 30000, cat: 'c-gro', merchant: 'Lulu'),
+      ];
+    await tester.pumpWidget(await h.build());
+    await tester.pumpAndSettle();
+    expect(find.text('Spent today'), findsOneWidget);
+    expect(find.text('SAR 45.00'), findsOneWidget);
+    expect(find.text('Monthly budget used'), findsOneWidget);
+    expect(find.text('15%'), findsOneWidget); // 1,200 of 8,000
+  });
+
   testWidgets('no SMS for days shows a warning', (tester) async {
     final h = Harness(signedIn: true)
       ..data.history = [

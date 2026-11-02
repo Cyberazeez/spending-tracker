@@ -32,6 +32,7 @@ Txn tx(
 final now = DateTime.utc(2026, 11, 15, 9);
 
 void main() {
+  budgetPercentTests();
   test(
     'spend ignores internal, excluded and incoming money; refunds subtract',
     () {
@@ -214,4 +215,16 @@ void main() {
     expect(budgetLevel(50000, 10000), BudgetLevel.over);
     expect(budgetLevel(100, 0), BudgetLevel.ok);
   });
+}
+
+void budgetPercentTests() {
+  test(
+    'budget percent: null without a budget, whole percent, can pass 100',
+    () {
+      expect(budgetPercent(120000, null), isNull);
+      expect(budgetPercent(120000, 0), isNull);
+      expect(budgetPercent(120000, 800000), 15);
+      expect(budgetPercent(999999, 800000), 124);
+    },
+  );
 }
