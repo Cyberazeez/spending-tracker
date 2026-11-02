@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/capture_bridge.dart';
+import '../../core/capture_setup.dart';
 import '../../core/lock.dart';
 import '../../core/providers.dart';
 import '../../core/reminders.dart';
@@ -118,6 +120,10 @@ class MorePage extends ConsumerWidget {
                         ),
                       ),
                       onTap: () async {
+                        await releaseCapture(
+                          ref.read(captureBridgeProvider),
+                          ref.read(tokenRepositoryProvider),
+                        );
                         await ref.read(authRepositoryProvider).signOut();
                         ref.read(lockProvider.notifier).lockNow();
                       },

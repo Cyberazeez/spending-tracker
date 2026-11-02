@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:spending_tracker/app.dart';
 import 'package:spending_tracker/core/auth_repository.dart';
+import 'package:spending_tracker/core/capture_bridge.dart';
 import 'package:spending_tracker/core/data_repository.dart';
 import 'package:spending_tracker/core/lock.dart';
 import 'package:spending_tracker/core/models.dart';
@@ -23,6 +24,11 @@ class FakeAuthRepository implements AuthRepository {
 
   @override
   bool get hasSession => _signedIn;
+
+  String? currentUser = 'user-1';
+
+  @override
+  String? get userId => _signedIn ? currentUser : null;
 
   @override
   Stream<bool> get signedIn => _controller.stream;
@@ -58,6 +64,8 @@ class FakeAuthenticator implements Authenticator {
 class FakeTokenRepository implements TokenRepository {
   IngestTokenInfo? active;
   int rotateCalls = 0;
+  int appRotateCalls = 0;
+  int appRevokeCalls = 0;
   int loadCalls = 0;
   bool failLoad = false;
 
@@ -69,13 +77,57 @@ class FakeTokenRepository implements TokenRepository {
   }
 
   @override
-  Future<String> rotate({String label = 'iPhone'}) async {
+  Future<String> rotate({
+    String label = 'iPhone',
+    String kind = 'shortcut',
+  }) async {
+    if (kind == 'app') {
+      appRotateCalls++;
+      return 'stk_APPTOKEN';
+    }
     rotateCalls++;
     active = IngestTokenInfo(
       label: label,
       createdAt: DateTime.utc(2026, 10, 30, 12),
     );
     return 'stk_TESTTOKEN';
+  }
+
+  @override
+  Future<void> revoke({String kind = 'app'}) async {
+    appRevokeCalls++;
+  }
+}
+
+class FakeCaptureBridge implements CaptureBridge {
+  bool hasToken = false;
+  String? tokenUser;
+  int pending = 0;
+  int flushes = 0;
+  int clears = 0;
+  final List<(String, String, String)> saved = [];
+
+  @override
+  Future<CaptureStatus> status() async =>
+      CaptureStatus(hasToken: hasToken, pending: pending, userId: tokenUser);
+
+  @override
+  Future<void> saveCredentials(String url, String token, String userId) async {
+    saved.add((url, token, userId));
+    hasToken = true;
+    tokenUser = userId;
+  }
+
+  @override
+  Future<void> clearCredentials() async {
+    clears++;
+    hasToken = false;
+    tokenUser = null;
+  }
+
+  @override
+  Future<void> flush() async {
+    flushes++;
   }
 }
 
@@ -345,7 +397,8 @@ class Harness {
       tokens = FakeTokenRepository(),
       data = FakeDataRepository(),
       widget = FakeWidgetBridge(),
-      reminders = FakeReminderBridge();
+      reminders = FakeReminderBridge(),
+      capture = FakeCaptureBridge();
 
   final FakeAuthRepository auth;
   final FakeAuthenticator authenticator;
@@ -353,6 +406,7 @@ class Harness {
   final FakeDataRepository data;
   final FakeWidgetBridge widget;
   final FakeReminderBridge reminders;
+  final FakeCaptureBridge capture;
   DateTime now = DateTime.utc(2026, 10, 30, 12);
 
   Future<ProviderScope> build({Map<String, Object> prefs = const {}}) async {
@@ -366,6 +420,7 @@ class Harness {
         dataRepositoryProvider.overrideWithValue(data),
         widgetBridgeProvider.overrideWithValue(widget),
         reminderBridgeProvider.overrideWithValue(reminders),
+        captureBridgeProvider.overrideWithValue(capture),
         sharedPrefsProvider.overrideWithValue(sp),
         clockProvider.overrideWithValue(() => now),
       ],
