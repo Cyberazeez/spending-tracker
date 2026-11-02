@@ -93,6 +93,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ingestToken => 'Ingest token';
 
   @override
+  String get captureStatus => 'SMS capture';
+
+  @override
+  String captureWaiting(int count) {
+    return '$count waiting';
+  }
+
+  @override
+  String get captureNone => 'Nothing waiting';
+
+  @override
   String get tokenScreenTitle => 'Ingest token';
 
   @override

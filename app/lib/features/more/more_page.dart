@@ -103,6 +103,7 @@ class MorePage extends ConsumerWidget {
                       trailing: const CupertinoListTileChevron(),
                       onTap: () => context.go(gapsPath),
                     ),
+                    _CaptureStatusTile(),
                     CupertinoListTile.notched(
                       title: Text(t.ingestToken),
                       trailing: const CupertinoListTileChevron(),
@@ -135,6 +136,29 @@ class MorePage extends ConsumerWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Shows what the "Add bank message" Shortcuts action has queued and how the last send went. Tap to retry now.
+class _CaptureStatusTile extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = AppLocalizations.of(context);
+    final status = ref.watch(captureStatusProvider).value;
+    final waiting = status == null
+        ? ''
+        : (status.pending == 0
+              ? t.captureNone
+              : t.captureWaiting(status.pending));
+    final last = status?.last ?? '';
+    return CupertinoListTile.notched(
+      title: Text(t.captureStatus),
+      subtitle: Text(last.isEmpty ? waiting : '$waiting · $last'),
+      onTap: () async {
+        await ref.read(captureBridgeProvider).flush();
+        ref.invalidate(captureStatusProvider);
+      },
     );
   }
 }

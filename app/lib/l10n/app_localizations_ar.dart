@@ -94,6 +94,17 @@ class AppLocalizationsAr extends AppLocalizations {
   String get ingestToken => 'رمز الاستقبال';
 
   @override
+  String get captureStatus => 'التقاط الرسائل';
+
+  @override
+  String captureWaiting(int count) {
+    return '$count بالانتظار';
+  }
+
+  @override
+  String get captureNone => 'لا شيء بالانتظار';
+
+  @override
   String get tokenScreenTitle => 'رمز الاستقبال';
 
   @override

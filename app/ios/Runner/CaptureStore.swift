@@ -13,6 +13,7 @@ final class CaptureStore {
   private let queueFile = "capture-queue.json"
   private let maxAge: TimeInterval = 14 * 24 * 3600
   private var flushing = false
+  private let lastKey = "capture.last"
   private let maxPending = 200
   private let lock = NSLock()
 
@@ -89,6 +90,16 @@ final class CaptureStore {
 
   // MARK: Queue
 
+  /// What happened on the last send, shown in the app so problems are visible: "queued", "200", "401", "error: ...".
+  func lastResult() -> String { UserDefaults.standard.string(forKey: lastKey) ?? "" }
+
+  private func record(_ text: String) {
+    let f = DateFormatter()
+    f.dateFormat = "HH:mm:ss"
+    f.timeZone = TimeZone(identifier: "Asia/Riyadh")
+    UserDefaults.standard.set("\(f.string(from: Date())) \(text)", forKey: lastKey)
+  }
+
   func pendingCount() -> Int {
     lock.lock()
     defer { lock.unlock() }
@@ -144,7 +155,11 @@ final class CaptureStore {
   func submit(sender: String, body: String) async -> Bool {
     let item = Pending(sender: sender, body: body, receivedAt: Self.iso(Date()))
     enqueue(item)
-    guard credentials() != nil else { return false }
+    record("queued")
+    guard credentials() != nil else {
+      record("no token")
+      return false
+    }
     await flush()
     return true
   }
@@ -200,7 +215,11 @@ final class CaptureStore {
     request.httpBody = body
     do {
       let (_, response) = try await URLSession.shared.data(for: request)
-      guard let http = response as? HTTPURLResponse else { return .retry }
+      guard let http = response as? HTTPURLResponse else {
+        record("no response")
+        return .retry
+      }
+      record("HTTP \(http.statusCode)")
       switch http.statusCode {
       case 200..<300: return .sent
       case 400, 413, 422: return .dropped
@@ -208,6 +227,7 @@ final class CaptureStore {
       default: return .retry  // 429, 5xx
       }
     } catch {
+      record("error \((error as NSError).code)")
       return .retry
     }
   }

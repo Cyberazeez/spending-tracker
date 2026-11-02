@@ -146,7 +146,7 @@ import WidgetKit
       case "status":
         let creds = store.credentials()
         result([
-          "hasToken": creds != nil, "userId": creds?.userId as Any, "pending": store.pendingCount(),
+          "hasToken": creds != nil, "userId": creds?.userId as Any, "pending": store.pendingCount(), "last": store.lastResult(),
         ])
       default:
         result(FlutterMethodNotImplemented)
