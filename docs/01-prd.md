@@ -105,6 +105,15 @@ As the owner, every bank SMS I receive reaches the app without my touching it.
 - Needs: a real sample of what the automation passes (merchant, amount, currency, card name) before any parser is written; fixtures follow the same privacy rules as SMS.
 - Open question: whether the Transaction trigger covers all of the owner's cards (mada, credit) or only some.
 
+### F12. App-provided Shortcuts action (roadmap item 3, designed 2026-11-02)
+Goal: the Shortcut carries no secret and no web request. Public users should not have to paste a token or build a request.
+- The app provides an iOS **App Intent**, "Add bank message" (parameters: Sender, Message), which appears in the Shortcuts app under Spending Tracker. The automation is only: *When I get a message from <bank>* -> *Add bank message* (Sender = the message's sender, Message = its content). Apple does not allow sharing automations, so each user still creates one automation per bank; the in-app **Set up SMS capture** screen walks through it step by step and opens Shortcuts.
+- The intent runs inside the app's process without opening the app and sends the message to the same `ingest` function as today (same parsing, same dedupe, same rate limits). Server address, request format and the token live in the app, so changing them is an app update, not a rewrite of every user's shortcut.
+- **App token:** a second ingest token of kind `app`, created by the app on sign-in and kept only in the iOS Keychain (never shown, never typed, never in a shortcut). The existing token (kind `shortcut`, More > Ingest token) keeps working, so current shortcuts do not break. Signing out revokes the app token.
+- **Offline:** if the request fails (no connection, server error), the message is kept on the phone and retried the next time the intent runs and whenever the app comes to the foreground. Retrying is safe because `ingest` dedupes.
+- iOS 16+ (App Intents); the app's minimum moves from 15 to 16 (the widget already needs 16).
+- Not in this item: reading messages without a Shortcut (iOS does not allow it), Apple Wallet capture (item 5).
+
 ## Cost control
 - AI is an on/off switch in settings, default off until you flip it. Monthly cap 5 USD, enforced from an `ai_usage` ledger. At the cap, AI calls stop and the app degrades to rules-only.
 
