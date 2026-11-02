@@ -78,7 +78,10 @@ Widget build notes (2026-11-02): the extension is `app/ios/SpendingWidget` (bund
 ## Roadmap after M6 (agreed with the owner 2026-11-02, in this order)
 1. Home wording: say there is no data for last month yet instead of "Up SAR ..." when last month has none; record the roadmap here.
 2. Alerts (phone-only, built 2026-11-02): local bill reminders (switch in More) and the monthly budget at 80% / 100% in Home alerts. Real push for budget alerts is deferred (needs an APNs key and a server function).
-3. App-provided Shortcuts action (App Intent) so the shortcut carries no token; guided in-app setup for the SMS automation; share-into-app fallback.
+3. App-provided Shortcuts action (PRD F12), in three steps, each its own PR and TestFlight build:
+   - 3a. Server: ingest tokens get a `kind`; `rotate-token` can create and revoke the `app` token. Local DB test and function tests.
+   - 3b. App: provision the app token on sign-in into the Keychain, the `Add bank message` App Intent (Swift) that posts to `ingest`, an offline queue with retry, iOS minimum 16. Swift is compiled for the first time by the Codemagic build.
+   - 3c. App: **Set up SMS capture** screen (steps, an Open Shortcuts button, a last-message-received check) and the share-into-app fallback.
 4. Self-refreshing widget: the widget fetches its own numbers with a read-only token, so "spent today" is fresh without opening the app.
 5. Apple Wallet capture (PRD F11): purchases made with Apple Pay arrive through the Shortcuts "Transaction" automation, matched against the SMS so nothing is counted twice. Needs a real sample from the owner first.
 

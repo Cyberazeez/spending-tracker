@@ -13,7 +13,7 @@ Status: APPROVED by owner (2026-10-30). Postgres on Supabase, migrations in `sup
 - RLS enabled on every table. Default policy: `user_id = auth.uid()` for select, insert, update, delete, unless noted.
 - **Service-role only** (no client policy at all): `ingest_tokens.token_hash` column, `ai_usage`, `rate_limits`.
 - **`settings`**: the client can read it and update preferences only (`ai_enabled`, `locale`, `week_start`, `timezone`, `base_salary_halalas`, `salary_account_last4`, `monthly_budget_halalas`). `ai_monthly_cap_halalas` is not client-writable, and rows cannot be inserted or deleted by the client.
-- **Tokens**: at most one active token per user (partial unique index). `rotate_ingest_token()` revokes and inserts in one transaction and is service-role only.
+- **Tokens**: at most one active token per user **per kind** (`shortcut`: the one shown in More > Ingest token; `app`: created by the app and kept in the iOS Keychain), partial unique index on `(user_id, kind)`. `rotate_ingest_token(user, hash, label, kind)` revokes that kind's token and inserts the new one in one transaction and is service-role only. The `rotate-token` function takes `kind` (default `shortcut`) and an `action` of `rotate` (default) or `revoke`.
 - **Rate limits**: `ingest` allows 60 requests per minute and 500 per day per user (`bump_rate_limit(user, bucket, window)`), and purges windows older than 2 days.
 - Writes by Edge Functions run with the service role and set `user_id` explicitly.
 - Client never receives: service-role key, Claude API key, token hash, any IBAN/full card number.
@@ -28,7 +28,7 @@ Status: APPROVED by owner (2026-10-30). Postgres on Supabase, migrations in `sup
 Unique `(user_id, bank, last4)`. Seed: Al Rajhi 6331 (account), 1271 (mada card); SNB 0102, 0103 (accounts), 3301 (mada card); Alinma 6000 (account), 6698, 8119 (credit); D360 5911, 0513 (accounts), 7705, 8920 (house card); barq 1224, 9105; STC 6190; D360 5745 inactive. Evidence: SNB "between your accounts" SMS and Al Rajhi/SNB transfers to Alinma 6000 under the owner's name.
 
 ### ingest_tokens
-`id`, `user_id`, `label`, `token_hash text` (SHA-256, service-role only), `created_at`, `last_used_at`, `revoked_at`. Created/rotated only by the `rotate-token` function, which returns the plaintext once.
+`id`, `user_id`, `label`, `kind text` (`shortcut` | `app`, default `shortcut`), `token_hash text` (SHA-256, service-role only), `created_at`, `last_used_at`, `revoked_at`. Created/rotated only by the `rotate-token` function, which returns the plaintext once.
 
 ### raw_messages
 `id`, `user_id`, `sender text`, `body text`, `received_at timestamptz`, `dedupe_hash text`, `parse_status text` (parsed, ai_parsed, low_confidence, needs_review, ignored, failed), `ignore_reason text` (otp, marketing, declined, wallet_event, maintenance, ...), `parser text` (e.g. `alinma/v1`), `confidence real`, `transaction_id uuid null`, `created_at`.
