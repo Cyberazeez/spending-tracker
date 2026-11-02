@@ -191,6 +191,7 @@
   "obGroupNext": "الشهر القادم · {month}",
   "obGroupLater": "{month} {year}",
   "obMonthCommittedNote": "المدفوعة والمتبقية",
+  "obUsually": "عادةً من {min} إلى {max}",
   "obMonthOther": "بقية المصروفات",
   "obSaveFailed": "تعذر الحفظ. حاول مرة أخرى.",
   "insThisMonth": "هذا الشهر",

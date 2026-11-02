@@ -222,6 +222,8 @@
   "@obGroupThis": {"placeholders": {"month": {"type": "String"}}},
   "@obGroupNext": {"placeholders": {"month": {"type": "String"}}},
   "@obGroupLater": {"placeholders": {"month": {"type": "String"}, "year": {"type": "String"}}},
+  "obUsually": "Usually {min} to {max}",
+  "@obUsually": {"placeholders": {"min": {"type": "String"}, "max": {"type": "String"}}},
   "obMonthOther": "Everything else",
   "obSaveFailed": "Could not save. Try again.",
   "insThisMonth": "This month",

@@ -448,6 +448,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get obMonthCommittedNote => 'Paid and still to pay';
 
   @override
+  String obUsually(String min, String max) {
+    return 'Usually $min to $max';
+  }
+
+  @override
   String get obMonthOther => 'Everything else';
 
   @override

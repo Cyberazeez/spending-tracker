@@ -451,6 +451,11 @@ class AppLocalizationsAr extends AppLocalizations {
   String get obMonthCommittedNote => 'المدفوعة والمتبقية';
 
   @override
+  String obUsually(String min, String max) {
+    return 'عادةً من $min إلى $max';
+  }
+
+  @override
   String get obMonthOther => 'بقية المصروفات';
 
   @override

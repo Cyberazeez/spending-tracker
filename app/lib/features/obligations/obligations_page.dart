@@ -293,7 +293,14 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
         ? i.plan!.numberFor(i.periodStart ?? i.dueDate)
         : null;
     final amounts = [
-      if (i.expectedHalalas != null)
+      if (i.usualMinHalalas != null &&
+          i.usualMaxHalalas != null &&
+          i.status != 'paid')
+        t.obUsually(
+          formatSar(i.usualMinHalalas!, arabic: arabic),
+          formatSar(i.usualMaxHalalas!, arabic: arabic),
+        )
+      else if (i.expectedHalalas != null)
         t.obExpected(formatSar(i.expectedHalalas!, arabic: arabic)),
       if (status == 'paid' && i.actualHalalas != null)
         t.obPaidAmount(formatSar(i.actualHalalas!, arabic: arabic)),

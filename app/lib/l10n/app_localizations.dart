@@ -890,6 +890,12 @@ abstract class AppLocalizations {
   /// **'Paid and still to pay'**
   String get obMonthCommittedNote;
 
+  /// No description provided for @obUsually.
+  ///
+  /// In en, this message translates to:
+  /// **'Usually {min} to {max}'**
+  String obUsually(String min, String max);
+
   /// No description provided for @obMonthOther.
   ///
   /// In en, this message translates to:

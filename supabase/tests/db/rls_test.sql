@@ -29,7 +29,7 @@ begin
   if n <> 17 then raise exception 'seed: expected 17 own_accounts for A, got %', n; end if;
 
   select count(*) into n from public.obligations where user_id in (a, b);
-  if n <> 12 then raise exception 'seed: expected 12 obligations, got %', n; end if;
+  if n <> 14 then raise exception 'seed: expected 14 obligations, got %', n; end if;
 
   insert into public.ingest_tokens (user_id, token_hash) values (a, 'hash-a'), (b, 'hash-b');
   insert into public.raw_messages (user_id, sender, body, received_at, dedupe_hash)

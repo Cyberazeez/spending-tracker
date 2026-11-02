@@ -68,6 +68,28 @@ void main() {
     );
   });
 
+  testWidgets('a bill with a usual range shows the range, not one figure', (
+    tester,
+  ) async {
+    final range = ObligationInstance(
+      id: 'e',
+      obligationId: 'o-e',
+      name: 'Electricity (SEC)',
+      kind: 'bill',
+      dueDate: DateTime.utc(2026, 11, 28),
+      status: 'pending',
+      expectedHalalas: 69200,
+      usualMinHalalas: 65800,
+      usualMaxHalalas: 72600,
+    );
+    await open(tester, [range]);
+    expect(
+      find.textContaining('Usually SAR 658.00 to SAR 726.00'),
+      findsOneWidget,
+    );
+    expect(find.textContaining('Expected'), findsNothing);
+  });
+
   testWidgets('overdue and history segments', (tester) async {
     await open(tester, [
       inst('1', 'Old one', '2026-10-01'),
