@@ -59,6 +59,41 @@ class _InsightsPageState extends ConsumerState<InsightsPage> {
     await _save(() => repo.setBudget(categoryId, halalas));
   }
 
+  Future<void> _monthlyBudgetActions(int? current) async {
+    final t = AppLocalizations.of(context);
+    final choice = await showCupertinoModalPopup<String>(
+      context: context,
+      builder: (ctx) => CupertinoActionSheet(
+        title: Text(t.insMonthlyBudget),
+        actions: [
+          CupertinoActionSheetAction(
+            onPressed: () => Navigator.pop(ctx, 'set'),
+            child: Text(t.insBudgetSet),
+          ),
+          if (current != null)
+            CupertinoActionSheetAction(
+              isDestructiveAction: true,
+              onPressed: () => Navigator.pop(ctx, 'remove'),
+              child: Text(t.insBudgetRemove),
+            ),
+        ],
+        cancelButton: CupertinoActionSheetAction(
+          onPressed: () => Navigator.pop(ctx),
+          child: Text(t.cancel),
+        ),
+      ),
+    );
+    if (choice == null || !mounted) return;
+    final repo = ref.read(dataRepositoryProvider);
+    if (choice == 'remove') {
+      await _save(() => repo.setMonthlyBudget(null));
+      return;
+    }
+    final halalas = await _askLimit(current);
+    if (halalas == null || !mounted) return;
+    await _save(() => repo.setMonthlyBudget(halalas));
+  }
+
   Future<void> _pickCategoryForBudget(
     List<Category> cats,
     Map<String, Budget> budgetOf,
@@ -167,7 +202,10 @@ class _InsightsPageState extends ConsumerState<InsightsPage> {
         ),
       );
     } finally {
-      if (mounted) ref.invalidate(budgetsProvider);
+      if (mounted) {
+        ref.invalidate(budgetsProvider);
+        ref.invalidate(monthlyBudgetProvider);
+      }
     }
   }
 
@@ -178,6 +216,7 @@ class _InsightsPageState extends ConsumerState<InsightsPage> {
     final data = ref.watch(insightsProvider);
     final cats = ref.watch(categoriesProvider).value ?? const <Category>[];
     final budgets = ref.watch(budgetsProvider).value ?? const <Budget>[];
+    final monthlyBudget = ref.watch(monthlyBudgetProvider).value;
     final byId = {for (final c in cats) c.id: c};
     final budgetOf = {for (final b in budgets) b.categoryId: b};
     String name(String? id) => id == null
@@ -195,6 +234,7 @@ class _InsightsPageState extends ConsumerState<InsightsPage> {
             onRefresh: () async {
               ref.invalidate(insightsProvider);
               ref.invalidate(budgetsProvider);
+              ref.invalidate(monthlyBudgetProvider);
               ref.invalidate(categoriesProvider);
               await ref
                   .read(insightsProvider.future)
@@ -284,6 +324,24 @@ class _InsightsPageState extends ConsumerState<InsightsPage> {
                       InfoTile(
                         title: Text(t.insSpent),
                         additionalInfo: ltr(sar(ins.monthSpend)),
+                      ),
+                      InfoTile(
+                        title: Text(t.insMonthlyBudget),
+                        subtitle: monthlyBudget == null
+                            ? null
+                            : Text(
+                                t.insMonthlyBudgetUsed(
+                                  budgetPercent(
+                                    ins.monthSpend,
+                                    monthlyBudget,
+                                  ).toString(),
+                                ),
+                              ),
+                        additionalInfo: monthlyBudget == null
+                            ? Text(t.insMonthlyBudgetNotSet)
+                            : ltr(sar(monthlyBudget)),
+                        trailing: const CupertinoListTileChevron(),
+                        onTap: () => _monthlyBudgetActions(monthlyBudget),
                       ),
                       InfoTile(
                         title: Text(t.insVsLast),

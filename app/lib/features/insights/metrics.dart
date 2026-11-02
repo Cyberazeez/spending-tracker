@@ -203,6 +203,10 @@ Insights computeInsights(
   );
 }
 
+/// Share of the monthly budget spent, in whole percent (can pass 100); null when no budget is set.
+int? budgetPercent(int spent, int? budget) =>
+    (budget == null || budget <= 0) ? null : (spent * 100) ~/ budget;
+
 enum BudgetLevel { ok, warn, over }
 
 /// 80% of the limit warns, 100% is over.

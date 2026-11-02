@@ -471,6 +471,26 @@ class AppLocalizationsAr extends AppLocalizations {
   String get obSaveFailed => 'تعذر الحفظ. حاول مرة أخرى.';
 
   @override
+  String get insMonthlyBudget => 'الميزانية الشهرية';
+
+  @override
+  String get insMonthlyBudgetNotSet => 'غير محددة';
+
+  @override
+  String insMonthlyBudgetUsed(String percent) {
+    return 'تم استخدام $percent%';
+  }
+
+  @override
+  String get insMonthlyBudgetPrompt => 'الميزانية الشهرية بالريال';
+
+  @override
+  String get homeToday => 'المصروف اليوم';
+
+  @override
+  String get homeBudgetUsed => 'المستخدم من الميزانية الشهرية';
+
+  @override
   String get insThisMonth => 'هذا الشهر';
 
   @override

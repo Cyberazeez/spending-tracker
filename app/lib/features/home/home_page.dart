@@ -32,6 +32,8 @@ class HomePage extends ConsumerWidget {
     final data = ref.watch(insightsProvider);
     final cats = ref.watch(categoriesProvider).value ?? const <Category>[];
     final budgets = ref.watch(budgetsProvider).value ?? const <Budget>[];
+    final today0 = ref.watch(todaySpendProvider).value;
+    final monthlyBudget = ref.watch(monthlyBudgetProvider).value;
     final review = ref.watch(needsReviewProvider).value ?? const <RawMessage>[];
     final gaps = ref.watch(senderGapsProvider).value ?? const <SenderGap>[];
     final obligations =
@@ -65,6 +67,8 @@ class HomePage extends ConsumerWidget {
             onRefresh: () async {
               ref.invalidate(insightsProvider);
               ref.invalidate(budgetsProvider);
+              ref.invalidate(todaySpendProvider);
+              ref.invalidate(monthlyBudgetProvider);
               ref.invalidate(categoriesProvider);
               ref.invalidate(obligationsProvider);
               ref.invalidate(needsReviewProvider);
@@ -152,6 +156,19 @@ class HomePage extends ConsumerWidget {
                               : t.insDown(sar(-diff)),
                         ),
                       ),
+                      if (today0 != null)
+                        InfoTile(
+                          title: Text(t.homeToday),
+                          additionalInfo: ltr(sar(today0)),
+                        ),
+                      if (monthlyBudget != null)
+                        InfoTile(
+                          title: Text(t.homeBudgetUsed),
+                          subtitle: Text(sar(monthlyBudget)),
+                          additionalInfo: ltr(
+                            '${budgetPercent(ins.monthSpend, monthlyBudget)}%',
+                          ),
+                        ),
                       if (ins.byCategory.isNotEmpty)
                         InfoTile(
                           title: Text(

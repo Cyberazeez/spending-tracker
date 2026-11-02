@@ -50,6 +50,13 @@ abstract class DataRepository {
   /// Outgoing, non-internal spend in the current Riyadh month.
   Future<int> monthSpendHalalas();
 
+  /// Outgoing, non-internal spend since midnight Riyadh time today.
+  Future<int> todaySpendHalalas();
+
+  /// The one overall monthly spending limit, or null when not set.
+  Future<int?> monthlyBudgetHalalas();
+  Future<void> setMonthlyBudget(int? halalas);
+
   /// The current Riyadh month and the three before it, for insights.
   Future<List<Txn>> spendingHistory();
   Future<List<Budget>> budgets();
@@ -329,6 +336,40 @@ class SupabaseDataRepository implements DataRepository {
       riyadh.year,
       riyadh.month,
     ).subtract(const Duration(hours: 3));
+    return _spendSince(start);
+  }
+
+  @override
+  Future<int> todaySpendHalalas() async {
+    final riyadh = DateTime.now().toUtc().add(const Duration(hours: 3));
+    final start = DateTime.utc(
+      riyadh.year,
+      riyadh.month,
+      riyadh.day,
+    ).subtract(const Duration(hours: 3));
+    return _spendSince(start);
+  }
+
+  @override
+  Future<int?> monthlyBudgetHalalas() async {
+    final row = await _db
+        .from('settings')
+        .select('monthly_budget_halalas')
+        .maybeSingle();
+    return (row?['monthly_budget_halalas'] as num?)?.toInt();
+  }
+
+  @override
+  Future<void> setMonthlyBudget(int? halalas) async {
+    final uid = _db.auth.currentUser?.id;
+    if (uid == null) throw StateError('not signed in');
+    await _db
+        .from('settings')
+        .update({'monthly_budget_halalas': halalas})
+        .eq('user_id', uid);
+  }
+
+  Future<int> _spendSince(DateTime start) async {
     final rows = await _db
         .from('transactions')
         .select('amount_halalas')

@@ -926,6 +926,42 @@ abstract class AppLocalizations {
   /// **'Could not save. Try again.'**
   String get obSaveFailed;
 
+  /// No description provided for @insMonthlyBudget.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly budget'**
+  String get insMonthlyBudget;
+
+  /// No description provided for @insMonthlyBudgetNotSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not set'**
+  String get insMonthlyBudgetNotSet;
+
+  /// No description provided for @insMonthlyBudgetUsed.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% used'**
+  String insMonthlyBudgetUsed(String percent);
+
+  /// No description provided for @insMonthlyBudgetPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly budget in SAR'**
+  String get insMonthlyBudgetPrompt;
+
+  /// No description provided for @homeToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Spent today'**
+  String get homeToday;
+
+  /// No description provided for @homeBudgetUsed.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly budget used'**
+  String get homeBudgetUsed;
+
   /// No description provided for @insThisMonth.
   ///
   /// In en, this message translates to:
