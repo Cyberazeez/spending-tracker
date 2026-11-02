@@ -83,7 +83,12 @@ As the owner, every bank SMS I receive reaches the app without my touching it.
 - Alerts: local notifications on sync/app open (v1). APNs push as a later milestone (needs paid Apple account).
 
 ### F8. Home screen widget
-- Native WidgetKit (SwiftUI): month-to-date spend, top category, next 3 obligations. Fed via `home_widget` and an App Group. Needs the paid Apple account.
+- Native WidgetKit (SwiftUI), fed via `home_widget` and an App Group. Decided with the owner 2026-11-02:
+  - **Small:** spent today (Riyadh day; internal moves excluded).
+  - **Medium:** spent this month and the percentage of the monthly budget.
+  - **Lock screen:** the monthly budget percentage.
+- **Monthly budget:** one overall spending limit for the month, set by the owner in the app (new setting `monthly_budget_halalas`). The widget percentage is month spend divided by it. Category budgets (F7) are unchanged and keep driving the alerts. With no monthly budget set, the widget shows the spend and "Set a monthly budget".
+- Later (after the widget): an app-provided Shortcuts action ("Add bank message") so users do not put a token in their own shortcut. See `docs/06-implementation-plan.md`.
 
 ### F9. Security and lock
 - Supabase email login, Face ID / Touch ID lock on launch and on return from background.
