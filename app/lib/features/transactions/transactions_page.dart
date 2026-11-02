@@ -9,6 +9,7 @@ import '../../core/providers.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ui/info_tile.dart';
 import '../../router.dart';
+import '../../ui/bottom_inset.dart';
 import '../../ui/empty_state.dart';
 import '../../ui/theme.dart';
 import 'category_actions.dart';
@@ -147,6 +148,7 @@ class TransactionsPage extends ConsumerWidget {
                     ),
                   ],
           ),
+          const BottomInset(),
         ],
       ),
     );

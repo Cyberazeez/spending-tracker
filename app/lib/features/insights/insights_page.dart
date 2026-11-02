@@ -6,6 +6,7 @@ import '../../core/money.dart';
 import '../../core/providers.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ui/info_tile.dart';
+import '../../ui/bottom_inset.dart';
 import '../../ui/empty_state.dart';
 import '../transactions/providers.dart';
 import 'metrics.dart';
@@ -407,6 +408,7 @@ class _InsightsPageState extends ConsumerState<InsightsPage> {
               ];
             },
           ),
+          const BottomInset(),
         ],
       ),
     );

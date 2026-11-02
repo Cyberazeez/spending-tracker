@@ -29,6 +29,26 @@ Future<void> openTransactions(WidgetTester tester, Harness h) async {
 }
 
 void main() {
+  testWidgets('the last transaction can be scrolled clear of the tab bar', (
+    tester,
+  ) async {
+    final h = Harness(signedIn: true);
+    h.data.txns = [
+      for (var i = 0; i < 40; i++)
+        tx('t$i', 'purchase', 'out', 1000 + i, merchant: 'Shop $i'),
+    ];
+    await openTransactions(tester, h);
+    await tester.fling(
+      find.byType(Scrollable).first,
+      const Offset(0, -6000),
+      3000,
+    );
+    await tester.pumpAndSettle();
+    final lastBottom = tester.getBottomLeft(find.text('Shop 39')).dy;
+    final tabTop = tester.getTopLeft(find.byType(CupertinoTabBar)).dy;
+    expect(lastBottom, lessThanOrEqualTo(tabTop));
+  });
+
   testWidgets('empty state offers quick add', (tester) async {
     final h = Harness(signedIn: true);
     await openTransactions(tester, h);
