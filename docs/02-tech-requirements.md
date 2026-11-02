@@ -13,7 +13,7 @@ Versions below were read from pub.dev and the Flutter release feed on 2026-10-30
 | Charts | `fl_chart` 1.3.0 | Owner's decision |
 | Biometric lock | `local_auth` 3.0.2 | Face ID / Touch ID |
 | Notifications | `flutter_local_notifications` 22.3.3 | Due dates, budget alerts. APNs push later via Supabase function |
-| Widget bridge | `home_widget` 0.10.0 (+ SwiftUI WidgetKit extension) | Needs paid Apple account and an App Group |
+| Widget bridge | Own `MethodChannel` (`spending_tracker/widget`) into the shared App Group + SwiftUI WidgetKit extension (`app/ios/SpendingWidget`) | Needs paid Apple account and an App Group. Replaces the planned `home_widget` package: about 30 lines of Swift we control instead of a dependency we cannot test without a Mac. |
 | Dates/numbers | `intl` 0.20.3 (+ `flutter_localizations`) | en/ar, Asia/Riyadh, 24h |
 | Local cache | `shared_preferences` 2.5.6 | Small summaries only (month totals, next obligations for the widget) |
 | CSV / share | `csv` 8.0.0, `file_picker` 13.3.0, `share_plus` 13.3.1 | Import/export, share-sheet |

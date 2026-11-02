@@ -71,6 +71,8 @@ Remaining widget steps, in order:
 4. `codemagic.yaml`: create and use signing files for both bundle IDs.
 Done when the three widgets show real numbers on the owner's phone.
 
+Widget build notes (2026-11-02): the extension is `app/ios/SpendingWidget` (bundle id `com.cyberazeez.spendingtracker.widget`, iOS 16+, App Group `group.com.cyberazeez.spendingtracker`). It was added to `Runner.xcodeproj` by `scripts/ios_add_widget_target.rb` (Ruby `xcodeproj`), because there is no Xcode here; the first Codemagic build is the first time it is compiled. The widget only shows what the app last saved (the app saves when opened, on pull-to-refresh and on returning to the app), so "spent today" is stale until the app runs; a figure from an earlier day shows `--`. A later step can let the widget fetch by itself with a read-only token.
+
 After the widget: app-provided Shortcuts action (App Intent) so the shortcut carries no token; guided in-app setup for the SMS automation; share-into-app fallback.
 
 ## M7. Polish
