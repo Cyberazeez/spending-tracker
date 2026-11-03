@@ -91,6 +91,8 @@ Widget build notes (2026-11-02): the extension is `app/ios/SpendingWidget` (bund
 - Add obligations by hand (a form to create bills and fixed payments).
 - AI switch in More, suggest-categories button and AI tips card (server functions exist; needs the owner's Anthropic API key as a Supabase secret).
 - Apple Wallet / Apple Pay capture (needs a real sample from the owner first).
+- **Order from 2026-11-03 (owner):** 1) add obligations by hand, 2) AI switch + suggest-categories + AI tips, 3) **family sign-up** (below), then Apple Wallet and the sub-screen restyle.
+- **Family sign-up (owner, 2026-11-03):** let relatives create their own accounts so the owner can share the app for testing. This turns the single-user app into a multi-user one: needs signups enabled in Supabase Auth (or invite-only), per-user seeding of categories, settings and accounts on first sign-in (today only the owner is seeded), checking every table and function for per-user isolation, an onboarding flow without the owner's seeded obligations/SMS formats, and TestFlight invites. Design and decisions (invite-only vs open, Sign in with Apple, what each new user starts with) are written up and shown to the owner before any code.
 
 ## M7. Polish
 Also: store the Supabase session in the iOS keychain (`flutter_secure_storage` as the auth `LocalStorage`) instead of the default SharedPreferences, add a "last message received" staleness warning, and mark the ingest token clipboard copy as local-only.
