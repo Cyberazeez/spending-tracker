@@ -20,7 +20,7 @@ class AppTokens {
     darkColor: Color(0xFFF2F5F7),
   );
   static const muted = CupertinoDynamicColor.withBrightness(
-    color: Color(0xFF64748B),
+    color: Color(0xFF5B6B80),
     darkColor: Color(0xFF8B97A5),
   );
   static const accent = CupertinoDynamicColor.withBrightness(
