@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../l10n/app_localizations.dart';
 import 'category_groups.dart';
 
 /// One color and one icon per group, so a group is never told apart by color alone.
@@ -17,13 +18,25 @@ Color groupColor(CategoryGroup g) => switch (g) {
 };
 
 IconData groupIcon(CategoryGroup g) => switch (g) {
-  CategoryGroup.food => PhosphorIconsRegular.forkKnife,
-  CategoryGroup.transport => PhosphorIconsRegular.car,
-  CategoryGroup.homeBills => PhosphorIconsRegular.houseLine,
-  CategoryGroup.horse => PhosphorIconsRegular.horse,
-  CategoryGroup.lifestyle => PhosphorIconsRegular.shoppingBag,
-  CategoryGroup.subscriptions => PhosphorIconsRegular.arrowsClockwise,
-  CategoryGroup.health => PhosphorIconsRegular.heartbeat,
-  CategoryGroup.money => PhosphorIconsRegular.bank,
-  CategoryGroup.other => PhosphorIconsRegular.dotsThreeOutline,
+  CategoryGroup.food => LucideIcons.utensils,
+  CategoryGroup.transport => LucideIcons.car,
+  CategoryGroup.homeBills => LucideIcons.house,
+  CategoryGroup.horse => LucideIcons.wheat,
+  CategoryGroup.lifestyle => LucideIcons.shoppingBag,
+  CategoryGroup.subscriptions => LucideIcons.refreshCw,
+  CategoryGroup.health => LucideIcons.heartPulse,
+  CategoryGroup.money => LucideIcons.landmark,
+  CategoryGroup.other => LucideIcons.ellipsis,
+};
+
+String groupLabel(AppLocalizations t, CategoryGroup g) => switch (g) {
+  CategoryGroup.food => t.groupFood,
+  CategoryGroup.transport => t.groupTransport,
+  CategoryGroup.homeBills => t.groupHomeBills,
+  CategoryGroup.horse => t.groupHorse,
+  CategoryGroup.lifestyle => t.groupLifestyle,
+  CategoryGroup.subscriptions => t.groupSubscriptions,
+  CategoryGroup.health => t.groupHealth,
+  CategoryGroup.money => t.groupMoney,
+  CategoryGroup.other => t.groupOther,
 };

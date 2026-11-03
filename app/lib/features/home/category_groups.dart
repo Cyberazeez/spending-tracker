@@ -45,7 +45,10 @@ class GroupSpend {
 }
 
 /// Month spend per group, biggest first. Groups that net to zero or below (refunds) are left out.
-List<GroupSpend> groupSpend(List<CategorySpend> byCategory, List<Category> cats) {
+List<GroupSpend> groupSpend(
+  List<CategorySpend> byCategory,
+  List<Category> cats,
+) {
   final nameById = {for (final c in cats) c.id: c.name};
   final totals = <CategoryGroup, int>{};
   for (final s in byCategory) {

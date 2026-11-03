@@ -1303,6 +1303,186 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'If it says 1 waiting with error -1009, the phone was offline. The message is kept and sent when you are back online.'**
   String get captureHelp;
+
+  /// No description provided for @homeOverview.
+  ///
+  /// In en, this message translates to:
+  /// **'Overview'**
+  String get homeOverview;
+
+  /// No description provided for @homeSpentThisMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Spent this month'**
+  String get homeSpentThisMonth;
+
+  /// No description provided for @homeLast7.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 7 days'**
+  String get homeLast7;
+
+  /// No description provided for @homeWhereItWent.
+  ///
+  /// In en, this message translates to:
+  /// **'Where it went'**
+  String get homeWhereItWent;
+
+  /// No description provided for @homeSeeAll.
+  ///
+  /// In en, this message translates to:
+  /// **'See all'**
+  String get homeSeeAll;
+
+  /// No description provided for @homeNextBills.
+  ///
+  /// In en, this message translates to:
+  /// **'Next bills'**
+  String get homeNextBills;
+
+  /// No description provided for @homeAllBills.
+  ///
+  /// In en, this message translates to:
+  /// **'All bills'**
+  String get homeAllBills;
+
+  /// No description provided for @homeLeftToSpend.
+  ///
+  /// In en, this message translates to:
+  /// **'Left to spend'**
+  String get homeLeftToSpend;
+
+  /// No description provided for @homeVsLastMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'vs last month'**
+  String get homeVsLastMonth;
+
+  /// No description provided for @homeSetBudget.
+  ///
+  /// In en, this message translates to:
+  /// **'Set a monthly budget'**
+  String get homeSetBudget;
+
+  /// No description provided for @homeTodayShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get homeTodayShort;
+
+  /// No description provided for @homeSameShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Same'**
+  String get homeSameShort;
+
+  /// No description provided for @homeOfBudget.
+  ///
+  /// In en, this message translates to:
+  /// **'of {amount} budget'**
+  String homeOfBudget(String amount);
+
+  /// No description provided for @homeLower.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% lower'**
+  String homeLower(int percent);
+
+  /// No description provided for @homeHigher.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% higher'**
+  String homeHigher(int percent);
+
+  /// No description provided for @homeToReview.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} to review'**
+  String homeToReview(int count);
+
+  /// No description provided for @homeWeekTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} total'**
+  String homeWeekTotal(String amount);
+
+  /// No description provided for @homeBarLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Spent {amount} on {weekday}'**
+  String homeBarLabel(String amount, String weekday);
+
+  /// No description provided for @homeDueIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Due in {days} days'**
+  String homeDueIn(int days);
+
+  /// No description provided for @homeDueTomorrow.
+  ///
+  /// In en, this message translates to:
+  /// **'Due tomorrow'**
+  String get homeDueTomorrow;
+
+  /// No description provided for @homeDueToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Due today'**
+  String get homeDueToday;
+
+  /// No description provided for @groupFood.
+  ///
+  /// In en, this message translates to:
+  /// **'Food'**
+  String get groupFood;
+
+  /// No description provided for @groupTransport.
+  ///
+  /// In en, this message translates to:
+  /// **'Transport'**
+  String get groupTransport;
+
+  /// No description provided for @groupHomeBills.
+  ///
+  /// In en, this message translates to:
+  /// **'Home and bills'**
+  String get groupHomeBills;
+
+  /// No description provided for @groupHorse.
+  ///
+  /// In en, this message translates to:
+  /// **'Horse'**
+  String get groupHorse;
+
+  /// No description provided for @groupLifestyle.
+  ///
+  /// In en, this message translates to:
+  /// **'Lifestyle'**
+  String get groupLifestyle;
+
+  /// No description provided for @groupSubscriptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscriptions'**
+  String get groupSubscriptions;
+
+  /// No description provided for @groupHealth.
+  ///
+  /// In en, this message translates to:
+  /// **'Health'**
+  String get groupHealth;
+
+  /// No description provided for @groupMoney.
+  ///
+  /// In en, this message translates to:
+  /// **'Money'**
+  String get groupMoney;
+
+  /// No description provided for @groupOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get groupOther;
 }
 
 class _AppLocalizationsDelegate
