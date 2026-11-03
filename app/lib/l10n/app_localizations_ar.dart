@@ -872,4 +872,112 @@ class AppLocalizationsAr extends AppLocalizations {
   String insSubsServices(int count) {
     return '$count خدمات شهريًا';
   }
+
+  @override
+  String get obNew => 'التزام جديد';
+
+  @override
+  String get obEditTitle => 'تعديل الالتزام';
+
+  @override
+  String get obfName => 'الاسم';
+
+  @override
+  String get obfType => 'النوع';
+
+  @override
+  String get obfKindBill => 'فاتورة';
+
+  @override
+  String get obfKindFixed => 'ثابت';
+
+  @override
+  String get obfKindLoan => 'قرض';
+
+  @override
+  String get obfAmountFixed => 'مبلغ ثابت';
+
+  @override
+  String get obfAmountEstimated => 'تقديري';
+
+  @override
+  String get obfAmount => 'المبلغ بالريال';
+
+  @override
+  String get obfAmountBillNote =>
+      'اختياري للفاتورة: اتركه فارغاً وستحدد رسالة الفاتورة مبلغ كل شهر.';
+
+  @override
+  String get obfRepeats => 'التكرار';
+
+  @override
+  String get obfMonthly => 'شهري';
+
+  @override
+  String get obfQuarterly => 'كل 3 أشهر';
+
+  @override
+  String get obfAnnual => 'سنوي';
+
+  @override
+  String get obfDueDay => 'يوم الاستحقاق';
+
+  @override
+  String get obfDueDayNote => 'الأشهر القصيرة تستخدم آخر يوم فيها.';
+
+  @override
+  String get obfStartMonth => 'أول شهر استحقاق';
+
+  @override
+  String get obfGrace => 'أيام السماح';
+
+  @override
+  String get obfLead => 'التذكير قبل (أيام)';
+
+  @override
+  String get obfCategory => 'التصنيف';
+
+  @override
+  String get obfNoCategory => 'بدون';
+
+  @override
+  String get obfMatchWords => 'كلمات المطابقة';
+
+  @override
+  String get obfMatchHint => 'مثال: نادي، stc (حتى 5، تفصل بينها فاصلة)';
+
+  @override
+  String get obfTolerance => 'نسبة تفاوت المبلغ %';
+
+  @override
+  String get obfAuto => 'اعتبارها مدفوعة تلقائياً';
+
+  @override
+  String get obfAutoNote => 'إذا أُوقف: يُقترح الدفع المطابق فقط لتؤكده.';
+
+  @override
+  String get obfSave => 'حفظ';
+
+  @override
+  String get obfNameRequired => 'أدخل اسماً (حتى 60 حرفاً).';
+
+  @override
+  String get obfWordsInvalid => 'حتى 5 كلمات، كل كلمة حتى 30 حرفاً.';
+
+  @override
+  String get obEditDetails => 'تعديل التفاصيل';
+
+  @override
+  String get obStop => 'إيقاف المتابعة';
+
+  @override
+  String obStopConfirm(String name) {
+    return '$name لن يظهر بعد الآن. يبقى سجل المدفوعات.';
+  }
+
+  @override
+  String get obAddHint => 'إضافة التزام';
+
+  @override
+  String get obfNameTaken => 'لديك التزام بهذا الاسم بالفعل.';
 }

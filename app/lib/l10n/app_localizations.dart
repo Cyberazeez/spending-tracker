@@ -1597,6 +1597,216 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} services a month'**
   String insSubsServices(int count);
+
+  /// No description provided for @obNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New obligation'**
+  String get obNew;
+
+  /// No description provided for @obEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit obligation'**
+  String get obEditTitle;
+
+  /// No description provided for @obfName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get obfName;
+
+  /// No description provided for @obfType.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get obfType;
+
+  /// No description provided for @obfKindBill.
+  ///
+  /// In en, this message translates to:
+  /// **'Bill'**
+  String get obfKindBill;
+
+  /// No description provided for @obfKindFixed.
+  ///
+  /// In en, this message translates to:
+  /// **'Fixed'**
+  String get obfKindFixed;
+
+  /// No description provided for @obfKindLoan.
+  ///
+  /// In en, this message translates to:
+  /// **'Loan'**
+  String get obfKindLoan;
+
+  /// No description provided for @obfAmountFixed.
+  ///
+  /// In en, this message translates to:
+  /// **'Fixed amount'**
+  String get obfAmountFixed;
+
+  /// No description provided for @obfAmountEstimated.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated'**
+  String get obfAmountEstimated;
+
+  /// No description provided for @obfAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount in SAR'**
+  String get obfAmount;
+
+  /// No description provided for @obfAmountBillNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional for a bill: leave it empty and the bill message sets each month\'s amount.'**
+  String get obfAmountBillNote;
+
+  /// No description provided for @obfRepeats.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeats'**
+  String get obfRepeats;
+
+  /// No description provided for @obfMonthly.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly'**
+  String get obfMonthly;
+
+  /// No description provided for @obfQuarterly.
+  ///
+  /// In en, this message translates to:
+  /// **'Every 3 months'**
+  String get obfQuarterly;
+
+  /// No description provided for @obfAnnual.
+  ///
+  /// In en, this message translates to:
+  /// **'Yearly'**
+  String get obfAnnual;
+
+  /// No description provided for @obfDueDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Due day'**
+  String get obfDueDay;
+
+  /// No description provided for @obfDueDayNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Short months use their last day.'**
+  String get obfDueDayNote;
+
+  /// No description provided for @obfStartMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'First due month'**
+  String get obfStartMonth;
+
+  /// No description provided for @obfGrace.
+  ///
+  /// In en, this message translates to:
+  /// **'Grace days'**
+  String get obfGrace;
+
+  /// No description provided for @obfLead.
+  ///
+  /// In en, this message translates to:
+  /// **'Remind days before'**
+  String get obfLead;
+
+  /// No description provided for @obfCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get obfCategory;
+
+  /// No description provided for @obfNoCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get obfNoCategory;
+
+  /// No description provided for @obfMatchWords.
+  ///
+  /// In en, this message translates to:
+  /// **'Match words'**
+  String get obfMatchWords;
+
+  /// No description provided for @obfMatchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. gym club, stc (up to 5, separated by commas)'**
+  String get obfMatchHint;
+
+  /// No description provided for @obfTolerance.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount tolerance %'**
+  String get obfTolerance;
+
+  /// No description provided for @obfAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark paid automatically'**
+  String get obfAuto;
+
+  /// No description provided for @obfAutoNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Off: a matching payment is only suggested for you to confirm.'**
+  String get obfAutoNote;
+
+  /// No description provided for @obfSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get obfSave;
+
+  /// No description provided for @obfNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a name (up to 60 letters).'**
+  String get obfNameRequired;
+
+  /// No description provided for @obfWordsInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to 5 words, each up to 30 letters.'**
+  String get obfWordsInvalid;
+
+  /// No description provided for @obEditDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit details'**
+  String get obEditDetails;
+
+  /// No description provided for @obStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop tracking'**
+  String get obStop;
+
+  /// No description provided for @obStopConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} will stop appearing. Paid history stays.'**
+  String obStopConfirm(String name);
+
+  /// No description provided for @obAddHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add an obligation'**
+  String get obAddHint;
+
+  /// No description provided for @obfNameTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'You already have an obligation with this name.'**
+  String get obfNameTaken;
 }
 
 class _AppLocalizationsDelegate

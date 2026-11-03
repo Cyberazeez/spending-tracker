@@ -3,7 +3,7 @@
 Status: APPROVED by owner (2026-10-30). Nothing is built yet.
 
 ## Who it's for
-One user (Azeez), Riyadh. iPhone (iOS 27), Windows laptop, no Mac. Single-user app: signups are disabled after the owner account exists. If it is ever opened to others, that is a new project phase (multi-user, Sign in with Apple), not v1.
+One user (Azeez), Riyadh. iPhone (iOS 27), Windows laptop, no Mac. Single-user app: signups are disabled after the owner account exists. Opening it to family testers is a planned phase (owner, 2026-11-03; see the plan): multi-user, with its own spec first.
 
 ## Problem
 Spending is spread over six banks and wallets. Azeez pays one credit card (Alinma 8119) for almost everything, settles it around the 2nd of each month, then pays the monthly bills. He wants every purchase captured automatically from bank SMS, a clear view of where money goes, a tracker for regular obligations, and budgets that warn before overspending.
@@ -59,6 +59,7 @@ As the owner, every bank SMS I receive reaches the app without my touching it.
 
 ### F5. Obligations
 - Fields: name, category, fixed or estimated amount, frequency (monthly/quarterly/annual/custom), due rule, reminder lead days, match hints (merchant/sender/counterparty account, amount tolerance), active flag.
+- **Add by hand (built 2026-11-03):** Bills > "+" opens a form (name, type bill/fixed/loan, fixed or estimated amount, monthly / every 3 months / yearly, due day, first due month, grace days, reminder days, category, match words, amount tolerance, auto-mark-paid). A row's action sheet has **Edit details** and **Stop tracking** (history stays; card statements cannot be edited). A bill may have no amount (its bill SMS sets it).
 - Seed obligations:
   | Name | Amount | Timing | Notes |
   |---|---|---|---|

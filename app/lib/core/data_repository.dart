@@ -37,6 +37,15 @@ abstract class DataRepository {
   Future<void> refreshObligations();
   Future<List<ObligationInstance>> obligationInstances();
 
+  /// The editable details of one obligation, for the edit form.
+  Future<ObligationDef> obligation(String id);
+
+  /// Creates ([id] null) or edits one obligation; the server validates it and rebuilds its open instances.
+  Future<String> saveObligation(String? id, ObligationDef d);
+
+  /// Stops tracking: history stays, open instances go.
+  Future<void> stopObligation(String id);
+
   /// [status] is `paid`, `skipped` or `pending` (re-open).
   Future<void> setInstanceStatus(String id, String status);
 
@@ -255,6 +264,32 @@ class SupabaseDataRepository implements DataRepository {
         .order('due_date')
         .limit(300);
     return rows.map<ObligationInstance>(ObligationInstance.fromRow).toList();
+  }
+
+  @override
+  Future<ObligationDef> obligation(String id) async {
+    final row = await _db
+        .from('obligations')
+        .select(
+          'id, name, kind, amount_type, expected_amount_halalas, frequency, due_rule, lead_days, category_id, match',
+        )
+        .eq('id', id)
+        .single();
+    return ObligationDef.fromRow(row);
+  }
+
+  @override
+  Future<String> saveObligation(String? id, ObligationDef d) async {
+    final res = await _db.rpc(
+      'save_my_obligation',
+      params: {'p_id': id, 'p': d.toRpc()},
+    );
+    return res as String;
+  }
+
+  @override
+  Future<void> stopObligation(String id) async {
+    await _db.rpc('stop_my_obligation', params: {'p_id': id});
   }
 
   @override

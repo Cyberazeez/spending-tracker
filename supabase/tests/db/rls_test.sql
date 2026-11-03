@@ -123,6 +123,102 @@ begin
   select count(*) into n from (select obligation_id, period_start from public.obligation_instances group by 1, 2 having count(*) > 1) d;
   if n <> 0 then raise exception 'duplicate instances'; end if;
 
+  -- obligations added by hand: monthly, quarterly and yearly schedules, validation, edit and stop
+  declare
+    q uuid; y uuid; m uuid; cat uuid;
+    this_m int := extract(month from (now() at time zone 'Asia/Riyadh'))::int;
+  begin
+    select id into cat from public.categories where user_id = a limit 1;
+    m := public.save_my_obligation(null, jsonb_build_object('name', 'Gym', 'kind', 'fixed', 'amount_type', 'fixed',
+      'amount_halalas', 15000, 'frequency', 'monthly', 'day', 31, 'grace', 3, 'lead_days', 2, 'category_id', cat,
+      'merchant', jsonb_build_array('gym club'), 'auto_merchant', false, 'tolerance_pct', 10));
+    select count(*) into n from public.obligation_instances where obligation_id = m;
+    if n < 1 then raise exception 'a monthly obligation made no instance'; end if;
+    select count(*) into n from public.obligation_instances where obligation_id = m
+      and due_date = (date_trunc('month', period_start) + interval '1 month - 1 day')::date and extract(day from due_date) <= 31;
+    if n < 1 then raise exception 'day 31 was not clamped to the month end'; end if;
+
+    -- quarterly: first due month is this month, so this month has an instance and next month does not
+    q := public.save_my_obligation(null, jsonb_build_object('name', 'Insurance', 'kind', 'fixed', 'amount_type', 'fixed',
+      'amount_halalas', 90000, 'frequency', 'quarterly', 'start_month', this_m, 'day', 28, 'grace', 14, 'lead_days', 2));
+    select count(*) into n from public.obligation_instances where obligation_id = q
+      and extract(month from period_start)::int = this_m;
+    if n <> 1 then raise exception 'quarterly: expected this month''s instance, got %', n; end if;
+    select count(*) into n from public.obligation_instances where obligation_id = q
+      and extract(month from period_start)::int <> this_m;
+    if n <> 0 then raise exception 'quarterly: made an instance in a month that is not due'; end if;
+
+    -- yearly starting next month: nothing this month
+    y := public.save_my_obligation(null, jsonb_build_object('name', 'Registration', 'kind', 'fixed', 'amount_type', 'fixed',
+      'amount_halalas', 50000, 'frequency', 'annual', 'start_month', (this_m % 12) + 1, 'day', 28, 'grace', 14, 'lead_days', 2));
+    select count(*) into n from public.obligation_instances where obligation_id = y
+      and extract(month from period_start)::int = this_m;
+    if n <> 0 then raise exception 'annual: instance in the wrong month'; end if;
+
+    -- edit: the open instance is rebuilt with the new amount
+    perform public.save_my_obligation(m, jsonb_build_object('name', 'Gym', 'kind', 'fixed', 'amount_type', 'fixed',
+      'amount_halalas', 20000, 'frequency', 'monthly', 'day', 28, 'grace', 3, 'lead_days', 2));
+    select count(*) into n from public.obligation_instances where obligation_id = m and expected_amount_halalas <> 20000;
+    if n <> 0 then raise exception 'edit did not rebuild open instances'; end if;
+    select count(*) into n from public.obligations where id = m and match ? 'merchant';
+    if n <> 0 then raise exception 'edit without match words kept old words'; end if;
+
+    -- editing the day moves the open instance without deleting it
+    select count(*) into n from public.obligation_instances where obligation_id = m and extract(day from due_date) = 28;
+    if n < 1 then raise exception 'edit did not move the due day of the open instance'; end if;
+    -- a seeded salary-linked obligation keeps its link and a zero tolerance when edited
+    perform public.save_my_obligation((select id from public.obligations where user_id = a and due_rule ? 'after' limit 1),
+      jsonb_build_object('name', (select name from public.obligations where user_id = a and due_rule ? 'after' limit 1),
+        'kind', 'fixed', 'amount_type', 'fixed', 'amount_halalas', 180000, 'frequency', 'monthly', 'day', 27, 'grace', 3));
+    select count(*) into n from public.obligations where user_id = a and due_rule->>'after' = 'salary' and (due_rule->>'fallback_day')::int = 27;
+    if n <> 1 then raise exception 'edit dropped the salary link'; end if;
+    select count(*) into n from public.obligations where user_id = a and due_rule ? 'after' and (match->>'tolerance_pct')::int = 0;
+    if n <> 1 then raise exception 'edit lost the zero tolerance'; end if;
+    -- the card statement cannot be stopped
+    denied := false;
+    begin perform public.stop_my_obligation((select id from public.obligations where user_id = a and kind = 'card_statement' limit 1));
+    exception when others then denied := true; end;
+    if not denied then raise exception 'card statement was stopped';  end if;
+
+    -- stop: inactive, open instances gone
+    perform public.stop_my_obligation(m);
+    select count(*) into n from public.obligations where id = m and active;
+    if n <> 0 then raise exception 'stop left it active'; end if;
+    select count(*) into n from public.obligation_instances where obligation_id = m and status = 'pending';
+    if n <> 0 then raise exception 'stop left open instances'; end if;
+    perform public.refresh_my_obligations();
+    select count(*) into n from public.obligation_instances where obligation_id = m;
+    if n <> 0 then raise exception 'a stopped obligation came back'; end if;
+
+    -- validation
+    denied := false;
+    begin perform public.save_my_obligation(null, '{"name":"x","kind":"fixed","amount_halalas":100,"day":32}'::jsonb);
+    exception when others then denied := true; end;
+    if not denied then raise exception 'day 32 accepted'; end if;
+    denied := false;
+    begin perform public.save_my_obligation(null, '{"name":"x","kind":"card_statement","amount_halalas":100,"day":2}'::jsonb);
+    exception when others then denied := true; end;
+    if not denied then raise exception 'card_statement creatable'; end if;
+    denied := false;
+    begin perform public.save_my_obligation(null, '{"name":"x","kind":"fixed","day":2}'::jsonb);
+    exception when others then denied := true; end;
+    if not denied then raise exception 'fixed without amount accepted'; end if;
+    denied := false;
+    begin perform public.save_my_obligation(null, '{"name":"x","kind":"fixed","amount_halalas":100,"day":2,"frequency":"quarterly"}'::jsonb);
+    exception when others then denied := true; end;
+    if not denied then raise exception 'quarterly without start month accepted'; end if;
+    denied := false;
+    begin insert into public.obligations (name, kind, amount_type, expected_amount_halalas, due_rule)
+      values ('x', 'fixed', 'fixed', 100, '{"day":99}'::jsonb);
+    exception when check_violation then denied := true; end;
+    if not denied then raise exception 'direct insert with day 99 accepted'; end if;
+    -- another user's obligation can neither be edited nor stopped
+    denied := false;
+    begin perform public.stop_my_obligation((select id from public.obligations where user_id = b limit 1));
+    exception when others then denied := true; end;
+    if not denied then raise exception 'A stopped one of B''s obligations'; end if;
+  end;
+
   denied := false;
   begin perform public.import_statement_rows(a, '[]'::jsonb); exception when insufficient_privilege then denied := true; end;
   if not denied then raise exception 'A called import_statement_rows'; end if;

@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../core/format.dart';
 import '../../core/lock.dart';
@@ -7,6 +9,7 @@ import '../../core/models.dart';
 import '../../core/money.dart';
 import '../../core/providers.dart';
 import '../../l10n/app_localizations.dart';
+import '../../router.dart';
 import '../../ui/app_card.dart';
 import '../../ui/bottom_inset.dart';
 import '../../ui/empty_state.dart';
@@ -65,6 +68,11 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
             onPressed: () => Navigator.pop(ctx, 'amount'),
             child: Text(t.obEditAmount),
           ),
+          if (i.kind != 'card_statement')
+            CupertinoActionSheetAction(
+              onPressed: () => Navigator.pop(ctx, 'edit'),
+              child: Text(t.obEditDetails),
+            ),
           if (status == 'pending' || status == 'overdue') ...[
             CupertinoActionSheetAction(
               onPressed: () => Navigator.pop(ctx, 'paid'),
@@ -79,6 +87,12 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
               onPressed: () => Navigator.pop(ctx, 'pending'),
               child: Text(t.obReopen),
             ),
+          if (i.kind != 'card_statement')
+            CupertinoActionSheetAction(
+              isDestructiveAction: true,
+              onPressed: () => Navigator.pop(ctx, 'stop'),
+              child: Text(t.obStop),
+            ),
         ],
         cancelButton: CupertinoActionSheetAction(
           onPressed: () => Navigator.pop(ctx),
@@ -87,6 +101,34 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
       ),
     );
     if (choice == null) return;
+    if (choice == 'edit') {
+      if (mounted) context.go('$obligationFormPath?id=${i.obligationId}');
+      return;
+    }
+    if (choice == 'stop') {
+      if (!mounted) return;
+      final sure = await showCupertinoDialog<bool>(
+        context: context,
+        builder: (ctx) => CupertinoAlertDialog(
+          content: Text(t.obStopConfirm(i.name)),
+          actions: [
+            CupertinoDialogAction(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(t.cancel),
+            ),
+            CupertinoDialogAction(
+              isDestructiveAction: true,
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(t.obStop),
+            ),
+          ],
+        ),
+      );
+      if (sure == true) {
+        await _run(() => repo.stopObligation(i.obligationId));
+      }
+      return;
+    }
     if (choice == 'amount') {
       final paid = status == 'paid';
       final current = paid
@@ -180,6 +222,27 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
             largeTitle: Text(t.tabObligations),
             backgroundColor: AppTokens.bg.resolveFrom(context),
             border: null,
+            trailing: CupertinoButton(
+              padding: EdgeInsets.zero,
+              minimumSize: const Size(44, 44),
+              onPressed: () => context.go(obligationFormPath),
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: AppTokens.accent.resolveFrom(context),
+                  shape: BoxShape.circle,
+                ),
+                child: SizedBox(
+                  width: 36,
+                  height: 36,
+                  child: Icon(
+                    LucideIcons.plus,
+                    size: 20,
+                    color: AppTokens.onAccent.resolveFrom(context),
+                    semanticLabel: t.obAddHint,
+                  ),
+                ),
+              ),
+            ),
           ),
           CupertinoSliverRefreshControl(
             onRefresh: () async {
