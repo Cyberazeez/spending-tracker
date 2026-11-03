@@ -34,11 +34,12 @@ class PillSegments<T> extends StatelessWidget {
                   selected: e.key == value,
                   excludeSemantics: true,
                   label: e.value,
+                  onTap: () => onChanged(e.key),
                   child: GestureDetector(
                     behavior: HitTestBehavior.opaque,
                     onTap: () => onChanged(e.key),
                     child: ConstrainedBox(
-                      constraints: const BoxConstraints(minHeight: 40),
+                      constraints: const BoxConstraints(minHeight: 44),
                       child: DecoratedBox(
                         decoration: BoxDecoration(
                           color: e.key == value
@@ -145,7 +146,6 @@ class ObligationRow extends StatelessWidget {
     required this.kind,
     required this.statusLabel,
     required this.tone,
-    required this.amount,
     required this.onTap,
   });
 
@@ -154,7 +154,6 @@ class ObligationRow extends StatelessWidget {
   final String kind;
   final String statusLabel;
   final PillTone tone;
-  final String? amount;
   final VoidCallback onTap;
 
   @override
@@ -162,6 +161,7 @@ class ObligationRow extends StatelessWidget {
     final s = kindStyle(kind);
     final text = AppTokens.text.resolveFrom(context);
     final muted = AppTokens.muted.resolveFrom(context);
+    final stacked = MediaQuery.textScalerOf(context).scale(10) > 13;
     return Semantics(
       button: true,
       child: GestureDetector(
@@ -200,6 +200,10 @@ class ObligationRow extends StatelessWidget {
                           color: text,
                         ),
                       ),
+                      if (stacked) ...[
+                        const SizedBox(height: 4),
+                        StatusPill(label: statusLabel, tone: tone),
+                      ],
                       const SizedBox(height: 2),
                       Text(
                         detail,
@@ -208,27 +212,10 @@ class ObligationRow extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SizedBox(width: 8),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    StatusPill(label: statusLabel, tone: tone),
-                    if (amount != null) ...[
-                      const SizedBox(height: 4),
-                      Directionality(
-                        textDirection: TextDirection.ltr,
-                        child: Text(
-                          amount!,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                            color: text,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
+                if (!stacked) ...[
+                  const SizedBox(width: 8),
+                  StatusPill(label: statusLabel, tone: tone),
+                ],
               ],
             ),
           ),

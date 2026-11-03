@@ -148,7 +148,9 @@ class SettingsRow extends StatelessWidget {
         ),
       ),
     );
-    if (onTap == null) return row;
+    if (onTap == null) {
+      return Semantics(container: true, label: title, child: row);
+    }
     return Semantics(
       container: true,
       button: true,

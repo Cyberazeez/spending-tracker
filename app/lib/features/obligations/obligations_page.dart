@@ -479,7 +479,6 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
       kind: i.kind,
       statusLabel: label,
       tone: tone,
-      amount: null,
       detail: [
         t.obDue(formatDay(i.dueDate)),
         if (amounts.isNotEmpty) amounts,
