@@ -106,6 +106,7 @@ class FakeCaptureBridge implements CaptureBridge {
   String last = '';
   int flushes = 0;
   int clears = 0;
+  int shortcutsOpened = 0;
   final List<(String, String, String)> saved = [];
 
   @override
@@ -129,6 +130,11 @@ class FakeCaptureBridge implements CaptureBridge {
   @override
   Future<void> flush() async {
     flushes++;
+  }
+
+  @override
+  Future<void> openShortcuts() async {
+    shortcutsOpened++;
   }
 }
 

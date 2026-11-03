@@ -6,6 +6,7 @@ import 'core/lock.dart';
 import 'core/providers.dart';
 import 'features/auth/login_page.dart';
 import 'features/auth/lock_page.dart';
+import 'features/more/capture_page.dart';
 import 'features/more/gaps_page.dart';
 import 'features/more/token_page.dart';
 import 'features/transactions/quick_add_page.dart';
@@ -19,6 +20,7 @@ const tokenPath = '/home/token';
 const quickAddPath = '/home/quick-add';
 const reviewPath = '/home/review';
 const gapsPath = '/home/gaps';
+const capturePath = '/home/capture';
 
 /// Pure redirect rule, kept separate so it is easy to test.
 String? redirectFor({
@@ -61,6 +63,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(path: 'quick-add', builder: (_, _) => const QuickAddPage()),
           GoRoute(path: 'review', builder: (_, _) => const ReviewPage()),
           GoRoute(path: 'gaps', builder: (_, _) => const GapsPage()),
+          GoRoute(path: 'capture', builder: (_, _) => const CapturePage()),
         ],
       ),
     ],

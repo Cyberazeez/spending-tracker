@@ -155,10 +155,8 @@ class _CaptureStatusTile extends ConsumerWidget {
     return CupertinoListTile.notched(
       title: Text(t.captureStatus),
       subtitle: Text(last.isEmpty ? waiting : '$waiting · $last'),
-      onTap: () async {
-        await ref.read(captureBridgeProvider).flush();
-        ref.invalidate(captureStatusProvider);
-      },
+      trailing: const CupertinoListTileChevron(),
+      onTap: () => context.go(capturePath),
     );
   }
 }

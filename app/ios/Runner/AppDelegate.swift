@@ -143,6 +143,12 @@ import WidgetKit
           await store.flush()
           result(nil)
         }
+      case "openShortcuts":
+        if let url = URL(string: "shortcuts://") {
+          UIApplication.shared.open(url, options: [:]) { _ in result(nil) }
+        } else {
+          result(nil)
+        }
       case "status":
         let creds = store.credentials()
         result([

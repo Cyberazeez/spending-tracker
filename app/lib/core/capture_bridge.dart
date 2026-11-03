@@ -28,6 +28,9 @@ abstract class CaptureBridge {
   Future<void> saveCredentials(String url, String token, String userId);
   Future<void> clearCredentials();
   Future<void> flush();
+
+  /// Opens the Shortcuts app (the automation itself can only be created there).
+  Future<void> openShortcuts();
 }
 
 class MethodChannelCaptureBridge implements CaptureBridge {
@@ -62,6 +65,9 @@ class MethodChannelCaptureBridge implements CaptureBridge {
   @override
   Future<void> flush() => _call('flush');
 
+  @override
+  Future<void> openShortcuts() => _call('openShortcuts');
+
   Future<void> _call(String method, [Object? args]) async {
     try {
       await _channel.invokeMethod<void>(method, args);
@@ -84,6 +90,8 @@ class NoopCaptureBridge implements CaptureBridge {
   Future<void> clearCredentials() async {}
   @override
   Future<void> flush() async {}
+  @override
+  Future<void> openShortcuts() async {}
 }
 
 final captureBridgeProvider = Provider<CaptureBridge>(

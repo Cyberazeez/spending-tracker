@@ -662,4 +662,43 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get homeAddTx => 'إضافة عملية';
+
+  @override
+  String get captureSetupTitle => 'إعداد التقاط الرسائل';
+
+  @override
+  String get captureIntro =>
+      'تصل رسائل البنك إلى التطبيق عبر أتمتة واحدة في تطبيق الاختصارات. لا تسمح Apple للتطبيقات بإنشائها، لذا افعلها مرة واحدة:';
+
+  @override
+  String get captureStep1 =>
+      'افتح الاختصارات، ثم تبويب الأتمتة، واضغط + ثم اختر رسالة.';
+
+  @override
+  String get captureStep2 =>
+      'اجعل الرسالة تحتوي على: SAR. اختر التشغيل الفوري ثم التالي.';
+
+  @override
+  String get captureStep3 =>
+      'اضغط إضافة إجراء، وابحث عن «Add bank message» واختر الذي يحمل أيقونة هذا التطبيق.';
+
+  @override
+  String get captureStep4 =>
+      'اضغط على Message واختر متغير Message. ثم اضغط على Sender واختر متغير Sender.';
+
+  @override
+  String get captureStep5 => 'اضغط تم. ستُضاف رسالة البنك التالية تلقائيًا.';
+
+  @override
+  String get captureOpenShortcuts => 'فتح الاختصارات';
+
+  @override
+  String get captureStatusHeader => 'الحالة';
+
+  @override
+  String get captureSendNow => 'إرسال الرسائل المنتظرة الآن';
+
+  @override
+  String get captureHelp =>
+      'إذا ظهر «1 بالانتظار» مع الخطأ -1009 فالهاتف كان بلا اتصال. تُحفظ الرسالة وتُرسل عند عودة الاتصال.';
 }
