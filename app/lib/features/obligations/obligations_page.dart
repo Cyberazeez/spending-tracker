@@ -102,7 +102,7 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
     );
     if (choice == null) return;
     if (choice == 'edit') {
-      if (mounted) context.go(obligationFormPath, extra: i.obligationId);
+      if (mounted) context.go('$obligationFormPath?id=${i.obligationId}');
       return;
     }
     if (choice == 'stop') {

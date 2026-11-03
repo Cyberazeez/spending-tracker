@@ -977,4 +977,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get obAddHint => 'Add an obligation';
+
+  @override
+  String get obfNameTaken => 'You already have an obligation with this name.';
 }

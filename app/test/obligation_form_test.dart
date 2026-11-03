@@ -142,6 +142,21 @@ void main() {
     handle.dispose();
   });
 
+  testWidgets('a name that is already used gets its own message', (
+    tester,
+  ) async {
+    final handle = tester.ensureSemantics();
+    final h = await openBills(tester);
+    h.data.nameTaken = true;
+    await openForm(tester);
+    await tester.enterText(find.byType(CupertinoTextField).at(0), 'Gym');
+    await tester.enterText(find.byType(CupertinoTextField).at(1), '150');
+    await tester.tap(find.text('Save'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('already have an obligation'), findsOneWidget);
+    handle.dispose();
+  });
+
   testWidgets('Edit details opens the form filled in and saves by id', (
     tester,
   ) async {

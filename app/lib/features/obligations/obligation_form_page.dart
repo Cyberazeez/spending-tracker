@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
 
 import '../../core/format.dart';
 import '../../core/lock.dart';
@@ -157,6 +158,12 @@ class _ObligationFormPageState extends ConsumerState<ObligationFormPage> {
           );
       ref.invalidate(obligationsProvider);
       if (mounted) context.go(homePath);
+    } on PostgrestException catch (e) {
+      if (mounted) {
+        setState(
+          () => _error = e.code == '23505' ? t.obfNameTaken : t.obSaveFailed,
+        );
+      }
     } catch (_) {
       if (mounted) setState(() => _error = t.obSaveFailed);
     } finally {

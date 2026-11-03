@@ -114,12 +114,16 @@ begin
     if v_old.kind = 'card_statement' then raise exception 'statement obligations cannot be edited'; end if;
   end if;
 
-  v_rule := (coalesce(v_old.due_rule, '{}'::jsonb) - 'after' - 'fallback_day' - 'start_month')
+  -- a salary-linked obligation keeps its link: the day then acts as the fallback day
+  v_rule := (coalesce(v_old.due_rule, '{}'::jsonb) - 'start_month')
     || jsonb_build_object('day', v_day, 'grace', v_grace);
+  if v_rule ? 'after' then v_rule := v_rule || jsonb_build_object('fallback_day', v_day); end if;
   if v_freq <> 'monthly' then v_rule := v_rule || jsonb_build_object('start_month', v_start); end if;
-  v_match := coalesce(v_old.match, '{}'::jsonb) - 'merchant' - 'auto_merchant' - 'tolerance_pct';
+  v_match := coalesce(v_old.match, '{}'::jsonb) - 'merchant' - 'auto_merchant';
   if jsonb_array_length(v_words) > 0 then
     v_match := v_match || jsonb_build_object('merchant', v_words, 'auto_merchant', v_auto, 'tolerance_pct', v_tol);
+  elsif v_old.match ? 'tolerance_pct' then
+    v_match := v_match || jsonb_build_object('tolerance_pct', coalesce((p->>'tolerance_pct')::int, (v_old.match->>'tolerance_pct')::int)); -- keep an exact (0) tolerance
   end if;
 
   if p_id is null then
@@ -132,10 +136,21 @@ begin
         frequency = v_freq, due_rule = v_rule, lead_days = v_lead, match = v_match, active = true
     where id = p_id and user_id = auth.uid();
     v_id := p_id;
-    -- open instances that nothing has touched are rebuilt from the new details; paid, matched and late ones stay
+    -- open instances that nothing has touched follow the new details: those in months that are no longer on the
+    -- schedule go, the rest get the new amount and due day (salary-linked ones keep the date the server set)
     delete from public.obligation_instances
     where obligation_id = p_id and status = 'pending' and match_state = 'none'
-      and transaction_id is null and source_raw_message_id is null;
+      and transaction_id is null and source_raw_message_id is null
+      and v_freq <> 'monthly'
+      and mod(extract(month from period_start)::int - coalesce(v_start, 1) + 12, case when v_freq = 'quarterly' then 3 else 12 end) <> 0;
+    update public.obligation_instances i
+    set expected_amount_halalas = v_amount,
+        due_date = case when v_rule ? 'after' then i.due_date else
+          (case when coalesce((v_rule->>'next_month')::boolean, false) then (i.period_start + interval '1 month')::date else i.period_start end)
+          + (least(v_day, extract(day from ((case when coalesce((v_rule->>'next_month')::boolean, false) then (i.period_start + interval '1 month')::date else i.period_start end) + interval '1 month' - interval '1 day'))::int) - 1)
+        end
+    where i.obligation_id = p_id and i.status = 'pending' and i.match_state = 'none'
+      and i.transaction_id is null and i.source_raw_message_id is null;
   end if;
 
   perform public.refresh_my_obligations();
@@ -145,7 +160,7 @@ $$;
 revoke execute on function public.save_my_obligation(uuid, jsonb) from public, anon;
 grant execute on function public.save_my_obligation(uuid, jsonb) to authenticated;
 
--- 4. Stop tracking: history stays, open untouched instances go.
+-- 4. Stop tracking: paid and skipped history stays, open and late untouched instances go. Not for card statements.
 create or replace function public.stop_my_obligation(p_id uuid)
 returns void
 language plpgsql
@@ -153,10 +168,10 @@ set search_path = public
 as $$
 begin
   if auth.uid() is null then raise exception 'not signed in' using errcode = '28000'; end if;
-  update public.obligations set active = false where id = p_id and user_id = auth.uid();
+  update public.obligations set active = false where id = p_id and user_id = auth.uid() and kind <> 'card_statement';
   if not found then raise exception 'not found'; end if;
   delete from public.obligation_instances
-  where obligation_id = p_id and status = 'pending' and match_state = 'none'
+  where obligation_id = p_id and status in ('pending', 'overdue') and match_state = 'none'
     and transaction_id is null and source_raw_message_id is null;
 end;
 $$;

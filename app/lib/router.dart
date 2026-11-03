@@ -68,8 +68,9 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(path: 'capture', builder: (_, _) => const CapturePage()),
           GoRoute(
             path: 'obligation',
-            builder: (_, state) =>
-                ObligationFormPage(obligationId: state.extra as String?),
+            builder: (_, state) => ObligationFormPage(
+              obligationId: state.uri.queryParameters['id'],
+            ),
           ),
         ],
       ),

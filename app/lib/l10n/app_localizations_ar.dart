@@ -977,4 +977,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get obAddHint => 'إضافة التزام';
+
+  @override
+  String get obfNameTaken => 'لديك التزام بهذا الاسم بالفعل.';
 }

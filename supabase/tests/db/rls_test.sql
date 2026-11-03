@@ -163,6 +163,23 @@ begin
     select count(*) into n from public.obligations where id = m and match ? 'merchant';
     if n <> 0 then raise exception 'edit without match words kept old words'; end if;
 
+    -- editing the day moves the open instance without deleting it
+    select count(*) into n from public.obligation_instances where obligation_id = m and extract(day from due_date) = 28;
+    if n < 1 then raise exception 'edit did not move the due day of the open instance'; end if;
+    -- a seeded salary-linked obligation keeps its link and a zero tolerance when edited
+    perform public.save_my_obligation((select id from public.obligations where user_id = a and due_rule ? 'after' limit 1),
+      jsonb_build_object('name', (select name from public.obligations where user_id = a and due_rule ? 'after' limit 1),
+        'kind', 'fixed', 'amount_type', 'fixed', 'amount_halalas', 180000, 'frequency', 'monthly', 'day', 27, 'grace', 3));
+    select count(*) into n from public.obligations where user_id = a and due_rule->>'after' = 'salary' and (due_rule->>'fallback_day')::int = 27;
+    if n <> 1 then raise exception 'edit dropped the salary link'; end if;
+    select count(*) into n from public.obligations where user_id = a and due_rule ? 'after' and (match->>'tolerance_pct')::int = 0;
+    if n <> 1 then raise exception 'edit lost the zero tolerance'; end if;
+    -- the card statement cannot be stopped
+    denied := false;
+    begin perform public.stop_my_obligation((select id from public.obligations where user_id = a and kind = 'card_statement' limit 1));
+    exception when others then denied := true; end;
+    if not denied then raise exception 'card statement was stopped';  end if;
+
     -- stop: inactive, open instances gone
     perform public.stop_my_obligation(m);
     select count(*) into n from public.obligations where id = m and active;

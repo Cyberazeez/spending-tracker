@@ -494,5 +494,6 @@
   "obStop": "Stop tracking",
   "obStopConfirm": "{name} will stop appearing. Paid history stays.",
   "obAddHint": "Add an obligation",
-  "@obStopConfirm": {"placeholders": {"name": {"type": "String"}}}
+  "@obStopConfirm": {"placeholders": {"name": {"type": "String"}}},
+  "obfNameTaken": "You already have an obligation with this name."
 }

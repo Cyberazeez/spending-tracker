@@ -1801,6 +1801,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add an obligation'**
   String get obAddHint;
+
+  /// No description provided for @obfNameTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'You already have an obligation with this name.'**
+  String get obfNameTaken;
 }
 
 class _AppLocalizationsDelegate
