@@ -7,6 +7,13 @@ const maxBudgetHalalas = 10000000000;
 /// The salary the owner expects each month; anything above is flagged.
 const baseSalaryHalalas = 1410000;
 
+/// What was spent on one Riyadh calendar day ([day] is that date at UTC midnight, like `riyadhToday`).
+class DaySpend {
+  const DaySpend(this.day, this.halalas);
+  final DateTime day;
+  final int halalas;
+}
+
 class CategorySpend {
   const CategorySpend(this.categoryId, this.halalas);
   final String? categoryId; // null = uncategorised
@@ -41,6 +48,7 @@ class Insights {
     required this.lastMonthToDate,
     required this.lastMonthHasData,
     required this.byCategory,
+    required this.last7Days,
     required this.topMerchants,
     required this.average3,
     required this.spikes,
@@ -60,6 +68,9 @@ class Insights {
   /// app only started receiving messages recently), not "you spent nothing".
   final bool lastMonthHasData;
   final List<CategorySpend> byCategory;
+
+  /// Exactly seven days, oldest first, the last one is today. Same spend rule as [monthSpend]; a day never shows below 0.
+  final List<DaySpend> last7Days;
   final List<MerchantSpend> topMerchants;
 
   /// Average monthly spend per category over the three months before this one.
@@ -112,9 +123,17 @@ Insights computeInsights(
   final priorMonthsWithData = <int>{};
   final subCandidates = <String, Map<int, List<int>>>{};
   final subLabel = <String, String>{};
+  final weekStart = today.subtract(const Duration(days: 6));
+  final weekTotals = List<int>.filled(7, 0);
 
   for (final t in all) {
     final d = day(t);
+    final weekIndex = d.difference(weekStart).inDays;
+    if (weekIndex >= 0 && weekIndex < 7) {
+      weekTotals[weekIndex] += excludedCategories.contains(t.categoryId)
+          ? 0
+          : spendOf(t);
+    }
     final key = _monthKey(d);
     final spend = excludedCategories.contains(t.categoryId) ? 0 : spendOf(t);
     if (key == thisKey) {
@@ -200,6 +219,13 @@ Insights computeInsights(
     lastMonthToDate: lastToDate,
     lastMonthHasData: lastToDateRows > 0,
     byCategory: byCategory,
+    last7Days: [
+      for (var i = 0; i < 7; i++)
+        DaySpend(
+          weekStart.add(Duration(days: i)),
+          weekTotals[i] < 0 ? 0 : weekTotals[i],
+        ),
+    ],
     topMerchants: top.take(5).toList(),
     average3: average3,
     spikes: spikes,
