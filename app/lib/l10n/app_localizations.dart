@@ -1483,6 +1483,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Other'**
   String get groupOther;
+
+  /// No description provided for @txToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get txToday;
+
+  /// No description provided for @txYesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday'**
+  String get txYesterday;
+
+  /// No description provided for @txChooseCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose category'**
+  String get txChooseCategory;
+
+  /// No description provided for @txChipAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get txChipAll;
+
+  /// No description provided for @txChipNoCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'No category'**
+  String get txChipNoCategory;
+
+  /// No description provided for @txChipHideInternal.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide internal'**
+  String get txChipHideInternal;
 }
 
 class _AppLocalizationsDelegate

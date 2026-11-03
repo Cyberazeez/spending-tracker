@@ -803,4 +803,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get groupOther => 'Other';
+
+  @override
+  String get txToday => 'Today';
+
+  @override
+  String get txYesterday => 'Yesterday';
+
+  @override
+  String get txChooseCategory => 'Choose category';
+
+  @override
+  String get txChipAll => 'All';
+
+  @override
+  String get txChipNoCategory => 'No category';
+
+  @override
+  String get txChipHideInternal => 'Hide internal';
 }

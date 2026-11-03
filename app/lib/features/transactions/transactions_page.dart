@@ -1,20 +1,27 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart' show DateFormat;
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../core/format.dart';
+import '../../core/lock.dart';
 import '../../core/models.dart';
 import '../../core/money.dart';
 import '../../core/providers.dart';
 import '../../l10n/app_localizations.dart';
-import '../../ui/info_tile.dart';
 import '../../router.dart';
+import '../../ui/app_card.dart';
 import '../../ui/bottom_inset.dart';
 import '../../ui/empty_state.dart';
-import '../../ui/theme.dart';
+import '../../ui/skeleton.dart';
+import '../../ui/tokens.dart';
+import '../obligations/logic.dart' show riyadhToday;
 import 'category_actions.dart';
-import 'labels.dart';
+import 'day_groups.dart';
 import 'providers.dart';
+import 'widgets/filter_chips.dart';
+import 'widgets/txn_row.dart';
 
 class TransactionsPage extends ConsumerWidget {
   const TransactionsPage({super.key});
@@ -28,31 +35,64 @@ class TransactionsPage extends ConsumerWidget {
     final cats = ref.watch(categoriesProvider).value ?? const <Category>[];
     final review = ref.watch(needsReviewProvider).value ?? const <RawMessage>[];
     final byId = {for (final c in cats) c.id: c};
+    final today = riyadhToday(ref.watch(clockProvider)());
+
+    String dayLabel(DateTime d) {
+      final diff = today.difference(d).inDays;
+      if (diff == 0) return t.txToday;
+      if (diff == 1) return t.txYesterday;
+      return '${DateFormat('EEE', arabic ? 'ar' : 'en').format(d)} ${formatDay(d)}';
+    }
 
     return CupertinoPageScaffold(
+      backgroundColor: AppTokens.bg.resolveFrom(context),
       child: CustomScrollView(
+        physics: const BouncingScrollPhysics(
+          parent: AlwaysScrollableScrollPhysics(),
+        ),
         slivers: [
           CupertinoSliverNavigationBar(
             largeTitle: Text(t.txTitle),
+            backgroundColor: AppTokens.bg.resolveFrom(context),
+            border: null,
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 CupertinoButton(
                   padding: EdgeInsets.zero,
+                  minimumSize: const Size(44, 44),
                   onPressed: () => showFilterSheet(context, ref),
                   child: Icon(
-                    filter.categoryId != null ||
+                    LucideIcons.listFilter,
+                    color:
+                        filter.categoryId != null ||
                             filter.uncategorizedOnly ||
                             filter.hideInternal
-                        ? CupertinoIcons.line_horizontal_3_decrease_circle_fill
-                        : CupertinoIcons.line_horizontal_3_decrease_circle,
+                        ? AppTokens.accent.resolveFrom(context)
+                        : AppTokens.text.resolveFrom(context),
                     semanticLabel: t.filterTitle,
                   ),
                 ),
                 CupertinoButton(
-                  padding: const EdgeInsetsDirectional.only(start: 12),
+                  padding: EdgeInsets.zero,
+                  minimumSize: const Size(44, 44),
                   onPressed: () => context.go(quickAddPath),
-                  child: Icon(CupertinoIcons.add, semanticLabel: t.homeAddTx),
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: AppTokens.accent.resolveFrom(context),
+                      shape: BoxShape.circle,
+                    ),
+                    child: SizedBox(
+                      width: 36,
+                      height: 36,
+                      child: Icon(
+                        LucideIcons.plus,
+                        size: 20,
+                        color: AppTokens.onAccent.resolveFrom(context),
+                        semanticLabel: t.homeAddTx,
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -74,29 +114,23 @@ class TransactionsPage extends ConsumerWidget {
           ),
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
-              child: const _SearchBox(),
-            ),
-          ),
-          if (review.isNotEmpty && !filter.isActive)
-            SliverToBoxAdapter(
-              child: CupertinoListSection.insetGrouped(
+              padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  CupertinoListTile.notched(
-                    leading: const Icon(CupertinoIcons.tray_full),
-                    title: Text(t.txOpenReview(review.length)),
-                    trailing: const CupertinoListTileChevron(),
-                    onTap: () => context.go(reviewPath),
+                  const _SearchBox(),
+                  const SizedBox(height: 8),
+                  FilterChips(
+                    reviewCount: review.length,
+                    onReview: () => context.go(reviewPath),
                   ),
                 ],
               ),
             ),
+          ),
           ...txns.when(
             loading: () => [
-              const SliverFillRemaining(
-                hasScrollBody: false,
-                child: Center(child: CupertinoActivityIndicator()),
-              ),
+              const SkeletonSliver(heights: [150, 200, 150]),
             ],
             error: (_, _) => [
               SliverFillRemaining(
@@ -137,14 +171,30 @@ class TransactionsPage extends ConsumerWidget {
                     ),
                   ]
                 : [
-                    SliverList.builder(
-                      itemCount: list.length,
-                      itemBuilder: (_, i) => _TxnRow(
-                        txn: list[i],
-                        arabic: arabic,
-                        category: byId[list[i].categoryId],
-                        onTap: () => pickCategory(context, ref, list[i], cats),
-                      ),
+                    Builder(
+                      builder: (_) {
+                        final groups = groupByDay(
+                          list,
+                          excludedCategories: {
+                            for (final c in cats)
+                              if (c.excludedFromSpend) c.id,
+                          },
+                        );
+                        return SliverPadding(
+                          padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                          sliver: SliverList.builder(
+                            itemCount: groups.length,
+                            itemBuilder: (_, i) => _DayBlock(
+                              label: dayLabel(groups[i].day),
+                              group: groups[i],
+                              arabic: arabic,
+                              byId: byId,
+                              onPick: (txn) =>
+                                  pickCategory(context, ref, txn, cats),
+                            ),
+                          ),
+                        );
+                      },
                     ),
                   ],
           ),
@@ -155,66 +205,103 @@ class TransactionsPage extends ConsumerWidget {
   }
 }
 
-class _TxnRow extends StatelessWidget {
-  const _TxnRow({
-    required this.txn,
+class _DayBlock extends StatelessWidget {
+  const _DayBlock({
+    required this.label,
+    required this.group,
     required this.arabic,
-    required this.category,
-    required this.onTap,
+    required this.byId,
+    required this.onPick,
   });
-  final Txn txn;
+
+  final String label;
+  final DayGroup group;
   final bool arabic;
-  final Category? category;
-  final VoidCallback onTap;
+  final Map<String, Category> byId;
+  final void Function(Txn) onPick;
 
   @override
   Widget build(BuildContext context) {
-    final t = AppLocalizations.of(context);
-    final secondary = CupertinoColors.secondaryLabel.resolveFrom(context);
-    final amount = formatSar(txn.amountHalalas, arabic: arabic);
-    final sign = txn.isIncoming ? '+' : '−';
-    final title = (txn.merchant != null && txn.merchant!.isNotEmpty)
-        ? txn.merchant!
-        : typeLabel(t, txn.type);
-    final categoryText = category?.label(arabic: arabic) ?? t.categoryNone;
-    return InfoTile(
-      onTap: onTap,
-      title: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
-      subtitle: Text.rich(
-        TextSpan(
-          children: [
-            TextSpan(
-              text: categoryText,
-              style: TextStyle(
-                color: category == null
-                    ? CupertinoColors.systemOrange.resolveFrom(context)
-                    : AppColors.accent.resolveFrom(context),
-                fontWeight: FontWeight.w600,
-              ),
+    final muted = AppTokens.muted.resolveFrom(context);
+    final line = muted.withValues(alpha: 0.18);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+            child: _DayHeader(
+              label: label,
+              total: group.spendHalalas > 0
+                  ? formatSar(group.spendHalalas, arabic: arabic)
+                  : null,
             ),
-            TextSpan(
-              text:
-                  ' · ${[if (txn.isInternal) t.txInternal, formatDateTime(txn.occurredAt)].join(' · ')}',
-            ),
-          ],
-        ),
-        style: TextStyle(color: secondary),
-      ),
-      additionalInfo: Directionality(
-        textDirection: TextDirection.ltr,
-        child: Text(
-          '$sign $amount',
-          style: TextStyle(
-            fontFeatures: const [FontFeature.tabularFigures()],
-            fontWeight: FontWeight.w600,
-            color: txn.isInternal
-                ? secondary
-                : txn.isIncoming
-                ? CupertinoColors.systemGreen.resolveFrom(context)
-                : CupertinoColors.label.resolveFrom(context),
           ),
-        ),
+          const SizedBox(height: 4),
+          AppCard(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
+            child: Column(
+              children: [
+                for (var i = 0; i < group.items.length; i++) ...[
+                  TxnRow(
+                    txn: group.items[i],
+                    arabic: arabic,
+                    category: byId[group.items[i].categoryId],
+                    onTap: () => onPick(group.items[i]),
+                  ),
+                  if (i < group.items.length - 1)
+                    SizedBox(height: 1, child: ColoredBox(color: line)),
+                ],
+              ],
+            ),
+          ),
+        ],
       ),
+    );
+  }
+}
+
+/// "Today" and the day's spend; the spend drops under the label at large text sizes.
+class _DayHeader extends StatelessWidget {
+  const _DayHeader({required this.label, required this.total});
+
+  final String label;
+  final String? total;
+
+  @override
+  Widget build(BuildContext context) {
+    final text = AppTokens.text.resolveFrom(context);
+    final muted = AppTokens.muted.resolveFrom(context);
+    final stacked = MediaQuery.textScalerOf(context).scale(10) > 13;
+    final labelText = Text(
+      label,
+      maxLines: 2,
+      overflow: TextOverflow.ellipsis,
+      style: TextStyle(color: text, fontSize: 15, fontWeight: FontWeight.w600),
+    );
+    final totalText = total == null
+        ? null
+        : Directionality(
+            textDirection: TextDirection.ltr,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: AlignmentDirectional.centerEnd,
+              child: Text(total!, style: TextStyle(color: muted, fontSize: 13)),
+            ),
+          );
+    if (stacked || totalText == null) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [labelText, ?totalText],
+      );
+    }
+    return Row(
+      children: [
+        Expanded(child: labelText),
+        const SizedBox(width: 8),
+        Flexible(child: totalText),
+      ],
     );
   }
 }
@@ -246,6 +333,8 @@ class _SearchBoxState extends ConsumerState<_SearchBox> {
     return CupertinoSearchTextField(
       controller: _controller,
       placeholder: AppLocalizations.of(context).searchHint,
+      backgroundColor: AppTokens.card.resolveFrom(context),
+      borderRadius: BorderRadius.circular(16),
       onChanged: (v) {
         final ctl = ref.read(txFilterProvider.notifier);
         ctl.set(ref.read(txFilterProvider).copyWith(query: v.trim()));

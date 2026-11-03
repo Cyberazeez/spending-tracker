@@ -805,4 +805,22 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get groupOther => 'أخرى';
+
+  @override
+  String get txToday => 'اليوم';
+
+  @override
+  String get txYesterday => 'أمس';
+
+  @override
+  String get txChooseCategory => 'اختر فئة';
+
+  @override
+  String get txChipAll => 'الكل';
+
+  @override
+  String get txChipNoCategory => 'بدون فئة';
+
+  @override
+  String get txChipHideInternal => 'إخفاء الداخلية';
 }

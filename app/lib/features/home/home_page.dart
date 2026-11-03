@@ -11,6 +11,7 @@ import '../../router.dart';
 import '../../ui/bottom_inset.dart';
 import '../../ui/app_card.dart';
 import '../../ui/empty_state.dart';
+import '../../ui/skeleton.dart';
 import '../../ui/tokens.dart';
 import '../insights/metrics.dart';
 import '../insights/providers.dart';
@@ -107,7 +108,9 @@ class HomePage extends ConsumerWidget {
             },
           ),
           ...data.when(
-            loading: () => [const _Skeleton()],
+            loading: () => [
+              const SkeletonSliver(heights: [200, 170, 220]),
+            ],
             error: (_, _) => [
               SliverFillRemaining(
                 hasScrollBody: false,
@@ -125,7 +128,11 @@ class HomePage extends ConsumerWidget {
               final settling =
                   ref.watch(senderGapsProvider).isLoading ||
                   ref.watch(obligationsProvider).isLoading;
-              if (settling && !ins.hasData) return [const _Skeleton()];
+              if (settling && !ins.hasData) {
+                return [
+                  const SkeletonSliver(heights: [200, 170, 220]),
+                ];
+              }
               if (!ins.hasData && gaps.isEmpty && obligations.isEmpty) {
                 return [
                   SliverFillRemaining(
@@ -393,28 +400,4 @@ class _NoticeCard extends StatelessWidget {
       ),
     ),
   );
-}
-
-/// Grey placeholder blocks shown while the first numbers load (no spinner).
-class _Skeleton extends StatelessWidget {
-  const _Skeleton();
-
-  @override
-  Widget build(BuildContext context) {
-    final fill = AppTokens.card.resolveFrom(context);
-    Widget block(double h) => Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: fill,
-          borderRadius: BorderRadius.circular(AppTokens.radiusCard),
-        ),
-        child: SizedBox(height: h, width: double.infinity),
-      ),
-    );
-    return SliverPadding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-      sliver: SliverList.list(children: [block(200), block(170), block(220)]),
-    );
-  }
 }

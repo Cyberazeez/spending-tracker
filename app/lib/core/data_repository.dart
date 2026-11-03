@@ -98,7 +98,7 @@ class SupabaseDataRepository implements DataRepository {
     var q = _db
         .from('transactions')
         .select(
-          'id, type, direction, amount_halalas, merchant_raw, merchant_norm, category_id, occurred_at, is_internal',
+          'id, type, direction, amount_halalas, merchant_raw, merchant_norm, category_id, occurred_at, is_internal, excluded_from_spend',
         )
         .isFilter('deleted_at', null);
     final text = normalizeMerchant(filter.query);
