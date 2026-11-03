@@ -64,4 +64,30 @@ void main() {
   test('empty list gives no groups', () {
     expect(groupByDay(const []), isEmpty);
   });
+
+  test('rows in an excluded category (Transfers, Income) are left out of the day total', () {
+    final rows = [
+      Txn(
+        id: 'buy',
+        type: 'purchase',
+        direction: 'out',
+        amountHalalas: 1000,
+        occurredAt: DateTime.utc(2026, 10, 30, 10),
+        categoryId: 'food',
+      ),
+      Txn(
+        id: 'tr',
+        type: 'transfer_out',
+        direction: 'out',
+        amountHalalas: 500000,
+        occurredAt: DateTime.utc(2026, 10, 30, 10, 1),
+        categoryId: 'transfers',
+      ),
+    ];
+    expect(groupByDay(rows).single.spendHalalas, 501000);
+    expect(
+      groupByDay(rows, excludedCategories: {'transfers'}).single.spendHalalas,
+      1000,
+    );
+  });
 }

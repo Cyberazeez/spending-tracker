@@ -9,8 +9,6 @@ import '../../home/category_groups.dart';
 import '../../home/group_style.dart';
 import '../labels.dart';
 
-const _orange = Color(0xFFFFB340);
-
 /// One transaction: a round category badge, merchant, "category · time" and the signed amount.
 /// Uncategorised rows get an orange "?" badge and say "Choose category"; internal moves are dimmed.
 class TxnRow extends StatelessWidget {
@@ -46,6 +44,57 @@ class TxnRow extends StatelessWidget {
       time.replaceAll(RegExp('[\\u2066\\u2069]'), ''),
     ].join(' · ');
     final income = txn.isIncoming && !txn.isInternal;
+    // Past 1.3x text the amount drops under the title instead of squeezing it, like the old list rows did.
+    final stacked = MediaQuery.textScalerOf(context).scale(10) > 13;
+    final titleColor = txn.isInternal ? muted : text;
+    final amountColor = income
+        ? AppTokens.income.resolveFrom(context)
+        : titleColor;
+
+    final amountText = Directionality(
+      textDirection: TextDirection.ltr,
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        alignment: AlignmentDirectional.centerEnd,
+        child: Text(
+          '$sign $amount',
+          style: TextStyle(
+            fontFeatures: const [FontFeature.tabularFigures()],
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: amountColor,
+          ),
+        ),
+      ),
+    );
+    final titleBlock = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          maxLines: stacked ? 3 : 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            color: titleColor,
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          sub,
+          maxLines: 3,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            color: uncategorised
+                ? AppTokens.warnText.resolveFrom(context)
+                : muted,
+            fontSize: 13,
+          ),
+        ),
+        if (stacked) ...[const SizedBox(height: 4), amountText],
+      ],
+    );
 
     return Semantics(
       container: true,
@@ -56,63 +105,24 @@ class TxnRow extends StatelessWidget {
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: onTap,
-          child: Opacity(
-            opacity: txn.isInternal ? 0.65 : 1,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10),
-              child: Row(
-                children: [
-                  _Badge(group: group, uncategorised: uncategorised),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          title,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: text,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          sub,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: uncategorised
-                                ? AppTokens.warnText.resolveFrom(context)
-                                : muted,
-                            fontSize: 13,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            child: Row(
+              crossAxisAlignment: stacked
+                  ? CrossAxisAlignment.start
+                  : CrossAxisAlignment.center,
+              children: [
+                Opacity(
+                  opacity: txn.isInternal ? 0.6 : 1,
+                  child: _Badge(group: group, uncategorised: uncategorised),
+                ),
+                const SizedBox(width: 12),
+                Expanded(child: titleBlock),
+                if (!stacked) ...[
                   const SizedBox(width: 8),
-                  Flexible(
-                    child: Directionality(
-                      textDirection: TextDirection.ltr,
-                      child: FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Text(
-                          '$sign $amount',
-                          style: TextStyle(
-                            fontFeatures: const [FontFeature.tabularFigures()],
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: income ? const Color(0xFF4CD07A) : text,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
+                  Flexible(child: amountText),
                 ],
-              ),
+              ],
             ),
           ),
         ),
@@ -129,19 +139,20 @@ class _Badge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (uncategorised) {
+      final orange = AppTokens.warnText.resolveFrom(context);
       return Container(
         width: 44,
         height: 44,
         alignment: Alignment.center,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: _orange.withValues(alpha: 0.22),
-          border: Border.all(color: _orange, width: 1.5),
+          color: orange.withValues(alpha: 0.18),
+          border: Border.all(color: orange, width: 1.5),
         ),
-        child: const Text(
+        child: Text(
           '?',
           style: TextStyle(
-            color: _orange,
+            color: orange,
             fontSize: 18,
             fontWeight: FontWeight.w700,
           ),

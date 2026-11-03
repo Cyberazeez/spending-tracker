@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/providers.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/tokens.dart';
 import '../providers.dart';
@@ -22,6 +23,11 @@ class FilterChips extends ConsumerWidget {
     final t = AppLocalizations.of(context);
     final f = ref.watch(txFilterProvider);
     final ctl = ref.read(txFilterProvider.notifier);
+    final arabic = ref.watch(localeProvider).languageCode == 'ar';
+    final cats = ref.watch(categoriesProvider).value ?? const [];
+    final picked = f.categoryId == null
+        ? null
+        : cats.where((c) => c.id == f.categoryId).firstOrNull;
     final onlyBase =
         f.categoryId == null && !f.uncategorizedOnly && !f.hideInternal;
     return Wrap(
@@ -39,6 +45,12 @@ class FilterChips extends ConsumerWidget {
             ),
           ),
         ),
+        if (picked != null)
+          _Chip(
+            label: picked.label(arabic: arabic),
+            selected: true,
+            onTap: () => ctl.set(f.copyWith(categoryId: null)),
+          ),
         _Chip(
           label: t.txChipNoCategory,
           dot: const Color(0xFFFFB340),
@@ -55,7 +67,7 @@ class FilterChips extends ConsumerWidget {
           selected: f.hideInternal,
           onTap: () => ctl.set(f.copyWith(hideInternal: !f.hideInternal)),
         ),
-        if (reviewCount > 0 && !f.isActive)
+        if (reviewCount > 0 && onlyBase)
           _Chip(
             label: t.homeToReview(reviewCount),
             dot: const Color(0xFFFFB340),
@@ -88,6 +100,7 @@ class _Chip extends StatelessWidget {
       button: true,
       selected: selected,
       label: label,
+      onTap: onTap,
       child: ExcludeSemantics(
         child: CupertinoButton(
           padding: EdgeInsets.zero,

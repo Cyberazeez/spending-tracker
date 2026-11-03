@@ -28,9 +28,7 @@ Txn tx(
 );
 
 Future<void> open(WidgetTester tester, Harness h, {String? locale}) async {
-  await tester.pumpWidget(
-    await h.build(prefs: {'locale': ?locale}),
-  );
+  await tester.pumpWidget(await h.build(prefs: {'locale': ?locale}));
   await tester.pumpAndSettle();
   await tester.tap(
     find.text(locale == 'ar' ? 'العمليات' : 'Transactions').last,
@@ -153,4 +151,67 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   }
+
+  testWidgets(
+    'at 2x text the amount stacks under the merchant and stays readable',
+    (tester) async {
+      tester.view.physicalSize = const Size(720, 1280);
+      tester.view.devicePixelRatio = 2;
+      tester.platformDispatcher.textScaleFactorTestValue = 2.0;
+      addTearDown(() {
+        tester.view.reset();
+        tester.platformDispatcher.clearAllTestValues();
+      });
+      final h = Harness(signedIn: true)
+        ..data.txns = [
+          tx(
+            '1',
+            '2026-10-30T10:00:00',
+            1382293,
+            cat: 'c-din',
+            merchant: 'Otten',
+          ),
+        ];
+      await open(tester, h);
+      final title = tester.getTopLeft(find.text('Otten'));
+      final amount = tester.getTopLeft(find.text('− SAR 13,822.93'));
+      expect(
+        amount.dy,
+        greaterThan(title.dy),
+      ); // under the title, not squeezed beside it
+      final size = tester.getSize(find.text('− SAR 13,822.93'));
+      expect(size.height, greaterThan(20)); // not scaled down to a tiny size
+    },
+  );
+
+  testWidgets('the review chip stays while searching', (tester) async {
+    final h = Harness(signedIn: true)
+      ..data.review = [
+        RawMessage(
+          id: 'r',
+          sender: 'x',
+          body: 'b',
+          receivedAt: DateTime.utc(2026, 10, 30),
+        ),
+      ]
+      ..data.txns = [tx('1', '2026-10-30T10:00:00', 1000, cat: 'c-din')];
+    await open(tester, h);
+    expect(find.text('1 to review'), findsOneWidget);
+    await tester.enterText(find.byType(CupertinoSearchTextField), 'sho');
+    await tester.pumpAndSettle();
+    expect(find.text('1 to review'), findsOneWidget);
+  });
+
+  testWidgets('chips are buttons for VoiceOver and can be activated', (
+    tester,
+  ) async {
+    final handle = tester.ensureSemantics();
+    final h = Harness(signedIn: true)
+      ..data.txns = [tx('1', '2026-10-30T10:00:00', 1000)];
+    await open(tester, h);
+    await tester.tap(find.bySemanticsLabel('No category'));
+    await tester.pumpAndSettle();
+    expect(h.data.lastFilter.uncategorizedOnly, isTrue);
+    handle.dispose();
+  });
 }

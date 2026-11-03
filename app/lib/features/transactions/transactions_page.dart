@@ -173,7 +173,13 @@ class TransactionsPage extends ConsumerWidget {
                 : [
                     Builder(
                       builder: (_) {
-                        final groups = groupByDay(list);
+                        final groups = groupByDay(
+                          list,
+                          excludedCategories: {
+                            for (final c in cats)
+                              if (c.excludedFromSpend) c.id,
+                          },
+                        );
                         return SliverPadding(
                           padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
                           sliver: SliverList.builder(
@@ -216,7 +222,6 @@ class _DayBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final text = AppTokens.text.resolveFrom(context);
     final muted = AppTokens.muted.resolveFrom(context);
     final line = muted.withValues(alpha: 0.18);
     return Padding(
@@ -226,34 +231,11 @@ class _DayBlock extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    label,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: text,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-                if (group.spendHalalas > 0)
-                  Flexible(
-                    child: Directionality(
-                      textDirection: TextDirection.ltr,
-                      child: FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Text(
-                          formatSar(group.spendHalalas, arabic: arabic),
-                          style: TextStyle(color: muted, fontSize: 13),
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
+            child: _DayHeader(
+              label: label,
+              total: group.spendHalalas > 0
+                  ? formatSar(group.spendHalalas, arabic: arabic)
+                  : null,
             ),
           ),
           const SizedBox(height: 4),
@@ -276,6 +258,50 @@ class _DayBlock extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// "Today" and the day's spend; the spend drops under the label at large text sizes.
+class _DayHeader extends StatelessWidget {
+  const _DayHeader({required this.label, required this.total});
+
+  final String label;
+  final String? total;
+
+  @override
+  Widget build(BuildContext context) {
+    final text = AppTokens.text.resolveFrom(context);
+    final muted = AppTokens.muted.resolveFrom(context);
+    final stacked = MediaQuery.textScalerOf(context).scale(10) > 13;
+    final labelText = Text(
+      label,
+      maxLines: 2,
+      overflow: TextOverflow.ellipsis,
+      style: TextStyle(color: text, fontSize: 15, fontWeight: FontWeight.w600),
+    );
+    final totalText = total == null
+        ? null
+        : Directionality(
+            textDirection: TextDirection.ltr,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: AlignmentDirectional.centerEnd,
+              child: Text(total!, style: TextStyle(color: muted, fontSize: 13)),
+            ),
+          );
+    if (stacked || totalText == null) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [labelText, ?totalText],
+      );
+    }
+    return Row(
+      children: [
+        Expanded(child: labelText),
+        const SizedBox(width: 8),
+        Flexible(child: totalText),
+      ],
     );
   }
 }

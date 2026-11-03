@@ -59,6 +59,10 @@ class AppTokens {
     color: Color(0xFF0A6455),
     darkColor: Color(0xFF3CC4A8),
   );
+  static const income = CupertinoDynamicColor.withBrightness(
+    color: Color(0xFF1E8E3E),
+    darkColor: Color(0xFF4CD07A),
+  );
   static const danger = CupertinoDynamicColor.withBrightness(
     color: Color(0xFFC5221F),
     darkColor: Color(0xFFFF6B66),
