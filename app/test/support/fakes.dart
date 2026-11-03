@@ -67,6 +67,9 @@ class FakeTokenRepository implements TokenRepository {
   int appRotateCalls = 0;
   int appRevokeCalls = 0;
   int widgetRotateCalls = 0;
+
+  /// When set, a widget-token rotation waits for it (to test sign-out in the middle of provisioning).
+  Completer<void>? widgetGate;
   final List<String> revokedKinds = [];
   int loadCalls = 0;
   bool failLoad = false;
@@ -89,6 +92,7 @@ class FakeTokenRepository implements TokenRepository {
     }
     if (kind == 'widget') {
       widgetRotateCalls++;
+      await widgetGate?.future;
       return 'stk_WIDGETTOKEN';
     }
     rotateCalls++;

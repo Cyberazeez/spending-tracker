@@ -44,6 +44,10 @@ Future<void> _ensure(
 /// Sign-out: the widget token stops working on the server and its numbers are wiped from the shared storage.
 /// Needs the session, so call it before the actual sign-out.
 Future<void> releaseWidget(WidgetBridge bridge, TokenRepository tokens) async {
+  // An in-flight provisioning must finish first, or it could store a fresh token after the wipe below.
+  try {
+    await _running;
+  } catch (_) {}
   try {
     await tokens.revoke(kind: 'widget').timeout(const Duration(seconds: 5));
   } catch (_) {

@@ -369,20 +369,33 @@ class SupabaseDataRepository implements DataRepository {
         .eq('user_id', uid);
   }
 
+  /// Spending since [start], by the same rule as the Insights month total and the widget server:
+  /// outgoing money that is not internal, flagged or in an excluded category (Transfers, Income), minus refunds.
   Future<int> _spendSince(DateTime start) async {
     final rows = await _db
         .from('transactions')
-        .select('amount_halalas')
-        .eq('direction', 'out')
+        .select('amount_halalas, direction, type, category_id')
         .eq('is_internal', false)
         .eq('excluded_from_spend', false)
         .isFilter('deleted_at', null)
         .gte('occurred_at', start.toIso8601String())
         .limit(1000);
-    return rows.fold<int>(
-      0,
-      (sum, r) => sum + (r['amount_halalas'] as num).toInt(),
-    );
+    final cats = await _db
+        .from('categories')
+        .select('id')
+        .eq('excluded_from_spend', true);
+    final excluded = {for (final c in cats) c['id'] as String};
+    var sum = 0;
+    for (final r in rows) {
+      if (excluded.contains(r['category_id'])) continue;
+      final amount = (r['amount_halalas'] as num).toInt();
+      if (r['direction'] == 'out') {
+        sum += amount;
+      } else if (r['type'] == 'refund') {
+        sum -= amount;
+      }
+    }
+    return sum;
   }
 
   @override

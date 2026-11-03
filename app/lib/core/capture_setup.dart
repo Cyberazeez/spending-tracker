@@ -46,6 +46,10 @@ Future<void> _ensure(
 /// Sign-out: the app token stops working on the server and is wiped from this phone.
 /// Needs the session, so call it before the actual sign-out.
 Future<void> releaseCapture(CaptureBridge bridge, TokenRepository tokens) async {
+  // An in-flight provisioning must finish first, or it could store a fresh token after the wipe below.
+  try {
+    await _running;
+  } catch (_) {}
   try {
     await tokens
         .revoke(kind: 'app')

@@ -228,8 +228,19 @@ begin
   insert into public.transactions (user_id, direction, type, amount_halalas, occurred_at, category_id)
     select a, 'out', 'purchase', 3000, now(), c.id from public.categories c
     where c.user_id = a and c.excluded_from_spend limit 1;
-  select count(*) into n from public.widget_summary(a) w
-    where w.today_halalas = 800 and w.month_halalas = 800 and w.budget_halalas = 500000;
+  select count(*) into n from public.categories where user_id = a and excluded_from_spend;
+  if n = 0 then raise exception 'seed has no excluded category: the excluded-category check below would prove nothing'; end if;
+  -- earlier this month but not today (skipped on the 1st of the Riyadh month, where it would be today)
+  if (now() at time zone 'Asia/Riyadh')::date > date_trunc('month', now() at time zone 'Asia/Riyadh')::date then
+    insert into public.transactions (user_id, direction, type, amount_halalas, occurred_at)
+    values (a, 'out', 'purchase', 400,
+      (date_trunc('day', now() at time zone 'Asia/Riyadh') at time zone 'Asia/Riyadh') - interval '1 second');
+    select count(*) into n from public.widget_summary(a) w
+      where w.today_halalas = 800 and w.month_halalas = 1200 and w.budget_halalas = 500000;
+  else
+    select count(*) into n from public.widget_summary(a) w
+      where w.today_halalas = 800 and w.month_halalas = 800 and w.budget_halalas = 500000;
+  end if;
   if n <> 1 then raise exception 'widget_summary returned the wrong numbers'; end if;
   select count(*) into n from public.widget_summary(b) w where w.today_halalas = 0 and w.month_halalas = 0;
   if n <> 1 then raise exception 'widget_summary leaked another user''s rows or is not zero for an empty user'; end if;

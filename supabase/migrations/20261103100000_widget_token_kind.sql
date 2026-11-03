@@ -40,7 +40,7 @@ $$;
 
 -- The three widget numbers, in Riyadh time (UTC+3, no DST). Same rule as the app's month total: outgoing money that
 -- is not internal, not flagged and not in an excluded category (Transfers, Income), minus refunds; deleted rows out.
-create function public.widget_summary(p_user uuid)
+create or replace function public.widget_summary(p_user uuid)
 returns table (today_halalas bigint, month_halalas bigint, budget_halalas bigint)
 language sql
 stable

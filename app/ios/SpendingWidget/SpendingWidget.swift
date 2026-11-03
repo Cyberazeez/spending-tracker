@@ -45,13 +45,20 @@ struct SpendingProvider: TimelineProvider {
                 }
                 defaults?.set(Int(Date().timeIntervalSince1970), forKey: "updated")
             }
-            completion(Timeline(entries: [self.load()], policy: .after(next)))
+            // A second entry at the next Riyadh midnight, so "today" turns into "--" even if iOS refreshes late.
+            var calendar = Calendar(identifier: .gregorian)
+            calendar.timeZone = riyadh
+            let now = Date()
+            var entries = [self.load(at: now)]
+            if let midnight = calendar.nextDate(after: now, matching: DateComponents(hour: 0, minute: 0), matchingPolicy: .nextTime) {
+                entries.append(self.load(at: midnight))
+            }
+            completion(Timeline(entries: entries, policy: .after(next)))
         }
     }
 
-    private func load() -> SpendingEntry {
+    private func load(at now: Date = Date()) -> SpendingEntry {
         let defaults = UserDefaults(suiteName: appGroup)
-        let now = Date()
         var calendar = Calendar(identifier: .gregorian)
         calendar.timeZone = riyadh
 
