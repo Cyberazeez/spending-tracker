@@ -34,20 +34,51 @@ import WidgetKit
       binaryMessenger: registrar.messenger()
     )
     channel.setMethodCallHandler { call, result in
-      guard call.method == "save", let values = call.arguments as? [String: Any] else {
-        result(FlutterMethodNotImplemented)
-        return
-      }
       let defaults = UserDefaults(suiteName: "group.com.cyberazeez.spendingtracker")
-      for (key, value) in values {
-        if value is NSNull {
-          defaults?.removeObject(forKey: key)
-        } else {
-          defaults?.set(value, forKey: key)
+      switch call.method {
+      case "save":
+        guard let values = call.arguments as? [String: Any] else {
+          result(FlutterMethodNotImplemented)
+          return
         }
+        for (key, value) in values {
+          if value is NSNull {
+            defaults?.removeObject(forKey: key)
+          } else {
+            defaults?.set(value, forKey: key)
+          }
+        }
+        WidgetCenter.shared.reloadAllTimelines()
+        result(nil)
+      // The widget fetches its own numbers with a read-only token (kind "widget", only good for widget-summary).
+      case "saveCredentials":
+        guard let args = call.arguments as? [String: Any],
+          let url = args["url"] as? String,
+          let token = args["token"] as? String,
+          let userId = args["userId"] as? String
+        else {
+          result(FlutterMethodNotImplemented)
+          return
+        }
+        defaults?.set(url, forKey: "widget.url")
+        defaults?.set(token, forKey: "widget.token")
+        defaults?.set(userId, forKey: "widget.user")
+        WidgetCenter.shared.reloadAllTimelines()
+        result(nil)
+      case "clearCredentials":
+        for key in ["widget.url", "widget.token", "widget.user", "today", "month", "budget", "updated"] {
+          defaults?.removeObject(forKey: key)
+        }
+        WidgetCenter.shared.reloadAllTimelines()
+        result(nil)
+      case "credentialsStatus":
+        result([
+          "hasToken": defaults?.string(forKey: "widget.token") != nil,
+          "userId": defaults?.string(forKey: "widget.user") as Any,
+        ])
+      default:
+        result(FlutterMethodNotImplemented)
       }
-      WidgetCenter.shared.reloadAllTimelines()
-      result(nil)
     }
   }
 

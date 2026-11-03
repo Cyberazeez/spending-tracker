@@ -22,3 +22,6 @@ export async function sha256Hex(input: string): Promise<string> {
   const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(input));
   return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("");
 }
+
+/** Token kinds `ingest` accepts. The widget token must never be one of them: it is readable by the widget extension. */
+export const INGEST_TOKEN_KINDS = ["shortcut", "app"] as const;

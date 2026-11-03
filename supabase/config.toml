@@ -11,6 +11,10 @@ enable_anonymous_sign_ins = false
 # The iOS Shortcut cannot send a JWT. The function authenticates the X-Ingest-Token itself.
 verify_jwt = false
 
+[functions.widget-summary]
+# The widget extension cannot send a JWT. The function authenticates the X-Widget-Token itself (kind 'widget' only).
+verify_jwt = false
+
 [functions.rotate-token]
 verify_jwt = true
 

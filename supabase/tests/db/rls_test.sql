@@ -205,6 +205,49 @@ begin
   begin perform public.rotate_ingest_token(a, 'hash-bad', 'x', 'admin'); exception when others then denied := true; end;
   if not denied then raise exception 'unknown token kind was accepted'; end if;
 
+  -- widget token kind: its own slot, rotates independently, and the summary applies the spend rules
+  perform public.rotate_ingest_token(a, 'hash-w1', 'Widget', 'widget');
+  perform public.rotate_ingest_token(a, 'hash-w2', 'Widget', 'widget');
+  select count(*) into n from public.ingest_tokens where user_id = a and kind = 'widget' and revoked_at is null;
+  if n <> 1 then raise exception 'widget token should have one active row, got %', n; end if;
+  select count(*) into n from public.ingest_tokens where user_id = a and kind = 'shortcut' and revoked_at is null;
+  if n <> 1 then raise exception 'rotating the widget token touched the shortcut token'; end if;
+  perform public.revoke_ingest_token(a, 'widget');
+  select count(*) into n from public.ingest_tokens where user_id = a and kind = 'widget' and revoked_at is null;
+  if n <> 0 then raise exception 'widget token was not revoked'; end if;
+
+  update public.settings set monthly_budget_halalas = 500000 where user_id = a;
+  insert into public.transactions (user_id, direction, type, amount_halalas, occurred_at, is_internal, excluded_from_spend, deleted_at)
+  values
+    (a, 'out', 'purchase', 1000, now(), false, false, null),
+    (a, 'in',  'refund',   200,  now(), false, false, null),
+    (a, 'out', 'transfer_out', 5000, now(), true,  false, null),
+    (a, 'out', 'purchase', 7000, now(), false, true,  null),
+    (a, 'out', 'purchase', 9000, now(), false, false, now()),
+    (a, 'out', 'purchase', 9999, now() - interval '40 days', false, false, null);
+  insert into public.transactions (user_id, direction, type, amount_halalas, occurred_at, category_id)
+    select a, 'out', 'purchase', 3000, now(), c.id from public.categories c
+    where c.user_id = a and c.excluded_from_spend limit 1;
+  select count(*) into n from public.categories where user_id = a and excluded_from_spend;
+  if n = 0 then raise exception 'seed has no excluded category: the excluded-category check below would prove nothing'; end if;
+  -- earlier this month but not today (skipped on the 1st of the Riyadh month, where it would be today)
+  if (now() at time zone 'Asia/Riyadh')::date > date_trunc('month', now() at time zone 'Asia/Riyadh')::date then
+    insert into public.transactions (user_id, direction, type, amount_halalas, occurred_at)
+    values (a, 'out', 'purchase', 400,
+      (date_trunc('day', now() at time zone 'Asia/Riyadh') at time zone 'Asia/Riyadh') - interval '1 second');
+    select count(*) into n from public.widget_summary(a) w
+      where w.today_halalas = 800 and w.month_halalas = 1200 and w.budget_halalas = 500000;
+  else
+    select count(*) into n from public.widget_summary(a) w
+      where w.today_halalas = 800 and w.month_halalas = 800 and w.budget_halalas = 500000;
+  end if;
+  if n <> 1 then raise exception 'widget_summary returned the wrong numbers'; end if;
+  select count(*) into n from public.widget_summary(b) w where w.today_halalas = 0 and w.month_halalas = 0;
+  if n <> 1 then raise exception 'widget_summary leaked another user''s rows or is not zero for an empty user'; end if;
+  denied := false;
+  begin perform public.rotate_ingest_token(a, 'hash-bad2', 'x', 'admin'); exception when others then denied := true; end;
+  if not denied then raise exception 'unknown token kind was accepted (widget migration)'; end if;
+
   -- rate limiter counts per window and rejects unknown windows
   if public.bump_rate_limit(a, 'ingest_min', 'minute') <> 1 then raise exception 'first bump should be 1'; end if;
   if public.bump_rate_limit(a, 'ingest_min', 'minute') <> 2 then raise exception 'second bump should be 2'; end if;

@@ -40,3 +40,12 @@ Deno.test("the label is trimmed and capped at 40 characters", () => {
   assert.deepEqual(r?.label.length, 40);
   assert.deepEqual(parseTokenRequest({ label: "   " })?.label, "iPhone");
 });
+
+Deno.test("the widget token is its own kind", () => {
+  assert.deepEqual(parseTokenRequest({ kind: "widget" }), {
+    kind: "widget",
+    action: "rotate",
+    label: "Widget",
+  });
+  assert.deepEqual(parseTokenRequest({ kind: "widget", action: "revoke" })?.kind, "widget");
+});

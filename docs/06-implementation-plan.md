@@ -82,7 +82,7 @@ Widget build notes (2026-11-02): the extension is `app/ios/SpendingWidget` (bund
    - 3a. Server: ingest tokens get a `kind`; `rotate-token` can create and revoke the `app` token. Local DB test and function tests.
    - 3b. App: provision the app token on sign-in into the Keychain, the `Add bank message` App Intent (Swift) that posts to `ingest`, an offline queue with retry, iOS minimum 16. Swift is compiled for the first time by the Codemagic build.
    - 3c. App: **Set up SMS capture** screen (More > SMS capture): steps, an Open Shortcuts button, queue status and last-send result. A one-tap shared shortcut is not possible (no Sender outside the automation, see PRD F12). The share-into-app fallback is not built.
-4. Self-refreshing widget: the widget fetches its own numbers with a read-only token, so "spent today" is fresh without opening the app.
+4. Self-refreshing widget (built 2026-11-03): the widget fetches its own numbers with a read-only token (kind `widget`) from the `widget-summary` function, so "spent today" is fresh without opening the app. Order of deploy after merge: apply migration `20261103100000_widget_token_kind.sql`, deploy `rotate-token`, `ingest` (now filters token kinds) and the new `widget-summary` (verify_jwt off), then build the app.
 5. Apple Wallet capture (PRD F11): purchases made with Apple Pay arrive through the Shortcuts "Transaction" automation, matched against the SMS so nothing is counted twice. Needs a real sample from the owner first.
 
 ## M7. Polish
