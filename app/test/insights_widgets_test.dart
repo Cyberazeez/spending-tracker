@@ -5,6 +5,7 @@ import 'package:spending_tracker/core/models.dart';
 import 'package:spending_tracker/features/home/category_groups.dart';
 import 'package:spending_tracker/features/insights/metrics.dart';
 import 'package:spending_tracker/features/insights/widgets/donut_share.dart';
+import 'package:spending_tracker/features/insights/widgets/insight_cards.dart';
 import 'package:spending_tracker/features/insights/widgets/month_bars.dart';
 import 'package:spending_tracker/features/insights/widgets/trend_chart.dart';
 import 'package:spending_tracker/l10n/app_localizations.dart';
@@ -212,4 +213,43 @@ void main() {
       },
     );
   }
+
+  testWidgets('a short amount leaves most of the row to the name', (
+    tester,
+  ) async {
+    await pump(
+      tester,
+      const InsightLine(
+        title: 'A fairly long merchant name that needs room',
+        amount: 'SAR 1.00',
+      ),
+    );
+    final name = tester.getSize(
+      find.text('A fairly long merchant name that needs room'),
+    );
+    final row = tester.getSize(find.byType(InsightLine));
+    expect(name.width, greaterThan(row.width * 0.6));
+  });
+
+  testWidgets('the donut speaks its total and lists every group', (
+    tester,
+  ) async {
+    final handle = tester.ensureSemantics();
+    await pump(
+      tester,
+      DonutShare(
+        groups: [
+          for (final g in CategoryGroup.values.take(7)) GroupSpend(g, 1000),
+        ],
+        totalHalalas: 7000,
+        arabic: false,
+      ),
+    );
+    expect(find.bySemanticsLabel('Where it goes: SAR 70.00'), findsOneWidget);
+    expect(
+      find.textContaining('%'),
+      findsNWidgets(7),
+    ); // the legend is not cut at five
+    handle.dispose();
+  });
 }

@@ -344,19 +344,12 @@ class CategoryBudgetRow extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(width: 8),
-                          Flexible(
-                            child: _ltr(
-                              FittedBox(
-                                fit: BoxFit.scaleDown,
-                                child: Text(
-                                  sar(spent),
-                                  style: TextStyle(
-                                    color: text,
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
+                          _AmountBox(
+                            sar(spent),
+                            style: TextStyle(
+                              color: text,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ],
@@ -494,24 +487,39 @@ class InsightLine extends StatelessWidget {
               ),
               if (amount != null) ...[
                 const SizedBox(width: 8),
-                Flexible(
-                  child: _ltr(
-                    FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text(
-                        amount!,
-                        style: TextStyle(
-                          color: text,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
+                _AmountBox(
+                  amount!,
+                  style: TextStyle(
+                    color: text,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ],
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// An amount that keeps its natural width up to about 45% of the row, then scales down, so the name beside it
+/// gets all the rest instead of half.
+class _AmountBox extends StatelessWidget {
+  const _AmountBox(this.amount, {required this.style});
+  final String amount;
+  final TextStyle style;
+
+  @override
+  Widget build(BuildContext context) {
+    final maxWidth = MediaQuery.sizeOf(context).width * 0.45;
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxWidth: maxWidth),
+      child: _ltr(
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(amount, style: style),
         ),
       ),
     );

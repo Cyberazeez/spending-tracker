@@ -406,34 +406,48 @@ class _InsightsPageState extends ConsumerState<InsightsPage> {
                                       budgetOf[c.categoryId],
                                     ),
                             ),
-                          GestureDetector(
-                            behavior: HitTestBehavior.opaque,
+                          Semantics(
+                            button: true,
+                            label: t.insBudgetSet,
+                            excludeSemantics: true,
                             onTap: () => _pickCategoryForBudget(
                               cats.where((c) => !c.excludedFromSpend).toList(),
                               budgetOf,
                               arabic,
                             ),
-                            child: ConstrainedBox(
-                              constraints: const BoxConstraints(minHeight: 44),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    LucideIcons.plus,
-                                    size: 20,
-                                    color: accent,
-                                  ),
-                                  const SizedBox(width: 10),
-                                  Expanded(
-                                    child: Text(
-                                      t.insBudgetSet,
-                                      style: TextStyle(
-                                        color: accent,
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w500,
+                            child: GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onTap: () => _pickCategoryForBudget(
+                                cats
+                                    .where((c) => !c.excludedFromSpend)
+                                    .toList(),
+                                budgetOf,
+                                arabic,
+                              ),
+                              child: ConstrainedBox(
+                                constraints: const BoxConstraints(
+                                  minHeight: 44,
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      LucideIcons.plus,
+                                      size: 20,
+                                      color: accent,
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Expanded(
+                                      child: Text(
+                                        t.insBudgetSet,
+                                        style: TextStyle(
+                                          color: accent,
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w500,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
                           ),

@@ -8,6 +8,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../../ui/app_card.dart';
 import '../../../ui/tokens.dart';
 import '../metrics.dart';
+import 'donut_share.dart' show NumberFormatCompat;
 
 /// The last four months as bars (this month highlighted), with the monthly budget as a dashed line when one is set.
 class MonthBars extends StatelessWidget {
@@ -107,7 +108,7 @@ class MonthBars extends StatelessWidget {
                                     FittedBox(
                                       fit: BoxFit.scaleDown,
                                       child: Text(
-                                        (m.halalas / 100).round().toString(),
+                                        NumberFormatCompat.whole(m.halalas),
                                         style: TextStyle(
                                           color: isNow ? text : muted,
                                           fontSize: 12,
@@ -120,26 +121,44 @@ class MonthBars extends StatelessWidget {
                                     const SizedBox(height: 4),
                                     SizedBox(
                                       height: _barArea,
-                                      child: Align(
+                                      child: Stack(
                                         alignment: Alignment.bottomCenter,
-                                        child: TweenAnimationBuilder<double>(
-                                          tween: Tween(begin: 0, end: h),
-                                          duration: animate
-                                              ? const Duration(
-                                                  milliseconds: 500,
-                                                )
-                                              : Duration.zero,
-                                          curve: Curves.easeOutCubic,
-                                          builder: (_, v, _) => Container(
-                                            width: 44,
-                                            height: v,
-                                            decoration: BoxDecoration(
-                                              color: isNow ? accent : idle,
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
+                                        children: [
+                                          if (budgetY != null)
+                                            Positioned(
+                                              left: 0,
+                                              right: 0,
+                                              top: budgetY.clamp(
+                                                0.0,
+                                                _barArea - 1,
+                                              ),
+                                              child: CustomPaint(
+                                                size: const Size(
+                                                  double.infinity,
+                                                  1,
+                                                ),
+                                                painter: _DashedLine(muted),
+                                              ),
+                                            ),
+                                          TweenAnimationBuilder<double>(
+                                            tween: Tween(begin: 0, end: h),
+                                            duration: animate
+                                                ? const Duration(
+                                                    milliseconds: 500,
+                                                  )
+                                                : Duration.zero,
+                                            curve: Curves.easeOutCubic,
+                                            builder: (_, v, _) => Container(
+                                              width: 44,
+                                              height: v,
+                                              decoration: BoxDecoration(
+                                                color: isNow ? accent : idle,
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                              ),
                                             ),
                                           ),
-                                        ),
+                                        ],
                                       ),
                                     ),
                                     const SizedBox(height: 6),
@@ -162,16 +181,6 @@ class MonthBars extends StatelessWidget {
                       ),
                   ],
                 ),
-                if (budgetY != null)
-                  Positioned(
-                    left: 0,
-                    right: 0,
-                    top: 18 + 4 + budgetY.clamp(0, _barArea),
-                    child: CustomPaint(
-                      size: const Size(double.infinity, 1),
-                      painter: _DashedLine(muted),
-                    ),
-                  ),
               ],
             ),
           ),

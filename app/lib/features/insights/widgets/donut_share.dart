@@ -32,45 +32,50 @@ class DonutShare extends StatelessWidget {
     int pct(GroupSpend g) =>
         totalHalalas <= 0 ? 0 : (g.halalas * 100 / totalHalalas).round();
 
-    final ring = SizedBox(
-      width: 140,
-      height: 140,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          CustomPaint(
-            size: const Size(140, 140),
-            painter: _DonutPainter([
-              for (final g in groups) (groupColor(g.group), g.halalas),
-            ], AppTokens.card.resolveFrom(context)),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(34),
-            child: Directionality(
-              textDirection: TextDirection.ltr,
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      arabic ? 'ر.س' : 'SAR',
-                      style: TextStyle(color: muted, fontSize: 12),
-                    ),
-                    Text(
-                      NumberFormatCompat.whole(totalHalalas),
-                      style: TextStyle(
-                        color: text,
-                        fontSize: 20,
-                        fontWeight: FontWeight.w700,
+    final ring = Semantics(
+      container: true,
+      label: '${t.insWhereTitle}: ${formatSar(totalHalalas, arabic: arabic)}',
+      excludeSemantics: true,
+      child: SizedBox(
+        width: 140,
+        height: 140,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            CustomPaint(
+              size: const Size(140, 140),
+              painter: _DonutPainter([
+                for (final g in groups) (groupColor(g.group), g.halalas),
+              ], AppTokens.card.resolveFrom(context)),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(34),
+              child: Directionality(
+                textDirection: TextDirection.ltr,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        arabic ? 'ر.س' : 'SAR',
+                        style: TextStyle(color: muted, fontSize: 12),
                       ),
-                    ),
-                  ],
+                      Text(
+                        NumberFormatCompat.whole(totalHalalas),
+                        style: TextStyle(
+                          color: text,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
 
@@ -78,7 +83,7 @@ class DonutShare extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        for (final g in groups.take(5))
+        for (final g in groups)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 5),
             child: Semantics(
