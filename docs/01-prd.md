@@ -112,6 +112,7 @@ Goal: the Shortcut carries no secret and no web request. Public users should not
 - **App token:** a second ingest token of kind `app`, created by the app on sign-in and kept only in the iOS Keychain (never shown, never typed, never in a shortcut). The existing token (kind `shortcut`, More > Ingest token) keeps working, so current shortcuts do not break. Signing out revokes the app token.
 - **Offline:** if the request fails (no connection, server error), the message is kept on the phone and retried the next time the intent runs and whenever the app comes to the foreground. Retrying is safe because `ingest` dedupes.
 - iOS 16+ (App Intents); the app's minimum moves from 15 to 16 (the widget already needs 16).
+- **Why no one-tap install (checked 2026-11-03):** a shared shortcut gets plain text or a file as Shortcut Input, with no Sender, and the "Type" list has no Message type, so it cannot know which bank sent the SMS. The automation is the only place with Sender, and Apple does not share automations ([Apple Shortcuts guide, iOS 26](https://support.apple.com/en-ca/guide/shortcuts/apd690170742/9.0/ios/26)). Describe-a-shortcut (Apple Intelligence) was tried and is slow and device-dependent. So the in-app screen (More > SMS capture) gives the steps, an Open Shortcuts button, queue status and last-send result.
 - Not in this item: reading messages without a Shortcut (iOS does not allow it), Apple Wallet capture (item 5).
 
 ## Cost control

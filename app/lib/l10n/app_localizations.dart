@@ -1237,6 +1237,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add a transaction'**
   String get homeAddTx;
+
+  /// No description provided for @captureSetupTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up SMS capture'**
+  String get captureSetupTitle;
+
+  /// No description provided for @captureIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank SMS reach the app through one Shortcuts automation. Apple does not let apps create it, so do it once:'**
+  String get captureIntro;
+
+  /// No description provided for @captureStep1.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Shortcuts, go to the Automation tab, tap + and choose Message.'**
+  String get captureStep1;
+
+  /// No description provided for @captureStep2.
+  ///
+  /// In en, this message translates to:
+  /// **'Set Message contains: SAR. Choose Run Immediately, then Next.'**
+  String get captureStep2;
+
+  /// No description provided for @captureStep3.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap Add Action, search “Add bank message” and pick the one with this app\'s icon.'**
+  String get captureStep3;
+
+  /// No description provided for @captureStep4.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap Message and choose the Message variable. Tap Sender and choose the Sender variable.'**
+  String get captureStep4;
+
+  /// No description provided for @captureStep5.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap Done. The next bank SMS is added by itself.'**
+  String get captureStep5;
+
+  /// No description provided for @captureOpenShortcuts.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Shortcuts'**
+  String get captureOpenShortcuts;
+
+  /// No description provided for @captureStatusHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get captureStatusHeader;
+
+  /// No description provided for @captureSendNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Send waiting messages now'**
+  String get captureSendNow;
+
+  /// No description provided for @captureHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'If it says 1 waiting with error -1009, the phone was offline. The message is kept and sent when you are back online.'**
+  String get captureHelp;
 }
 
 class _AppLocalizationsDelegate

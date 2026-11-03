@@ -387,5 +387,16 @@
     }
   },
   "homeAlerts": "Budgets",
-  "homeAddTx": "Add a transaction"
+  "homeAddTx": "Add a transaction",
+  "captureSetupTitle": "Set up SMS capture",
+  "captureIntro": "Bank SMS reach the app through one Shortcuts automation. Apple does not let apps create it, so do it once:",
+  "captureStep1": "Open Shortcuts, go to the Automation tab, tap + and choose Message.",
+  "captureStep2": "Set Message contains: SAR. Choose Run Immediately, then Next.",
+  "captureStep3": "Tap Add Action, search “Add bank message” and pick the one with this app's icon.",
+  "captureStep4": "Tap Message and choose the Message variable. Tap Sender and choose the Sender variable.",
+  "captureStep5": "Tap Done. The next bank SMS is added by itself.",
+  "captureOpenShortcuts": "Open Shortcuts",
+  "captureStatusHeader": "Status",
+  "captureSendNow": "Send waiting messages now",
+  "captureHelp": "If it says 1 waiting with error -1009, the phone was offline. The message is kept and sent when you are back online."
 }
