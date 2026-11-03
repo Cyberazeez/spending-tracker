@@ -7,12 +7,15 @@ import '../../core/models.dart';
 import '../../core/money.dart';
 import '../../core/providers.dart';
 import '../../l10n/app_localizations.dart';
-import '../../ui/info_tile.dart';
+import '../../ui/app_card.dart';
 import '../../ui/bottom_inset.dart';
 import '../../ui/empty_state.dart';
+import '../../ui/skeleton.dart';
+import '../../ui/tokens.dart';
 import '../insights/metrics.dart';
 import 'logic.dart';
 import 'providers.dart';
+import 'widgets/bills_widgets.dart';
 
 class ObligationsPage extends ConsumerStatefulWidget {
   const ObligationsPage({super.key});
@@ -164,12 +167,20 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
     final data = ref.watch(obligationsProvider);
     final spend = ref.watch(monthSpendProvider).value;
     final repo = ref.read(dataRepositoryProvider);
-    final secondary = CupertinoColors.secondaryLabel.resolveFrom(context);
+    final muted = AppTokens.muted.resolveFrom(context);
 
     return CupertinoPageScaffold(
+      backgroundColor: AppTokens.bg.resolveFrom(context),
       child: CustomScrollView(
+        physics: const BouncingScrollPhysics(
+          parent: AlwaysScrollableScrollPhysics(),
+        ),
         slivers: [
-          CupertinoSliverNavigationBar(largeTitle: Text(t.tabObligations)),
+          CupertinoSliverNavigationBar(
+            largeTitle: Text(t.tabObligations),
+            backgroundColor: AppTokens.bg.resolveFrom(context),
+            border: null,
+          ),
           CupertinoSliverRefreshControl(
             onRefresh: () async {
               ref.invalidate(obligationsProvider);
@@ -181,24 +192,21 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
           ),
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
-              child: CupertinoSlidingSegmentedControl<ObSection>(
-                groupValue: _section,
-                onValueChanged: (v) => setState(() => _section = v ?? _section),
-                children: {
-                  ObSection.upcoming: Text(t.obSegUpcoming),
-                  ObSection.overdue: Text(t.obSegOverdue),
-                  ObSection.history: Text(t.obSegHistory),
+              padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+              child: PillSegments<ObSection>(
+                value: _section,
+                onChanged: (v) => setState(() => _section = v),
+                labels: {
+                  ObSection.upcoming: t.obSegUpcoming,
+                  ObSection.overdue: t.obSegOverdue,
+                  ObSection.history: t.obSegHistory,
                 },
               ),
             ),
           ),
           ...data.when(
             loading: () => [
-              const SliverFillRemaining(
-                hasScrollBody: false,
-                child: Center(child: CupertinoActivityIndicator()),
-              ),
+              const SkeletonSliver(heights: [150, 200, 150]),
             ],
             error: (_, _) => [
               SliverFillRemaining(
@@ -224,63 +232,105 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
               final paidMonth = month
                   .where((i) => i.status == 'paid')
                   .fold<int>(0, (s, i) => s + (i.actualHalalas ?? 0));
+              final committed = committedHalalas(rows);
+              Widget pad(Widget child) => SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                  child: child,
+                ),
+              );
               return [
-                if (suggestions.isNotEmpty)
-                  SliverToBoxAdapter(
-                    child: CupertinoListSection.insetGrouped(
-                      children: [
-                        for (final s in suggestions)
-                          InfoTile(
-                            title: Text(t.obSuggestTitle(s.name)),
-                            subtitle: Row(
-                              children: [
-                                CupertinoButton(
-                                  padding: EdgeInsets.zero,
-                                  minimumSize: const Size(0, 32),
-                                  onPressed: () =>
-                                      _run(() => repo.confirmMatch(s.id)),
-                                  child: Text(t.obConfirm),
-                                ),
-                                const SizedBox(width: 16),
-                                CupertinoButton(
-                                  padding: EdgeInsets.zero,
-                                  minimumSize: const Size(0, 32),
-                                  onPressed: () =>
-                                      _run(() => repo.rejectMatch(s.id)),
-                                  child: Text(t.obNotThis),
-                                ),
-                              ],
+                for (final s in suggestions)
+                  pad(
+                    AppCard(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            t.obSuggestTitle(s.name),
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: AppTokens.text.resolveFrom(context),
                             ),
                           ),
-                      ],
+                          const SizedBox(height: 8),
+                          Wrap(
+                            spacing: 16,
+                            children: [
+                              CupertinoButton(
+                                padding: EdgeInsets.zero,
+                                minimumSize: const Size(44, 44),
+                                onPressed: () =>
+                                    _run(() => repo.confirmMatch(s.id)),
+                                child: Text(
+                                  t.obConfirm,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                    color: AppTokens.accent.resolveFrom(
+                                      context,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              CupertinoButton(
+                                padding: EdgeInsets.zero,
+                                minimumSize: const Size(44, 44),
+                                onPressed: () =>
+                                    _run(() => repo.rejectMatch(s.id)),
+                                child: Text(
+                                  t.obNotThis,
+                                  style: TextStyle(color: muted),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 if (_section == ObSection.upcoming)
-                  SliverToBoxAdapter(
-                    child: CupertinoListSection.insetGrouped(
-                      children: [
-                        InfoTile(
-                          title: Text(t.obCommitted),
-                          additionalInfo: _amount(
-                            committedHalalas(rows),
+                  pad(
+                    AppCard(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            t.obCommitted,
+                            style: TextStyle(fontSize: 14, color: muted),
+                          ),
+                          const SizedBox(height: 4),
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: AlignmentDirectional.centerStart,
+                            child: _amount(
+                              committed,
+                              arabic,
+                              TextStyle(
+                                fontSize: 34,
+                                fontWeight: FontWeight.w800,
+                                color: AppTokens.text.resolveFrom(context),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 14),
+                          _line(
+                            t.obMonthCommitted,
+                            t.obMonthCommittedNote,
+                            committedMonth,
                             arabic,
                           ),
-                        ),
-                        InfoTile(
-                          title: Text(t.obMonthCommitted),
-                          subtitle: Text(t.obMonthCommittedNote),
-                          additionalInfo: _amount(committedMonth, arabic),
-                        ),
-                        if (spend != null)
-                          InfoTile(
-                            title: Text(t.obMonthOther),
-                            subtitle: Text(t.obMonthTitle),
-                            additionalInfo: _amount(
+                          if (spend != null) ...[
+                            const SizedBox(height: 10),
+                            _line(
+                              t.obMonthOther,
+                              t.obMonthTitle,
                               (spend - paidMonth).clamp(0, 1 << 40),
                               arabic,
                             ),
-                          ),
-                      ],
+                          ],
+                        ],
+                      ),
                     ),
                   ),
                 if (rows.isEmpty)
@@ -296,25 +346,34 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
                     ),
                   )
                 else if (_section == ObSection.upcoming)
-                  // One box per month so "this month" and "next month" never blur together.
-                  for (final g in groupByMonth(rows, today))
+                  // One card per month so "this month" and "next month" never blur together.
+                  for (final g in groupByMonth(rows, today)) ...[
                     SliverToBoxAdapter(
-                      child: CupertinoListSection.insetGrouped(
-                        header: Text(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 4, 20, 8),
+                        child: Text(
                           _groupTitle(g.monthStart, today, arabic, t),
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: muted,
+                          ),
                         ),
+                      ),
+                    ),
+                    pad(
+                      RowsCard(
                         children: [
-                          for (final i in g.items)
-                            _row(i, today, arabic, secondary, t),
+                          for (final i in g.items) _row(i, today, arabic, t),
                         ],
                       ),
-                    )
+                    ),
+                  ]
                 else
-                  SliverToBoxAdapter(
-                    child: CupertinoListSection.insetGrouped(
+                  pad(
+                    RowsCard(
                       children: [
-                        for (final i in rows)
-                          _row(i, today, arabic, secondary, t),
+                        for (final i in rows) _row(i, today, arabic, t),
                       ],
                     ),
                   ),
@@ -324,6 +383,38 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
           const BottomInset(),
         ],
       ),
+    );
+  }
+
+  Widget _line(String title, String note, int halalas, bool arabic) {
+    final muted = AppTokens.muted.resolveFrom(context);
+    final text = AppTokens.text.resolveFrom(context);
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: text,
+                ),
+              ),
+              Text(note, style: TextStyle(fontSize: 12, color: muted)),
+            ],
+          ),
+        ),
+        const SizedBox(width: 12),
+        _amount(
+          halalas,
+          arabic,
+          TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: text),
+        ),
+      ],
     );
   }
 
@@ -341,16 +432,15 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
     return t.obGroupLater(name, monthStart.year.toString());
   }
 
-  Widget _amount(int halalas, bool arabic) => Directionality(
+  Widget _amount(int halalas, bool arabic, TextStyle style) => Directionality(
     textDirection: TextDirection.ltr,
-    child: Text(formatSar(halalas, arabic: arabic)),
+    child: Text(formatSar(halalas, arabic: arabic), style: style),
   );
 
   Widget _row(
     ObligationInstance i,
     DateTime today,
     bool arabic,
-    Color secondary,
     AppLocalizations t,
   ) {
     final status = effectiveStatus(i, today);
@@ -360,10 +450,12 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
       'skipped' => t.obStatusSkipped,
       _ => t.obStatusPending,
     };
-    final color = switch (status) {
-      'paid' => CupertinoColors.systemGreen.resolveFrom(context),
-      'overdue' => CupertinoColors.systemRed.resolveFrom(context),
-      _ => secondary,
+    final soon = status == 'pending' && i.dueDate.difference(today).inDays <= 7;
+    final tone = switch (status) {
+      'paid' => PillTone.ok,
+      'overdue' => PillTone.danger,
+      'skipped' => PillTone.muted,
+      _ => soon ? PillTone.warn : PillTone.muted,
     };
     final planNo = i.kind == 'card_statement' && i.plan != null
         ? i.plan!.numberFor(i.periodStart ?? i.dueDate)
@@ -381,26 +473,23 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
       if (status == 'paid' && i.actualHalalas != null)
         t.obPaidAmount(formatSar(i.actualHalalas!, arabic: arabic)),
     ].join(' · ');
-    return InfoTile(
+    return ObligationRow(
       onTap: () => _rowActions(i, status),
-      title: Text(i.name, maxLines: 1, overflow: TextOverflow.ellipsis),
-      subtitle: Text(
-        [
-          t.obDue(formatDay(i.dueDate)),
-          if (amounts.isNotEmpty) amounts,
-          if (planNo != null)
-            t.obPlanNote(
-              i.plan!.name,
-              planNo.toString(),
-              i.plan!.months.toString(),
-              formatSar(i.plan!.instalmentHalalas, arabic: arabic),
-            ),
-        ].join(' · '),
-      ),
-      additionalInfo: Text(
-        label,
-        style: TextStyle(color: color, fontWeight: FontWeight.w600),
-      ),
+      name: i.name,
+      kind: i.kind,
+      statusLabel: label,
+      tone: tone,
+      detail: [
+        t.obDue(formatDay(i.dueDate)),
+        if (amounts.isNotEmpty) amounts,
+        if (planNo != null)
+          t.obPlanNote(
+            i.plan!.name,
+            planNo.toString(),
+            i.plan!.months.toString(),
+            formatSar(i.plan!.instalmentHalalas, arabic: arabic),
+          ),
+      ].join(' · '),
     );
   }
 }
