@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import '../../core/models.dart';
 import '../obligations/logic.dart' show riyadhToday;
 
@@ -11,6 +13,13 @@ const baseSalaryHalalas = 1410000;
 class DaySpend {
   const DaySpend(this.day, this.halalas);
   final DateTime day;
+  final int halalas;
+}
+
+/// One calendar month's spend ([month] is its first day at UTC midnight); never below 0.
+class MonthTotal {
+  const MonthTotal(this.month, this.halalas);
+  final DateTime month;
   final int halalas;
 }
 
@@ -49,6 +58,9 @@ class Insights {
     required this.lastMonthHasData,
     required this.byCategory,
     required this.last7Days,
+    required this.monthTotals,
+    required this.cumulativeThisMonth,
+    required this.cumulativeLastMonth,
     required this.topMerchants,
     required this.average3,
     required this.spikes,
@@ -71,6 +83,14 @@ class Insights {
 
   /// Exactly seven days, oldest first, the last one is today. Same spend rule as [monthSpend]; a day never shows below 0.
   final List<DaySpend> last7Days;
+
+  /// The last four months, oldest first; the last one is this month so far. Same spend rule as [monthSpend].
+  final List<MonthTotal> monthTotals;
+
+  /// Spend added up day by day: this month from the 1st to today, and last month for all its days.
+  /// Same rule as [monthSpend]; used for the this-month-vs-last-month line chart.
+  final List<int> cumulativeThisMonth;
+  final List<int> cumulativeLastMonth;
   final List<MerchantSpend> topMerchants;
 
   /// Average monthly spend per category over the three months before this one.
@@ -91,6 +111,11 @@ class Insights {
 }
 
 int _monthKey(DateTime d) => d.year * 12 + d.month;
+
+List<int> _runningTotal(List<int> daily) {
+  var sum = 0;
+  return [for (final v in daily) sum += v];
+}
 
 /// What one transaction adds to spending: outgoing money that is neither internal nor excluded, minus refunds.
 int spendOf(Txn t) {
@@ -125,17 +150,24 @@ Insights computeInsights(
   final subLabel = <String, String>{};
   final weekStart = today.subtract(const Duration(days: 6));
   final weekTotals = List<int>.filled(7, 0);
+  final monthSums = <int, int>{};
+  final daysThis = today.day;
+  final daysLast = DateTime.utc(today.year, today.month, 0).day;
+  final dailyThis = List<int>.filled(daysThis, 0);
+  final dailyLast = List<int>.filled(daysLast, 0);
 
   for (final t in all) {
     final d = day(t);
-    final weekIndex = d.difference(weekStart).inDays;
-    if (weekIndex >= 0 && weekIndex < 7) {
-      weekTotals[weekIndex] += excludedCategories.contains(t.categoryId)
-          ? 0
-          : spendOf(t);
-    }
     final key = _monthKey(d);
     final spend = excludedCategories.contains(t.categoryId) ? 0 : spendOf(t);
+    monthSums[key] = (monthSums[key] ?? 0) + spend;
+    if (key == thisKey && d.day <= daysThis) {
+      dailyThis[d.day - 1] += spend;
+    } else if (key == thisKey - 1 && d.day <= daysLast) {
+      dailyLast[d.day - 1] += spend;
+    }
+    final weekIndex = d.difference(weekStart).inDays;
+    if (weekIndex >= 0 && weekIndex < 7) weekTotals[weekIndex] += spend;
     if (key == thisKey) {
       monthSpend += spend;
       if (spend != 0) cat[t.categoryId] = (cat[t.categoryId] ?? 0) + spend;
@@ -219,6 +251,15 @@ Insights computeInsights(
     lastMonthToDate: lastToDate,
     lastMonthHasData: lastToDateRows > 0,
     byCategory: byCategory,
+    monthTotals: [
+      for (var k = thisKey - 3; k <= thisKey; k++)
+        MonthTotal(
+          DateTime.utc((k - 1) ~/ 12, (k - 1) % 12 + 1),
+          math.max(0, monthSums[k] ?? 0),
+        ),
+    ],
+    cumulativeThisMonth: _runningTotal(dailyThis),
+    cumulativeLastMonth: _runningTotal(dailyLast),
     last7Days: [
       for (var i = 0; i < 7; i++)
         DaySpend(

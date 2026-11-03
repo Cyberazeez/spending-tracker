@@ -34,6 +34,7 @@ final now = DateTime.utc(2026, 11, 15, 9);
 void main() {
   budgetPercentTests();
   weekTests();
+  trendTests();
   test(
     'spend ignores internal, excluded and incoming money; refunds subtract',
     () {
@@ -303,4 +304,83 @@ void weekTests() {
       );
     },
   );
+}
+
+void trendTests() {
+  test('monthTotals: four months, oldest first, the last is this month', () {
+    final ins = computeInsights([
+      tx('2026-08-10 10:00', 1000),
+      tx('2026-09-10 10:00', 2000),
+      tx('2026-10-10 10:00', 3000),
+      tx('2026-11-10 10:00', 4000),
+      tx('2026-07-10 10:00', 9999), // older than four months: ignored
+    ], now);
+    expect(ins.monthTotals.map((m) => m.month).toList(), [
+      DateTime.utc(2026, 8),
+      DateTime.utc(2026, 9),
+      DateTime.utc(2026, 10),
+      DateTime.utc(2026, 11),
+    ]);
+    expect(ins.monthTotals.map((m) => m.halalas).toList(), [
+      1000,
+      2000,
+      3000,
+      4000,
+    ]);
+  });
+
+  test('monthTotals: a month with no data is zero, a net-negative month is clamped to zero', () {
+    final ins = computeInsights([
+      tx('2026-10-10 10:00', 500),
+      tx('2026-10-11 10:00', 900, direction: 'in', type: 'refund'),
+    ], now);
+    expect(ins.monthTotals.map((m) => m.halalas).toList(), [0, 0, 0, 0]);
+  });
+
+  test(
+    'cumulative: this month runs to today, last month covers all its days',
+    () {
+      final ins = computeInsights([
+        tx('2026-11-01 10:00', 100),
+        tx('2026-11-03 10:00', 50),
+        tx('2026-11-15 10:00', 25),
+        tx('2026-10-01 10:00', 10),
+        tx('2026-10-31 10:00', 5),
+      ], now);
+      expect(ins.cumulativeThisMonth.length, 15); // 1 to 15 Nov
+      expect(ins.cumulativeThisMonth.first, 100);
+      expect(ins.cumulativeThisMonth[2], 150);
+      expect(ins.cumulativeThisMonth.last, 175);
+      expect(ins.cumulativeLastMonth.length, 31); // October
+      expect(ins.cumulativeLastMonth.first, 10);
+      expect(ins.cumulativeLastMonth.last, 15);
+    },
+  );
+
+  test('cumulative: ignores internal rows and excluded categories like the month total', () {
+    final ins = computeInsights(
+      [
+        tx('2026-11-02 10:00', 100),
+        tx('2026-11-02 11:00', 5000, internal: true),
+        tx('2026-11-02 12:00', 7000, cat: 'transfers'),
+      ],
+      now,
+      excludedCategories: {'transfers'},
+    );
+    expect(ins.cumulativeThisMonth.last, 100);
+    expect(ins.cumulativeThisMonth.last, ins.monthSpend);
+  });
+
+  test('cumulative: February has 28 days and January wraps to December', () {
+    final feb = computeInsights([
+      tx('2027-02-10 10:00', 100),
+    ], DateTime.utc(2027, 3, 3, 9));
+    expect(feb.cumulativeLastMonth.length, 28);
+    final jan = computeInsights([
+      tx('2026-12-31 10:00', 100),
+    ], DateTime.utc(2027, 1, 5, 9));
+    expect(jan.cumulativeLastMonth.length, 31); // December
+    expect(jan.cumulativeLastMonth.last, 100);
+    expect(jan.monthTotals.map((m) => m.month).first, DateTime.utc(2026, 10));
+  });
 }
