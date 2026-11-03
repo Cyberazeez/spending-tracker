@@ -17,8 +17,8 @@ Home only, plus the shared design layer it needs. No backend, no schema change, 
 - **Tokens** (`tokens.dart`): colors for dark and light (from the mockup), radii (card 24, hero 28, chip 22, badge round), spacing on a 4 pt grid, text styles with tabular numerals for amounts.
   - Font: the system font (SF Pro / SF Arabic), not Inter as in the mockup, to avoid a font download and RTL font problems. A bundled Inter is a later option.
 - **Components:** `HeroCard` (gradient, animated count-up number, budget ring), `Card` (rounded surface), `SectionHeader`, `WeekBars` (7-day bar chart, today highlighted), `StackedShareBar` + `CategoryRow` (round colored badge, name, share, amount), `BillCard` (status pill), `AttentionChip`, floating translucent tab bar.
-- **Charts:** `fl_chart` for the week bars and the stacked bar if it renders cleanly in RTL; otherwise small custom painters (they are simple). Decision made when building, noted in the PR.
-- **Icons:** `phosphor_flutter` (consistent set). One icon per category group. Replaces `CupertinoIcons` on Home and the tab bar.
+- **Charts:** plain widgets (decided while building): the 7-day bars and the stacked share bar are simple, so no chart library; every bar is a real, labelled element for VoiceOver and mirrors in Arabic for free. A chart library (`fl_chart`) is for stage 3 (Insights: trends, lines).
+- **Icons:** `lucide_icons_flutter` (consistent set). `phosphor_flutter` was tried first and does not compile with Flutter 3.47. One icon per category group. Replaces `CupertinoIcons` on Home and the tab bar.
 - Cupertino stays for navigation, sheets, dialogs and haptics so it still feels like iOS.
 
 ## Categories on Home
@@ -45,7 +45,7 @@ Home shows the top 4 groups by spend and "See all" opens Insights. Each group ha
 4. Where it went: stacked share bar and the top 4 groups.
 5. Next bills: up to 3 cards (overdue first), horizontally scrollable.
 6. Attention chips: needs review count and possible gaps (hidden when zero).
-7. Floating translucent tab bar.
+7. Translucent tab bar (colors and blur from the design tokens). A fully floating pill needs a custom tab bar; the standard `CupertinoTabBar` is kept for now so tab switching, safe areas and VoiceOver stay native.
 
 ## Data
 All from providers that already exist (insights, today spend, monthly budget, obligations, needs-review, gaps). One new pure function: daily spend for the last 7 Riyadh days from the transactions the app already holds (same spend rule as `spendOf`, so it agrees with the month total and the widget). One new pure function for the group mapping. Both unit tested.
