@@ -29,6 +29,10 @@ Future<Harness> open(
   Harness h, {
   Map<String, Object> prefs = const {},
 }) async {
+  // Insights is a lazy scrolling list; a tall window builds all of it so lower cards can be found.
+  tester.view.physicalSize = const Size(800, 4000);
+  tester.view.devicePixelRatio = 1;
+  addTearDown(tester.view.reset);
   await tester.pumpWidget(await h.build(prefs: prefs));
   await tester.pumpAndSettle();
   await tester.tap(
@@ -198,7 +202,7 @@ void main() {
         tx('1', '2026-10-05T09:00:00', 10000, cat: 'c-din', merchant: 'Otten'),
       ];
     await open(tester, h, prefs: {'locale': 'ar'});
-    expect(find.text('هذا الشهر'), findsOneWidget);
+    expect(find.text('المصروف حتى الآن'), findsOneWidget);
     expect(find.text('حسب الفئة'), findsOneWidget);
   });
 }

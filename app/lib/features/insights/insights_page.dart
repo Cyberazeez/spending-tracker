@@ -1,16 +1,25 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../core/models.dart';
 import '../../core/money.dart';
 import '../../core/providers.dart';
 import '../../l10n/app_localizations.dart';
-import '../../ui/info_tile.dart';
+import '../../core/format.dart';
+import '../../ui/app_card.dart';
 import '../../ui/bottom_inset.dart';
 import '../../ui/empty_state.dart';
+import '../../ui/skeleton.dart';
+import '../../ui/tokens.dart';
+import '../home/category_groups.dart';
 import '../transactions/providers.dart';
 import 'metrics.dart';
 import 'providers.dart';
+import 'widgets/donut_share.dart';
+import 'widgets/insight_cards.dart';
+import 'widgets/month_bars.dart';
+import 'widgets/trend_chart.dart';
 
 class InsightsPage extends ConsumerStatefulWidget {
   const InsightsPage({super.key});
@@ -223,13 +232,20 @@ class _InsightsPageState extends ConsumerState<InsightsPage> {
         ? t.categoryNone
         : (byId[id]?.label(arabic: arabic) ?? t.categoryNone);
     String sar(int h) => formatSar(h, arabic: arabic);
-    Widget ltr(String s) =>
-        Directionality(textDirection: TextDirection.ltr, child: Text(s));
+    final accent = AppTokens.accent.resolveFrom(context);
 
     return CupertinoPageScaffold(
+      backgroundColor: AppTokens.bg.resolveFrom(context),
       child: CustomScrollView(
+        physics: const BouncingScrollPhysics(
+          parent: AlwaysScrollableScrollPhysics(),
+        ),
         slivers: [
-          CupertinoSliverNavigationBar(largeTitle: Text(t.tabInsights)),
+          CupertinoSliverNavigationBar(
+            largeTitle: Text(t.tabInsights),
+            backgroundColor: AppTokens.bg.resolveFrom(context),
+            border: null,
+          ),
           CupertinoSliverRefreshControl(
             onRefresh: () async {
               ref.invalidate(insightsProvider);
@@ -243,10 +259,7 @@ class _InsightsPageState extends ConsumerState<InsightsPage> {
           ),
           ...data.when(
             loading: () => [
-              const SliverFillRemaining(
-                hasScrollBody: false,
-                child: Center(child: CupertinoActivityIndicator()),
-              ),
+              const SkeletonSliver(heights: [170, 210, 200]),
             ],
             error: (_, _) => [
               SliverFillRemaining(
@@ -274,7 +287,6 @@ class _InsightsPageState extends ConsumerState<InsightsPage> {
                   ),
                 ];
               }
-              final diff = ins.monthSpend - ins.lastMonthToDate;
               final alerts = <(String, BudgetLevel)>[];
               for (final c in ins.byCategory) {
                 final b = c.categoryId == null ? null : budgetOf[c.categoryId];
@@ -292,183 +304,216 @@ class _InsightsPageState extends ConsumerState<InsightsPage> {
                   alerts.add((t.insBudgetOver(name(c.categoryId)), level));
                 }
               }
-              final secondary = CupertinoColors.secondaryLabel.resolveFrom(
-                context,
-              );
+              final groups = groupSpend(ins.byCategory, cats);
+              final categoryRows = [
+                ...ins.byCategory,
+                // a budget on a category with no spend yet still shows (and can be changed or removed)
+                for (final b in budgets)
+                  if (!ins.byCategory.any((c) => c.categoryId == b.categoryId))
+                    CategorySpend(b.categoryId, 0),
+              ];
+              const gap = SizedBox(height: 16);
               return [
-                if (alerts.isNotEmpty)
-                  SliverToBoxAdapter(
-                    child: CupertinoListSection.insetGrouped(
-                      children: [
-                        for (final a in alerts)
-                          InfoTile(
-                            leading: Icon(
-                              CupertinoIcons.exclamationmark_circle_fill,
-                              color: a.$2 == BudgetLevel.over
-                                  ? CupertinoColors.systemRed.resolveFrom(
-                                      context,
-                                    )
-                                  : CupertinoColors.systemOrange.resolveFrom(
-                                      context,
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                  sliver: SliverList.list(
+                    children: [
+                      if (alerts.isNotEmpty) ...[
+                        AppCard(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              for (final a in alerts)
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 4,
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        LucideIcons.circleAlert,
+                                        size: 20,
+                                        color: a.$2 == BudgetLevel.over
+                                            ? AppTokens.danger.resolveFrom(
+                                                context,
+                                              )
+                                            : AppTokens.warnText.resolveFrom(
+                                                context,
+                                              ),
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Expanded(
+                                        child: Text(
+                                          a.$1,
+                                          style: TextStyle(
+                                            color: AppTokens.text.resolveFrom(
+                                              context,
+                                            ),
+                                            fontSize: 15,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                        gap,
+                      ],
+                      SummaryCard(
+                        insights: ins,
+                        monthlyBudget: monthlyBudget,
+                        arabic: arabic,
+                        onBudgetTap: () => _monthlyBudgetActions(monthlyBudget),
+                      ),
+                      gap,
+                      TrendChart(
+                        thisMonth: ins.cumulativeThisMonth,
+                        lastMonth: ins.cumulativeLastMonth,
+                        arabic: arabic,
+                      ),
+                      gap,
+                      MonthBars(
+                        totals: ins.monthTotals,
+                        budgetHalalas: monthlyBudget,
+                        arabic: arabic,
+                      ),
+                      if (groups.isNotEmpty) ...[
+                        gap,
+                        DonutShare(
+                          groups: groups,
+                          totalHalalas: ins.monthSpend,
+                          arabic: arabic,
+                        ),
+                      ],
+                      gap,
+                      ListCard(
+                        title: t.insByCategory,
+                        children: [
+                          for (final c in categoryRows)
+                            CategoryBudgetRow(
+                              name: name(c.categoryId),
+                              categoryName: byId[c.categoryId]?.name,
+                              spent: c.halalas,
+                              budget: budgetOf[c.categoryId]?.limitHalalas,
+                              arabic: arabic,
+                              onTap: c.categoryId == null
+                                  ? null
+                                  : () => _budgetActions(
+                                      c.categoryId!,
+                                      name(c.categoryId),
+                                      budgetOf[c.categoryId],
                                     ),
                             ),
-                            title: Text(a.$1),
-                          ),
-                      ],
-                    ),
-                  ),
-                SliverToBoxAdapter(
-                  child: CupertinoListSection.insetGrouped(
-                    header: Text(t.insThisMonth),
-                    children: [
-                      InfoTile(
-                        title: Text(t.insSpent),
-                        additionalInfo: ltr(sar(ins.monthSpend)),
-                      ),
-                      InfoTile(
-                        title: Text(t.insMonthlyBudget),
-                        subtitle: monthlyBudget == null
-                            ? null
-                            : Text(
-                                t.insMonthlyBudgetUsed(
-                                  budgetPercent(
-                                    ins.monthSpend,
-                                    monthlyBudget,
-                                  ).toString(),
+                          Semantics(
+                            button: true,
+                            label: t.insBudgetSet,
+                            excludeSemantics: true,
+                            onTap: () => _pickCategoryForBudget(
+                              cats.where((c) => !c.excludedFromSpend).toList(),
+                              budgetOf,
+                              arabic,
+                            ),
+                            child: GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onTap: () => _pickCategoryForBudget(
+                                cats
+                                    .where((c) => !c.excludedFromSpend)
+                                    .toList(),
+                                budgetOf,
+                                arabic,
+                              ),
+                              child: ConstrainedBox(
+                                constraints: const BoxConstraints(
+                                  minHeight: 44,
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      LucideIcons.plus,
+                                      size: 20,
+                                      color: accent,
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Expanded(
+                                      child: Text(
+                                        t.insBudgetSet,
+                                        style: TextStyle(
+                                          color: accent,
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                        additionalInfo: monthlyBudget == null
-                            ? Text(t.insMonthlyBudgetNotSet)
-                            : ltr(sar(monthlyBudget)),
-                        trailing: const CupertinoListTileChevron(),
-                        onTap: () => _monthlyBudgetActions(monthlyBudget),
-                      ),
-                      InfoTile(
-                        title: Text(t.insVsLast),
-                        additionalInfo: ltr(
-                          ins.lastMonthHasData
-                              ? sar(ins.lastMonthToDate)
-                              : '--',
-                        ),
-                        subtitle: Text(
-                          !ins.lastMonthHasData
-                              ? t.insNoCompare
-                              : diff == 0
-                              ? t.insSame
-                              : diff > 0
-                              ? t.insUp(sar(diff))
-                              : t.insDown(sar(-diff)),
-                        ),
-                      ),
-                      if (ins.savingsRate != null)
-                        InfoTile(
-                          title: Text(t.insSavings),
-                          additionalInfo: ltr(
-                            t.insSavingsValue(
-                              (ins.savingsRate! * 100).round().toString(),
                             ),
                           ),
+                        ],
+                      ),
+                      if (ins.topMerchants.isNotEmpty) ...[
+                        gap,
+                        ListCard(
+                          title: t.insTopMerchants,
+                          children: [
+                            for (var i = 0; i < ins.topMerchants.length; i++)
+                              InsightLine(
+                                leading: _Rank(i + 1),
+                                title: ins.topMerchants[i].label,
+                                subtitle: ins.topMerchants[i].count == 1
+                                    ? t.insVisit
+                                    : t.insVisits(ins.topMerchants[i].count),
+                                amount: sar(ins.topMerchants[i].halalas),
+                              ),
+                          ],
                         ),
-                      if (ins.salaryAboveBase)
-                        InfoTile(
-                          leading: Icon(
-                            CupertinoIcons.exclamationmark_triangle,
-                            color: CupertinoColors.systemOrange.resolveFrom(
-                              context,
+                      ],
+                      if (ins.spikes.isNotEmpty) ...[
+                        gap,
+                        ListCard(
+                          title: t.insSpikes,
+                          children: [
+                            for (final s in ins.spikes)
+                              InsightLine(
+                                title: name(s.categoryId),
+                                subtitle: t.insSpikeLine(
+                                  ltrIsolate(sar(s.thisMonth)),
+                                  ltrIsolate(sar(s.average)),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ],
+                      if (ins.subscriptions.isNotEmpty) ...[
+                        gap,
+                        ListCard(
+                          title: t.insSubs,
+                          footer: Padding(
+                            padding: const EdgeInsets.only(top: 8),
+                            child: Text(
+                              t.insSubsTotal(
+                                ltrIsolate(sar(ins.subscriptionsMonthly)),
+                              ),
+                              style: TextStyle(
+                                color: AppTokens.muted.resolveFrom(context),
+                                fontSize: 13,
+                              ),
                             ),
                           ),
-                          title: Text(t.insSalaryAbove(sar(baseSalaryHalalas))),
+                          children: [
+                            for (final s in ins.subscriptions)
+                              InsightLine(
+                                title: s.label,
+                                amount: sar(s.monthlyHalalas),
+                              ),
+                          ],
                         ),
+                      ],
                     ],
                   ),
                 ),
-                SliverToBoxAdapter(
-                  child: CupertinoListSection.insetGrouped(
-                    header: Text(t.insByCategory),
-                    children: [
-                      for (final c in [
-                        ...ins.byCategory,
-                        // a budget on a category with no spend yet still shows (and can be changed or removed)
-                        for (final b in budgets)
-                          if (!ins.byCategory.any(
-                            (c) => c.categoryId == b.categoryId,
-                          ))
-                            CategorySpend(b.categoryId, 0),
-                      ])
-                        _categoryRow(
-                          context,
-                          c,
-                          name(c.categoryId),
-                          budgetOf[c.categoryId],
-                          t,
-                          sar,
-                          ltr,
-                          secondary,
-                        ),
-                      InfoTile(
-                        leading: const Icon(CupertinoIcons.add_circled),
-                        title: Text(t.insBudgetSet),
-                        onTap: () => _pickCategoryForBudget(
-                          cats.where((c) => !c.excludedFromSpend).toList(),
-                          budgetOf,
-                          arabic,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                if (ins.topMerchants.isNotEmpty)
-                  SliverToBoxAdapter(
-                    child: CupertinoListSection.insetGrouped(
-                      header: Text(t.insTopMerchants),
-                      children: [
-                        for (final m in ins.topMerchants)
-                          InfoTile(
-                            title: Text(
-                              m.label,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            additionalInfo: ltr(sar(m.halalas)),
-                          ),
-                      ],
-                    ),
-                  ),
-                if (ins.spikes.isNotEmpty)
-                  SliverToBoxAdapter(
-                    child: CupertinoListSection.insetGrouped(
-                      header: Text(t.insSpikes),
-                      children: [
-                        for (final s in ins.spikes)
-                          InfoTile(
-                            title: Text(name(s.categoryId)),
-                            subtitle: Text(
-                              t.insSpikeLine(sar(s.thisMonth), sar(s.average)),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                if (ins.subscriptions.isNotEmpty)
-                  SliverToBoxAdapter(
-                    child: CupertinoListSection.insetGrouped(
-                      header: Text(t.insSubs),
-                      footer: Text(
-                        t.insSubsTotal(sar(ins.subscriptionsMonthly)),
-                      ),
-                      children: [
-                        for (final s in ins.subscriptions)
-                          InfoTile(
-                            title: Text(
-                              s.label,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            additionalInfo: ltr(sar(s.monthlyHalalas)),
-                          ),
-                      ],
-                    ),
-                  ),
               ];
             },
           ),
@@ -477,80 +522,28 @@ class _InsightsPageState extends ConsumerState<InsightsPage> {
       ),
     );
   }
-
-  Widget _categoryRow(
-    BuildContext context,
-    CategorySpend c,
-    String label,
-    Budget? budget,
-    AppLocalizations t,
-    String Function(int) sar,
-    Widget Function(String) ltr,
-    Color secondary,
-  ) {
-    final level = budget == null
-        ? BudgetLevel.ok
-        : budgetLevel(c.halalas, budget.limitHalalas);
-    final color = switch (level) {
-      BudgetLevel.over => CupertinoColors.systemRed.resolveFrom(context),
-      BudgetLevel.warn => CupertinoColors.systemOrange.resolveFrom(context),
-      BudgetLevel.ok => CupertinoColors.activeBlue.resolveFrom(context),
-    };
-    return InfoTile(
-      onTap: c.categoryId == null
-          ? null
-          : () => _budgetActions(c.categoryId!, label, budget),
-      title: Text(label),
-      subtitle: budget == null
-          ? null
-          : Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 4),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(3),
-                  child: SizedBox(
-                    height: 6,
-                    width: double.infinity,
-                    child: LinearProgressIndicatorLike(
-                      value: c.halalas / budget.limitHalalas,
-                      color: color,
-                      background: CupertinoColors.systemFill.resolveFrom(
-                        context,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 4),
-                ltr(t.insOfLimit(sar(budget.limitHalalas))),
-              ],
-            ),
-      additionalInfo: ltr(sar(c.halalas)),
-    );
-  }
 }
 
-/// A thin progress bar (Cupertino has none); the fill is clamped to the full width.
-class LinearProgressIndicatorLike extends StatelessWidget {
-  const LinearProgressIndicatorLike({
-    super.key,
-    required this.value,
-    required this.color,
-    required this.background,
-  });
-  final double value;
-  final Color color;
-  final Color background;
+class _Rank extends StatelessWidget {
+  const _Rank(this.n);
+  final int n;
 
   @override
-  Widget build(BuildContext context) => Stack(
-    children: [
-      Positioned.fill(child: ColoredBox(color: background)),
-      FractionallySizedBox(
-        alignment: AlignmentDirectional.centerStart,
-        widthFactor: value.clamp(0.0, 1.0),
-        child: ColoredBox(color: color),
+  Widget build(BuildContext context) => Container(
+    width: 32,
+    height: 32,
+    alignment: Alignment.center,
+    decoration: BoxDecoration(
+      color: AppTokens.bar.resolveFrom(context),
+      shape: BoxShape.circle,
+    ),
+    child: Text(
+      '$n',
+      style: TextStyle(
+        color: AppTokens.text.resolveFrom(context),
+        fontSize: 13,
+        fontWeight: FontWeight.w700,
       ),
-    ],
+    ),
   );
 }

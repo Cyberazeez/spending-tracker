@@ -821,4 +821,53 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get txChipHideInternal => 'Hide internal';
+
+  @override
+  String get insTrendTitle => 'This month vs last month';
+
+  @override
+  String get insLegendThis => 'This month';
+
+  @override
+  String get insLegendLast => 'Last month';
+
+  @override
+  String get insMonthsTitle => 'Last 4 months';
+
+  @override
+  String insBudgetLine(String amount) {
+    return 'Budget $amount';
+  }
+
+  @override
+  String get insWhereTitle => 'Where it goes';
+
+  @override
+  String insTrendLabel(String now, String before) {
+    return '$now so far this month, $before by the same day last month';
+  }
+
+  @override
+  String insMonthBarLabel(String month, String amount) {
+    return '$month: $amount';
+  }
+
+  @override
+  String insVisits(int count) {
+    return '$count visits';
+  }
+
+  @override
+  String get insVisit => '1 visit';
+
+  @override
+  String get insSavingsRateLabel => 'Savings rate';
+
+  @override
+  String get insSpikeBadge => 'Spending spike';
+
+  @override
+  String insSubsServices(int count) {
+    return '$count services a month';
+  }
 }

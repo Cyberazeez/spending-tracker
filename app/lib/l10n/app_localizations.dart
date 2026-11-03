@@ -1519,6 +1519,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Hide internal'**
   String get txChipHideInternal;
+
+  /// No description provided for @insTrendTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This month vs last month'**
+  String get insTrendTitle;
+
+  /// No description provided for @insLegendThis.
+  ///
+  /// In en, this message translates to:
+  /// **'This month'**
+  String get insLegendThis;
+
+  /// No description provided for @insLegendLast.
+  ///
+  /// In en, this message translates to:
+  /// **'Last month'**
+  String get insLegendLast;
+
+  /// No description provided for @insMonthsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 4 months'**
+  String get insMonthsTitle;
+
+  /// No description provided for @insBudgetLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Budget {amount}'**
+  String insBudgetLine(String amount);
+
+  /// No description provided for @insWhereTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Where it goes'**
+  String get insWhereTitle;
+
+  /// No description provided for @insTrendLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{now} so far this month, {before} by the same day last month'**
+  String insTrendLabel(String now, String before);
+
+  /// No description provided for @insMonthBarLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{month}: {amount}'**
+  String insMonthBarLabel(String month, String amount);
+
+  /// No description provided for @insVisits.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} visits'**
+  String insVisits(int count);
+
+  /// No description provided for @insVisit.
+  ///
+  /// In en, this message translates to:
+  /// **'1 visit'**
+  String get insVisit;
+
+  /// No description provided for @insSavingsRateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Savings rate'**
+  String get insSavingsRateLabel;
+
+  /// No description provided for @insSpikeBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Spending spike'**
+  String get insSpikeBadge;
+
+  /// No description provided for @insSubsServices.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} services a month'**
+  String insSubsServices(int count);
 }
 
 class _AppLocalizationsDelegate
