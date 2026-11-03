@@ -435,5 +435,11 @@
   "groupSubscriptions": "Subscriptions",
   "groupHealth": "Health",
   "groupMoney": "Money",
-  "groupOther": "Other"
+  "groupOther": "Other",
+  "txToday": "Today",
+  "txYesterday": "Yesterday",
+  "txChooseCategory": "Choose category",
+  "txChipAll": "All",
+  "txChipNoCategory": "No category",
+  "txChipHideInternal": "Hide internal"
 }

@@ -70,7 +70,8 @@ void main() {
     expect(find.text('− SAR 19.00'), findsOneWidget);
     expect(find.text('+ SAR 13,822.93'), findsOneWidget);
     expect(find.textContaining('Internal'), findsOneWidget);
-    expect(find.textContaining('30 Oct 14:05'), findsWidgets);
+    expect(find.textContaining('14:05'), findsWidgets);
+    expect(find.text('Today'), findsOneWidget); // grouped by day
   });
 
   testWidgets('a failed load shows an error with retry', (tester) async {
@@ -141,8 +142,8 @@ void main() {
     testWidgets('badge shows the count and opens the inbox', (tester) async {
       final h = Harness(signedIn: true)..data.review = [raw('r1'), raw('r2')];
       await openTransactions(tester, h);
-      expect(find.text('Needs review (2)'), findsOneWidget);
-      await tester.tap(find.text('Needs review (2)'));
+      expect(find.text('2 to review'), findsOneWidget);
+      await tester.tap(find.text('2 to review'));
       await tester.pumpAndSettle();
       expect(find.text('SNB-AlAhli'), findsNWidgets(2));
     });
@@ -150,7 +151,7 @@ void main() {
     testWidgets('dismiss marks it as not a transaction', (tester) async {
       final h = Harness(signedIn: true)..data.review = [raw('r1')];
       await openTransactions(tester, h);
-      await tester.tap(find.text('Needs review (1)'));
+      await tester.tap(find.text('1 to review'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('SNB-AlAhli'));
       await tester.pumpAndSettle();
@@ -165,7 +166,7 @@ void main() {
       (tester) async {
         final h = Harness(signedIn: true)..data.review = [raw('r1')];
         await openTransactions(tester, h);
-        await tester.tap(find.text('Needs review (1)'));
+        await tester.tap(find.text('1 to review'));
         await tester.pumpAndSettle();
         await tester.tap(find.text('SNB-AlAhli'));
         await tester.pumpAndSettle();
@@ -194,7 +195,7 @@ void main() {
       // no pending review rows: the badge is absent on the list
       await tester.tap(find.text('Transactions').last);
       await tester.pumpAndSettle();
-      expect(find.textContaining('Needs review'), findsNothing);
+      expect(find.textContaining('to review'), findsNothing);
     });
   });
 

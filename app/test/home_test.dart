@@ -146,7 +146,10 @@ void main() {
     expect(find.text('Today'), findsOneWidget);
     expect(find.text('SAR 45.00'), findsOneWidget);
     expect(find.text('15%'), findsOneWidget); // 1,200 of 8,000 (the ring)
-    expect(find.textContaining(RegExp(r'SAR 8,000\.00.* budget')), findsOneWidget);
+    expect(
+      find.textContaining(RegExp(r'SAR 8,000\.00.* budget')),
+      findsOneWidget,
+    );
   });
 
   testWidgets(

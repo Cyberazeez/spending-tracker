@@ -290,5 +290,11 @@
   "groupSubscriptions": "اشتراكات",
   "groupHealth": "صحة",
   "groupMoney": "مال",
-  "groupOther": "أخرى"
+  "groupOther": "أخرى",
+  "txToday": "اليوم",
+  "txYesterday": "أمس",
+  "txChooseCategory": "اختر فئة",
+  "txChipAll": "الكل",
+  "txChipNoCategory": "بدون فئة",
+  "txChipHideInternal": "إخفاء الداخلية"
 }

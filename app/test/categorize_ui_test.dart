@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:spending_tracker/core/models.dart';
 
 import 'support/fakes.dart';
@@ -23,12 +24,14 @@ Future<void> open(WidgetTester tester, Harness h) async {
 }
 
 void main() {
-  testWidgets('shows the category, or "No category" in orange', (tester) async {
+  testWidgets('shows the category, or "Choose category" in orange', (
+    tester,
+  ) async {
     final h = Harness(signedIn: true)
       ..data.txns = [tx('1', 'OTTEN', categoryId: 'c-din'), tx('2', 'XYZ')];
     await open(tester, h);
     expect(find.textContaining('Dining'), findsOneWidget);
-    expect(find.textContaining('No category'), findsOneWidget);
+    expect(find.textContaining('Choose category'), findsOneWidget);
   });
 
   testWidgets('search narrows the list', (tester) async {
@@ -46,9 +49,7 @@ void main() {
     final h = Harness(signedIn: true)
       ..data.txns = [tx('1', 'OTTEN', categoryId: 'c-din'), tx('2', 'XYZ')];
     await open(tester, h);
-    await tester.tap(
-      find.byIcon(CupertinoIcons.line_horizontal_3_decrease_circle),
-    );
+    await tester.tap(find.byIcon(LucideIcons.listFilter));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Uncategorized only'));
     await tester.pumpAndSettle();
@@ -70,7 +71,7 @@ void main() {
     await tester.tap(find.text('Change all'));
     await tester.pumpAndSettle();
     expect(h.data.categoryCalls, [('1', 'c-din', 'otten', true)]);
-    expect(find.textContaining('No category'), findsNothing);
+    expect(find.textContaining('Choose category'), findsNothing);
   });
 
   testWidgets('"Only future ones" keeps the past as it is', (tester) async {
@@ -84,6 +85,6 @@ void main() {
     await tester.tap(find.text('Only future ones'));
     await tester.pumpAndSettle();
     expect(h.data.categoryCalls, [('1', 'c-din', 'otten', false)]);
-    expect(find.textContaining('No category'), findsOneWidget);
+    expect(find.textContaining('Choose category'), findsOneWidget);
   });
 }
