@@ -21,7 +21,8 @@ void main() {
   });
 
   testWidgets('no new token when the phone already has one', (tester) async {
-    final h = Harness(signedIn: true)..capture.hasToken = true
+    final h = Harness(signedIn: true)
+      ..capture.hasToken = true
       ..capture.tokenUser = 'user-1';
     await tester.pumpWidget(await h.build());
     await tester.pumpAndSettle();
@@ -34,7 +35,8 @@ void main() {
   testWidgets('coming back to the app sends the queued messages', (
     tester,
   ) async {
-    final h = Harness(signedIn: true)..capture.hasToken = true
+    final h = Harness(signedIn: true)
+      ..capture.hasToken = true
       ..capture.tokenUser = 'user-1';
     await tester.pumpWidget(await h.build());
     await tester.pumpAndSettle();

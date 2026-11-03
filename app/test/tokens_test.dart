@@ -35,11 +35,26 @@ void main() {
         ),
       );
       Color r(CupertinoDynamicColor c) => Color(c.resolveFrom(ctx).toARGB32());
-      expect(r(AppTokens.card), dark ? const Color(0xFF141A22) : const Color(0xFFFFFFFF));
-      expect(r(AppTokens.accent), dark ? const Color(0xFF3CC4A8) : const Color(0xFF0A7E6B));
-      expect(contrast(r(AppTokens.text), r(AppTokens.card)), greaterThanOrEqualTo(4.5));
-      expect(contrast(r(AppTokens.muted), r(AppTokens.card)), greaterThanOrEqualTo(4.5));
-      expect(contrast(r(AppTokens.muted), r(AppTokens.bg)), greaterThanOrEqualTo(4.5));
+      expect(
+        r(AppTokens.card),
+        dark ? const Color(0xFF141A22) : const Color(0xFFFFFFFF),
+      );
+      expect(
+        r(AppTokens.accent),
+        dark ? const Color(0xFF3CC4A8) : const Color(0xFF0A7E6B),
+      );
+      expect(
+        contrast(r(AppTokens.text), r(AppTokens.card)),
+        greaterThanOrEqualTo(4.5),
+      );
+      expect(
+        contrast(r(AppTokens.muted), r(AppTokens.card)),
+        greaterThanOrEqualTo(4.5),
+      );
+      expect(
+        contrast(r(AppTokens.muted), r(AppTokens.bg)),
+        greaterThanOrEqualTo(4.5),
+      );
     });
   }
 }

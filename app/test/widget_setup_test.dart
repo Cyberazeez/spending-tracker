@@ -17,18 +17,21 @@ void main() {
     expect(bridge.savedCredentials, hasLength(1));
   });
 
-  test('signing out in the middle of provisioning leaves no token behind', () async {
-    final tokens = FakeTokenRepository()..widgetGate = Completer<void>();
-    final bridge = FakeWidgetBridge();
-    final running = ensureWidgetReady(bridge, tokens, () => 'u1');
-    await Future<void>.delayed(Duration.zero);
-    final released = releaseWidget(bridge, tokens);
-    tokens.widgetGate!.complete();
-    await Future.wait([running, released]);
+  test(
+    'signing out in the middle of provisioning leaves no token behind',
+    () async {
+      final tokens = FakeTokenRepository()..widgetGate = Completer<void>();
+      final bridge = FakeWidgetBridge();
+      final running = ensureWidgetReady(bridge, tokens, () => 'u1');
+      await Future<void>.delayed(Duration.zero);
+      final released = releaseWidget(bridge, tokens);
+      tokens.widgetGate!.complete();
+      await Future.wait([running, released]);
 
-    expect(bridge.hasToken, isFalse);
-    expect(tokens.revokedKinds, contains('widget'));
-  });
+      expect(bridge.hasToken, isFalse);
+      expect(tokens.revokedKinds, contains('widget'));
+    },
+  );
 
   test('a user change during the network call stores nothing', () async {
     final tokens = FakeTokenRepository()..widgetGate = Completer<void>();

@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart' show Size;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:spending_tracker/core/models.dart';
 import 'package:spending_tracker/features/home/logic.dart';
@@ -30,6 +31,13 @@ ObligationInstance ob(
   status: 'pending',
   expectedHalalas: amount,
 );
+
+/// Home is a lazy scrolling list; a tall window builds all of it so lower sections can be found.
+void tall(WidgetTester t) {
+  t.view.physicalSize = const Size(800, 3000);
+  t.view.devicePixelRatio = 1;
+  addTearDown(t.view.reset);
+}
 
 void main() {
   test('silence: null when nothing ever arrived, and under the threshold', () {
@@ -70,6 +78,7 @@ void main() {
   testWidgets(
     'home shows this month, the top category, budget alerts and what is next',
     (tester) async {
+      tall(tester);
       final h = Harness(signedIn: true)
         ..data.history = [
           tx(
@@ -106,15 +115,18 @@ void main() {
         ];
       await tester.pumpWidget(await h.build());
       await tester.pumpAndSettle();
-      expect(find.text('SAR 1,200.00'), findsOneWidget);
-      expect(find.textContaining('Top category: Dining'), findsOneWidget);
+      expect(find.text('SAR 1,200.00'), findsWidgets); // hero and the Food row
+      expect(
+        find.text('Food'),
+        findsOneWidget,
+      ); // Dining and Groceries are one group
       expect(find.text('Dining is at 90% of its budget'), findsOneWidget);
       // only the next three, soonest first
       expect(find.text('Internet'), findsOneWidget);
       expect(find.text('Mobile'), findsOneWidget);
       expect(find.text('Horse and foal'), findsOneWidget);
       expect(find.text('Card'), findsNothing);
-      expect(find.text('Needs review (1)'), findsOneWidget);
+      expect(find.text('1 to review'), findsOneWidget);
       expect(find.textContaining('No SMS for'), findsNothing);
     },
   );
@@ -131,10 +143,10 @@ void main() {
       ];
     await tester.pumpWidget(await h.build());
     await tester.pumpAndSettle();
-    expect(find.text('Spent today'), findsOneWidget);
+    expect(find.text('Today'), findsOneWidget);
     expect(find.text('SAR 45.00'), findsOneWidget);
-    expect(find.text('Monthly budget used'), findsOneWidget);
-    expect(find.text('15%'), findsOneWidget); // 1,200 of 8,000
+    expect(find.text('15%'), findsOneWidget); // 1,200 of 8,000 (the ring)
+    expect(find.text('of SAR 8,000.00 budget'), findsOneWidget);
   });
 
   testWidgets(
@@ -152,8 +164,8 @@ void main() {
         ];
       await tester.pumpWidget(await h.build());
       await tester.pumpAndSettle();
-      expect(find.textContaining('Nothing to compare yet'), findsOneWidget);
-      expect(find.textContaining('Up SAR'), findsNothing);
+      expect(find.text('—'), findsOneWidget); // nothing to compare with
+      expect(find.textContaining('higher'), findsNothing);
     },
   );
 
@@ -167,8 +179,8 @@ void main() {
       ];
     await tester.pumpWidget(await h.build());
     await tester.pumpAndSettle();
-    expect(find.text('Up SAR 500.00'), findsOneWidget);
-    expect(find.textContaining('Nothing to compare yet'), findsNothing);
+    expect(find.text('125% higher'), findsOneWidget); // 900 against 400
+    expect(find.text('—'), findsNothing);
   });
 
   testWidgets('the monthly budget warns at 80% and says when it is passed', (
@@ -212,6 +224,7 @@ void main() {
   testWidgets('an overdue obligation is listed first and marked overdue', (
     tester,
   ) async {
+    tall(tester);
     final h = Harness(signedIn: true)
       ..data.history = [
         tx('1', '2026-10-05T09:00:00', 1000, cat: 'c-din', merchant: 'Otten'),
@@ -224,8 +237,8 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.textContaining('Overdue'), findsOneWidget);
     expect(
-      tester.getTopLeft(find.text('Old bill')).dy,
-      lessThan(tester.getTopLeft(find.text('Internet')).dy),
+      tester.getTopLeft(find.text('Old bill')).dx,
+      lessThan(tester.getTopLeft(find.text('Internet')).dx),
     );
   });
 
@@ -236,6 +249,6 @@ void main() {
       ];
     await tester.pumpWidget(await h.build(prefs: {'locale': 'ar'}));
     await tester.pumpAndSettle();
-    expect(find.text('هذا الشهر'), findsOneWidget);
+    expect(find.text('المصروف هذا الشهر'), findsOneWidget);
   });
 }

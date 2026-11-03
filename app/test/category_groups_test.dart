@@ -26,7 +26,9 @@ void main() {
       'Fees': CategoryGroup.money,
       'Other': CategoryGroup.other,
     };
-    expected.forEach((name, group) => expect(groupOf(name), group, reason: name));
+    expected.forEach(
+      (name, group) => expect(groupOf(name), group, reason: name),
+    );
   });
 
   test('unknown or missing categories go to Other', () {
@@ -41,17 +43,14 @@ void main() {
       cat('3', 'Fuel'),
       cat('4', 'Health'),
     ];
-    final result = groupSpend(
-      const [
-        CategorySpend('1', 900),
-        CategorySpend('2', 600),
-        CategorySpend('3', 1200),
-        CategorySpend('4', 0),
-        CategorySpend(null, 500), // uncategorised
-        CategorySpend('gone', 100), // a category id we do not know
-      ],
-      cats,
-    );
+    final result = groupSpend(const [
+      CategorySpend('1', 900),
+      CategorySpend('2', 600),
+      CategorySpend('3', 1200),
+      CategorySpend('4', 0),
+      CategorySpend(null, 500), // uncategorised
+      CategorySpend('gone', 100), // a category id we do not know
+    ], cats);
     expect(result.map((g) => g.group).toList(), [
       CategoryGroup.food, // 1500
       CategoryGroup.transport, // 1200

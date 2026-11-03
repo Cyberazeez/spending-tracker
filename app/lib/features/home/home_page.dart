@@ -1,23 +1,30 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import '../../core/format.dart';
 import '../../core/lock.dart';
 import '../../core/models.dart';
-import '../../core/money.dart';
 import '../../core/providers.dart';
 import '../../l10n/app_localizations.dart';
-import '../../ui/info_tile.dart';
 import '../../router.dart';
 import '../../ui/bottom_inset.dart';
+import '../../ui/app_card.dart';
 import '../../ui/empty_state.dart';
+import '../../ui/tokens.dart';
 import '../insights/metrics.dart';
 import '../insights/providers.dart';
 import '../obligations/logic.dart';
 import '../obligations/providers.dart';
+import '../shell/tabs.dart';
 import '../transactions/providers.dart';
+import 'category_groups.dart';
 import 'logic.dart';
+import 'widgets/attention_chip.dart';
+import 'widgets/bill_card.dart';
+import 'widgets/hero_card.dart';
+import 'widgets/share_bar.dart';
+import 'widgets/week_bars.dart';
 
 /// The first tab: this month at a glance, what is due next, and anything that needs the owner's attention.
 class HomePage extends ConsumerWidget {
@@ -42,25 +49,46 @@ class HomePage extends ConsumerWidget {
         ? t.categoryNone
         : (cats.where((c) => c.id == id).firstOrNull?.label(arabic: arabic) ??
               t.categoryNone);
-    String sar(int h) => formatSar(h, arabic: arabic);
-    Widget ltr(String s) =>
-        Directionality(textDirection: TextDirection.ltr, child: Text(s));
-
+    final ins0 = data.value;
     final silent = silentDays(gaps, now);
     final next = [
       ...inSection(obligations, ObSection.overdue, today),
       ...inSection(obligations, ObSection.upcoming, today),
     ].take(3).toList();
 
+    final groups = groupSpend(ins0?.byCategory ?? const [], cats);
+
     return CupertinoPageScaffold(
+      backgroundColor: AppTokens.bg.resolveFrom(context),
       child: CustomScrollView(
+        physics: const BouncingScrollPhysics(
+          parent: AlwaysScrollableScrollPhysics(),
+        ),
         slivers: [
           CupertinoSliverNavigationBar(
-            largeTitle: Text(t.tabHome),
+            largeTitle: Text(t.homeOverview),
+            backgroundColor: AppTokens.bg.resolveFrom(context),
+            border: null,
             trailing: CupertinoButton(
               padding: EdgeInsets.zero,
+              minimumSize: const Size(44, 44),
               onPressed: () => context.go(quickAddPath),
-              child: Icon(CupertinoIcons.add, semanticLabel: t.homeAddTx),
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: AppTokens.accent.resolveFrom(context),
+                  shape: BoxShape.circle,
+                ),
+                child: SizedBox(
+                  width: 36,
+                  height: 36,
+                  child: Icon(
+                    LucideIcons.plus,
+                    size: 20,
+                    color: AppTokens.onAccent.resolveFrom(context),
+                    semanticLabel: t.homeAddTx,
+                  ),
+                ),
+              ),
             ),
           ),
           CupertinoSliverRefreshControl(
@@ -78,29 +106,8 @@ class HomePage extends ConsumerWidget {
                   .catchError((_) => computeInsights(const [], now));
             },
           ),
-          if (silent != null)
-            SliverToBoxAdapter(
-              child: CupertinoListSection.insetGrouped(
-                children: [
-                  InfoTile(
-                    leading: Icon(
-                      CupertinoIcons.exclamationmark_triangle_fill,
-                      color: CupertinoColors.systemOrange.resolveFrom(context),
-                    ),
-                    title: Text(t.homeStale(silent.toString())),
-                    trailing: const CupertinoListTileChevron(),
-                    onTap: () => context.go(gapsPath),
-                  ),
-                ],
-              ),
-            ),
           ...data.when(
-            loading: () => [
-              const SliverFillRemaining(
-                hasScrollBody: false,
-                child: Center(child: CupertinoActivityIndicator()),
-              ),
-            ],
+            loading: () => [const _Skeleton()],
             error: (_, _) => [
               SliverFillRemaining(
                 hasScrollBody: false,
@@ -118,14 +125,7 @@ class HomePage extends ConsumerWidget {
               final settling =
                   ref.watch(senderGapsProvider).isLoading ||
                   ref.watch(obligationsProvider).isLoading;
-              if (settling && !ins.hasData) {
-                return [
-                  const SliverFillRemaining(
-                    hasScrollBody: false,
-                    child: Center(child: CupertinoActivityIndicator()),
-                  ),
-                ];
-              }
+              if (settling && !ins.hasData) return [const _Skeleton()];
               if (!ins.hasData && gaps.isEmpty && obligations.isEmpty) {
                 return [
                   SliverFillRemaining(
@@ -143,161 +143,273 @@ class HomePage extends ConsumerWidget {
               final monthlyLevel = monthlyBudget == null
                   ? BudgetLevel.ok
                   : budgetLevel(ins.monthSpend, monthlyBudget);
+              Color levelColor(BudgetLevel l) => l == BudgetLevel.over
+                  ? AppTokens.danger.resolveFrom(context)
+                  : AppTokens.warnText.resolveFrom(context);
               return [
-                SliverToBoxAdapter(
-                  child: CupertinoListSection.insetGrouped(
-                    header: Text(t.insThisMonth),
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                  sliver: SliverList.list(
                     children: [
-                      InfoTile(
-                        title: Text(t.insSpent),
-                        additionalInfo: ltr(sar(ins.monthSpend)),
-                        subtitle: Text(
-                          !ins.lastMonthHasData
-                              ? t.insNoCompare
-                              : diff == 0
-                              ? t.insSame
-                              : diff > 0
-                              ? t.insUp(sar(diff))
-                              : t.insDown(sar(-diff)),
+                      if (silent != null) ...[
+                        _NoticeCard(
+                          icon: LucideIcons.triangleAlert,
+                          color: AppTokens.warnText.resolveFrom(context),
+                          text: t.homeStale(silent.toString()),
+                          onTap: () => context.go(gapsPath),
                         ),
+                        const SizedBox(height: 16),
+                      ],
+                      HeroCard(
+                        monthHalalas: ins.monthSpend,
+                        todayHalalas: today0 ?? 0,
+                        budgetHalalas: monthlyBudget,
+                        lastMonthDiffHalalas: ins.lastMonthHasData
+                            ? diff
+                            : null,
+                        lastMonthPercent:
+                            ins.lastMonthHasData && ins.lastMonthToDate > 0
+                            ? (diff * 100 / ins.lastMonthToDate).round()
+                            : null,
+                        arabic: arabic,
                       ),
-                      if (today0 != null)
-                        InfoTile(
-                          title: Text(t.homeToday),
-                          additionalInfo: ltr(sar(today0)),
-                        ),
-                      if (monthlyBudget != null)
-                        InfoTile(
-                          title: Text(t.homeBudgetUsed),
-                          subtitle: Text(sar(monthlyBudget)),
-                          additionalInfo: ltr(
-                            '${budgetPercent(ins.monthSpend, monthlyBudget)}%',
+                      if (alerts.isNotEmpty ||
+                          monthlyLevel != BudgetLevel.ok) ...[
+                        const SizedBox(height: 16),
+                        AppCard(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if (monthlyLevel != BudgetLevel.ok)
+                                _AlertLine(
+                                  color: levelColor(monthlyLevel),
+                                  text: monthlyLevel == BudgetLevel.over
+                                      ? t.homeMonthlyOver
+                                      : t.homeMonthlyWarn(
+                                          budgetPercent(
+                                            ins.monthSpend,
+                                            monthlyBudget,
+                                          ).toString(),
+                                        ),
+                                ),
+                              for (final a in alerts)
+                                _AlertLine(
+                                  color: levelColor(a.level),
+                                  text: a.level == BudgetLevel.over
+                                      ? t.insBudgetOver(name(a.categoryId))
+                                      : t.insBudgetWarn(
+                                          name(a.categoryId),
+                                          a.percent.toString(),
+                                        ),
+                                ),
+                            ],
                           ),
                         ),
-                      if (ins.byCategory.isNotEmpty)
-                        InfoTile(
-                          title: Text(
-                            t.homeTop(
-                              name(ins.byCategory.first.categoryId),
-                              sar(ins.byCategory.first.halalas),
+                      ],
+                      const SizedBox(height: 16),
+                      WeekBars(days: ins.last7Days, arabic: arabic),
+                      if (groups.isNotEmpty) ...[
+                        const SizedBox(height: 16),
+                        ShareBar(
+                          top: groups.take(4).toList(),
+                          totalHalalas: ins.monthSpend,
+                          arabic: arabic,
+                          onSeeAll: () =>
+                              ref.read(tabControllerProvider).index =
+                                  tabInsights,
+                        ),
+                      ],
+                      const SizedBox(height: 20),
+                      _SectionHeader(
+                        title: t.homeNextBills,
+                        action: t.homeAllBills,
+                        onAction: () => ref.read(tabControllerProvider).index =
+                            tabObligations,
+                      ),
+                      const SizedBox(height: 12),
+                      if (next.isEmpty)
+                        AppCard(child: Text(t.homeNothingDue))
+                      else
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: IntrinsicHeight(
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                for (final i in next) ...[
+                                  SizedBox(
+                                    width: 176,
+                                    child: BillCard(
+                                      bill: i,
+                                      today: today,
+                                      arabic: arabic,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                ],
+                              ],
                             ),
                           ),
                         ),
+                      if (review.isNotEmpty || gaps.isNotEmpty) ...[
+                        const SizedBox(height: 12),
+                        Wrap(
+                          spacing: 10,
+                          children: [
+                            if (review.isNotEmpty)
+                              AttentionChip(
+                                label: t.homeToReview(review.length),
+                                dot: const Color(0xFFFFB340),
+                                onTap: () => context.go(reviewPath),
+                              ),
+                            if (gaps.isNotEmpty)
+                              AttentionChip(
+                                label: t.gapsTitle,
+                                dot: const Color(0xFFFF6B66),
+                                onTap: () => context.go(gapsPath),
+                              ),
+                          ],
+                        ),
+                      ],
                     ],
                   ),
                 ),
-                if (alerts.isNotEmpty || monthlyLevel != BudgetLevel.ok)
-                  SliverToBoxAdapter(
-                    child: CupertinoListSection.insetGrouped(
-                      header: Text(t.homeAlerts),
-                      children: [
-                        if (monthlyLevel != BudgetLevel.ok)
-                          InfoTile(
-                            leading: Icon(
-                              CupertinoIcons.exclamationmark_circle_fill,
-                              color: monthlyLevel == BudgetLevel.over
-                                  ? CupertinoColors.systemRed.resolveFrom(
-                                      context,
-                                    )
-                                  : CupertinoColors.systemOrange.resolveFrom(
-                                      context,
-                                    ),
-                            ),
-                            title: Text(
-                              monthlyLevel == BudgetLevel.over
-                                  ? t.homeMonthlyOver
-                                  : t.homeMonthlyWarn(
-                                      budgetPercent(
-                                        ins.monthSpend,
-                                        monthlyBudget,
-                                      ).toString(),
-                                    ),
-                            ),
-                          ),
-                        for (final a in alerts)
-                          InfoTile(
-                            leading: Icon(
-                              CupertinoIcons.exclamationmark_circle_fill,
-                              color: a.level == BudgetLevel.over
-                                  ? CupertinoColors.systemRed.resolveFrom(
-                                      context,
-                                    )
-                                  : CupertinoColors.systemOrange.resolveFrom(
-                                      context,
-                                    ),
-                            ),
-                            title: Text(
-                              a.level == BudgetLevel.over
-                                  ? t.insBudgetOver(name(a.categoryId))
-                                  : t.insBudgetWarn(
-                                      name(a.categoryId),
-                                      a.percent.toString(),
-                                    ),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                SliverToBoxAdapter(
-                  child: CupertinoListSection.insetGrouped(
-                    header: Text(t.homeNext),
-                    children: next.isEmpty
-                        ? [InfoTile(title: Text(t.homeNothingDue))]
-                        : [
-                            for (final i in next)
-                              InfoTile(
-                                title: Text(
-                                  i.name,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                subtitle: Text(
-                                  i.dueDate.isBefore(today)
-                                      ? '${t.obStatusOverdue} · ${t.obDue(formatDay(i.dueDate))}'
-                                      : t.obDue(formatDay(i.dueDate)),
-                                  style: i.dueDate.isBefore(today)
-                                      ? TextStyle(
-                                          color: CupertinoColors.systemRed
-                                              .resolveFrom(context),
-                                        )
-                                      : null,
-                                ),
-                                additionalInfo: i.expectedHalalas == null
-                                    ? null
-                                    : ltr(sar(i.expectedHalalas!)),
-                              ),
-                          ],
-                  ),
-                ),
-                if (review.isNotEmpty || gaps.isNotEmpty)
-                  SliverToBoxAdapter(
-                    child: CupertinoListSection.insetGrouped(
-                      children: [
-                        if (review.isNotEmpty)
-                          InfoTile(
-                            leading: const Icon(CupertinoIcons.tray_full),
-                            title: Text(t.txOpenReview(review.length)),
-                            trailing: const CupertinoListTileChevron(),
-                            onTap: () => context.go(reviewPath),
-                          ),
-                        if (gaps.isNotEmpty)
-                          InfoTile(
-                            leading: const Icon(
-                              CupertinoIcons.antenna_radiowaves_left_right,
-                            ),
-                            title: Text(t.gapsTitle),
-                            trailing: const CupertinoListTileChevron(),
-                            onTap: () => context.go(gapsPath),
-                          ),
-                      ],
-                    ),
-                  ),
               ];
             },
           ),
           const BottomInset(),
         ],
       ),
+    );
+  }
+}
+
+class _SectionHeader extends StatelessWidget {
+  const _SectionHeader({
+    required this.title,
+    required this.action,
+    required this.onAction,
+  });
+  final String title;
+  final String action;
+  final VoidCallback onAction;
+
+  @override
+  Widget build(BuildContext context) => Row(
+    children: [
+      Expanded(
+        child: Padding(
+          padding: const EdgeInsetsDirectional.only(start: 4),
+          child: Text(
+            title,
+            style: TextStyle(
+              color: AppTokens.text.resolveFrom(context),
+              fontSize: 17,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      ),
+      CupertinoButton(
+        padding: EdgeInsets.zero,
+        minimumSize: const Size(44, 44),
+        onPressed: onAction,
+        child: Text(
+          action,
+          style: TextStyle(
+            color: AppTokens.accent.resolveFrom(context),
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ),
+    ],
+  );
+}
+
+class _AlertLine extends StatelessWidget {
+  const _AlertLine({required this.color, required this.text});
+  final Color color;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.symmetric(vertical: 4),
+    child: Row(
+      children: [
+        Icon(LucideIcons.circleAlert, size: 20, color: color),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Text(
+            text,
+            style: TextStyle(
+              color: AppTokens.text.resolveFrom(context),
+              fontSize: 15,
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+class _NoticeCard extends StatelessWidget {
+  const _NoticeCard({
+    required this.icon,
+    required this.color,
+    required this.text,
+    required this.onTap,
+  });
+  final IconData icon;
+  final Color color;
+  final String text;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => GestureDetector(
+    behavior: HitTestBehavior.opaque,
+    onTap: onTap,
+    child: AppCard(
+      padding: const EdgeInsets.all(14),
+      child: Row(
+        children: [
+          Icon(icon, size: 22, color: color),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              text,
+              style: TextStyle(
+                color: AppTokens.text.resolveFrom(context),
+                fontSize: 14,
+              ),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+/// Grey placeholder blocks shown while the first numbers load (no spinner).
+class _Skeleton extends StatelessWidget {
+  const _Skeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    final fill = AppTokens.card.resolveFrom(context);
+    Widget block(double h) => Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: fill,
+          borderRadius: BorderRadius.circular(AppTokens.radiusCard),
+        ),
+        child: SizedBox(height: h, width: double.infinity),
+      ),
+    );
+    return SliverPadding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+      sliver: SliverList.list(children: [block(200), block(170), block(220)]),
     );
   }
 }
