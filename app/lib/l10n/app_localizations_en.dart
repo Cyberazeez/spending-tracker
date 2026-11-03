@@ -870,4 +870,111 @@ class AppLocalizationsEn extends AppLocalizations {
   String insSubsServices(int count) {
     return '$count services a month';
   }
+
+  @override
+  String get obNew => 'New obligation';
+
+  @override
+  String get obEditTitle => 'Edit obligation';
+
+  @override
+  String get obfName => 'Name';
+
+  @override
+  String get obfType => 'Type';
+
+  @override
+  String get obfKindBill => 'Bill';
+
+  @override
+  String get obfKindFixed => 'Fixed';
+
+  @override
+  String get obfKindLoan => 'Loan';
+
+  @override
+  String get obfAmountFixed => 'Fixed amount';
+
+  @override
+  String get obfAmountEstimated => 'Estimated';
+
+  @override
+  String get obfAmount => 'Amount in SAR';
+
+  @override
+  String get obfAmountBillNote =>
+      'Optional for a bill: leave it empty and the bill message sets each month\'s amount.';
+
+  @override
+  String get obfRepeats => 'Repeats';
+
+  @override
+  String get obfMonthly => 'Monthly';
+
+  @override
+  String get obfQuarterly => 'Every 3 months';
+
+  @override
+  String get obfAnnual => 'Yearly';
+
+  @override
+  String get obfDueDay => 'Due day';
+
+  @override
+  String get obfDueDayNote => 'Short months use their last day.';
+
+  @override
+  String get obfStartMonth => 'First due month';
+
+  @override
+  String get obfGrace => 'Grace days';
+
+  @override
+  String get obfLead => 'Remind days before';
+
+  @override
+  String get obfCategory => 'Category';
+
+  @override
+  String get obfNoCategory => 'None';
+
+  @override
+  String get obfMatchWords => 'Match words';
+
+  @override
+  String get obfMatchHint =>
+      'e.g. gym club, stc (up to 5, separated by commas)';
+
+  @override
+  String get obfTolerance => 'Amount tolerance %';
+
+  @override
+  String get obfAuto => 'Mark paid automatically';
+
+  @override
+  String get obfAutoNote =>
+      'Off: a matching payment is only suggested for you to confirm.';
+
+  @override
+  String get obfSave => 'Save';
+
+  @override
+  String get obfNameRequired => 'Enter a name (up to 60 letters).';
+
+  @override
+  String get obfWordsInvalid => 'Up to 5 words, each up to 30 letters.';
+
+  @override
+  String get obEditDetails => 'Edit details';
+
+  @override
+  String get obStop => 'Stop tracking';
+
+  @override
+  String obStopConfirm(String name) {
+    return '$name will stop appearing. Paid history stays.';
+  }
+
+  @override
+  String get obAddHint => 'Add an obligation';
 }

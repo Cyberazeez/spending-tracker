@@ -142,6 +142,82 @@ class TxFilter {
   static const _keep = Object();
 }
 
+/// The editable details of one obligation (the form in Bills). Seeded card statements are never edited.
+class ObligationDef {
+  const ObligationDef({
+    required this.name,
+    this.id,
+    this.kind = 'fixed',
+    this.amountType = 'fixed',
+    this.amountHalalas,
+    this.frequency = 'monthly',
+    this.day = 1,
+    this.startMonth,
+    this.graceDays = 3,
+    this.leadDays = 2,
+    this.categoryId,
+    this.merchantWords = const [],
+    this.tolerancePct = 10,
+    this.autoMerchant = false,
+  });
+
+  final String? id;
+  final String name;
+  final String kind; // bill | fixed | loan
+  final String amountType; // fixed | estimated
+  final int? amountHalalas;
+  final String frequency; // monthly | quarterly | annual
+  final int day; // 1..31
+  final int? startMonth; // 1..12, quarterly and annual only
+  final int graceDays;
+  final int leadDays;
+  final String? categoryId;
+  final List<String> merchantWords;
+  final int tolerancePct;
+  final bool autoMerchant;
+
+  factory ObligationDef.fromRow(Map<String, dynamic> r) {
+    final rule = (r['due_rule'] as Map?)?.cast<String, dynamic>() ?? const {};
+    final match = (r['match'] as Map?)?.cast<String, dynamic>() ?? const {};
+    int? n(Object? v) => (v as num?)?.toInt();
+    return ObligationDef(
+      id: r['id'] as String?,
+      name: (r['name'] as String?) ?? '',
+      kind: (r['kind'] as String?) ?? 'fixed',
+      amountType: (r['amount_type'] as String?) ?? 'fixed',
+      amountHalalas: n(r['expected_amount_halalas']),
+      frequency: (r['frequency'] as String?) ?? 'monthly',
+      day: n(rule['day']) ?? n(rule['fallback_day']) ?? 28,
+      startMonth: n(rule['start_month']),
+      graceDays: n(rule['grace']) ?? 0,
+      leadDays: n(r['lead_days']) ?? 2,
+      categoryId: r['category_id'] as String?,
+      merchantWords: [
+        for (final w in (match['merchant'] as List?) ?? const []) w.toString(),
+      ],
+      tolerancePct: n(match['tolerance_pct']) ?? 10,
+      autoMerchant: (match['auto_merchant'] as bool?) ?? false,
+    );
+  }
+
+  /// The payload of the `save_my_obligation` function, which validates it again on the server.
+  Map<String, dynamic> toRpc() => {
+    'name': name,
+    'kind': kind,
+    'amount_type': amountType,
+    'amount_halalas': amountHalalas,
+    'frequency': frequency,
+    'day': day,
+    'start_month': frequency == 'monthly' ? null : startMonth,
+    'grace': graceDays,
+    'lead_days': leadDays,
+    'category_id': categoryId,
+    'merchant': merchantWords,
+    'tolerance_pct': tolerancePct,
+    'auto_merchant': autoMerchant,
+  };
+}
+
 /// One occurrence of an obligation for one period (a bill, an installment, a statement).
 class ObligationInstance {
   const ObligationInstance({

@@ -59,6 +59,7 @@ As the owner, every bank SMS I receive reaches the app without my touching it.
 
 ### F5. Obligations
 - Fields: name, category, fixed or estimated amount, frequency (monthly/quarterly/annual/custom), due rule, reminder lead days, match hints (merchant/sender/counterparty account, amount tolerance), active flag.
+- **Add by hand (built 2026-11-03):** Bills > "+" opens a form (name, type bill/fixed/loan, fixed or estimated amount, monthly / every 3 months / yearly, due day, first due month, grace days, reminder days, category, match words, amount tolerance, auto-mark-paid). A row's action sheet has **Edit details** and **Stop tracking** (history stays; card statements cannot be edited). A bill may have no amount (its bill SMS sets it).
 - Seed obligations:
   | Name | Amount | Timing | Notes |
   |---|---|---|---|

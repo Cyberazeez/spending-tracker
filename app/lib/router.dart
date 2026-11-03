@@ -7,6 +7,7 @@ import 'core/providers.dart';
 import 'features/auth/login_page.dart';
 import 'features/auth/lock_page.dart';
 import 'features/more/capture_page.dart';
+import 'features/obligations/obligation_form_page.dart';
 import 'features/more/gaps_page.dart';
 import 'features/more/token_page.dart';
 import 'features/transactions/quick_add_page.dart';
@@ -21,6 +22,7 @@ const quickAddPath = '/home/quick-add';
 const reviewPath = '/home/review';
 const gapsPath = '/home/gaps';
 const capturePath = '/home/capture';
+const obligationFormPath = '/home/obligation';
 
 /// Pure redirect rule, kept separate so it is easy to test.
 String? redirectFor({
@@ -64,6 +66,11 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(path: 'review', builder: (_, _) => const ReviewPage()),
           GoRoute(path: 'gaps', builder: (_, _) => const GapsPage()),
           GoRoute(path: 'capture', builder: (_, _) => const CapturePage()),
+          GoRoute(
+            path: 'obligation',
+            builder: (_, state) =>
+                ObligationFormPage(obligationId: state.extra as String?),
+          ),
         ],
       ),
     ],

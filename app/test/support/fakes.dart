@@ -295,6 +295,27 @@ class FakeDataRepository implements DataRepository {
     usualMaxHalalas: i.usualMaxHalalas,
   );
 
+  final savedObligations = <(String?, ObligationDef)>[];
+  final stoppedObligations = <String>[];
+  ObligationDef? editing;
+  bool failSave = false;
+
+  @override
+  Future<ObligationDef> obligation(String id) async =>
+      editing ?? ObligationDef(id: id, name: 'Gym', amountHalalas: 15000);
+
+  @override
+  Future<String> saveObligation(String? id, ObligationDef d) async {
+    if (failSave) throw StateError('offline');
+    savedObligations.add((id, d));
+    return id ?? 'new-id';
+  }
+
+  @override
+  Future<void> stopObligation(String id) async {
+    stoppedObligations.add(id);
+  }
+
   @override
   Future<void> setInstanceStatus(String id, String status) async {
     instanceCalls.add('$status:$id');
