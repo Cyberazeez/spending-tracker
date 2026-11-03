@@ -98,8 +98,12 @@ private func fetchRemote(completion: @escaping (Remote?) -> Void) {
             return
         }
         if http.statusCode == 401 || http.statusCode == 403 {
-            // Token revoked or replaced: forget it so the app provisions a new one the next time it opens.
-            defaults.removeObject(forKey: "widget.token")
+            // Forget the token only when OUR function says it is invalid (revoked or replaced); a gateway or proxy
+            // 401 must not wipe a good token. The app then provisions a new one the next time it opens.
+            let error = data.flatMap { try? JSONSerialization.jsonObject(with: $0) as? [String: Any] }?["error"] as? String
+            if error == "unauthorized" {
+                defaults.removeObject(forKey: "widget.token")
+            }
             completion(nil)
             return
         }
