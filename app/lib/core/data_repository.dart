@@ -62,6 +62,19 @@ abstract class DataRepository {
   /// Outgoing, non-internal spend since midnight Riyadh time today.
   Future<int> todaySpendHalalas();
 
+  /// The AI switch (`settings.ai_enabled`). Off by default.
+  Future<bool> aiEnabled();
+  Future<void> setAiEnabled(bool on);
+
+  /// Asks the server to categorise merchants that have no category yet.
+  Future<AiOutcome> suggestCategories();
+
+  /// Asks the server for savings tips on these month totals (numbers and category names only).
+  Future<AiOutcome> aiTips(Map<String, dynamic> aggregates, String language);
+
+  /// The tips saved for [month] ("YYYY-MM"), newest first, or empty.
+  Future<List<String>> savedAiTips(String month);
+
   /// The one overall monthly spending limit, or null when not set.
   Future<int?> monthlyBudgetHalalas();
   Future<void> setMonthlyBudget(int? halalas);
@@ -383,6 +396,58 @@ class SupabaseDataRepository implements DataRepository {
       riyadh.day,
     ).subtract(const Duration(hours: 3));
     return _spendSince(start);
+  }
+
+  @override
+  Future<bool> aiEnabled() async {
+    final row = await _db.from('settings').select('ai_enabled').maybeSingle();
+    return (row?['ai_enabled'] as bool?) ?? false;
+  }
+
+  @override
+  Future<void> setAiEnabled(bool on) async {
+    final uid = _db.auth.currentUser?.id;
+    if (uid == null) throw StateError('not signed in');
+    await _db.from('settings').update({'ai_enabled': on}).eq('user_id', uid);
+  }
+
+  Future<AiOutcome> _invokeAi(String fn, Map<String, dynamic> body) async {
+    try {
+      final res = await _db.functions.invoke(fn, body: body);
+      final data = res.data;
+      if (data is Map) return AiOutcome.fromJson(data.cast<String, dynamic>());
+      return const AiOutcome.fail('failed');
+    } on FunctionException {
+      return const AiOutcome.fail('failed');
+    } catch (_) {
+      return const AiOutcome.fail('offline');
+    }
+  }
+
+  @override
+  Future<AiOutcome> suggestCategories() => _invokeAi('categorize-batch', {});
+
+  @override
+  Future<AiOutcome> aiTips(Map<String, dynamic> aggregates, String language) =>
+      _invokeAi('insights-tips', {
+        'aggregates': aggregates,
+        'language': language,
+      });
+
+  @override
+  Future<List<String>> savedAiTips(String month) async {
+    final rows = await _db
+        .from('insights')
+        .select('tips')
+        .eq('kind', 'on_demand')
+        .eq('period_start', '$month-01')
+        .order('created_at', ascending: false)
+        .limit(1);
+    if (rows.isEmpty) return const [];
+    return [
+      for (final t in (rows.first['tips'] as List?) ?? const [])
+        if (t is Map && t['text'] is String) t['text'] as String,
+    ];
   }
 
   @override

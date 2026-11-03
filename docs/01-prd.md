@@ -136,3 +136,9 @@ Goal: the Shortcut carries no secret and no web request. Public users should not
 4. Incoming transfers from family/others (SNB 6905 and 9000, Al Rajhi 5247 and 3384): decided by the owner, excluded from income and the savings rate. Stored as `transfer_in`, shown separately.
 5. Alinma loan: one new loan; a month's installment can arrive as several deductions, which the obligation instance sums (see `docs/07-sms-catalog.md`).
 6. ATM withdrawals and salary from other banks: owner says they are rare or absent, so no fixtures are needed.
+
+### AI in the app (built 2026-11-03)
+- **More > AI assistant** switch (`settings.ai_enabled`, off by default). The server refuses AI calls while it is off.
+- **Suggest with AI** card on Transactions (when AI is on and uncategorised rows exist): calls `categorize-batch`; only merchant names go to Claude; results become unconfirmed rules the user can correct.
+- **AI tips** card on Insights (when AI is on): the app sends only month totals and the user's category names to `insights-tips` and shows up to 5 tips; the last answer for the month is kept in `insights`.
+- Cap 5 USD/month (global), reasons shown in plain words: off, no key, cap reached, no connection, failed.

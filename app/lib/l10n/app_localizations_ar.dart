@@ -980,4 +980,61 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get obfNameTaken => 'لديك التزام بهذا الاسم بالفعل.';
+
+  @override
+  String get aiTitle => 'المساعد الذكي';
+
+  @override
+  String get aiSubtitle =>
+      'يرسل المجاميع وأسماء المتاجر فقط، وليس نص الرسائل أو الأسماء أو أرقام الحسابات.';
+
+  @override
+  String get aiTipsTitle => 'نصائح ذكية';
+
+  @override
+  String get aiTipsGet => 'احصل على نصائح';
+
+  @override
+  String get aiTipsRefresh => 'تحديث النصائح';
+
+  @override
+  String get aiTipsEmpty => 'احصل على نصائح توفير بناءً على مجاميع هذا الشهر.';
+
+  @override
+  String get aiTipsNote => 'مبنية على المجاميع فقط. راجع الأرقام قبل التصرف.';
+
+  @override
+  String get aiTipsNone => 'لا نصائح هذه المرة.';
+
+  @override
+  String aiSuggestTitle(String n) {
+    return '$n عمليات بدون تصنيف';
+  }
+
+  @override
+  String get aiSuggestAction => 'اقتراح بالذكاء الاصطناعي';
+
+  @override
+  String aiSuggestDone(String n) {
+    return 'تم تصنيف $n عمليات. راجعها، ويمكنك تغيير أي منها.';
+  }
+
+  @override
+  String get aiSuggestNone => 'لا شيء للتصنيف بعد.';
+
+  @override
+  String get aiReasonDisabled => 'الذكاء الاصطناعي متوقف. فعّله من المزيد.';
+
+  @override
+  String get aiReasonNoKey => 'الذكاء الاصطناعي غير مفعّل على الخادم بعد.';
+
+  @override
+  String get aiReasonCap =>
+      'استُهلكت ميزانية الذكاء الاصطناعي لهذا الشهر. تتجدد الشهر القادم.';
+
+  @override
+  String get aiReasonOffline => 'لا يوجد اتصال. حاول مرة أخرى.';
+
+  @override
+  String get aiReasonFailed => 'تعذر الحصول على إجابة. حاول لاحقاً.';
 }

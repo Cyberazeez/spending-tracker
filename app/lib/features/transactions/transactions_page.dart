@@ -16,6 +16,7 @@ import '../../ui/bottom_inset.dart';
 import '../../ui/empty_state.dart';
 import '../../ui/skeleton.dart';
 import '../../ui/tokens.dart';
+import '../ai/widgets/suggest_categories_card.dart';
 import '../obligations/logic.dart' show riyadhToday;
 import 'category_actions.dart';
 import 'day_groups.dart';
@@ -171,6 +172,20 @@ class TransactionsPage extends ConsumerWidget {
                     ),
                   ]
                 : [
+                    SliverToBoxAdapter(
+                      child: SuggestCategoriesCard(
+                        uncategorized: list
+                            .where(
+                              (x) =>
+                                  x.categoryId == null &&
+                                  !x.isInternal &&
+                                  (x.type == 'purchase' ||
+                                      x.type == 'refund') &&
+                                  x.merchantNorm != null,
+                            )
+                            .length,
+                      ),
+                    ),
                     Builder(
                       builder: (_) {
                         final groups = groupByDay(

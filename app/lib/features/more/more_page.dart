@@ -12,6 +12,7 @@ import '../../core/widget_bridge.dart';
 import '../../core/widget_setup.dart';
 import '../../l10n/app_localizations.dart';
 import '../../router.dart';
+import '../ai/providers.dart';
 import '../../ui/bottom_inset.dart';
 import '../../ui/settings_group.dart';
 import '../../ui/tokens.dart';
@@ -116,6 +117,8 @@ class MorePage extends ConsumerWidget {
                   ],
                 ),
                 const SizedBox(height: 16),
+                SettingsGroup(children: [const _AiRow()]),
+                const SizedBox(height: 16),
                 SettingsGroup(
                   children: [
                     const _CaptureStatusRow(),
@@ -161,6 +164,66 @@ class MorePage extends ConsumerWidget {
           ),
           const BottomInset(),
         ],
+      ),
+    );
+  }
+}
+
+/// The AI switch. Off by default; the server also refuses any AI call while it is off.
+class _AiRow extends ConsumerStatefulWidget {
+  const _AiRow();
+
+  @override
+  ConsumerState<_AiRow> createState() => _AiRowState();
+}
+
+class _AiRowState extends ConsumerState<_AiRow> {
+  bool? _pending; // the value the user just picked, until the save is confirmed
+
+  Future<void> _set(bool on) async {
+    if (_pending != null) return; // one save at a time
+    setState(() => _pending = on);
+    final t = AppLocalizations.of(context);
+    var failed = false;
+    try {
+      await ref.read(dataRepositoryProvider).setAiEnabled(on);
+    } catch (_) {
+      failed = true;
+    }
+    if (!mounted) return;
+    ref.invalidate(aiEnabledProvider);
+    await ref.read(aiEnabledProvider.future).catchError((_) => false);
+    if (!mounted) return;
+    setState(() => _pending = null);
+    if (failed) {
+      await showCupertinoDialog<void>(
+        context: context,
+        builder: (ctx) => CupertinoAlertDialog(
+          content: Text(t.obSaveFailed),
+          actions: [
+            CupertinoDialogAction(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(t.done),
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final stored = ref.watch(aiEnabledProvider).value ?? false;
+    return SettingsRow(
+      icon: LucideIcons.sparkles,
+      color: const Color(0xFF3CC4A8),
+      title: t.aiTitle,
+      subtitle: t.aiSubtitle,
+      control: CupertinoSwitch(
+        value: _pending ?? stored,
+        activeTrackColor: AppTokens.accent.resolveFrom(context),
+        onChanged: _set,
       ),
     );
   }
