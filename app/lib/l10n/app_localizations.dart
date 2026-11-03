@@ -1807,6 +1807,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You already have an obligation with this name.'**
   String get obfNameTaken;
+
+  /// No description provided for @aiTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'AI assistant'**
+  String get aiTitle;
+
+  /// No description provided for @aiSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sends only totals and merchant names. Never message text, names or account numbers.'**
+  String get aiSubtitle;
+
+  /// No description provided for @aiTipsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'AI tips'**
+  String get aiTipsTitle;
+
+  /// No description provided for @aiTipsGet.
+  ///
+  /// In en, this message translates to:
+  /// **'Get tips'**
+  String get aiTipsGet;
+
+  /// No description provided for @aiTipsRefresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh tips'**
+  String get aiTipsRefresh;
+
+  /// No description provided for @aiTipsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Get savings tips based on this month\'s totals.'**
+  String get aiTipsEmpty;
+
+  /// No description provided for @aiTipsNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Based on totals only. Check the numbers before acting.'**
+  String get aiTipsNote;
+
+  /// No description provided for @aiTipsNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No tips this time.'**
+  String get aiTipsNone;
+
+  /// No description provided for @aiSuggestTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} transactions have no category'**
+  String aiSuggestTitle(String n);
+
+  /// No description provided for @aiSuggestAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggest with AI'**
+  String get aiSuggestAction;
+
+  /// No description provided for @aiSuggestDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Categorised {n} transactions. Check them; you can change any.'**
+  String aiSuggestDone(String n);
+
+  /// No description provided for @aiSuggestNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to categorise yet.'**
+  String get aiSuggestNone;
+
+  /// No description provided for @aiReasonDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'AI is off. Turn it on in More.'**
+  String get aiReasonDisabled;
+
+  /// No description provided for @aiReasonNoKey.
+  ///
+  /// In en, this message translates to:
+  /// **'AI is not set up on the server yet.'**
+  String get aiReasonNoKey;
+
+  /// No description provided for @aiReasonCap.
+  ///
+  /// In en, this message translates to:
+  /// **'This month\'s AI budget is used up. It resets next month.'**
+  String get aiReasonCap;
+
+  /// No description provided for @aiReasonOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'No connection. Try again.'**
+  String get aiReasonOffline;
+
+  /// No description provided for @aiReasonFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not get an answer. Try again later.'**
+  String get aiReasonFailed;
 }
 
 class _AppLocalizationsDelegate

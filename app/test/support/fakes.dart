@@ -296,6 +296,36 @@ class FakeDataRepository implements DataRepository {
     usualMaxHalalas: i.usualMaxHalalas,
   );
 
+  bool aiOn = false;
+  AiOutcome suggestResult = const AiOutcome.ok(updated: 3);
+  AiOutcome tipsResult = const AiOutcome.ok(
+    tips: ['Cut dining: SAR 900 vs SAR 600 average.'],
+  );
+  List<String> saved = [];
+  int suggestCalls = 0;
+  final tipCalls = <(Map<String, dynamic>, String)>[];
+
+  @override
+  Future<bool> aiEnabled() async => aiOn;
+
+  @override
+  Future<void> setAiEnabled(bool on) async => aiOn = on;
+
+  @override
+  Future<AiOutcome> suggestCategories() async {
+    suggestCalls++;
+    return suggestResult;
+  }
+
+  @override
+  Future<AiOutcome> aiTips(Map<String, dynamic> a, String language) async {
+    tipCalls.add((a, language));
+    return tipsResult;
+  }
+
+  @override
+  Future<List<String>> savedAiTips(String month) async => saved;
+
   final savedObligations = <(String?, ObligationDef)>[];
   final stoppedObligations = <String>[];
   ObligationDef? editing;

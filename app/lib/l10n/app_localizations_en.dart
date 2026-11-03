@@ -980,4 +980,62 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get obfNameTaken => 'You already have an obligation with this name.';
+
+  @override
+  String get aiTitle => 'AI assistant';
+
+  @override
+  String get aiSubtitle =>
+      'Sends only totals and merchant names. Never message text, names or account numbers.';
+
+  @override
+  String get aiTipsTitle => 'AI tips';
+
+  @override
+  String get aiTipsGet => 'Get tips';
+
+  @override
+  String get aiTipsRefresh => 'Refresh tips';
+
+  @override
+  String get aiTipsEmpty => 'Get savings tips based on this month\'s totals.';
+
+  @override
+  String get aiTipsNote =>
+      'Based on totals only. Check the numbers before acting.';
+
+  @override
+  String get aiTipsNone => 'No tips this time.';
+
+  @override
+  String aiSuggestTitle(String n) {
+    return '$n transactions have no category';
+  }
+
+  @override
+  String get aiSuggestAction => 'Suggest with AI';
+
+  @override
+  String aiSuggestDone(String n) {
+    return 'Categorised $n transactions. Check them; you can change any.';
+  }
+
+  @override
+  String get aiSuggestNone => 'Nothing to categorise yet.';
+
+  @override
+  String get aiReasonDisabled => 'AI is off. Turn it on in More.';
+
+  @override
+  String get aiReasonNoKey => 'AI is not set up on the server yet.';
+
+  @override
+  String get aiReasonCap =>
+      'This month\'s AI budget is used up. It resets next month.';
+
+  @override
+  String get aiReasonOffline => 'No connection. Try again.';
+
+  @override
+  String get aiReasonFailed => 'Could not get an answer. Try again later.';
 }

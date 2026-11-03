@@ -53,13 +53,13 @@ void main() {
     final h = Harness(signedIn: true)
       ..data.instances = [inst('a', 'Mobile', '2026-11-05', amount: 27893)];
     await openMore(tester, h);
-    await tester.tap(find.byType(CupertinoSwitch));
+    await tester.tap(find.byType(CupertinoSwitch).first);
     await tester.pumpAndSettle();
     expect(h.reminders.permissionAsks, 1);
     expect(h.reminders.replaced, isNotEmpty);
     expect(h.reminders.replaced.last.single.title, 'Mobile');
     expect(
-      tester.widget<CupertinoSwitch>(find.byType(CupertinoSwitch)).value,
+      tester.widget<CupertinoSwitch>(find.byType(CupertinoSwitch).first).value,
       isTrue,
     );
   });
@@ -71,14 +71,14 @@ void main() {
       ..data.instances = [inst('a', 'Mobile', '2026-11-05', amount: 27893)];
     h.reminders.grant = false;
     await openMore(tester, h);
-    await tester.tap(find.byType(CupertinoSwitch));
+    await tester.tap(find.byType(CupertinoSwitch).first);
     await tester.pumpAndSettle();
     expect(find.textContaining('turned off for this app'), findsOneWidget);
     expect(h.reminders.replaced, isEmpty);
     await tester.tap(find.text('Done'));
     await tester.pumpAndSettle();
     expect(
-      tester.widget<CupertinoSwitch>(find.byType(CupertinoSwitch)).value,
+      tester.widget<CupertinoSwitch>(find.byType(CupertinoSwitch).first).value,
       isFalse,
     );
   });
@@ -89,13 +89,13 @@ void main() {
     final h = Harness(signedIn: true)
       ..data.instances = [inst('a', 'Mobile', '2026-11-05', amount: 27893)];
     await openMore(tester, h);
-    await tester.tap(find.byType(CupertinoSwitch));
+    await tester.tap(find.byType(CupertinoSwitch).first);
     await tester.pumpAndSettle();
-    await tester.tap(find.byType(CupertinoSwitch));
+    await tester.tap(find.byType(CupertinoSwitch).first);
     await tester.pumpAndSettle();
     expect(h.reminders.clears, 1);
     expect(
-      tester.widget<CupertinoSwitch>(find.byType(CupertinoSwitch)).value,
+      tester.widget<CupertinoSwitch>(find.byType(CupertinoSwitch).first).value,
       isFalse,
     );
   });

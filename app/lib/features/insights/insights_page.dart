@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../core/lock.dart';
 import '../../core/models.dart';
 import '../../core/money.dart';
 import '../../core/providers.dart';
@@ -12,7 +13,9 @@ import '../../ui/bottom_inset.dart';
 import '../../ui/empty_state.dart';
 import '../../ui/skeleton.dart';
 import '../../ui/tokens.dart';
+import '../ai/widgets/ai_tips_card.dart';
 import '../home/category_groups.dart';
+import '../obligations/logic.dart' show riyadhToday;
 import '../transactions/providers.dart';
 import 'metrics.dart';
 import 'providers.dart';
@@ -368,6 +371,12 @@ class _InsightsPageState extends ConsumerState<InsightsPage> {
                         onBudgetTap: () => _monthlyBudgetActions(monthlyBudget),
                       ),
                       gap,
+                      AiTipsCard(
+                        insights: ins,
+                        categories: cats,
+                        budgets: budgets,
+                        today: riyadhToday(ref.watch(clockProvider)()),
+                      ),
                       TrendChart(
                         thisMonth: ins.cumulativeThisMonth,
                         lastMonth: ins.cumulativeLastMonth,
