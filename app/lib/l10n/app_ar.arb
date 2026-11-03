@@ -296,5 +296,18 @@
   "txChooseCategory": "اختر فئة",
   "txChipAll": "الكل",
   "txChipNoCategory": "بدون فئة",
-  "txChipHideInternal": "إخفاء الداخلية"
+  "txChipHideInternal": "إخفاء الداخلية",
+  "insTrendTitle": "هذا الشهر مقابل الشهر الماضي",
+  "insLegendThis": "هذا الشهر",
+  "insLegendLast": "الشهر الماضي",
+  "insMonthsTitle": "آخر 4 أشهر",
+  "insBudgetLine": "الميزانية {amount}",
+  "insWhereTitle": "أين ذهب المال",
+  "insTrendLabel": "{now} حتى الآن هذا الشهر، و{before} في نفس اليوم من الشهر الماضي",
+  "insMonthBarLabel": "{month}: {amount}",
+  "insVisits": "{count} زيارات",
+  "insVisit": "زيارة واحدة",
+  "insSavingsRateLabel": "معدل الادخار",
+  "insSpikeBadge": "ارتفاع في الصرف",
+  "insSubsServices": "{count} خدمات شهريًا"
 }

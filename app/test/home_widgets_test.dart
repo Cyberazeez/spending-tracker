@@ -277,6 +277,13 @@ void main() {
               lastMonthPercent: -3,
               arabic: ar,
             ),
+            WeekBars(
+              days: [
+                for (var i = 0; i < 7; i++)
+                  DaySpend(DateTime.utc(2026, 11, 9 + i), 99999999),
+              ],
+              arabic: ar,
+            ),
             ShareBar(
               top: const [
                 GroupSpend(CategoryGroup.food, 123456789),

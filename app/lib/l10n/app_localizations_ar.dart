@@ -823,4 +823,53 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get txChipHideInternal => 'إخفاء الداخلية';
+
+  @override
+  String get insTrendTitle => 'هذا الشهر مقابل الشهر الماضي';
+
+  @override
+  String get insLegendThis => 'هذا الشهر';
+
+  @override
+  String get insLegendLast => 'الشهر الماضي';
+
+  @override
+  String get insMonthsTitle => 'آخر 4 أشهر';
+
+  @override
+  String insBudgetLine(String amount) {
+    return 'الميزانية $amount';
+  }
+
+  @override
+  String get insWhereTitle => 'أين ذهب المال';
+
+  @override
+  String insTrendLabel(String now, String before) {
+    return '$now حتى الآن هذا الشهر، و$before في نفس اليوم من الشهر الماضي';
+  }
+
+  @override
+  String insMonthBarLabel(String month, String amount) {
+    return '$month: $amount';
+  }
+
+  @override
+  String insVisits(int count) {
+    return '$count زيارات';
+  }
+
+  @override
+  String get insVisit => 'زيارة واحدة';
+
+  @override
+  String get insSavingsRateLabel => 'معدل الادخار';
+
+  @override
+  String get insSpikeBadge => 'ارتفاع في الصرف';
+
+  @override
+  String insSubsServices(int count) {
+    return '$count خدمات شهريًا';
+  }
 }

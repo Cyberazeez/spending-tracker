@@ -52,9 +52,17 @@ class WeekBars extends StatelessWidget {
                   ),
                 ),
               ),
-              Text(
-                t.homeWeekTotal(ltrIsolate(formatSar(total, arabic: arabic))),
-                style: TextStyle(color: muted, fontSize: 13),
+              const SizedBox(width: 8),
+              Flexible(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    t.homeWeekTotal(
+                      ltrIsolate(formatSar(total, arabic: arabic)),
+                    ),
+                    style: TextStyle(color: muted, fontSize: 13),
+                  ),
+                ),
               ),
             ],
           ),
