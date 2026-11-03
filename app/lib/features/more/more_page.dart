@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../core/capture_bridge.dart';
 import '../../core/capture_setup.dart';
@@ -11,7 +12,9 @@ import '../../core/widget_bridge.dart';
 import '../../core/widget_setup.dart';
 import '../../l10n/app_localizations.dart';
 import '../../router.dart';
-import '../../ui/theme.dart';
+import '../../ui/bottom_inset.dart';
+import '../../ui/settings_group.dart';
+import '../../ui/tokens.dart';
 
 class MorePage extends ConsumerWidget {
   const MorePage({super.key});
@@ -73,55 +76,71 @@ class MorePage extends ConsumerWidget {
     final t = AppLocalizations.of(context);
     final locale = ref.watch(localeProvider);
     return CupertinoPageScaffold(
+      backgroundColor: AppTokens.bg.resolveFrom(context),
       child: CustomScrollView(
+        physics: const BouncingScrollPhysics(
+          parent: AlwaysScrollableScrollPhysics(),
+        ),
         slivers: [
-          CupertinoSliverNavigationBar(largeTitle: Text(t.tabMore)),
-          SliverSafeArea(
-            top: false,
+          CupertinoSliverNavigationBar(
+            largeTitle: Text(t.tabMore),
+            backgroundColor: AppTokens.bg.resolveFrom(context),
+            border: null,
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
             sliver: SliverList.list(
               children: [
-                CupertinoListSection.insetGrouped(
+                SettingsGroup(
                   children: [
-                    CupertinoListTile.notched(
-                      title: Text(t.language),
-                      additionalInfo: Text(
-                        locale.languageCode == 'ar'
-                            ? t.languageArabic
-                            : t.languageEnglish,
-                      ),
-                      trailing: const CupertinoListTileChevron(),
+                    SettingsRow(
+                      icon: LucideIcons.globe,
+                      color: const Color(0xFF6C8CFF),
+                      title: t.language,
+                      value: locale.languageCode == 'ar'
+                          ? t.languageArabic
+                          : t.languageEnglish,
                       onTap: () => _pickLanguage(context, ref),
                     ),
-                    CupertinoListTile.notched(
-                      title: Text(t.remindersTitle),
-                      subtitle: Text(t.remindersHelp),
-                      trailing: CupertinoSwitch(
+                    SettingsRow(
+                      icon: LucideIcons.bell,
+                      color: const Color(0xFFFFB340),
+                      title: t.remindersTitle,
+                      subtitle: t.remindersHelp,
+                      control: CupertinoSwitch(
                         value: ref.watch(remindersEnabledProvider),
+                        activeTrackColor: AppTokens.accent.resolveFrom(context),
                         onChanged: (on) => _toggleReminders(context, ref, on),
                       ),
                     ),
-                    CupertinoListTile.notched(
-                      title: Text(t.gapsTitle),
-                      trailing: const CupertinoListTileChevron(),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                SettingsGroup(
+                  children: [
+                    const _CaptureStatusRow(),
+                    SettingsRow(
+                      icon: LucideIcons.radioTower,
+                      color: const Color(0xFFFF6B66),
+                      title: t.gapsTitle,
                       onTap: () => context.go(gapsPath),
                     ),
-                    _CaptureStatusTile(),
-                    CupertinoListTile.notched(
-                      title: Text(t.ingestToken),
-                      trailing: const CupertinoListTileChevron(),
+                    SettingsRow(
+                      icon: LucideIcons.keyRound,
+                      color: const Color(0xFFC084FC),
+                      title: t.ingestToken,
                       onTap: () => context.go(tokenPath),
                     ),
                   ],
                 ),
-                CupertinoListSection.insetGrouped(
+                const SizedBox(height: 16),
+                SettingsGroup(
                   children: [
-                    CupertinoListTile.notched(
-                      title: Text(
-                        t.signOut,
-                        style: TextStyle(
-                          color: AppColors.danger.resolveFrom(context),
-                        ),
-                      ),
+                    SettingsRow(
+                      icon: LucideIcons.logOut,
+                      color: AppTokens.danger.resolveFrom(context),
+                      title: t.signOut,
+                      danger: true,
                       onTap: () async {
                         await releaseCapture(
                           ref.read(captureBridgeProvider),
@@ -140,14 +159,17 @@ class MorePage extends ConsumerWidget {
               ],
             ),
           ),
+          const BottomInset(),
         ],
       ),
     );
   }
 }
 
-/// Shows what the "Add bank message" Shortcuts action has queued and how the last send went. Tap to retry now.
-class _CaptureStatusTile extends ConsumerWidget {
+/// Shows what the "Add bank message" Shortcuts action has queued and how the last send went.
+class _CaptureStatusRow extends ConsumerWidget {
+  const _CaptureStatusRow();
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = AppLocalizations.of(context);
@@ -158,10 +180,11 @@ class _CaptureStatusTile extends ConsumerWidget {
               ? t.captureNone
               : t.captureWaiting(status.pending));
     final last = status?.last ?? '';
-    return CupertinoListTile.notched(
-      title: Text(t.captureStatus),
-      subtitle: Text(last.isEmpty ? waiting : '$waiting · $last'),
-      trailing: const CupertinoListTileChevron(),
+    return SettingsRow(
+      icon: LucideIcons.messageSquare,
+      color: const Color(0xFF3CC4A8),
+      title: t.captureStatus,
+      subtitle: last.isEmpty ? waiting : '$waiting · $last',
       onTap: () => context.go(capturePath),
     );
   }
