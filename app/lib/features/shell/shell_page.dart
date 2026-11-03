@@ -10,7 +10,12 @@ import '../../core/reminder_bridge.dart';
 import '../../core/reminders.dart';
 import '../../core/widget_bridge.dart';
 import '../../core/widget_setup.dart';
+
+import 'package:lucide_icons_flutter/lucide_icons.dart';
+
 import '../../l10n/app_localizations.dart';
+import '../../ui/tokens.dart';
+import 'tabs.dart';
 import '../home/home_page.dart';
 import '../insights/insights_page.dart';
 import '../insights/providers.dart';
@@ -101,26 +106,34 @@ class _ShellPageState extends ConsumerState<ShellPage>
     });
     final t = AppLocalizations.of(context);
     return CupertinoTabScaffold(
+      controller: ref.watch(tabControllerProvider),
+      backgroundColor: AppTokens.bg.resolveFrom(context),
       tabBar: CupertinoTabBar(
+        backgroundColor: AppTokens.tab
+            .resolveFrom(context)
+            .withValues(alpha: 0.88),
+        activeColor: AppTokens.accent.resolveFrom(context),
+        inactiveColor: AppTokens.muted.resolveFrom(context),
+        border: null,
         items: [
           BottomNavigationBarItem(
-            icon: const Icon(CupertinoIcons.house),
+            icon: const Icon(LucideIcons.house),
             label: t.tabHome,
           ),
           BottomNavigationBarItem(
-            icon: const Icon(CupertinoIcons.list_bullet),
+            icon: const Icon(LucideIcons.list),
             label: t.tabTransactions,
           ),
           BottomNavigationBarItem(
-            icon: const Icon(CupertinoIcons.calendar),
+            icon: const Icon(LucideIcons.calendar),
             label: t.tabObligations,
           ),
           BottomNavigationBarItem(
-            icon: const Icon(CupertinoIcons.chart_pie),
+            icon: const Icon(LucideIcons.chartPie),
             label: t.tabInsights,
           ),
           BottomNavigationBarItem(
-            icon: const Icon(CupertinoIcons.ellipsis),
+            icon: const Icon(LucideIcons.ellipsis),
             label: t.tabMore,
           ),
         ],

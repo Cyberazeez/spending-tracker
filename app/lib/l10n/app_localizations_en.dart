@@ -699,4 +699,108 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get captureHelp =>
       'If it says 1 waiting with error -1009, the phone was offline. The message is kept and sent when you are back online.';
+
+  @override
+  String get homeOverview => 'Overview';
+
+  @override
+  String get homeSpentThisMonth => 'Spent this month';
+
+  @override
+  String get homeLast7 => 'Last 7 days';
+
+  @override
+  String get homeWhereItWent => 'Where it went';
+
+  @override
+  String get homeSeeAll => 'See all';
+
+  @override
+  String get homeNextBills => 'Next bills';
+
+  @override
+  String get homeAllBills => 'All bills';
+
+  @override
+  String get homeLeftToSpend => 'Left to spend';
+
+  @override
+  String get homeVsLastMonth => 'vs last month';
+
+  @override
+  String get homeSetBudget => 'Set a monthly budget';
+
+  @override
+  String get homeTodayShort => 'Today';
+
+  @override
+  String get homeSameShort => 'Same';
+
+  @override
+  String homeOfBudget(String amount) {
+    return 'of $amount budget';
+  }
+
+  @override
+  String homeLower(String percent) {
+    return '$percent% lower';
+  }
+
+  @override
+  String homeHigher(String percent) {
+    return '$percent% higher';
+  }
+
+  @override
+  String homeToReview(int count) {
+    return '$count to review';
+  }
+
+  @override
+  String homeWeekTotal(String amount) {
+    return '$amount total';
+  }
+
+  @override
+  String homeBarLabel(String amount, String weekday) {
+    return 'Spent $amount on $weekday';
+  }
+
+  @override
+  String homeDueIn(int days) {
+    return 'Due in $days days';
+  }
+
+  @override
+  String get homeDueTomorrow => 'Due tomorrow';
+
+  @override
+  String get homeDueToday => 'Due today';
+
+  @override
+  String get groupFood => 'Food';
+
+  @override
+  String get groupTransport => 'Transport';
+
+  @override
+  String get groupHomeBills => 'Home and bills';
+
+  @override
+  String get groupHorse => 'Horse';
+
+  @override
+  String get groupLifestyle => 'Lifestyle';
+
+  @override
+  String get groupSubscriptions => 'Subscriptions';
+
+  @override
+  String get groupHealth => 'Health';
+
+  @override
+  String get groupMoney => 'Money';
+
+  @override
+  String get groupOther => 'Other';
 }

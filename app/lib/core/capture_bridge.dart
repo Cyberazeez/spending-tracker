@@ -54,10 +54,8 @@ class MethodChannelCaptureBridge implements CaptureBridge {
   }
 
   @override
-  Future<void> saveCredentials(String url, String token, String userId) => _call(
-    'saveCredentials',
-    {'url': url, 'token': token, 'userId': userId},
-  );
+  Future<void> saveCredentials(String url, String token, String userId) =>
+      _call('saveCredentials', {'url': url, 'token': token, 'userId': userId});
 
   @override
   Future<void> clearCredentials() => _call('clearCredentials');

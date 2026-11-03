@@ -31,7 +31,10 @@ class SupabaseTokenRepository implements TokenRepository {
     final rows = await _client
         .from('ingest_tokens')
         .select('label, created_at, last_used_at')
-        .eq('kind', 'shortcut') // the app's own token (kind 'app') is not shown here
+        .eq(
+          'kind',
+          'shortcut',
+        ) // the app's own token (kind 'app') is not shown here
         .isFilter('revoked_at', null)
         .order('created_at', ascending: false)
         .limit(1);

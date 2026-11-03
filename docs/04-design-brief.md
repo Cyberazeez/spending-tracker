@@ -1,6 +1,6 @@
 # 04-design-brief
 
-A calm, native-feeling iPhone app. Numbers first, no decoration.
+A calm, native-feeling iPhone app. Numbers first. Since 2026-11-03 (Home stage 1) the look is bold fintech: a gradient hero card, rounded cards on a dark or light background, round colored category badges, simple charts. Spec: `docs/superpowers/specs/2026-11-03-home-redesign-design.md`; tokens in `app/lib/ui/tokens.dart`; icons are Lucide (`lucide_icons_flutter`); the other tabs are redesigned in later stages.
 
 ## Principles
 - Looks like it shipped with iOS: Cupertino widgets, large titles, grouped lists, bottom sheets, swipe actions, haptics (light on confirm, medium on warning).

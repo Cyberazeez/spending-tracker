@@ -17,6 +17,7 @@ dependencies:
   go_router: ^18.1.2
   intl: ^0.20.3
   local_auth: ^3.0.2
+  lucide_icons_flutter: ^4.0.1
   shared_preferences: ^2.5.6
   supabase_flutter: ^2.18.3
 

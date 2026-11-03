@@ -85,6 +85,13 @@ Widget build notes (2026-11-02): the extension is `app/ios/SpendingWidget` (bund
 4. Self-refreshing widget (built 2026-11-03): the widget fetches its own numbers with a read-only token (kind `widget`) from the `widget-summary` function, so "spent today" is fresh without opening the app. Order of deploy after merge: apply migration `20261103100000_widget_token_kind.sql`, deploy `rotate-token`, `ingest` (now filters token kinds) and the new `widget-summary` (verify_jwt off), then build the app.
 5. Apple Wallet capture (PRD F11): purchases made with Apple Pay arrive through the Shortcuts "Transaction" automation, matched against the SMS so nothing is counted twice. Needs a real sample from the owner first.
 
+## UI redesign and later items (owner, 2026-11-03)
+- Stage 1 (built): Home. Design layer in `app/lib/ui/tokens.dart`, widgets in `app/lib/features/home/widgets/`.
+- Stages 2 to 5: Transactions, Insights (charts: trends, categories), Bills, More; then login, lock and token screens. One PR each, owner tests on TestFlight in between.
+- Add obligations by hand (a form to create bills and fixed payments).
+- AI switch in More, suggest-categories button and AI tips card (server functions exist; needs the owner's Anthropic API key as a Supabase secret).
+- Apple Wallet / Apple Pay capture (needs a real sample from the owner first).
+
 ## M7. Polish
 Also: store the Supabase session in the iOS keychain (`flutter_secure_storage` as the auth `LocalStorage`) instead of the default SharedPreferences, add a "last message received" staleness warning, and mark the ingest token clipboard copy as local-only.
 

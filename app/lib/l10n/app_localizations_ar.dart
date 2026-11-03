@@ -701,4 +701,108 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get captureHelp =>
       'إذا ظهر «1 بالانتظار» مع الخطأ -1009 فالهاتف كان بلا اتصال. تُحفظ الرسالة وتُرسل عند عودة الاتصال.';
+
+  @override
+  String get homeOverview => 'نظرة عامة';
+
+  @override
+  String get homeSpentThisMonth => 'المصروف هذا الشهر';
+
+  @override
+  String get homeLast7 => 'آخر 7 أيام';
+
+  @override
+  String get homeWhereItWent => 'أين ذهب المال';
+
+  @override
+  String get homeSeeAll => 'عرض الكل';
+
+  @override
+  String get homeNextBills => 'الفواتير القادمة';
+
+  @override
+  String get homeAllBills => 'كل الفواتير';
+
+  @override
+  String get homeLeftToSpend => 'المتبقي للصرف';
+
+  @override
+  String get homeVsLastMonth => 'مقارنة بالشهر الماضي';
+
+  @override
+  String get homeSetBudget => 'حدد ميزانية شهرية';
+
+  @override
+  String get homeTodayShort => 'اليوم';
+
+  @override
+  String get homeSameShort => 'مماثل';
+
+  @override
+  String homeOfBudget(String amount) {
+    return 'من ميزانية $amount';
+  }
+
+  @override
+  String homeLower(String percent) {
+    return 'أقل بنسبة $percent%';
+  }
+
+  @override
+  String homeHigher(String percent) {
+    return 'أعلى بنسبة $percent%';
+  }
+
+  @override
+  String homeToReview(int count) {
+    return '$count للمراجعة';
+  }
+
+  @override
+  String homeWeekTotal(String amount) {
+    return 'المجموع $amount';
+  }
+
+  @override
+  String homeBarLabel(String amount, String weekday) {
+    return 'صُرف $amount يوم $weekday';
+  }
+
+  @override
+  String homeDueIn(int days) {
+    return 'مستحق خلال $days أيام';
+  }
+
+  @override
+  String get homeDueTomorrow => 'مستحق غدًا';
+
+  @override
+  String get homeDueToday => 'مستحق اليوم';
+
+  @override
+  String get groupFood => 'طعام';
+
+  @override
+  String get groupTransport => 'تنقل';
+
+  @override
+  String get groupHomeBills => 'المنزل والفواتير';
+
+  @override
+  String get groupHorse => 'الخيل';
+
+  @override
+  String get groupLifestyle => 'نمط الحياة';
+
+  @override
+  String get groupSubscriptions => 'اشتراكات';
+
+  @override
+  String get groupHealth => 'صحة';
+
+  @override
+  String get groupMoney => 'مال';
+
+  @override
+  String get groupOther => 'أخرى';
 }

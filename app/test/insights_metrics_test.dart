@@ -33,6 +33,7 @@ final now = DateTime.utc(2026, 11, 15, 9);
 
 void main() {
   budgetPercentTests();
+  weekTests();
   test(
     'spend ignores internal, excluded and incoming money; refunds subtract',
     () {
@@ -225,6 +226,81 @@ void budgetPercentTests() {
       expect(budgetPercent(120000, 0), isNull);
       expect(budgetPercent(120000, 800000), 15);
       expect(budgetPercent(999999, 800000), 124);
+    },
+  );
+}
+
+void weekTests() {
+  List<int> week(List<Txn> rows, {Set<String> excluded = const {}}) =>
+      computeInsights(
+        rows,
+        now,
+        excludedCategories: excluded,
+      ).last7Days.map((d) => d.halalas).toList();
+
+  test('last 7 days: exactly seven days, oldest first, the last is today', () {
+    final ins = computeInsights([tx('2026-11-15 10:00', 500)], now);
+    expect(ins.last7Days.length, 7);
+    expect(ins.last7Days.last.day, DateTime.utc(2026, 11, 15));
+    expect(ins.last7Days.first.day, DateTime.utc(2026, 11, 9));
+    expect(ins.last7Days.last.halalas, 500);
+  });
+
+  test(
+    'last 7 days: older rows are left out, empty history is seven zeros',
+    () {
+      expect(week([]), [0, 0, 0, 0, 0, 0, 0]);
+      expect(week([tx('2026-11-08 10:00', 900), tx('2026-11-14 10:00', 300)]), [
+        0,
+        0,
+        0,
+        0,
+        0,
+        300,
+        0,
+      ]);
+    },
+  );
+
+  test('last 7 days: the Riyadh day decides, not the UTC day', () {
+    // 00:30 Riyadh on the 15th is 21:30 UTC on the 14th: still the 15th.
+    expect(week([tx('2026-11-15 00:30', 700)]).last, 700);
+    // 23:30 Riyadh on the 14th is 20:30 UTC on the 14th: the 14th.
+    expect(week([tx('2026-11-14 23:30', 600)])[5], 600);
+  });
+
+  test('last 7 days: refunds subtract, but a day never shows below zero', () {
+    expect(
+      week([
+        tx('2026-11-15 09:00', 1000),
+        tx('2026-11-15 10:00', 400, direction: 'in', type: 'refund'),
+      ]).last,
+      600,
+    );
+    expect(
+      week([
+        tx('2026-11-15 09:00', 300),
+        tx('2026-11-15 10:00', 800, direction: 'in', type: 'refund'),
+      ]).last,
+      0,
+    );
+  });
+
+  test(
+    'last 7 days: internal, excluded and excluded-category rows are ignored',
+    () {
+      expect(
+        week(
+          [
+            tx('2026-11-15 09:00', 100),
+            tx('2026-11-15 09:01', 5000, internal: true),
+            tx('2026-11-15 09:02', 6000, excluded: true),
+            tx('2026-11-15 09:03', 7000, cat: 'transfers'),
+          ],
+          excluded: {'transfers'},
+        ).last,
+        100,
+      );
     },
   );
 }
