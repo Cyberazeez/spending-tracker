@@ -309,7 +309,12 @@ class FakeDataRepository implements DataRepository {
   Future<bool> aiEnabled() async => aiOn;
 
   @override
-  Future<void> setAiEnabled(bool on) async => aiOn = on;
+  Future<void> setAiEnabled(bool on) async {
+    if (failAiSave) throw StateError('offline');
+    aiOn = on;
+  }
+
+  bool failAiSave = false;
 
   @override
   Future<AiOutcome> suggestCategories() async {

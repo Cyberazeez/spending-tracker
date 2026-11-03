@@ -6,6 +6,7 @@ import '../../../core/providers.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/app_card.dart';
 import '../../../ui/tokens.dart';
+import '../../insights/providers.dart';
 import '../../transactions/providers.dart';
 import '../ai_messages.dart';
 import '../providers.dart';
@@ -38,6 +39,9 @@ class _SuggestCategoriesCardState extends ConsumerState<SuggestCategoriesCard> {
     if (out.ok) {
       ref.invalidate(transactionsProvider);
       ref.invalidate(categoriesProvider);
+      // Insights, budget alerts and the Home cards are built from the same history.
+      ref.invalidate(insightsProvider);
+      ref.invalidate(budgetsProvider);
     }
     setState(() {
       _busy = false;
@@ -71,7 +75,9 @@ class _SuggestCategoriesCardState extends ConsumerState<SuggestCategoriesCard> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    t.aiSuggestTitle(widget.uncategorized.toString()),
+                    widget.uncategorized == 0
+                        ? (_message ?? '')
+                        : t.aiSuggestTitle(widget.uncategorized.toString()),
                     style: TextStyle(
                       color: AppTokens.text.resolveFrom(context),
                       fontSize: 15,
@@ -81,7 +87,7 @@ class _SuggestCategoriesCardState extends ConsumerState<SuggestCategoriesCard> {
                 ),
               ],
             ),
-            if (_message != null)
+            if (_message != null && widget.uncategorized > 0)
               Padding(
                 padding: const EdgeInsets.only(top: 6),
                 child: Text(
@@ -94,20 +100,21 @@ class _SuggestCategoriesCardState extends ConsumerState<SuggestCategoriesCard> {
                   ),
                 ),
               ),
-            CupertinoButton(
-              padding: EdgeInsets.zero,
-              minimumSize: const Size(44, 44),
-              onPressed: _busy ? null : _run,
-              child: _busy
-                  ? const CupertinoActivityIndicator()
-                  : Text(
-                      t.aiSuggestAction,
-                      style: TextStyle(
-                        color: accent,
-                        fontWeight: FontWeight.w700,
+            if (widget.uncategorized > 0)
+              CupertinoButton(
+                padding: EdgeInsets.zero,
+                minimumSize: const Size(44, 44),
+                onPressed: _busy ? null : _run,
+                child: _busy
+                    ? const CupertinoActivityIndicator()
+                    : Text(
+                        t.aiSuggestAction,
+                        style: TextStyle(
+                          color: accent,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
-                    ),
-            ),
+              ),
           ],
         ),
       ),

@@ -169,7 +169,6 @@ class MorePage extends ConsumerWidget {
   }
 }
 
-/// Shows what the "Add bank message" Shortcuts action has queued and how the last send went.
 /// The AI switch. Off by default; the server also refuses any AI call while it is off.
 class _AiRow extends ConsumerStatefulWidget {
   const _AiRow();
@@ -182,15 +181,33 @@ class _AiRowState extends ConsumerState<_AiRow> {
   bool? _pending; // the value the user just picked, until the save is confirmed
 
   Future<void> _set(bool on) async {
+    if (_pending != null) return; // one save at a time
     setState(() => _pending = on);
+    final t = AppLocalizations.of(context);
+    var failed = false;
     try {
       await ref.read(dataRepositoryProvider).setAiEnabled(on);
     } catch (_) {
-      // the switch falls back to the stored value below
-    } finally {
-      ref.invalidate(aiEnabledProvider);
-      await ref.read(aiEnabledProvider.future).catchError((_) => false);
-      if (mounted) setState(() => _pending = null);
+      failed = true;
+    }
+    if (!mounted) return;
+    ref.invalidate(aiEnabledProvider);
+    await ref.read(aiEnabledProvider.future).catchError((_) => false);
+    if (!mounted) return;
+    setState(() => _pending = null);
+    if (failed) {
+      await showCupertinoDialog<void>(
+        context: context,
+        builder: (ctx) => CupertinoAlertDialog(
+          content: Text(t.obSaveFailed),
+          actions: [
+            CupertinoDialogAction(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(t.done),
+            ),
+          ],
+        ),
+      );
     }
   }
 
@@ -212,6 +229,7 @@ class _AiRowState extends ConsumerState<_AiRow> {
   }
 }
 
+/// Shows what the "Add bank message" Shortcuts action has queued and how the last send went.
 class _CaptureStatusRow extends ConsumerWidget {
   const _CaptureStatusRow();
 

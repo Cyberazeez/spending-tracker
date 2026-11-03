@@ -107,6 +107,38 @@ void main() {
     expect(tester.widget<CupertinoSwitch>(sw).value, isTrue);
   });
 
+  testWidgets('a failed save of the switch snaps back and says so', (
+    tester,
+  ) async {
+    final h = await open(tester);
+    h.data.failAiSave = true;
+    await tester.tap(find.text('More').last);
+    await tester.pumpAndSettle();
+    final sw = find.byType(CupertinoSwitch).at(1);
+    await tester.tap(sw);
+    await tester.pumpAndSettle();
+    expect(tester.widget<CupertinoSwitch>(sw).value, isFalse);
+    expect(find.textContaining('Could not save'), findsOneWidget);
+  });
+
+  testWidgets('incoming money is not counted as needing a category', (
+    tester,
+  ) async {
+    final salary = Txn(
+      id: 's',
+      type: 'transfer_in',
+      direction: 'in',
+      amountHalalas: 1000000,
+      occurredAt: DateTime.utc(2026, 10, 27, 5),
+      merchant: 'Employer',
+      merchantNorm: 'employer',
+    );
+    await open(tester, aiOn: true, txns: [salary]);
+    await tester.tap(find.text('Transactions').last);
+    await tester.pumpAndSettle();
+    expect(find.text('Suggest with AI'), findsNothing);
+  });
+
   testWidgets('Suggest with AI is hidden while AI is off', (tester) async {
     await open(tester, txns: [spend('1', 500)]);
     await tester.tap(find.text('Transactions').last);

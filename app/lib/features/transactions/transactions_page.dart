@@ -179,6 +179,8 @@ class TransactionsPage extends ConsumerWidget {
                               (x) =>
                                   x.categoryId == null &&
                                   !x.isInternal &&
+                                  (x.type == 'purchase' ||
+                                      x.type == 'refund') &&
                                   x.merchantNorm != null,
                             )
                             .length,
