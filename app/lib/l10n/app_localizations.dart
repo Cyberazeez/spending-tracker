@@ -1386,13 +1386,13 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'{percent}% lower'**
-  String homeLower(int percent);
+  String homeLower(String percent);
 
   /// No description provided for @homeHigher.
   ///
   /// In en, this message translates to:
   /// **'{percent}% higher'**
-  String homeHigher(int percent);
+  String homeHigher(String percent);
 
   /// No description provided for @homeToReview.
   ///

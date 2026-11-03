@@ -197,6 +197,106 @@ void main() {
     expect(find.text('~SAR 1,994.00'), findsOneWidget);
     expect(find.text('—'), findsOneWidget);
   });
+
+  testWidgets('week bars: Arabic days have different letters', (t) async {
+    final days = [
+      for (var i = 0; i < 7; i++) DaySpend(DateTime.utc(2026, 11, 9 + i), 100),
+    ];
+    await pump(
+      t,
+      WeekBars(days: days, arabic: true),
+      locale: const Locale('ar'),
+    );
+    for (final l in ['ن', 'ث', 'ر', 'خ', 'ج', 'س', 'ح']) {
+      expect(find.text(l), findsOneWidget, reason: l);
+    }
+  });
+
+  testWidgets(
+    'hero: a tiny or empty last month shows an amount, not a huge percent',
+    (t) async {
+      await pump(
+        t,
+        const HeroCard(
+          monthHalalas: 480000,
+          budgetHalalas: 800000,
+          lastMonthDiffHalalas: 479000,
+          lastMonthPercent: 47900,
+          arabic: false,
+        ),
+      );
+      expect(find.textContaining('%'), findsNWidgets(1)); // only the ring
+      expect(find.textContaining('+SAR 4,790.00'), findsOneWidget);
+    },
+  );
+
+  testWidgets('hero: a difference that rounds to 0% says Same', (t) async {
+    await pump(
+      t,
+      const HeroCard(
+        monthHalalas: 100001,
+        budgetHalalas: 800000,
+        lastMonthDiffHalalas: 1,
+        lastMonthPercent: 0,
+        arabic: false,
+      ),
+    );
+    expect(find.text('Same'), findsOneWidget);
+  });
+
+  testWidgets('hero hides Today while it is unknown', (t) async {
+    await pump(
+      t,
+      const HeroCard(monthHalalas: 100, budgetHalalas: 800000, arabic: false),
+    );
+    expect(find.text('Today'), findsNothing);
+  });
+
+  for (final lang in ['en', 'ar']) {
+    testWidgets('Home cards survive 2x text on a 360pt phone ($lang)', (
+      t,
+    ) async {
+      t.view.physicalSize = const Size(720, 1280);
+      t.view.devicePixelRatio = 2;
+      t.platformDispatcher.textScaleFactorTestValue = 2.0;
+      addTearDown(() {
+        t.view.reset();
+        t.platformDispatcher.clearAllTestValues();
+      });
+      final locale = Locale(lang);
+      final ar = lang == 'ar';
+      await pump(
+        t,
+        Column(
+          children: [
+            HeroCard(
+              monthHalalas: 123456789,
+              todayHalalas: 98765432,
+              budgetHalalas: 150000000,
+              lastMonthDiffHalalas: -500,
+              lastMonthPercent: -3,
+              arabic: ar,
+            ),
+            ShareBar(
+              top: const [
+                GroupSpend(CategoryGroup.food, 123456789),
+                GroupSpend(CategoryGroup.homeBills, 55555555),
+              ],
+              totalHalalas: 200000000,
+              arabic: ar,
+            ),
+            BillCard(
+              bill: bill(DateTime.utc(2026, 11, 8), amount: 123456789),
+              today: DateTime.utc(2026, 11, 3),
+              arabic: ar,
+            ),
+          ],
+        ),
+        locale: locale,
+      );
+      expect(t.takeException(), isNull);
+    });
+  }
 }
 
 Object? tester(WidgetTester t) => t.takeException();

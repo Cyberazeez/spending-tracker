@@ -146,7 +146,7 @@ void main() {
     expect(find.text('Today'), findsOneWidget);
     expect(find.text('SAR 45.00'), findsOneWidget);
     expect(find.text('15%'), findsOneWidget); // 1,200 of 8,000 (the ring)
-    expect(find.text('of SAR 8,000.00 budget'), findsOneWidget);
+    expect(find.textContaining(RegExp(r'SAR 8,000\.00.* budget')), findsOneWidget);
   });
 
   testWidgets(
@@ -179,7 +179,8 @@ void main() {
       ];
     await tester.pumpWidget(await h.build());
     await tester.pumpAndSettle();
-    expect(find.text('125% higher'), findsOneWidget); // 900 against 400
+    expect(find.textContaining('125%'), findsOneWidget); // 900 against 400
+    expect(find.textContaining('higher'), findsOneWidget);
     expect(find.text('—'), findsNothing);
   });
 

@@ -742,12 +742,12 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String homeLower(int percent) {
+  String homeLower(String percent) {
     return '$percent% lower';
   }
 
   @override
-  String homeHigher(int percent) {
+  String homeHigher(String percent) {
     return '$percent% higher';
   }
 

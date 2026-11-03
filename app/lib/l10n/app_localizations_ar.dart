@@ -744,12 +744,12 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String homeLower(int percent) {
+  String homeLower(String percent) {
     return 'أقل بنسبة $percent%';
   }
 
   @override
-  String homeHigher(int percent) {
+  String homeHigher(String percent) {
     return 'أعلى بنسبة $percent%';
   }
 

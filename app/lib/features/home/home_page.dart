@@ -162,7 +162,7 @@ class HomePage extends ConsumerWidget {
                       ],
                       HeroCard(
                         monthHalalas: ins.monthSpend,
-                        todayHalalas: today0 ?? 0,
+                        todayHalalas: today0,
                         budgetHalalas: monthlyBudget,
                         lastMonthDiffHalalas: ins.lastMonthHasData
                             ? diff
@@ -243,6 +243,11 @@ class HomePage extends ConsumerWidget {
                                       bill: i,
                                       today: today,
                                       arabic: arabic,
+                                      onTap: () =>
+                                          ref
+                                                  .read(tabControllerProvider)
+                                                  .index =
+                                              tabObligations,
                                     ),
                                   ),
                                   const SizedBox(width: 12),

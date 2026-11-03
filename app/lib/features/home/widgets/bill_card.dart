@@ -13,6 +13,7 @@ class BillCard extends StatelessWidget {
     required this.bill,
     required this.today,
     required this.arabic,
+    this.onTap,
   });
 
   final ObligationInstance bill;
@@ -20,6 +21,9 @@ class BillCard extends StatelessWidget {
   /// The Riyadh calendar date (UTC midnight) used to count the days left.
   final DateTime today;
   final bool arabic;
+
+  /// Opens the Bills tab.
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -53,73 +57,79 @@ class BillCard extends StatelessWidget {
 
     return Semantics(
       container: true,
+      button: onTap != null,
+      onTap: onTap,
       label:
           '${bill.name}, $pill, $amount, ${t.obDue(formatDay(bill.dueDate))}',
       child: ExcludeSemantics(
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: AppTokens.card.resolveFrom(context),
-            borderRadius: BorderRadius.circular(22),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: bg,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 4,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: onTap,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: AppTokens.card.resolveFrom(context),
+              borderRadius: BorderRadius.circular(22),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: bg,
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                    child: Text(
-                      pill,
-                      style: TextStyle(
-                        color: fg,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      child: Text(
+                        pill,
+                        style: TextStyle(
+                          color: fg,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  bill.name,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: text,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
+                  const SizedBox(height: 10),
+                  Text(
+                    bill.name,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: text,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 10),
-                Directionality(
-                  textDirection: TextDirection.ltr,
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    alignment: AlignmentDirectional.centerStart,
-                    child: Text(
-                      amount,
-                      style: TextStyle(
-                        color: text,
-                        fontSize: 22,
-                        fontWeight: FontWeight.w700,
+                  const SizedBox(height: 10),
+                  Directionality(
+                    textDirection: TextDirection.ltr,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: AlignmentDirectional.centerStart,
+                      child: Text(
+                        amount,
+                        style: TextStyle(
+                          color: text,
+                          fontSize: 22,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  t.obDue(formatDay(bill.dueDate)),
-                  style: TextStyle(color: muted, fontSize: 12),
-                ),
-              ],
+                  const SizedBox(height: 10),
+                  Text(
+                    t.obDue(formatDay(bill.dueDate)),
+                    style: TextStyle(color: muted, fontSize: 12),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

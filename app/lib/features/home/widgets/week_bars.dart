@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart' show DateFormat;
 
+import '../../../core/format.dart';
 import '../../../core/money.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/app_card.dart';
@@ -18,6 +19,10 @@ class WeekBars extends StatelessWidget {
   final bool arabic;
 
   static const _maxBarHeight = 96.0;
+
+  // Monday first (DateTime.weekday is 1 to 7).
+  static const _lettersEn = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+  static const _lettersAr = ['ن', 'ث', 'ر', 'خ', 'ج', 'س', 'ح'];
 
   @override
   Widget build(BuildContext context) {
@@ -47,12 +52,9 @@ class WeekBars extends StatelessWidget {
                   ),
                 ),
               ),
-              Directionality(
-                textDirection: TextDirection.ltr,
-                child: Text(
-                  t.homeWeekTotal(formatSar(total, arabic: arabic)),
-                  style: TextStyle(color: muted, fontSize: 13),
-                ),
+              Text(
+                t.homeWeekTotal(ltrIsolate(formatSar(total, arabic: arabic))),
+                style: TextStyle(color: muted, fontSize: 13),
               ),
             ],
           ),
@@ -67,7 +69,9 @@ class WeekBars extends StatelessWidget {
                       final d = days[i];
                       final isToday = i == days.length - 1;
                       final weekday = DateFormat('EEEE', locale).format(d.day);
-                      final short = DateFormat('E', locale).format(d.day);
+                      final letter = (arabic
+                          ? _lettersAr
+                          : _lettersEn)[d.day.weekday - 1];
                       final h = maxValue == 0
                           ? 4.0
                           : math.max(4.0, d.halalas / maxValue * _maxBarHeight);
@@ -104,7 +108,7 @@ class WeekBars extends StatelessWidget {
                               ),
                               const SizedBox(height: 8),
                               Text(
-                                short.characters.first,
+                                letter,
                                 style: TextStyle(
                                   color: isToday ? text : muted,
                                   fontSize: 12,

@@ -43,3 +43,6 @@ String monthName(DateTime d, {required bool arabic}) =>
 /// A Riyadh calendar date held as UTC midnight, e.g. "2 Nov".
 String formatDay(DateTime d) =>
     '\u2066${DateFormat('d MMM', 'en').format(d.toUtc())}\u2069';
+
+/// Keeps a number or amount in left-to-right order inside a sentence of another direction (Arabic).
+String ltrIsolate(String s) => '\u2066$s\u2069';
