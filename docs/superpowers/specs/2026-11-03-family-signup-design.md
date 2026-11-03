@@ -12,7 +12,11 @@ Goal (owner): let family members create their own accounts so the app can be sha
 | Isolation | RLS on every table; `rls_test.sql` already proves user A cannot see user B; every function takes the user from the JWT / token | Good base. Needs a re-audit when sign-up opens |
 | Account deletion | None | Apple requires in-app account deletion once the app lets people create accounts |
 
-## Decisions needed from the owner
+## Decisions (owner, 2026-11-03)
+- Invite-only for family testing. Email + password for now.
+- **Later, when the app goes public:** open sign-up with SSO (Sign in with Apple and Google). Keep this in mind: user creation stays in one place (the auth user + the safe seed from Stage A), and the sign-up screen is built so a provider button can be added next to the email form without redoing the seed, onboarding or account deletion. Apple's rule: once Google sign-in exists, Sign in with Apple must be offered too.
+
+## Options that were considered
 1. **Who can sign up.** Recommended: **invite-only**. The owner creates an invite code in the app (More > Invite family), the relative enters it on the sign-up screen. Open sign-up would let anyone with the TestFlight link create an account and spend the AI budget.
 2. **Sign-in method.** Recommended: keep **email + password** (what exists). Sign in with Apple needs extra Apple/Supabase configuration and is not required while there is no other third-party login. Can be added later.
 
