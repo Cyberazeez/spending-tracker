@@ -1,4 +1,4 @@
-import { type AiDeps, costHalalas, MODEL } from "./ai.ts";
+import { type AiDeps, costHalalas, MAX_TOKENS_TIPS, MODEL } from "./ai.ts";
 
 export interface CategoryAgg {
   name: string;
@@ -143,7 +143,7 @@ export async function generateTips(
       },
       body: JSON.stringify({
         model: MODEL,
-        max_tokens: 800,
+        max_tokens: MAX_TOKENS_TIPS,
         messages: [{ role: "user", content: buildPrompt(a, language) }],
       }),
     });

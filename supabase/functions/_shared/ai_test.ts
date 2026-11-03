@@ -1,5 +1,11 @@
 import assert from "node:assert/strict";
-import { type AiDeps, categorizeMerchants, costHalalas, maskMerchant } from "./ai.ts";
+import {
+  type AiDeps,
+  categorizeMerchants,
+  costHalalas,
+  maskMerchant,
+  MAX_TOKENS_CATEGORIZE,
+} from "./ai.ts";
 import { runBatch } from "../categorize-batch/handler.ts";
 
 const CATS = ["Dining", "Groceries", "Other"];
@@ -165,4 +171,25 @@ Deno.test("batch: when the switch is off nothing is sent and nothing changes", a
   assert.deepEqual(r, { ok: false, reason: "disabled" });
   assert.equal(x.calls.length, 0);
   assert.equal(saved, 0);
+});
+
+Deno.test("the output ceiling is generous (a 1,500 cap cut the first real answer off)", async () => {
+  const x = deps();
+  await categorizeMerchants(x.d, ["Noon"], CATS);
+  const sent = JSON.parse(String(x.calls[0].init.body));
+  assert.equal(sent.max_tokens, MAX_TOKENS_CATEGORIZE);
+  assert.ok(sent.max_tokens >= 4000);
+});
+
+Deno.test("a reply cut off at the ceiling fails closed, but its usage is still recorded", async () => {
+  const x = deps({
+    reply: {
+      stop_reason: "max_tokens",
+      content: [{ type: "text", text: '{"noon":"Shop' }],
+      usage: { input_tokens: 500, output_tokens: 8000 },
+    },
+  });
+  const r = await categorizeMerchants(x.d, ["Noon"], CATS);
+  assert.deepEqual(r, { ok: false, reason: "failed" });
+  assert.equal(x.usage.length, 1);
 });
