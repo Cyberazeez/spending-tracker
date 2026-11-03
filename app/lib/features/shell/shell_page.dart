@@ -9,6 +9,7 @@ import '../../core/providers.dart';
 import '../../core/reminder_bridge.dart';
 import '../../core/reminders.dart';
 import '../../core/widget_bridge.dart';
+import '../../core/widget_setup.dart';
 import '../../l10n/app_localizations.dart';
 import '../home/home_page.dart';
 import '../insights/insights_page.dart';
@@ -36,6 +37,11 @@ class _ShellPageState extends ConsumerState<ShellPage>
 
   /// Gives the "Add bank message" Shortcuts action its token (once) and sends anything it queued offline.
   void _syncCapture() {
+    ensureWidgetReady(
+      ref.read(widgetBridgeProvider),
+      ref.read(tokenRepositoryProvider),
+      () => ref.read(authRepositoryProvider).userId,
+    );
     ensureCaptureReady(
       ref.read(captureBridgeProvider),
       ref.read(tokenRepositoryProvider),

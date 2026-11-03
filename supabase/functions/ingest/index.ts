@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { INGEST_TOKEN_KINDS } from "../_shared/token.ts";
 import { handleIngest, type IngestDeps } from "./handler.ts";
 
 const db = createClient(
@@ -13,6 +14,7 @@ const deps: IngestDeps = {
       .from("ingest_tokens")
       .select("id, user_id")
       .eq("token_hash", hash)
+      .in("kind", [...INGEST_TOKEN_KINDS]) // never the widget token
       .is("revoked_at", null)
       .maybeSingle();
     if (error) throw new Error("token_lookup_failed");

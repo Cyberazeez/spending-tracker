@@ -66,6 +66,8 @@ class FakeTokenRepository implements TokenRepository {
   int rotateCalls = 0;
   int appRotateCalls = 0;
   int appRevokeCalls = 0;
+  int widgetRotateCalls = 0;
+  final List<String> revokedKinds = [];
   int loadCalls = 0;
   bool failLoad = false;
 
@@ -85,6 +87,10 @@ class FakeTokenRepository implements TokenRepository {
       appRotateCalls++;
       return 'stk_APPTOKEN';
     }
+    if (kind == 'widget') {
+      widgetRotateCalls++;
+      return 'stk_WIDGETTOKEN';
+    }
     rotateCalls++;
     active = IngestTokenInfo(
       label: label,
@@ -95,7 +101,8 @@ class FakeTokenRepository implements TokenRepository {
 
   @override
   Future<void> revoke({String kind = 'app'}) async {
-    appRevokeCalls++;
+    revokedKinds.add(kind);
+    if (kind == 'app') appRevokeCalls++;
   }
 }
 
@@ -367,6 +374,28 @@ class FakeDataRepository implements DataRepository {
 
 class FakeWidgetBridge implements WidgetBridge {
   final List<WidgetSnapshot> saved = [];
+  bool hasToken = false;
+  String? tokenUser;
+  int clears = 0;
+  final List<(String, String, String)> savedCredentials = [];
+
+  @override
+  Future<WidgetCredentialStatus> credentialStatus() async =>
+      WidgetCredentialStatus(hasToken: hasToken, userId: tokenUser);
+
+  @override
+  Future<void> saveCredentials(String url, String token, String userId) async {
+    savedCredentials.add((url, token, userId));
+    hasToken = true;
+    tokenUser = userId;
+  }
+
+  @override
+  Future<void> clearCredentials() async {
+    clears++;
+    hasToken = false;
+    tokenUser = null;
+  }
 
   @override
   Future<void> save(WidgetSnapshot snapshot, DateTime now) async {

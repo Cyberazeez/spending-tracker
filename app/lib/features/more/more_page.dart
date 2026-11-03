@@ -7,6 +7,8 @@ import '../../core/capture_setup.dart';
 import '../../core/lock.dart';
 import '../../core/providers.dart';
 import '../../core/reminders.dart';
+import '../../core/widget_bridge.dart';
+import '../../core/widget_setup.dart';
 import '../../l10n/app_localizations.dart';
 import '../../router.dart';
 import '../../ui/theme.dart';
@@ -123,6 +125,10 @@ class MorePage extends ConsumerWidget {
                       onTap: () async {
                         await releaseCapture(
                           ref.read(captureBridgeProvider),
+                          ref.read(tokenRepositoryProvider),
+                        );
+                        await releaseWidget(
+                          ref.read(widgetBridgeProvider),
                           ref.read(tokenRepositoryProvider),
                         );
                         await ref.read(authRepositoryProvider).signOut();

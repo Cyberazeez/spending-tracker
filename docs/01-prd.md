@@ -90,6 +90,7 @@ As the owner, every bank SMS I receive reaches the app without my touching it.
   - **Medium:** spent this month and the percentage of the monthly budget.
   - **Lock screen:** the monthly budget percentage.
 - **Monthly budget:** one overall spending limit for the month, set by the owner in the app (new setting `monthly_budget_halalas`). The widget percentage is month spend divided by it. Category budgets (F7) are unchanged and keep driving the alerts. With no monthly budget set, the widget shows the spend and "Set a monthly budget".
+- **Self-refreshing (roadmap item 4, built 2026-11-03):** the app gives the widget extension its own **read-only token** (kind `widget`, created by the app on sign-in, stored in the shared App Group, revoked and wiped on sign-out). Each time iOS refreshes the widget (we ask for 15 minutes; iOS allows a few dozen a day) it calls the `widget-summary` Edge Function and gets three numbers: spent today, spent this month, monthly budget (Riyadh time, same spend rule as the app's month total). The token cannot post messages (`ingest` accepts only kinds `shortcut` and `app`) and cannot read anything else. Offline or no token: the widget shows what the app last saved. A day-old `--` only happens when both fail. Limit 300 calls per day per user.
 - Later (after the widget): an app-provided Shortcuts action ("Add bank message") so users do not put a token in their own shortcut. See `docs/06-implementation-plan.md`.
 
 ### F9. Security and lock

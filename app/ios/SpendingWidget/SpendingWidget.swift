@@ -2,8 +2,9 @@ import SwiftUI
 import UIKit
 import WidgetKit
 
-// Home-screen and lock-screen widget. It only reads numbers the app saved in the shared App Group
-// (see AppDelegate "spending_tracker/widget"); it never talks to the network.
+// Home-screen and lock-screen widget. The app saves its numbers in the shared App Group (AppDelegate
+// "spending_tracker/widget") and also hands the widget a read-only token. Every refresh the widget asks the
+// `widget-summary` function for fresh numbers; if that fails (offline, no token yet) it shows what the app last saved.
 private let appGroup = "group.com.cyberazeez.spendingtracker"
 private let riyadh = TimeZone(identifier: "Asia/Riyadh") ?? TimeZone.current
 
@@ -30,8 +31,22 @@ struct SpendingProvider: TimelineProvider {
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<SpendingEntry>) -> Void) {
-        // Ask for a refresh in 30 minutes; the app also reloads the widget every time it saves new numbers.
-        completion(Timeline(entries: [load()], policy: .after(Date().addingTimeInterval(30 * 60))))
+        // iOS decides the real schedule (a few dozen refreshes a day); 15 minutes is only our request.
+        let next = Date().addingTimeInterval(15 * 60)
+        fetchRemote { remote in
+            if let remote = remote {
+                let defaults = UserDefaults(suiteName: appGroup)
+                defaults?.set(remote.today, forKey: "today")
+                defaults?.set(remote.month, forKey: "month")
+                if let budget = remote.budget {
+                    defaults?.set(budget, forKey: "budget")
+                } else {
+                    defaults?.removeObject(forKey: "budget")
+                }
+                defaults?.set(Int(Date().timeIntervalSince1970), forKey: "updated")
+            }
+            completion(Timeline(entries: [self.load()], policy: .after(next)))
+        }
     }
 
     private func load() -> SpendingEntry {
@@ -55,6 +70,49 @@ struct SpendingProvider: TimelineProvider {
         let arabic = (defaults?.string(forKey: "lang") ?? "en") == "ar"
         return SpendingEntry(date: now, today: today, month: month, budget: budget, arabic: arabic)
     }
+}
+
+// MARK: - Fresh numbers from the server
+
+private struct Remote {
+    let today: Int
+    let month: Int
+    let budget: Int?
+}
+
+private func fetchRemote(completion: @escaping (Remote?) -> Void) {
+    guard let defaults = UserDefaults(suiteName: appGroup),
+          let base = defaults.string(forKey: "widget.url"),
+          let token = defaults.string(forKey: "widget.token"),
+          let url = URL(string: base.trimmingCharacters(in: CharacterSet(charactersIn: "/")) + "/functions/v1/widget-summary")
+    else {
+        completion(nil)
+        return
+    }
+    var request = URLRequest(url: url, timeoutInterval: 15)
+    request.httpMethod = "GET"
+    request.setValue(token, forHTTPHeaderField: "x-widget-token")
+    URLSession.shared.dataTask(with: request) { data, response, _ in
+        guard let http = response as? HTTPURLResponse else {
+            completion(nil)  // offline: keep showing the last numbers
+            return
+        }
+        if http.statusCode == 401 || http.statusCode == 403 {
+            // Token revoked or replaced: forget it so the app provisions a new one the next time it opens.
+            defaults.removeObject(forKey: "widget.token")
+            completion(nil)
+            return
+        }
+        guard http.statusCode == 200, let data = data,
+              let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let today = (object["today"] as? NSNumber)?.intValue,
+              let month = (object["month"] as? NSNumber)?.intValue
+        else {
+            completion(nil)
+            return
+        }
+        completion(Remote(today: today, month: month, budget: (object["budget"] as? NSNumber)?.intValue))
+    }.resume()
 }
 
 // MARK: - Text
