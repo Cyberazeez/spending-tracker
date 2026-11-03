@@ -14,8 +14,8 @@ Make the app look and feel like a bold modern fintech app instead of a settings 
 Home only, plus the shared design layer it needs. No backend, no schema change, no change to what the numbers mean.
 
 ## Design layer (`app/lib/ui/`)
-- **Tokens** (`tokens.dart`): colors for dark and light (from the mockup), radii (card 24, hero 28, chip 22, badge round), spacing on a 4 pt grid, text styles (Inter via the bundled `google_fonts`-free approach below; tabular numerals for amounts).
-  - Font: Inter is NOT bundled by default. Stage 1 uses the system font (SF Pro / SF Arabic) with tabular figures, to avoid a font download and RTL font problems. A bundled Inter is a later option.
+- **Tokens** (`tokens.dart`): colors for dark and light (from the mockup), radii (card 24, hero 28, chip 22, badge round), spacing on a 4 pt grid, text styles with tabular numerals for amounts.
+  - Font: the system font (SF Pro / SF Arabic), not Inter as in the mockup, to avoid a font download and RTL font problems. A bundled Inter is a later option.
 - **Components:** `HeroCard` (gradient, animated count-up number, budget ring), `Card` (rounded surface), `SectionHeader`, `WeekBars` (7-day bar chart, today highlighted), `StackedShareBar` + `CategoryRow` (round colored badge, name, share, amount), `BillCard` (status pill), `AttentionChip`, floating translucent tab bar.
 - **Charts:** `fl_chart` for the week bars and the stacked bar if it renders cleanly in RTL; otherwise small custom painters (they are simple). Decision made when building, noted in the PR.
 - **Icons:** `phosphor_flutter` (consistent set). One icon per category group. Replaces `CupertinoIcons` on Home and the tab bar.
