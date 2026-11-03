@@ -1,6 +1,14 @@
 import { normalizeMerchant } from "./normalize.ts";
 
 export const MODEL = "claude-haiku-5-5";
+
+/**
+ * Output ceilings. A reply that hits the ceiling is cut off mid-JSON and cannot be parsed (seen on the first real
+ * call: 1,500 tokens were all used and the answer was lost), so the ceilings are generous; the cost is billed on
+ * what is actually produced.
+ */
+export const MAX_TOKENS_CATEGORIZE = 8000;
+export const MAX_TOKENS_TIPS = 4000;
 /** USD per million tokens for prompts under 100k tokens (check Anthropic's pricing page before changing). */
 const INPUT_USD_PER_MTOK = 0.10;
 const OUTPUT_USD_PER_MTOK = 0.50;
@@ -62,7 +70,7 @@ export async function categorizeMerchants(
     const prompt = [
       "Assign each merchant name (from Saudi bank SMS, Arabic or English, often abbreviated) to exactly one category.",
       `Categories: ${categoryNames.join(", ")}.`,
-      'Reply with only a JSON object mapping each merchant string to a category, or to "Other" if unsure.',
+      'Reply with only a JSON object mapping each merchant string to a category, or to "Other" if unsure. No explanation and no markdown.',
       `Merchants: ${JSON.stringify(masked)}`,
     ].join("\n");
     const res = await deps.fetch("https://api.anthropic.com/v1/messages", {
@@ -74,7 +82,7 @@ export async function categorizeMerchants(
       },
       body: JSON.stringify({
         model: MODEL,
-        max_tokens: 1500,
+        max_tokens: MAX_TOKENS_CATEGORIZE,
         messages: [{ role: "user", content: prompt }],
       }),
     });
@@ -85,6 +93,10 @@ export async function categorizeMerchants(
     const outTok = Number(data?.usage?.output_tokens ?? 0);
     const cost = costHalalas(inTok, outTok);
     await deps.recordUsage({ inputTokens: inTok, outputTokens: outTok, costHalalas: cost });
+    if (data?.stop_reason === "max_tokens") {
+      console.error("ai_categorize_truncated", outTok);
+      return { ok: false, reason: "failed" };
+    }
     const json = text.match(/\{[\s\S]*\}/)?.[0];
     if (!json) return { ok: false, reason: "failed" };
     const raw = JSON.parse(json) as Record<string, unknown>;
