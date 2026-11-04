@@ -5,7 +5,9 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../core/capture_bridge.dart';
 import '../../core/capture_setup.dart';
+import '../../core/format.dart' show ltrIsolate;
 import '../../core/lock.dart';
+import '../../core/money.dart';
 import '../../core/providers.dart';
 import '../../core/reminders.dart';
 import '../../core/widget_bridge.dart';
@@ -14,6 +16,8 @@ import '../../l10n/app_localizations.dart';
 import '../../router.dart';
 import '../account/account_pages.dart';
 import '../ai/providers.dart';
+import '../insights/budget_flow.dart';
+import '../insights/providers.dart' show monthlyBudgetProvider;
 import '../../ui/bottom_inset.dart';
 import '../../ui/settings_group.dart';
 import '../../ui/tokens.dart';
@@ -125,6 +129,7 @@ class MorePage extends ConsumerWidget {
                 const SizedBox(height: 16),
                 SettingsGroup(
                   children: [
+                    const _BudgetRow(),
                     const _CaptureStatusRow(),
                     SettingsRow(
                       icon: LucideIcons.user,
@@ -229,6 +234,27 @@ class _AiRowState extends ConsumerState<_AiRow> {
 }
 
 /// Shows what the "Add bank message" Shortcuts action has queued and how the last send went.
+/// The monthly budget: shows it, or "Not set"; tapping sets, changes or removes it.
+class _BudgetRow extends ConsumerWidget {
+  const _BudgetRow();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = AppLocalizations.of(context);
+    final arabic = ref.watch(localeProvider).languageCode == 'ar';
+    final budget = ref.watch(monthlyBudgetProvider).value;
+    return SettingsRow(
+      icon: LucideIcons.wallet,
+      color: const Color(0xFFFFB340),
+      title: t.insMonthlyBudget,
+      value: budget == null
+          ? t.insMonthlyBudgetNotSet
+          : ltrIsolate(formatSar(budget, arabic: arabic)),
+      onTap: () => showMonthlyBudgetFlow(context, ref, current: budget),
+    );
+  }
+}
+
 class _CaptureStatusRow extends ConsumerWidget {
   const _CaptureStatusRow();
 

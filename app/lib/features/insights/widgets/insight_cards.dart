@@ -1,5 +1,8 @@
 import 'package:flutter/cupertino.dart';
 
+import '../../../ui/trailing_box.dart';
+import '../../../ui/chevron.dart';
+
 import '../../../core/format.dart';
 import '../../../core/money.dart';
 import '../../../l10n/app_localizations.dart';
@@ -169,7 +172,7 @@ class SummaryCard extends StatelessWidget {
                               ),
                             ),
                           ),
-                          Flexible(
+                          TrailingBox(
                             child: monthlyBudget == null
                                 ? Text(
                                     t.insMonthlyBudgetNotSet,
@@ -192,11 +195,7 @@ class SummaryCard extends StatelessWidget {
                                   ),
                           ),
                           const SizedBox(width: 6),
-                          Icon(
-                            CupertinoIcons.chevron_forward,
-                            size: 14,
-                            color: muted,
-                          ),
+                          ForwardChevron(size: 14, color: muted),
                         ],
                       ),
                       if (monthlyBudget != null) ...[

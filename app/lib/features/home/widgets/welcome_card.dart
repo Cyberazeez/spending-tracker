@@ -1,4 +1,8 @@
 import 'package:flutter/cupertino.dart';
+
+import '../../../ui/chevron.dart';
+import '../../insights/budget_flow.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -8,7 +12,6 @@ import '../../../router.dart';
 import '../../../ui/app_card.dart';
 import '../../../ui/tokens.dart';
 import '../../account/account_providers.dart';
-import '../../shell/tabs.dart';
 
 /// The first steps of a new account: bank accounts, SMS capture, a monthly budget. Disappears by itself when all
 /// three are done, or when the user taps Hide.
@@ -109,7 +112,7 @@ class _WelcomeCardState extends ConsumerState<WelcomeCard> {
                   ),
                 ),
               ),
-              Icon(CupertinoIcons.chevron_forward, size: 14, color: muted),
+              ForwardChevron(size: 14, color: muted),
             ],
           ),
         ),
@@ -156,7 +159,7 @@ class _WelcomeCardState extends ConsumerState<WelcomeCard> {
             step(
               w.budget,
               t.welcomeBudget,
-              () => ref.read(tabControllerProvider).index = 3,
+              () => showMonthlyBudgetFlow(context, ref),
             ),
           ],
         ),

@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -35,8 +36,15 @@ class _AiChatPageState extends ConsumerState<AiChatPage> {
   bool _busy = false;
   String? _error;
 
+  /// The keyboard must not outlive this screen (it stayed up on the page behind after a swipe back).
+  void _hideKeyboard() {
+    FocusManager.instance.primaryFocus?.unfocus();
+    SystemChannels.textInput.invokeMethod<void>('TextInput.hide');
+  }
+
   @override
   void dispose() {
+    _hideKeyboard();
     _input.dispose();
     _scroll.dispose();
     super.dispose();
@@ -167,150 +175,155 @@ class _AiChatPageState extends ConsumerState<AiChatPage> {
       ),
     );
 
-    return CupertinoPageScaffold(
-      backgroundColor: AppTokens.bg.resolveFrom(context),
-      navigationBar: appNavBar(context, t.aiChatTitle),
-      child: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: ListView(
-                controller: _scroll,
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-                children: [
-                  if (_turns.isEmpty) ...[
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(4, 8, 4, 16),
-                      child: Text(
-                        t.aiChatIntro,
-                        style: TextStyle(color: muted, fontSize: 14),
+    return PopScope(
+      onPopInvokedWithResult: (_, _) => _hideKeyboard(),
+      child: CupertinoPageScaffold(
+        backgroundColor: AppTokens.bg.resolveFrom(context),
+        navigationBar: appNavBar(context, t.aiChatTitle),
+        child: SafeArea(
+          child: Column(
+            children: [
+              Expanded(
+                child: ListView(
+                  controller: _scroll,
+                  keyboardDismissBehavior:
+                      ScrollViewKeyboardDismissBehavior.onDrag,
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                  children: [
+                    if (_turns.isEmpty) ...[
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(4, 8, 4, 16),
+                        child: Text(
+                          t.aiChatIntro,
+                          style: TextStyle(color: muted, fontSize: 14),
+                        ),
                       ),
-                    ),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        for (final p in _prompts(t))
-                          CupertinoButton(
-                            padding: EdgeInsets.zero,
-                            minimumSize: const Size(44, 44),
-                            onPressed: () => _ask(p),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 14,
-                                vertical: 10,
-                              ),
-                              decoration: BoxDecoration(
-                                color: card,
-                                borderRadius: BorderRadius.circular(18),
-                              ),
-                              child: Text(
-                                p,
-                                style: TextStyle(color: accent, fontSize: 14),
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ],
-                  for (final turn in _turns) bubble(turn),
-                  if (_busy)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 10),
-                      child: Row(
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
                         children: [
-                          const CupertinoActivityIndicator(),
-                          const SizedBox(width: 8),
-                          Text(
-                            t.aiChatThinking,
-                            style: TextStyle(color: muted, fontSize: 14),
-                          ),
-                        ],
-                      ),
-                    ),
-                  if (_error != null)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 10),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              _error!,
-                              style: TextStyle(color: danger, fontSize: 14),
-                            ),
-                          ),
-                          if (_turns.isNotEmpty && _turns.last.fromUser)
+                          for (final p in _prompts(t))
                             CupertinoButton(
                               padding: EdgeInsets.zero,
                               minimumSize: const Size(44, 44),
-                              onPressed: _run,
-                              child: Text(
-                                t.aiChatRetry,
-                                style: TextStyle(
-                                  color: accent,
-                                  fontWeight: FontWeight.w700,
+                              onPressed: () => _ask(p),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 14,
+                                  vertical: 10,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: card,
+                                  borderRadius: BorderRadius.circular(18),
+                                ),
+                                child: Text(
+                                  p,
+                                  style: TextStyle(color: accent, fontSize: 14),
                                 ),
                               ),
                             ),
                         ],
                       ),
-                    ),
-                ],
+                    ],
+                    for (final turn in _turns) bubble(turn),
+                    if (_busy)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 10),
+                        child: Row(
+                          children: [
+                            const CupertinoActivityIndicator(),
+                            const SizedBox(width: 8),
+                            Text(
+                              t.aiChatThinking,
+                              style: TextStyle(color: muted, fontSize: 14),
+                            ),
+                          ],
+                        ),
+                      ),
+                    if (_error != null)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 10),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                _error!,
+                                style: TextStyle(color: danger, fontSize: 14),
+                              ),
+                            ),
+                            if (_turns.isNotEmpty && _turns.last.fromUser)
+                              CupertinoButton(
+                                padding: EdgeInsets.zero,
+                                minimumSize: const Size(44, 44),
+                                onPressed: _run,
+                                child: Text(
+                                  t.aiChatRetry,
+                                  style: TextStyle(
+                                    color: accent,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 4, 16, 10),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Expanded(
-                    child: CupertinoTextField(
-                      controller: _input,
-                      placeholder: t.aiChatHint,
-                      minLines: 1,
-                      maxLines: 4,
-                      maxLength: 500,
-                      textInputAction: TextInputAction.send,
-                      onChanged: (_) => setState(() {}),
-                      onSubmitted: _ask,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 11,
-                      ),
-                      style: TextStyle(color: text),
-                      decoration: BoxDecoration(
-                        color: card,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Semantics(
-                    button: true,
-                    label: t.aiChatSend,
-                    child: CupertinoButton(
-                      padding: EdgeInsets.zero,
-                      minimumSize: const Size(44, 44),
-                      onPressed: canSend ? () => _ask(_input.text) : null,
-                      child: Container(
-                        width: 40,
-                        height: 40,
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 4, 16, 10),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Expanded(
+                      child: CupertinoTextField(
+                        controller: _input,
+                        placeholder: t.aiChatHint,
+                        minLines: 1,
+                        maxLines: 4,
+                        maxLength: 500,
+                        textInputAction: TextInputAction.send,
+                        onChanged: (_) => setState(() {}),
+                        onSubmitted: _ask,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 11,
+                        ),
+                        style: TextStyle(color: text),
                         decoration: BoxDecoration(
-                          color: canSend ? accent : card,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          LucideIcons.arrowUp,
-                          size: 20,
-                          color: canSend ? onAccent : muted,
+                          color: card,
+                          borderRadius: BorderRadius.circular(20),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 8),
+                    Semantics(
+                      button: true,
+                      label: t.aiChatSend,
+                      child: CupertinoButton(
+                        padding: EdgeInsets.zero,
+                        minimumSize: const Size(44, 44),
+                        onPressed: canSend ? () => _ask(_input.text) : null,
+                        child: Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: canSend ? accent : card,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            LucideIcons.arrowUp,
+                            size: 20,
+                            color: canSend ? onAccent : muted,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

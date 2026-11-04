@@ -21,6 +21,7 @@ import '../transactions/providers.dart';
 import 'metrics.dart';
 import 'providers.dart';
 import 'widgets/donut_share.dart';
+import 'budget_flow.dart';
 import 'widgets/insight_cards.dart';
 import 'widgets/month_bars.dart';
 import 'widgets/trend_chart.dart';
@@ -72,40 +73,8 @@ class _InsightsPageState extends ConsumerState<InsightsPage> {
     await _save(() => repo.setBudget(categoryId, halalas));
   }
 
-  Future<void> _monthlyBudgetActions(int? current) async {
-    final t = AppLocalizations.of(context);
-    final choice = await showCupertinoModalPopup<String>(
-      context: context,
-      builder: (ctx) => CupertinoActionSheet(
-        title: Text(t.insMonthlyBudget),
-        actions: [
-          CupertinoActionSheetAction(
-            onPressed: () => Navigator.pop(ctx, 'set'),
-            child: Text(t.insBudgetSet),
-          ),
-          if (current != null)
-            CupertinoActionSheetAction(
-              isDestructiveAction: true,
-              onPressed: () => Navigator.pop(ctx, 'remove'),
-              child: Text(t.insBudgetRemove),
-            ),
-        ],
-        cancelButton: CupertinoActionSheetAction(
-          onPressed: () => Navigator.pop(ctx),
-          child: Text(t.cancel),
-        ),
-      ),
-    );
-    if (choice == null || !mounted) return;
-    final repo = ref.read(dataRepositoryProvider);
-    if (choice == 'remove') {
-      await _save(() => repo.setMonthlyBudget(null));
-      return;
-    }
-    final halalas = await _askLimit(current);
-    if (halalas == null || !mounted) return;
-    await _save(() => repo.setMonthlyBudget(halalas));
-  }
+  Future<void> _monthlyBudgetActions(int? current) =>
+      showMonthlyBudgetFlow(context, ref, current: current);
 
   Future<void> _pickCategoryForBudget(
     List<Category> cats,
@@ -128,89 +97,10 @@ class _InsightsPageState extends ConsumerState<InsightsPage> {
     );
   }
 
-  Future<int?> _askLimit(int? current) async {
-    final t = AppLocalizations.of(context);
-    final controller = TextEditingController(
-      text: current == null ? '' : (current / 100).toStringAsFixed(2),
-    );
-    String? error;
-    final result = await showCupertinoDialog<int>(
-      context: context,
-      builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setLocal) => CupertinoAlertDialog(
-          title: Text(t.insBudgetPrompt),
-          content: Column(
-            children: [
-              const SizedBox(height: 8),
-              CupertinoTextField(
-                controller: controller,
-                autofocus: true,
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
-                ),
-              ),
-              if (error != null)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: Text(
-                    error!,
-                    style: TextStyle(
-                      color: CupertinoColors.systemRed.resolveFrom(ctx),
-                      fontSize: 13,
-                    ),
-                  ),
-                ),
-            ],
-          ),
-          actions: [
-            CupertinoDialogAction(
-              onPressed: () => Navigator.pop(ctx),
-              child: Text(t.cancel),
-            ),
-            CupertinoDialogAction(
-              isDefaultAction: true,
-              onPressed: () {
-                final v = parseHalalas(controller.text);
-                if (v == null || v > maxBudgetHalalas) {
-                  setLocal(() => error = t.insBudgetInvalid);
-                } else {
-                  Navigator.pop(ctx, v);
-                }
-              },
-              child: Text(t.insSave),
-            ),
-          ],
-        ),
-      ),
-    );
-    return result;
-  }
+  Future<int?> _askLimit(int? current) => askBudgetLimit(context, current);
 
-  Future<void> _save(Future<void> Function() action) async {
-    final t = AppLocalizations.of(context);
-    try {
-      await action();
-    } catch (_) {
-      if (!mounted) return;
-      await showCupertinoDialog<void>(
-        context: context,
-        builder: (ctx) => CupertinoAlertDialog(
-          content: Text(t.obSaveFailed),
-          actions: [
-            CupertinoDialogAction(
-              onPressed: () => Navigator.pop(ctx),
-              child: Text(t.done),
-            ),
-          ],
-        ),
-      );
-    } finally {
-      if (mounted) {
-        ref.invalidate(budgetsProvider);
-        ref.invalidate(monthlyBudgetProvider);
-      }
-    }
-  }
+  Future<void> _save(Future<void> Function() action) =>
+      saveBudgetChange(context, ref, action);
 
   @override
   Widget build(BuildContext context) {

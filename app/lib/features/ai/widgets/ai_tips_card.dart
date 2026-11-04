@@ -47,11 +47,24 @@ class _AiTipsCardState extends ConsumerState<AiTipsCard> {
 
   Future<void> _loadSaved() async {
     try {
-      final saved = await ref.read(dataRepositoryProvider).savedAiTips(_month);
+      final saved = await ref
+          .read(dataRepositoryProvider)
+          .savedAiTips(_month, language: ref.read(localeProvider).languageCode);
       if (mounted && _tips.isEmpty) setState(() => _tips = saved);
     } catch (_) {
       // Saved tips are a convenience; the button still works.
     }
+  }
+
+  /// The app language changed: show the saved tips in the new language, or write them again if there are none.
+  Future<void> _languageChanged() async {
+    final had = _tips.isNotEmpty;
+    setState(() {
+      _tips = const [];
+      _error = null;
+    });
+    await _loadSaved();
+    if (mounted && had && _tips.isEmpty && !_busy) await _ask();
   }
 
   Future<void> _ask() async {
@@ -87,6 +100,9 @@ class _AiTipsCardState extends ConsumerState<AiTipsCard> {
       return const SizedBox.shrink();
     }
     final t = AppLocalizations.of(context);
+    ref.listen(localeProvider, (prev, next) {
+      if (prev?.languageCode != next.languageCode) _languageChanged();
+    });
     final arabic = ref.watch(localeProvider).languageCode == 'ar';
     const onHero = Color(0xFFFFFFFF);
     const softHero = Color(0xCCFFFFFF);

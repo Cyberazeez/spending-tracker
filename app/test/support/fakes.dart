@@ -458,7 +458,8 @@ class FakeDataRepository implements DataRepository {
   }
 
   @override
-  Future<List<String>> savedAiTips(String month) async => saved;
+  Future<List<String>> savedAiTips(String month, {String? language}) async =>
+      saved;
 
   final savedObligations = <(String?, ObligationDef)>[];
   final stoppedObligations = <String>[];

@@ -81,7 +81,7 @@ abstract class DataRepository {
   );
 
   /// The tips saved for [month] ("YYYY-MM"), newest first, or empty.
-  Future<List<String>> savedAiTips(String month);
+  Future<List<String>> savedAiTips(String month, {String? language});
 
   /// The user's own accounts, cards and wallets (Account > Bank accounts).
   Future<List<OwnAccount>> ownAccounts();
@@ -468,19 +468,28 @@ class SupabaseDataRepository implements DataRepository {
   });
 
   @override
-  Future<List<String>> savedAiTips(String month) async {
+  Future<List<String>> savedAiTips(String month, {String? language}) async {
     final rows = await _db
         .from('insights')
         .select('tips')
         .eq('kind', 'on_demand')
         .eq('period_start', '$month-01')
         .order('created_at', ascending: false)
-        .limit(1);
-    if (rows.isEmpty) return const [];
-    return [
-      for (final t in (rows.first['tips'] as List?) ?? const [])
-        if (t is Map && t['text'] is String) t['text'] as String,
-    ];
+        .limit(6);
+    bool arabic(String s) => RegExp('[\\u0600-\\u06FF]').hasMatch(s);
+    for (final row in rows) {
+      final tips = [
+        for (final t in (row['tips'] as List?) ?? const [])
+          if (t is Map && t['text'] is String) t['text'] as String,
+      ];
+      if (tips.isEmpty) continue;
+      // The newest set written in the language the app is showing now.
+      if (language == null ||
+          tips.every((t) => arabic(t) == (language == 'ar'))) {
+        return tips;
+      }
+    }
+    return const [];
   }
 
   @override
