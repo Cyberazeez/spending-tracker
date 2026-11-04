@@ -18,6 +18,7 @@ import '../../ui/app_card.dart';
 import '../../ui/bottom_inset.dart';
 import '../../ui/empty_state.dart';
 import '../../ui/skeleton.dart';
+import '../../ui/chevron.dart';
 import '../../ui/choice_sheet.dart';
 import '../../ui/tokens.dart';
 import '../insights/metrics.dart';
@@ -34,6 +35,7 @@ class ObligationsPage extends ConsumerStatefulWidget {
 
 class _ObligationsPageState extends ConsumerState<ObligationsPage> {
   ObSection _section = ObSection.upcoming;
+  bool _nextOpen = false;
 
   Future<void> _run(Future<void> Function() action) async {
     final t = AppLocalizations.of(context);
@@ -142,7 +144,9 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
     final arabic = ref.watch(localeProvider).languageCode == 'ar';
     final today = riyadhToday(ref.watch(clockProvider)());
     final data = ref.watch(obligationsProvider);
-    final spend = ref.watch(monthSpendProvider).value;
+    final overdueCount = data.value == null
+        ? 0
+        : overdueRows(data.value!, today).length;
     final repo = ref.read(dataRepositoryProvider);
     final muted = AppTokens.muted.resolveFrom(context);
 
@@ -194,6 +198,7 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
               child: PillSegments<ObSection>(
                 value: _section,
                 onChanged: (v) => setState(() => _section = v),
+                badges: {ObSection.overdue: overdueCount},
                 labels: {
                   ObSection.upcoming: t.obSegUpcoming,
                   ObSection.overdue: t.obSegOverdue,
@@ -221,23 +226,39 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
             ],
             data: (all) {
               final suggestions = all.where((i) => i.isSuggestion).toList();
-              final rows = inSection(all, _section, today);
-              final month = thisMonth(all, today);
-              final committedMonth = month.fold<int>(
-                0,
-                (s, i) => s + (i.expectedHalalas ?? 0),
-              );
-              final paidMonth = month
-                  .where((i) => i.status == 'paid')
-                  .fold<int>(0, (s, i) => s + (i.actualHalalas ?? 0));
-              final committed = committedHalalas(rows);
+              final cycle = currentCycle(today);
+              final thisRows = cycleRows(all, cycle, today);
+              final nextRows = cycleRows(
+                all,
+                nextCycle(today),
+                today,
+              ).where((i) => effectiveStatus(i, today) != 'paid').toList();
+              final late = overdueRows(all, today);
+              final before = late.where((i) => isLeftover(i, today)).toList();
+              final summary = summarizeCycle(thisRows, today);
+              final rows = _section == ObSection.overdue
+                  ? late
+                  : inSection(all, ObSection.history, today);
               Widget pad(Widget child) => SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
                   child: child,
                 ),
               );
-              return [
+              Widget heading(String title) => SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 4, 20, 8),
+                  child: Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: muted,
+                    ),
+                  ),
+                ),
+              );
+              final suggestionCards = [
                 for (final s in suggestions)
                   pad(
                     AppCard(
@@ -287,94 +308,226 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
                       ),
                     ),
                   ),
-                if (_section == ObSection.upcoming)
-                  pad(
-                    AppCard(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+              ];
+              if (_section != ObSection.upcoming) {
+                return [
+                  ...suggestionCards,
+                  if (rows.isEmpty)
+                    SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: EmptyState(
+                        icon: CupertinoIcons.calendar,
+                        title: _section == ObSection.overdue
+                            ? t.obEmptyOverdue
+                            : t.obEmptyHistory,
+                      ),
+                    )
+                  else
+                    pad(
+                      RowsCard(
                         children: [
-                          Text(
-                            t.obCommitted,
-                            style: TextStyle(fontSize: 14, color: muted),
-                          ),
-                          const SizedBox(height: 4),
-                          FittedBox(
-                            fit: BoxFit.scaleDown,
-                            alignment: AlignmentDirectional.centerStart,
-                            child: _amount(
-                              committed,
-                              arabic,
-                              TextStyle(
-                                fontSize: 34,
-                                fontWeight: FontWeight.w800,
-                                color: AppTokens.text.resolveFrom(context),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 14),
-                          _line(
-                            t.obMonthCommitted,
-                            t.obMonthCommittedNote,
-                            committedMonth,
-                            arabic,
-                          ),
-                          if (spend != null) ...[
-                            const SizedBox(height: 10),
-                            _line(
-                              t.obMonthOther,
-                              t.obMonthTitle,
-                              (spend - paidMonth).clamp(0, 1 << 40),
-                              arabic,
-                            ),
-                          ],
+                          for (final i in rows) _row(i, today, arabic, t),
                         ],
                       ),
                     ),
-                  ),
-                if (rows.isEmpty)
-                  SliverFillRemaining(
-                    hasScrollBody: false,
-                    child: EmptyState(
-                      icon: CupertinoIcons.calendar,
-                      title: switch (_section) {
-                        ObSection.upcoming => t.obEmptyUpcoming,
-                        ObSection.overdue => t.obEmptyOverdue,
-                        ObSection.history => t.obEmptyHistory,
-                      },
+                ];
+              }
+              final monthLabel = monthName(cycle, arabic: arabic);
+              final nextTotal = nextRows.fold<int>(
+                0,
+                (sum, i) => sum + (i.expectedHalalas ?? 0),
+              );
+              return [
+                ...suggestionCards,
+                pad(
+                  AppCard(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          t.obCycleStill(monthLabel),
+                          style: TextStyle(fontSize: 14, color: muted),
+                        ),
+                        const SizedBox(height: 4),
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: AlignmentDirectional.centerStart,
+                          child: _amount(
+                            summary.stillHalalas,
+                            arabic,
+                            TextStyle(
+                              fontSize: 34,
+                              fontWeight: FontWeight.w800,
+                              color: AppTokens.text.resolveFrom(context),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        _CycleBar(
+                          done: summary.paidHalalas,
+                          total: summary.totalHalalas,
+                        ),
+                        const SizedBox(height: 10),
+                        Directionality(
+                          textDirection: Directionality.of(context),
+                          child: Text(
+                            t.obCyclePaid(
+                              ltrIsolate(
+                                formatSar(summary.paidHalalas, arabic: arabic),
+                              ),
+                              ltrIsolate(
+                                formatSar(summary.totalHalalas, arabic: arabic),
+                              ),
+                              summary.paidCount.toString(),
+                              summary.count.toString(),
+                            ),
+                            style: TextStyle(fontSize: 13, color: muted),
+                          ),
+                        ),
+                      ],
                     ),
-                  )
-                else if (_section == ObSection.upcoming)
-                  // One card per month so "this month" and "next month" never blur together.
-                  for (final g in groupByMonth(rows, today)) ...[
-                    SliverToBoxAdapter(
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(20, 4, 20, 8),
-                        child: Text(
-                          _groupTitle(g.monthStart, today, arabic, t),
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: muted,
+                  ),
+                ),
+                if (before.isNotEmpty)
+                  pad(
+                    GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => setState(() => _section = ObSection.overdue),
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: AppTokens.warnBg.resolveFrom(context),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 12,
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                LucideIcons.triangleAlert,
+                                size: 20,
+                                color: AppTokens.warnText.resolveFrom(context),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      t.obUnpaidBefore(before.length),
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w700,
+                                        color: AppTokens.warnText.resolveFrom(
+                                          context,
+                                        ),
+                                      ),
+                                    ),
+                                    Text(
+                                      before.map((i) => i.name).join(', '),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: AppTokens.warnText.resolveFrom(
+                                          context,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              ForwardChevron(
+                                size: 16,
+                                color: AppTokens.warnText.resolveFrom(context),
+                              ),
+                            ],
                           ),
                         ),
                       ),
                     ),
+                  ),
+                if (thisRows.isEmpty && nextRows.isEmpty)
+                  SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: EmptyState(
+                      icon: CupertinoIcons.calendar,
+                      title: t.obEmptyUpcoming,
+                    ),
+                  )
+                else ...[
+                  if (thisRows.isNotEmpty) ...[
+                    heading(t.obGroupThis(monthLabel)),
                     pad(
                       RowsCard(
                         children: [
-                          for (final i in g.items) _row(i, today, arabic, t),
+                          for (final i in thisRows) _row(i, today, arabic, t),
                         ],
                       ),
                     ),
-                  ]
-                else
-                  pad(
-                    RowsCard(
-                      children: [
-                        for (final i in rows) _row(i, today, arabic, t),
-                      ],
+                  ],
+                  if (nextRows.isNotEmpty) ...[
+                    heading(
+                      t.obGroupNext(
+                        monthName(nextCycle(today), arabic: arabic),
+                      ),
                     ),
-                  ),
+                    pad(
+                      _nextOpen
+                          ? RowsCard(
+                              children: [
+                                for (final i in nextRows)
+                                  _row(i, today, arabic, t),
+                              ],
+                            )
+                          : GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onTap: () => setState(() => _nextOpen = true),
+                              child: AppCard(
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            t.obNextSummary(nextRows.length),
+                                            style: TextStyle(
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.w600,
+                                              color: AppTokens.text.resolveFrom(
+                                                context,
+                                              ),
+                                            ),
+                                          ),
+                                          Text(
+                                            t.obNextNote(
+                                              ltrIsolate(
+                                                formatSar(
+                                                  nextTotal,
+                                                  arabic: arabic,
+                                                ),
+                                              ),
+                                            ),
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: muted,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    ForwardChevron(size: 16, color: muted),
+                                  ],
+                                ),
+                              ),
+                            ),
+                    ),
+                  ],
+                ],
               ];
             },
           ),
@@ -382,52 +535,6 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
         ],
       ),
     );
-  }
-
-  Widget _line(String title, String note, int halalas, bool arabic) {
-    final muted = AppTokens.muted.resolveFrom(context);
-    final text = AppTokens.text.resolveFrom(context);
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                  color: text,
-                ),
-              ),
-              Text(note, style: TextStyle(fontSize: 12, color: muted)),
-            ],
-          ),
-        ),
-        const SizedBox(width: 12),
-        _amount(
-          halalas,
-          arabic,
-          TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: text),
-        ),
-      ],
-    );
-  }
-
-  String _groupTitle(
-    DateTime monthStart,
-    DateTime today,
-    bool arabic,
-    AppLocalizations t,
-  ) {
-    final name = monthName(monthStart, arabic: arabic);
-    final diff =
-        (monthStart.year - today.year) * 12 + monthStart.month - today.month;
-    if (diff == 0) return t.obGroupThis(name);
-    if (diff == 1) return t.obGroupNext(name);
-    return t.obGroupLater(name, monthStart.year.toString());
   }
 
   Widget _amount(int halalas, bool arabic, TextStyle style) => Directionality(
@@ -460,7 +567,9 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
         : null;
     final amounts = [
       if (i.expectedHalalas != null)
-        t.obExpected(formatSar(i.expectedHalalas!, arabic: arabic)),
+        t.obExpected(formatSar(i.expectedHalalas!, arabic: arabic))
+      else if (i.kind == 'card_statement' && status != 'paid')
+        t.obAmountPending,
       if (i.usualMinHalalas != null &&
           i.usualMaxHalalas != null &&
           i.status != 'paid')
@@ -488,6 +597,36 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
             formatSar(i.plan!.instalmentHalalas, arabic: arabic),
           ),
       ].join(' · '),
+    );
+  }
+}
+
+/// A thin progress bar: how much of the cycle's money is already paid.
+class _CycleBar extends StatelessWidget {
+  const _CycleBar({required this.done, required this.total});
+  final int done;
+  final int total;
+
+  @override
+  Widget build(BuildContext context) {
+    final share = total <= 0 ? 0.0 : (done / total).clamp(0.0, 1.0);
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(4),
+      child: SizedBox(
+        height: 8,
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: ColoredBox(color: AppTokens.bar.resolveFrom(context)),
+            ),
+            FractionallySizedBox(
+              alignment: AlignmentDirectional.centerStart,
+              widthFactor: share,
+              child: ColoredBox(color: AppTokens.accent.resolveFrom(context)),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

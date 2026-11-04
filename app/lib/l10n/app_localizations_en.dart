@@ -1246,4 +1246,44 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aiTipsTapHint => 'Tap to ask about a category or a budget';
+
+  @override
+  String obCycleStill(String month) {
+    return '$month · still to pay';
+  }
+
+  @override
+  String obCyclePaid(String paid, String total, String done, String count) {
+    return 'Paid $paid of $total · $done of $count bills';
+  }
+
+  @override
+  String obUnpaidBefore(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count unpaid from earlier months',
+      one: '1 unpaid from an earlier month',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String obNextSummary(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count bills',
+      one: '1 bill',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String obNextNote(String amount) {
+    return 'About $amount · tap to see them';
+  }
+
+  @override
+  String get obAmountPending => 'amount comes with the statement';
 }

@@ -11,11 +11,14 @@ ObligationInstance inst(
   String status = 'pending',
   int expected = 18000,
   String matchState = 'none',
+  // The cycle (issue month). The test clock is 30 Oct, so October is "this month".
+  String period = '2026-10-01',
 }) => ObligationInstance(
   id: id,
   obligationId: 'o-$id',
   name: name,
   kind: 'fixed',
+  periodStart: DateTime.parse('${period}T00:00:00Z'),
   dueDate: DateTime.parse('${due}T00:00:00Z'),
   status: status,
   expectedHalalas: expected,
@@ -41,31 +44,59 @@ void main() {
     final h = await open(tester, [
       inst('1', 'Horse and foal', '2026-11-05'),
       inst('2', 'Murabahah', '2026-11-28', expected: 385833),
-      inst('3', 'Old one', '2026-10-01'),
+      inst('3', 'Old one', '2026-09-28', period: '2026-09-01'),
     ]);
     expect(h.data.refreshCalls, greaterThan(0));
+    expect(find.text('October · still to pay'), findsOneWidget);
     expect(find.text('Horse and foal'), findsOneWidget);
     expect(find.text('Murabahah'), findsOneWidget);
-    expect(find.text('Old one'), findsNothing);
+    // an open item from an earlier cycle is not a row of this month: it is named once, in the reminder card
+    expect(find.text('1 unpaid from an earlier month'), findsOneWidget);
+    expect(find.text('Old one'), findsOneWidget);
+    expect(
+      find.text('Pending'),
+      findsNWidgets(2),
+    ); // only the two of this month
     expect(find.text('⃁ 4,038.33'), findsOneWidget); // 180.00 + 3,858.33
   });
 
-  testWidgets('upcoming is split into this month and next month boxes', (
+  testWidgets(
+    'bills are grouped by cycle: this month, then next month folded',
+    (tester) async {
+      await open(tester, [
+        inst('1', 'House Card', '2026-10-31'),
+        // issued in October, due in November: still this month's cycle
+        inst('2', 'Horse and foal', '2026-11-05'),
+        inst('3', 'Murabahah', '2026-11-28', period: '2026-11-01'),
+        inst('4', 'Far one', '2026-11-29', period: '2026-11-01'),
+      ]);
+      expect(find.text('This month · October'), findsOneWidget);
+      expect(find.text('Next month · November'), findsOneWidget);
+      expect(find.text('House Card'), findsOneWidget);
+      expect(find.text('Horse and foal'), findsOneWidget);
+      // next month is one folded line until it is tapped
+      expect(find.text('2 bills'), findsOneWidget);
+      expect(find.text('Murabahah'), findsNothing);
+      await tester.tap(find.text('2 bills'));
+      await tester.pumpAndSettle();
+      expect(find.text('Murabahah'), findsOneWidget);
+      expect(find.text('Far one'), findsOneWidget);
+    },
+  );
+
+  testWidgets('the cycle card shows what is paid and what is left', (
     tester,
   ) async {
     await open(tester, [
-      inst('1', 'House Card', '2026-10-31'),
-      inst('2', 'Horse and foal', '2026-11-05'),
-      inst('3', 'Murabahah', '2026-11-28'),
-      inst('4', 'Far one', '2026-11-29'),
+      inst('1', 'House Card', '2026-10-02', status: 'paid', expected: 50000),
+      inst('2', 'Murabahah', '2026-10-28', expected: 385833),
     ]);
-    expect(find.text('This month · October'), findsOneWidget);
-    expect(find.text('Next month · November'), findsOneWidget);
-    expect(find.text('Obligations this month'), findsOneWidget);
-    // October box comes before the November box
+    expect(find.text('⃁ 3,858.33'), findsOneWidget); // still to pay
+    expect(find.textContaining('1 of 2 bills'), findsOneWidget);
+    // the paid one stays visible in its own month, after the open ones
     expect(
-      tester.getTopLeft(find.text('House Card')).dy,
-      lessThan(tester.getTopLeft(find.text('Horse and foal')).dy),
+      tester.getTopLeft(find.text('Murabahah')).dy,
+      lessThan(tester.getTopLeft(find.text('House Card')).dy),
     );
   });
 
@@ -77,6 +108,7 @@ void main() {
       obligationId: 'o-e',
       name: 'Electricity (SEC)',
       kind: 'bill',
+      periodStart: DateTime.utc(2026, 10),
       dueDate: DateTime.utc(2026, 11, 28),
       status: 'pending',
       expectedHalalas: 69200,
@@ -119,7 +151,7 @@ void main() {
       inst('1', 'Old one', '2026-10-01'),
       inst('2', 'Paid one', '2026-10-02', status: 'paid'),
     ]);
-    await tester.tap(find.text('Overdue').last);
+    await tester.tap(find.text('Overdue').first);
     await tester.pumpAndSettle();
     expect(find.text('Old one'), findsOneWidget);
     expect(find.text('Paid one'), findsNothing);
@@ -137,7 +169,8 @@ void main() {
     await tester.tap(find.text('Mark as paid'));
     await tester.pumpAndSettle();
     expect(h.data.instanceCalls, ['paid:1']);
-    expect(find.text('Nothing due in the next 30 days'), findsOneWidget);
+    // it stays in this month's list, now as paid
+    expect(find.text('Paid'), findsWidgets);
     await tester.tap(find.text('History'));
     await tester.pumpAndSettle();
     expect(find.text('Horse and foal'), findsOneWidget);
@@ -196,6 +229,9 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('Bills').last);
       await tester.pumpAndSettle();
+      // the November statement is next month's cycle on 30 Oct: open the folded line
+      await tester.tap(find.text('1 bill'));
+      await tester.pumpAndSettle();
       expect(
         find.textContaining('Includes Autopia instalment 2 of 6 (⃁ 1,653.50)'),
         findsOneWidget,
@@ -240,4 +276,30 @@ void main() {
     expect(find.text('القادمة'), findsOneWidget);
     expect(find.textContaining('المتوقع'), findsOneWidget);
   });
+
+  for (final lang in ['en', 'ar']) {
+    testWidgets(
+      'the Bills cycle layout survives 2x text on a 360pt phone ($lang)',
+      (tester) async {
+        tester.view.physicalSize = const Size(720, 1280);
+        tester.view.devicePixelRatio = 2;
+        tester.platformDispatcher.textScaleFactorTestValue = 2.0;
+        addTearDown(() {
+          tester.view.reset();
+          tester.platformDispatcher.clearAllTestValues();
+        });
+        final h = Harness(signedIn: true);
+        h.data.instances = [
+          inst('1', 'Horse and foal', '2026-11-05'),
+          inst('2', 'Old one', '2026-09-28', period: '2026-09-01'),
+          inst('3', 'Murabahah', '2026-11-28', period: '2026-11-01'),
+        ];
+        await tester.pumpWidget(await h.build(prefs: {'locale': lang}));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text(lang == 'en' ? 'Bills' : 'الفواتير').last);
+        await tester.pumpAndSettle();
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
 }

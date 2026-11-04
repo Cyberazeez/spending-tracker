@@ -755,5 +755,55 @@
         "type": "String"
       }
     }
+  },
+  "obCycleStill": "{month} · still to pay",
+  "obCyclePaid": "Paid {paid} of {total} · {done} of {count} bills",
+  "obUnpaidBefore": "{count, plural, =1{1 unpaid from an earlier month} other{{count} unpaid from earlier months}}",
+  "obNextSummary": "{count, plural, =1{1 bill} other{{count} bills}}",
+  "obNextNote": "About {amount} · tap to see them",
+  "obAmountPending": "amount comes with the statement",
+  "@obCycleStill": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "@obCyclePaid": {
+    "placeholders": {
+      "paid": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      },
+      "done": {
+        "type": "String"
+      },
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "@obUnpaidBefore": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@obNextSummary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@obNextNote": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
   }
 }

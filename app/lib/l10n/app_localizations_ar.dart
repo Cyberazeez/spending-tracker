@@ -1240,4 +1240,44 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get aiTipsTapHint => 'اضغط لتسأل عن تصنيف أو ميزانية';
+
+  @override
+  String obCycleStill(String month) {
+    return '$month · المتبقي للدفع';
+  }
+
+  @override
+  String obCyclePaid(String paid, String total, String done, String count) {
+    return 'مدفوع $paid من $total · $done من $count فواتير';
+  }
+
+  @override
+  String obUnpaidBefore(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count فواتير غير مدفوعة من أشهر سابقة',
+      one: 'فاتورة واحدة غير مدفوعة من شهر سابق',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String obNextSummary(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count فواتير',
+      one: 'فاتورة واحدة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String obNextNote(String amount) {
+    return 'حوالي $amount · اضغط لعرضها';
+  }
+
+  @override
+  String get obAmountPending => 'المبلغ يصل مع كشف الحساب';
 }

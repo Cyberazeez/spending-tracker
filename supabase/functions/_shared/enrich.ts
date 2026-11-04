@@ -44,7 +44,8 @@ export function counterpartyIsOwn(t: ParsedTxn, own: OwnAccount[]): boolean {
  * Balances are never part of a ParsedTxn, so they cannot reach the database.
  */
 export function buildRows(t: ParsedTxn, own: OwnAccount[]): TxRow[] {
-  const internal = t.type === "wallet_topup" || !!t.internalHint ||
+  // Paying the owner's own credit card from an account is a move between own money, never spending.
+  const internal = t.type === "wallet_topup" || t.type === "card_payment" || !!t.internalHint ||
     ((t.type === "transfer_out" || t.type === "transfer_in") && counterpartyIsOwn(t, own));
   const base = {
     source: "sms" as const,

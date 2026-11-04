@@ -13,6 +13,7 @@ import {
   type Ob,
   obligationForBill,
   obligationForStatement,
+  payableForStatement,
   riyadhYmd,
 } from "./obligations.ts";
 
@@ -315,4 +316,90 @@ Deno.test("auto_merchant: a bigger STC bill (overage) is not auto-paid by the us
     matchTransaction(tx({ type: "purchase", amountHalalas: 17250, merchantNorm: "stc" }), i, [net]),
     null,
   );
+});
+
+Deno.test("statement payable: the instalments still to come are not part of this month's payment", () => {
+  const plan = {
+    name: "Autopia",
+    first: "2026-10",
+    months: 6,
+    instalment_halalas: 165350,
+    principal_halalas: 156407,
+  };
+  // 21,090.78 total in November (instalment 2 of 6): 4 instalments of principal 1,564.07 are still to come
+  assert.equal(payableForStatement(2109078, "2026-11-01", plan), 1483450);
+  // the last instalment: nothing left to take off
+  assert.equal(payableForStatement(500000, "2027-03-01", plan), 500000);
+  // no plan, or no principal known: the whole total
+  assert.equal(payableForStatement(2109078, "2026-11-01", undefined), 2109078);
+  assert.equal(
+    payableForStatement(2109078, "2026-11-01", { ...plan, principal_halalas: undefined }),
+    2109078,
+  );
+  assert.equal(
+    instanceFromStatement(2109078, "2026-11-25", "2026-11-02T16:45:56Z", plan).expectedHalalas,
+    1483450,
+  );
+});
+
+Deno.test("a card payment from the account marks the statement paid", () => {
+  const ob = {
+    id: "o1",
+    name: "Credit card 8119 statement",
+    kind: "card_statement" as const,
+    expectedHalalas: null,
+    dueRule: { day: 25 },
+    match: {
+      card: "8119",
+      counterparty_last4: "8119",
+      merchant: ["alinma"],
+      auto_merchant: true,
+      types: ["transfer_out", "card_payment"],
+      tolerance_pct: 1,
+    },
+  };
+  const inst = {
+    id: "i1",
+    obligationId: "o1",
+    periodStart: "2026-11-01",
+    dueDate: "2026-11-25",
+    expectedHalalas: 1483450,
+    actualHalalas: null,
+    status: "pending" as const,
+    transactionId: null,
+    matchState: "none" as const,
+    createdAt: "2026-11-02T00:00:00Z",
+  };
+  const m = matchTransaction(
+    {
+      id: "t1",
+      type: "card_payment",
+      direction: "out",
+      amountHalalas: 1483450,
+      counterpartyLast4: null,
+      cardLast4: "8119",
+      merchantNorm: null,
+      occurredAt: "2026-11-04T03:42:00Z",
+    },
+    [inst],
+    [ob],
+  );
+  assert.equal(m?.status, "paid");
+  assert.equal(m?.state, "auto");
+  // an unrelated payment of another amount is not taken for it
+  const other = matchTransaction(
+    {
+      id: "t2",
+      type: "card_payment",
+      direction: "out",
+      amountHalalas: 5000,
+      counterpartyLast4: null,
+      cardLast4: "8119",
+      merchantNorm: null,
+      occurredAt: "2026-11-04T03:42:00Z",
+    },
+    [inst],
+    [ob],
+  );
+  assert.equal(other, null);
 });

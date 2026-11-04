@@ -415,5 +415,55 @@
         "type": "String"
       }
     }
+  },
+  "obCycleStill": "{month} · المتبقي للدفع",
+  "obCyclePaid": "مدفوع {paid} من {total} · {done} من {count} فواتير",
+  "obUnpaidBefore": "{count, plural, =1{فاتورة واحدة غير مدفوعة من شهر سابق} other{{count} فواتير غير مدفوعة من أشهر سابقة}}",
+  "obNextSummary": "{count, plural, =1{فاتورة واحدة} other{{count} فواتير}}",
+  "obNextNote": "حوالي {amount} · اضغط لعرضها",
+  "obAmountPending": "المبلغ يصل مع كشف الحساب",
+  "@obCycleStill": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "@obCyclePaid": {
+    "placeholders": {
+      "paid": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      },
+      "done": {
+        "type": "String"
+      },
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "@obUnpaidBefore": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@obNextSummary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@obNextNote": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
   }
 }

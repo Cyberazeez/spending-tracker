@@ -30,6 +30,18 @@ export interface ObMatch {
   accumulate?: boolean;
   /** Phone line (last 4) a bill notice is for. */
   line?: string;
+  /**
+   * An instalment plan on a credit card (Autopia). The statement's total includes the instalments still to come, but
+   * the month's payment only the part billed so far: with `principal_halalas` the payable amount is the statement
+   * total minus the principal of the instalments after this month's.
+   */
+  plan?: {
+    name?: string;
+    first?: string;
+    months?: number;
+    instalment_halalas?: number;
+    principal_halalas?: number;
+  };
 }
 
 export interface Ob {
@@ -150,13 +162,39 @@ export function instanceFromBill(
   };
 }
 
+/** Months from `first` (YYYY-MM) to the period (YYYY-MM-01), counting `first` as 1. */
+function planIndex(first: string, periodStart: string): number {
+  return (Number(periodStart.slice(0, 4)) - Number(first.slice(0, 4))) * 12 +
+    (Number(periodStart.slice(5, 7)) - Number(first.slice(5, 7))) + 1;
+}
+
+/**
+ * What the owner actually pays for this statement. A card with an instalment plan (and its principal known) bills the
+ * whole remaining plan inside the statement total, but the payment is the total minus the instalments still to come.
+ */
+export function payableForStatement(
+  totalDueHalalas: number,
+  periodStart: string,
+  plan: ObMatch["plan"],
+): number {
+  if (!plan?.first || !plan.months || !plan.principal_halalas) return totalDueHalalas;
+  const remaining = Math.max(0, plan.months - planIndex(plan.first, periodStart));
+  return Math.max(0, totalDueHalalas - remaining * plan.principal_halalas);
+}
+
 /** A card statement SMS: due date and total come from the SMS (the minimum payment is not an obligation). */
 export function instanceFromStatement(
   totalDueHalalas: number,
   dueDate: string,
   receivedAt: string | Date,
+  plan?: ObMatch["plan"],
 ): NewInstance {
-  return { periodStart: monthStartOf(receivedAt), dueDate, expectedHalalas: totalDueHalalas };
+  const periodStart = monthStartOf(receivedAt);
+  return {
+    periodStart,
+    dueDate,
+    expectedHalalas: payableForStatement(totalDueHalalas, periodStart, plan),
+  };
 }
 
 export interface MatchResult {
