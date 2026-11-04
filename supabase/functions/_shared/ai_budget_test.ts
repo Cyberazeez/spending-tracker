@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { DEFAULT_GLOBAL_CAP_HALALAS, effectiveSpent, globalCapFromEnv } from "./ai_budget.ts";
 
 Deno.test("a user is measured by their own spend, not everybody's", () => {
-  assert.equal(effectiveSpent(100, 2000), 100);
+  assert.equal(effectiveSpent(100, 1500), 100);
   assert.equal(effectiveSpent(0, 1874), 0);
 });
 
