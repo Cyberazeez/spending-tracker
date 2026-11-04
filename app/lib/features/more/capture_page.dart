@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../core/capture_bridge.dart';
 import '../../l10n/app_localizations.dart';
@@ -40,7 +39,7 @@ class CapturePage extends ConsumerWidget {
         border: null,
         middle: Text(t.captureSetupTitle),
         leading: CupertinoNavigationBarBackButton(
-          onPressed: () => context.go(homePath),
+          onPressed: () => popOrHome(context),
         ),
       ),
       child: SafeArea(

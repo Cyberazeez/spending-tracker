@@ -77,7 +77,7 @@ class TransactionsPage extends ConsumerWidget {
                 CupertinoButton(
                   padding: EdgeInsets.zero,
                   minimumSize: const Size(44, 44),
-                  onPressed: () => context.go(quickAddPath),
+                  onPressed: () => context.push(quickAddPath),
                   child: DecoratedBox(
                     decoration: BoxDecoration(
                       color: AppTokens.accent.resolveFrom(context),
@@ -123,7 +123,7 @@ class TransactionsPage extends ConsumerWidget {
                   const SizedBox(height: 8),
                   FilterChips(
                     reviewCount: review.length,
-                    onReview: () => context.go(reviewPath),
+                    onReview: () => context.push(reviewPath),
                   ),
                 ],
               ),
@@ -165,7 +165,7 @@ class TransactionsPage extends ConsumerWidget {
                               title: t.txEmptyTitle,
                               body: t.txEmptyBody,
                               action: CupertinoButton.filled(
-                                onPressed: () => context.go(quickAddPath),
+                                onPressed: () => context.push(quickAddPath),
                                 child: Text(t.quickAdd),
                               ),
                             ),

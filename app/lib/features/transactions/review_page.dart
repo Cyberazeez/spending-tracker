@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../core/format.dart';
 import '../../core/models.dart';
@@ -83,7 +82,7 @@ class ReviewPage extends ConsumerWidget {
       navigationBar: CupertinoNavigationBar(
         middle: Text(t.reviewTitle),
         leading: CupertinoNavigationBarBackButton(
-          onPressed: () => context.go(homePath),
+          onPressed: () => popOrHome(context),
         ),
       ),
       child: SafeArea(

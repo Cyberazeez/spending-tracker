@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:spending_tracker/core/auth_repository.dart';
-import 'package:spending_tracker/core/token_repository.dart';
 
 import 'support/fakes.dart';
 
@@ -134,58 +133,6 @@ void main() {
     expect(find.text('البريد الإلكتروني'), findsOneWidget);
   });
 
-  testWidgets(
-    'ingest token screen: create shows the token once, rotating asks first',
-    (tester) async {
-      final h = Harness(signedIn: true);
-      await tester.pumpWidget(await h.build());
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.text('More'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Ingest token'));
-      await tester.pumpAndSettle();
-
-      expect(find.text('No active token'), findsOneWidget);
-      expect(find.text('X-Ingest-Token'), findsOneWidget);
-
-      await tester.tap(
-        find.widgetWithText(CupertinoButton, 'Create new token'),
-      );
-      await tester.pumpAndSettle();
-      expect(h.tokens.rotateCalls, 1);
-      expect(find.text('stk_TESTTOKEN'), findsOneWidget);
-      expect(find.textContaining('shown only once'), findsOneWidget);
-
-      // Now a token exists, so replacing needs confirmation.
-      await tester.tap(find.widgetWithText(CupertinoButton, 'Replace token'));
-      await tester.pumpAndSettle();
-      expect(find.text('Replace the token?'), findsOneWidget);
-      await tester.tap(find.text('Cancel'));
-      await tester.pumpAndSettle();
-      expect(h.tokens.rotateCalls, 1);
-    },
-  );
-
-  testWidgets('token screen shows last used time in Riyadh time', (
-    tester,
-  ) async {
-    final h = Harness(signedIn: true)
-      ..tokens.active = IngestTokenInfo(
-        label: 'iPhone',
-        createdAt: DateTime.utc(2026, 10, 29, 10),
-        lastUsedAt: DateTime.utc(2026, 10, 30, 11, 5),
-      );
-    await tester.pumpWidget(await h.build());
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('More'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Ingest token'));
-    await tester.pumpAndSettle();
-
-    expect(find.textContaining('30 Oct 14:05'), findsOneWidget);
-  });
-
   testWidgets('sign out returns to login', (tester) async {
     final h = Harness(signedIn: true);
     await tester.pumpWidget(await h.build());
@@ -197,28 +144,6 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Email'), findsOneWidget);
   });
-
-  testWidgets(
-    'token screen: a failed status load shows an error and never offers to replace',
-    (tester) async {
-      final h = Harness(signedIn: true)..tokens.failLoad = true;
-      await tester.pumpWidget(await h.build());
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('More'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Ingest token'));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Something went wrong. Try again.'), findsOneWidget);
-      expect(find.text('No active token'), findsNothing);
-      expect(find.text('Create new token'), findsNothing);
-
-      await tester.tap(find.widgetWithText(CupertinoButton, 'Try again'));
-      await tester.pumpAndSettle();
-      expect(h.tokens.loadCalls, greaterThanOrEqualTo(2));
-      expect(h.tokens.rotateCalls, 0);
-    },
-  );
 
   testWidgets('a failed sign-in can be retried and still skips Face ID', (
     tester,

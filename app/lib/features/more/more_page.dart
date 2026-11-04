@@ -12,6 +12,7 @@ import '../../core/widget_bridge.dart';
 import '../../core/widget_setup.dart';
 import '../../l10n/app_localizations.dart';
 import '../../router.dart';
+import '../account/account_pages.dart';
 import '../ai/providers.dart';
 import '../../ui/bottom_inset.dart';
 import '../../ui/settings_group.dart';
@@ -76,6 +77,9 @@ class MorePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = AppLocalizations.of(context);
     final locale = ref.watch(localeProvider);
+    ref.watch(accountRevisionProvider);
+    final auth = ref.read(authRepositoryProvider);
+    final account = auth.displayName ?? auth.email;
     return CupertinoPageScaffold(
       backgroundColor: AppTokens.bg.resolveFrom(context),
       child: CustomScrollView(
@@ -123,16 +127,11 @@ class MorePage extends ConsumerWidget {
                   children: [
                     const _CaptureStatusRow(),
                     SettingsRow(
-                      icon: LucideIcons.radioTower,
-                      color: const Color(0xFFFF6B66),
-                      title: t.gapsTitle,
-                      onTap: () => context.go(gapsPath),
-                    ),
-                    SettingsRow(
-                      icon: LucideIcons.keyRound,
-                      color: const Color(0xFFC084FC),
-                      title: t.ingestToken,
-                      onTap: () => context.go(tokenPath),
+                      icon: LucideIcons.user,
+                      color: const Color(0xFF6C8CFF),
+                      title: t.moreAccount,
+                      subtitle: account,
+                      onTap: () => context.push(accountPath),
                     ),
                   ],
                 ),
@@ -248,7 +247,7 @@ class _CaptureStatusRow extends ConsumerWidget {
       color: const Color(0xFF3CC4A8),
       title: t.captureStatus,
       subtitle: last.isEmpty ? waiting : '$waiting · $last',
-      onTap: () => context.go(capturePath),
+      onTap: () => context.push(capturePath),
     );
   }
 }

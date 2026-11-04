@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
 
 import '../../core/format.dart';
@@ -157,7 +156,7 @@ class _ObligationFormPageState extends ConsumerState<ObligationFormPage> {
             ),
           );
       ref.invalidate(obligationsProvider);
-      if (mounted) context.go(homePath);
+      if (mounted) popOrHome(context);
     } on PostgrestException catch (e) {
       if (mounted) {
         setState(
@@ -276,7 +275,7 @@ class _ObligationFormPageState extends ConsumerState<ObligationFormPage> {
         border: null,
         middle: Text(widget.obligationId == null ? t.obNew : t.obEditTitle),
         leading: CupertinoNavigationBarBackButton(
-          onPressed: () => context.go(homePath),
+          onPressed: () => popOrHome(context),
         ),
       ),
       child: SafeArea(

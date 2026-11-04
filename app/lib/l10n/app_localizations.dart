@@ -1915,6 +1915,156 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'AI suggested'**
   String get txChipAi;
+
+  /// No description provided for @accountTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get accountTitle;
+
+  /// No description provided for @accountProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get accountProfile;
+
+  /// No description provided for @accountSecurity.
+  ///
+  /// In en, this message translates to:
+  /// **'Security'**
+  String get accountSecurity;
+
+  /// No description provided for @accountSecurityHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Change password'**
+  String get accountSecurityHint;
+
+  /// No description provided for @accountPrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy'**
+  String get accountPrivacy;
+
+  /// No description provided for @accountName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get accountName;
+
+  /// No description provided for @accountNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Your name'**
+  String get accountNameHint;
+
+  /// No description provided for @accountSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get accountSave;
+
+  /// No description provided for @accountNameTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Use up to 60 letters.'**
+  String get accountNameTooLong;
+
+  /// No description provided for @accountEmailInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid email address.'**
+  String get accountEmailInvalid;
+
+  /// No description provided for @accountEmailSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your new address for a confirmation link. The old one stays until you use it.'**
+  String get accountEmailSent;
+
+  /// No description provided for @accountSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save. Try again.'**
+  String get accountSaveFailed;
+
+  /// No description provided for @secChangePassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Change password'**
+  String get secChangePassword;
+
+  /// No description provided for @secCurrent.
+  ///
+  /// In en, this message translates to:
+  /// **'Current password'**
+  String get secCurrent;
+
+  /// No description provided for @secNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New password'**
+  String get secNew;
+
+  /// No description provided for @secConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat new password'**
+  String get secConfirm;
+
+  /// No description provided for @secRulesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'At least 8 characters.'**
+  String get secRulesHint;
+
+  /// No description provided for @secWrongCurrent.
+  ///
+  /// In en, this message translates to:
+  /// **'The current password is wrong.'**
+  String get secWrongCurrent;
+
+  /// No description provided for @secTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Use at least 8 characters.'**
+  String get secTooShort;
+
+  /// No description provided for @secMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'The two passwords do not match.'**
+  String get secMismatch;
+
+  /// No description provided for @secSame.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a different password.'**
+  String get secSame;
+
+  /// No description provided for @secDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Password changed.'**
+  String get secDone;
+
+  /// No description provided for @secNote.
+  ///
+  /// In en, this message translates to:
+  /// **'This also resets SMS capture and the widget on this phone. They reconnect by themselves.'**
+  String get secNote;
+
+  /// No description provided for @privacyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your data is stored in your own account and only you can read it. More options will appear here soon.'**
+  String get privacyBody;
+
+  /// No description provided for @moreAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get moreAccount;
 }
 
 class _AppLocalizationsDelegate

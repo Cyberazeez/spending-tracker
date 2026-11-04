@@ -1034,4 +1034,82 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get txChipAi => 'اقتراح الذكاء';
+
+  @override
+  String get accountTitle => 'الحساب';
+
+  @override
+  String get accountProfile => 'الملف الشخصي';
+
+  @override
+  String get accountSecurity => 'الأمان';
+
+  @override
+  String get accountSecurityHint => 'تغيير كلمة المرور';
+
+  @override
+  String get accountPrivacy => 'الخصوصية';
+
+  @override
+  String get accountName => 'الاسم';
+
+  @override
+  String get accountNameHint => 'اسمك';
+
+  @override
+  String get accountSave => 'حفظ';
+
+  @override
+  String get accountNameTooLong => 'استخدم حتى 60 حرفاً.';
+
+  @override
+  String get accountEmailInvalid => 'أدخل بريداً إلكترونياً صحيحاً.';
+
+  @override
+  String get accountEmailSent =>
+      'تحقق من عنوانك الجديد لرابط التأكيد. يبقى القديم حتى تستخدمه.';
+
+  @override
+  String get accountSaveFailed => 'تعذر الحفظ. حاول مرة أخرى.';
+
+  @override
+  String get secChangePassword => 'تغيير كلمة المرور';
+
+  @override
+  String get secCurrent => 'كلمة المرور الحالية';
+
+  @override
+  String get secNew => 'كلمة المرور الجديدة';
+
+  @override
+  String get secConfirm => 'أعد كلمة المرور الجديدة';
+
+  @override
+  String get secRulesHint => '8 أحرف على الأقل.';
+
+  @override
+  String get secWrongCurrent => 'كلمة المرور الحالية غير صحيحة.';
+
+  @override
+  String get secTooShort => 'استخدم 8 أحرف على الأقل.';
+
+  @override
+  String get secMismatch => 'كلمتا المرور غير متطابقتين.';
+
+  @override
+  String get secSame => 'اختر كلمة مرور مختلفة.';
+
+  @override
+  String get secDone => 'تم تغيير كلمة المرور.';
+
+  @override
+  String get secNote =>
+      'يعيد هذا ضبط التقاط الرسائل والودجت على هذا الهاتف. يعيدان الاتصال تلقائياً.';
+
+  @override
+  String get privacyBody =>
+      'بياناتك محفوظة في حسابك ولا يقرأها غيرك. ستظهر خيارات أخرى هنا قريباً.';
+
+  @override
+  String get moreAccount => 'الحساب';
 }

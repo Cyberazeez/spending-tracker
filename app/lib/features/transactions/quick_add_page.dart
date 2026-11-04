@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../core/providers.dart';
 import '../../l10n/app_localizations.dart';
@@ -18,7 +17,7 @@ class QuickAddPage extends ConsumerWidget {
       navigationBar: CupertinoNavigationBar(
         middle: Text(t.quickAdd),
         leading: CupertinoNavigationBarBackButton(
-          onPressed: () => context.go(homePath),
+          onPressed: () => popOrHome(context),
         ),
       ),
       child: SafeArea(
@@ -26,7 +25,7 @@ class QuickAddPage extends ConsumerWidget {
           onSave: (txn) async {
             await ref.read(dataRepositoryProvider).addManual(txn);
             ref.invalidate(transactionsProvider);
-            if (context.mounted) context.go(homePath);
+            if (context.mounted) popOrHome(context);
           },
         ),
       ),
