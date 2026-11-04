@@ -251,7 +251,11 @@ class SupabaseAuthRepository implements AuthRepository {
       throw const PasswordException(PasswordFailure.network);
     }
     try {
-      await _client.auth.updateUser(UserAttributes(password: next));
+      // The current password goes along so the server can check it too (Supabase: "Require current password when
+      // updating"), not only this screen.
+      await _client.auth.updateUser(
+        UserAttributes(password: next, currentPassword: current),
+      );
     } on AuthWeakPasswordException {
       throw const PasswordException(PasswordFailure.tooShort);
     } on AuthApiException catch (e) {
