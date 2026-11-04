@@ -396,3 +396,31 @@ class AiOutcome {
     );
   }
 }
+
+/// One of the user's own bank accounts, cards or wallets. Transfers between these are internal, not spending.
+class OwnAccount {
+  const OwnAccount({
+    required this.id,
+    required this.bank,
+    required this.last4,
+    required this.kind,
+    this.label,
+  });
+
+  final String id;
+  final String bank; // alrajhi | snb | alinma | barq | d360 | stc
+  final String last4;
+  final String kind; // account | debit_card | credit_card | wallet
+  final String? label;
+
+  static const banks = ['alrajhi', 'snb', 'alinma', 'barq', 'd360', 'stc'];
+  static const kinds = ['account', 'debit_card', 'credit_card', 'wallet'];
+
+  factory OwnAccount.fromRow(Map<String, dynamic> r) => OwnAccount(
+    id: r['id'] as String,
+    bank: r['bank'] as String,
+    last4: r['last4'] as String,
+    kind: r['kind'] as String,
+    label: r['label'] as String?,
+  );
+}

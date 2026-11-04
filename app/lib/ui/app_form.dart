@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 
 import '../router.dart';
 import 'tokens.dart';
@@ -84,8 +85,10 @@ class AppField extends StatelessWidget {
     this.autofillHints,
     this.onSubmitted,
     this.autofocus = false,
+    this.inputFormatters,
   });
 
+  final List<TextInputFormatter>? inputFormatters;
   final TextEditingController controller;
   final String? label;
   final String? placeholder;
@@ -108,6 +111,7 @@ class AppField extends StatelessWidget {
       autofillHints: autofillHints,
       onSubmitted: onSubmitted,
       autofocus: autofocus,
+      inputFormatters: inputFormatters,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
       style: TextStyle(
         color: AppTokens.text.resolveFrom(context),

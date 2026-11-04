@@ -44,7 +44,7 @@ Bottom tab bar (Cupertino): **Home, Transactions, Obligations, Insights, More**.
 - **Categories and rules:** edit categories, see rules (confirmed vs auto-unconfirmed), confirm or delete a rule.
 - **Own accounts:** list with bank, last4, kind, active, house card.
 - **Settings:** language (English/العربية), base salary, notifications (due dates, budgets), AI switch and monthly cap with spend so far this month, week start fixed to Sunday, theme (system).
-- **Account** (2026-11-04): Profile (name, email; an email change is confirmed by a link sent to the new address), Security (change password: current one is checked first; afterwards this phone's capture and widget tokens are replaced and reconnect by themselves), Privacy (placeholder for now). **Removed:** the Ingest token screen (the app issues its own token; hand-built shortcuts are no longer supported from the app) and the Possible gaps screen (Home's "no messages for N days" alert now opens SMS capture).
+- **Account** (2026-11-04): **Bank accounts** (own accounts, cards and wallets by bank + last 4 digits, so transfers between them are not counted as spending; tap a row to remove), Profile (name, email; an email change is confirmed by a link sent to the new address), Security (change password: current one is checked first; afterwards this phone's capture and widget tokens are replaced and reconnect by themselves), Privacy (a short note and **Delete my account**: warning, type DELETE, password again, then the server deletes the account and every row of it; the phone's tokens are wiped and the app returns to login). **Removed:** the Ingest token screen (the app issues its own token; hand-built shortcuts are no longer supported from the app) and the Possible gaps screen (Home's "no messages for N days" alert now opens SMS capture).
 - **Setup guide:** per sender Shortcuts steps with screenshots, "Test now" button that waits for a test SMS to arrive.
 - **Data:** CSV import (map columns, preview, dedupe), CSV export, delete all data (double confirm).
 - **Sign out.**
@@ -56,3 +56,5 @@ Bottom tab bar (Cupertino): **Home, Transactions, Obligations, Insights, More**.
 - Small/medium: month-to-date spend, top category, next 3 obligations. Reads `home_widget` shared data; refreshes when the app syncs. Empty state: "Open the app to sync".
 
 - **Navigation (2026-11-04):** every sub-screen is an iOS page: swipe from the left edge (right edge in Arabic) or the back button returns, one level at a time.
+
+- **Welcome card on Home** (2026-11-04, stage C): for accounts that have not finished the first three steps: add bank accounts, set up SMS capture (done once a message was received), set a monthly budget. Shows "n of 3 done", each step opens its screen, **Hide** is remembered per account on the phone, and the card disappears by itself when all three are done.

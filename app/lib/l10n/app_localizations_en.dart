@@ -1058,4 +1058,120 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get signUpBackToSignIn => 'Back to sign in';
+
+  @override
+  String get accountBanks => 'Bank accounts';
+
+  @override
+  String get accountBanksShort => 'Your own accounts and cards';
+
+  @override
+  String get accountBanksHint =>
+      'List your own accounts, cards and wallets so moving money between them is not counted as spending.';
+
+  @override
+  String get banksEmpty => 'No accounts yet.';
+
+  @override
+  String get bankAdd => 'Add account';
+
+  @override
+  String get bankPick => 'Bank';
+
+  @override
+  String get bankKind => 'Type';
+
+  @override
+  String get bankLast4 => 'Last 4 digits';
+
+  @override
+  String get bankLabelOptional => 'Name (optional)';
+
+  @override
+  String get bankSave => 'Add';
+
+  @override
+  String get bankLast4Invalid => 'Enter exactly 4 digits.';
+
+  @override
+  String get bankDuplicate => 'This account is already in the list.';
+
+  @override
+  String get bankRemove => 'Remove';
+
+  @override
+  String bankRemoveConfirm(String name) {
+    return 'Remove $name?';
+  }
+
+  @override
+  String get kindAccount => 'Account';
+
+  @override
+  String get kindDebit => 'Debit card';
+
+  @override
+  String get kindCredit => 'Credit card';
+
+  @override
+  String get kindWallet => 'Wallet';
+
+  @override
+  String get welcomeTitle => 'Get started';
+
+  @override
+  String get welcomeHide => 'Hide';
+
+  @override
+  String welcomeProgress(String done, String total) {
+    return '$done of $total done';
+  }
+
+  @override
+  String get welcomeAccounts => 'Add your bank accounts';
+
+  @override
+  String get welcomeCapture => 'Set up SMS capture';
+
+  @override
+  String get welcomeBudget => 'Set a monthly budget';
+
+  @override
+  String get deleteAccountRow => 'Delete my account';
+
+  @override
+  String get deleteTitle => 'Delete account';
+
+  @override
+  String get deleteWarn =>
+      'This permanently deletes your account and all your data: transactions, bills, budgets and settings. It cannot be undone.';
+
+  @override
+  String get deleteWord => 'DELETE';
+
+  @override
+  String deleteTypeWord(String word) {
+    return 'Type $word to confirm';
+  }
+
+  @override
+  String deleteWordMismatch(String word) {
+    return 'Type $word exactly to confirm.';
+  }
+
+  @override
+  String get deletePassword => 'Your password';
+
+  @override
+  String get deleteButton => 'Delete my account';
+
+  @override
+  String get deleteWrongPassword => 'The password is wrong.';
+
+  @override
+  String get deleteTooMany => 'Too many tries. Try again tomorrow.';
+
+  @override
+  String get deleteFailed =>
+      'Could not delete. Check your connection and try again.';
 }

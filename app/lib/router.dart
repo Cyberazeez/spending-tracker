@@ -10,6 +10,8 @@ import 'features/auth/lock_page.dart';
 import 'features/more/capture_page.dart';
 import 'features/obligations/obligation_form_page.dart';
 import 'features/account/account_pages.dart';
+import 'features/account/delete_account_page.dart';
+import 'features/account/own_accounts_page.dart';
 import 'features/transactions/quick_add_page.dart';
 import 'features/transactions/review_page.dart';
 import 'features/shell/shell_page.dart';
@@ -22,6 +24,8 @@ const accountPath = '/home/account';
 const profilePath = '/home/account/profile';
 const securityPath = '/home/account/security';
 const privacyPath = '/home/account/privacy';
+const banksPath = '/home/account/banks';
+const deleteAccountPath = '/home/account/privacy/delete';
 const quickAddPath = '/home/quick-add';
 const reviewPath = '/home/review';
 const capturePath = '/home/capture';
@@ -99,8 +103,20 @@ final routerProvider = Provider<GoRouter>((ref) {
                 pageBuilder: (_, state) => _page(state, const SecurityPage()),
               ),
               GoRoute(
+                path: 'banks',
+                pageBuilder: (_, state) =>
+                    _page(state, const OwnAccountsPage()),
+              ),
+              GoRoute(
                 path: 'privacy',
                 pageBuilder: (_, state) => _page(state, const PrivacyPage()),
+                routes: [
+                  GoRoute(
+                    path: 'delete',
+                    pageBuilder: (_, state) =>
+                        _page(state, const DeleteAccountPage()),
+                  ),
+                ],
               ),
             ],
           ),

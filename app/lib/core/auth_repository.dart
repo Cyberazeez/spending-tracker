@@ -20,6 +20,13 @@ class SignUpException implements Exception {
 /// follow the confirmation link emailed to them (only when the project asks for email confirmation).
 enum SignUpResult { signedIn, confirmEmail }
 
+enum DeleteFailure { wrongPassword, tooMany, network }
+
+class DeleteAccountException implements Exception {
+  const DeleteAccountException(this.failure);
+  final DeleteFailure failure;
+}
+
 enum PasswordFailure { wrongCurrent, tooShort, network }
 
 class PasswordException implements Exception {
@@ -55,6 +62,10 @@ abstract class AuthRepository {
 
   /// Starts an email change: the new address gets a confirmation link and the old one stays until it is used.
   Future<void> changeEmail(String email);
+
+  /// Deletes the account and all its data after checking [password] again (server side). Signs out on success.
+  /// Throws [DeleteAccountException].
+  Future<void> deleteAccount(String password);
 
   /// Checks [current] first, then sets [next]. Throws [PasswordException].
   Future<void> changePassword({required String current, required String next});
@@ -155,6 +166,38 @@ class SupabaseAuthRepository implements AuthRepository {
   @override
   Future<void> updateName(String name) async {
     await _client.auth.updateUser(UserAttributes(data: {'name': name.trim()}));
+  }
+
+  @override
+  Future<void> deleteAccount(String password) async {
+    try {
+      await _client.functions.invoke(
+        'delete-account',
+        body: {'password': password},
+      );
+    } on FunctionException catch (e) {
+      // 401: the account is already gone (an earlier try deleted it and its answer was lost) or the session is no
+      // longer valid. Either way there is nothing left to delete, so carry on and clean this phone up.
+      if (e.status == 401) {
+        try {
+          await _client.auth.signOut(scope: SignOutScope.local);
+        } catch (_) {}
+        return;
+      }
+      if (e.status == 403) {
+        throw const DeleteAccountException(DeleteFailure.wrongPassword);
+      }
+      if (e.status == 429) {
+        throw const DeleteAccountException(DeleteFailure.tooMany);
+      }
+      throw const DeleteAccountException(DeleteFailure.network);
+    } catch (_) {
+      throw const DeleteAccountException(DeleteFailure.network);
+    }
+    // The account is gone; the session is already useless, so a failing sign-out here is harmless.
+    try {
+      await _client.auth.signOut(scope: SignOutScope.local);
+    } catch (_) {}
   }
 
   @override

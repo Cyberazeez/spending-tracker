@@ -55,6 +55,17 @@ class FakeAuthRepository implements AuthRepository {
     return signUpResult;
   }
 
+  DeleteFailure? deleteFailWith;
+  final deleteCalls = <String>[];
+
+  @override
+  Future<void> deleteAccount(String password) async {
+    if (deleteFailWith != null) throw DeleteAccountException(deleteFailWith!);
+    deleteCalls.add(password);
+    _signedIn = false;
+    _controller.add(false);
+  }
+
   String? fakeEmail = 'azeez@example.test';
   String? fakeName;
   PasswordFailure? passwordFailWith;
@@ -353,6 +364,53 @@ class FakeDataRepository implements DataRepository {
   List<String> saved = [];
   int suggestCalls = 0;
   final tipCalls = <(Map<String, dynamic>, String)>[];
+
+  List<OwnAccount> accounts = [
+    const OwnAccount(
+      id: 'oa1',
+      bank: 'alinma',
+      last4: '6000',
+      kind: 'account',
+      label: 'Main',
+    ),
+  ];
+  final accountCalls = <String>[];
+  bool accountDuplicate = false;
+
+  @override
+  Future<List<OwnAccount>> ownAccounts() async => accounts;
+
+  @override
+  Future<void> addOwnAccount({
+    required String bank,
+    required String last4,
+    required String kind,
+    String? label,
+  }) async {
+    if (accountDuplicate) {
+      throw const PostgrestException(message: 'dup', code: '23505');
+    }
+    accountCalls.add('add:$bank:$last4:$kind:${label ?? ''}');
+    accounts = [
+      ...accounts,
+      OwnAccount(
+        id: 'oa${accounts.length + 1}',
+        bank: bank,
+        last4: last4,
+        kind: kind,
+        label: label,
+      ),
+    ];
+  }
+
+  @override
+  Future<void> deleteOwnAccount(String id) async {
+    accountCalls.add('del:$id');
+    accounts = [
+      for (final a in accounts)
+        if (a.id != id) a,
+    ];
+  }
 
   int baseSalary = 1410000;
 
