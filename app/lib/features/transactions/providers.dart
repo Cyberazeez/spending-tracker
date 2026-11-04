@@ -21,6 +21,14 @@ final transactionsProvider = FutureProvider.autoDispose<List<Txn>>(
   retry: (_, _) => null,
 );
 
+/// How many spends have no category in total (the Activity list only holds the latest 200, or a filtered set).
+final uncategorizedCountProvider = FutureProvider.autoDispose<int>((ref) {
+  ref.watch(
+    transactionsProvider,
+  ); // recount whenever the list reloads (after a category change or AI run)
+  return ref.watch(dataRepositoryProvider).uncategorizedSpendCount();
+}, retry: (_, _) => null);
+
 final categoriesProvider = FutureProvider.autoDispose<List<Category>>(
   (ref) => ref.watch(dataRepositoryProvider).categories(),
   retry: (_, _) => null,

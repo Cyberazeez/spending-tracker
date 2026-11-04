@@ -93,8 +93,7 @@ void main() {
       expect(find.text('Not set'), findsOneWidget);
       await tester.tap(find.text('Monthly budget'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Set a budget').last);
-      await tester.pumpAndSettle();
+      // no budget yet: the amount sheet opens straight away
       await tester.enterText(find.byType(CupertinoTextField), '3000');
       await tester.tap(find.text('Save'));
       await tester.pumpAndSettle();

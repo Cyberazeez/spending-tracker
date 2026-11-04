@@ -1,68 +1,36 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import '../../core/money.dart';
 import '../../core/providers.dart';
 import '../../l10n/app_localizations.dart';
+import '../../ui/amount_sheet.dart';
+import '../../ui/choice_sheet.dart';
 import 'metrics.dart';
 import 'providers.dart';
 
-Future<int?> askBudgetLimit(BuildContext context, int? current) async {
+Future<int?> askBudgetLimit(
+  BuildContext context,
+  int? current, {
+  String? subtitle,
+  bool monthly = true,
+}) {
   final t = AppLocalizations.of(context);
-  final controller = TextEditingController(
-    text: current == null ? '' : (current / 100).toStringAsFixed(2),
+  return showAmountSheet(
+    context,
+    title: t.insBudgetPrompt,
+    subtitle: subtitle,
+    initialHalalas: current,
+    suggestionsHalalas: [
+      for (final v
+          in monthly
+              ? const [3000, 5000, 8000, 10000, 15000]
+              : const [200, 500, 1000, 2000, 3000])
+        v * 100,
+    ],
+    maxHalalas: maxBudgetHalalas,
+    invalidText: t.insBudgetInvalid,
   );
-  String? error;
-  final result = await showCupertinoDialog<int>(
-    context: context,
-    builder: (ctx) => StatefulBuilder(
-      builder: (ctx, setLocal) => CupertinoAlertDialog(
-        title: Text(t.insBudgetPrompt),
-        content: Column(
-          children: [
-            const SizedBox(height: 8),
-            CupertinoTextField(
-              controller: controller,
-              autofocus: true,
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
-              ),
-            ),
-            if (error != null)
-              Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: Text(
-                  error!,
-                  style: TextStyle(
-                    color: CupertinoColors.systemRed.resolveFrom(ctx),
-                    fontSize: 13,
-                  ),
-                ),
-              ),
-          ],
-        ),
-        actions: [
-          CupertinoDialogAction(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text(t.cancel),
-          ),
-          CupertinoDialogAction(
-            isDefaultAction: true,
-            onPressed: () {
-              final v = parseHalalas(controller.text);
-              if (v == null || v > maxBudgetHalalas) {
-                setLocal(() => error = t.insBudgetInvalid);
-              } else {
-                Navigator.pop(ctx, v);
-              }
-            },
-            child: Text(t.insSave),
-          ),
-        ],
-      ),
-    ),
-  );
-  return result;
 }
 
 Future<void> saveBudgetChange(
@@ -105,26 +73,22 @@ Future<void> showMonthlyBudgetFlow(
   current ??= ref.read(monthlyBudgetProvider).value;
   final repo = ref.read(dataRepositoryProvider);
   if (current != null) {
-    final choice = await showCupertinoModalPopup<String>(
-      context: context,
-      builder: (ctx) => CupertinoActionSheet(
-        title: Text(t.insMonthlyBudget),
-        actions: [
-          CupertinoActionSheetAction(
-            onPressed: () => Navigator.pop(ctx, 'set'),
-            child: Text(t.insBudgetSet),
-          ),
-          CupertinoActionSheetAction(
-            isDestructiveAction: true,
-            onPressed: () => Navigator.pop(ctx, 'remove'),
-            child: Text(t.insBudgetRemove),
-          ),
-        ],
-        cancelButton: CupertinoActionSheetAction(
-          onPressed: () => Navigator.pop(ctx),
-          child: Text(t.cancel),
+    final choice = await showChoiceSheet<String>(
+      context,
+      title: t.insMonthlyBudget,
+      options: [
+        ChoiceOption(
+          value: 'set',
+          label: t.insBudgetSet,
+          icon: LucideIcons.pencil,
         ),
-      ),
+        ChoiceOption(
+          value: 'remove',
+          label: t.insBudgetRemove,
+          icon: LucideIcons.trash2,
+          destructive: true,
+        ),
+      ],
     );
     if (choice == null || !context.mounted) return;
     if (choice == 'remove') {

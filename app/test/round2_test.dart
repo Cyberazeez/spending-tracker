@@ -147,4 +147,34 @@ void main() {
     expect(find.textContaining('قلل المطاعم'), findsOneWidget);
     expect(find.textContaining('Cut dining'), findsNothing);
   });
+
+  testWidgets(
+    'the "no category" banner counts all history, not only the loaded list',
+    (tester) async {
+      tester.view.physicalSize = const Size(800, 3000);
+      tester.view.devicePixelRatio = 2;
+      addTearDown(tester.view.reset);
+      final h = Harness(signedIn: true);
+      h.data.aiOn = true;
+      Txn old(String id) => Txn(
+        id: id,
+        type: 'purchase',
+        direction: 'out',
+        amountHalalas: 800,
+        occurredAt: DateTime.utc(2026, 7, 1, 9),
+        merchant: 'KFIA 1831',
+        merchantNorm: 'kfia 1831',
+      );
+      h.data.txns = [spend('1', 2399)];
+      h.data.history = [for (var i = 2; i < 6; i++) old('$i')];
+      await tester.pumpWidget(await h.build());
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Activity').last);
+      await tester.pumpAndSettle();
+      expect(
+        find.textContaining('5 transactions have no category'),
+        findsOneWidget,
+      );
+    },
+  );
 }

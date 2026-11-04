@@ -265,6 +265,20 @@ class FakeDataRepository implements DataRepository {
   Future<List<Category>> categories() async => cats;
 
   @override
+  Future<int> uncategorizedSpendCount() async =>
+      {
+            for (final t in [...history, ...txns]) t.id: t,
+          }.values
+          .where(
+            (x) =>
+                x.categoryId == null &&
+                !x.isInternal &&
+                (x.type == 'purchase' || x.type == 'refund') &&
+                x.merchantNorm != null,
+          )
+          .length;
+
+  @override
   Future<int> sameMerchantCount(
     String merchantNorm, {
     required String excludingId,

@@ -12,6 +12,10 @@ abstract class DataRepository {
   Future<List<Category>> categories();
 
   /// How many other, not manually categorised, transactions share this merchant.
+  /// Spending (purchases and refunds with a merchant, not internal) that has no category yet, across all history,
+  /// the same set the AI suggestion works on.
+  Future<int> uncategorizedSpendCount();
+
   Future<int> sameMerchantCount(
     String merchantNorm, {
     required String excludingId,
@@ -164,6 +168,20 @@ class SupabaseDataRepository implements DataRepository {
         .select('id, name, name_ar, excluded_from_spend')
         .order('sort_order');
     return rows.map<Category>(Category.fromRow).toList();
+  }
+
+  @override
+  Future<int> uncategorizedSpendCount() async {
+    final rows = await _db
+        .from('transactions')
+        .select('id')
+        .isFilter('deleted_at', null)
+        .isFilter('category_id', null)
+        .eq('is_internal', false)
+        .inFilter('type', ['purchase', 'refund'])
+        .not('merchant_norm', 'is', null)
+        .limit(5000);
+    return rows.length;
   }
 
   @override

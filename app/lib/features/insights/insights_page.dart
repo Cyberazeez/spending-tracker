@@ -21,6 +21,7 @@ import '../transactions/providers.dart';
 import 'metrics.dart';
 import 'providers.dart';
 import 'widgets/donut_share.dart';
+import '../../ui/choice_sheet.dart';
 import 'budget_flow.dart';
 import 'widgets/insight_cards.dart';
 import 'widgets/month_bars.dart';
@@ -40,27 +41,23 @@ class _InsightsPageState extends ConsumerState<InsightsPage> {
     Budget? existing,
   ) async {
     final t = AppLocalizations.of(context);
-    final choice = await showCupertinoModalPopup<String>(
-      context: context,
-      builder: (ctx) => CupertinoActionSheet(
-        title: Text(name),
-        actions: [
-          CupertinoActionSheetAction(
-            onPressed: () => Navigator.pop(ctx, 'set'),
-            child: Text(t.insBudgetSet),
-          ),
-          if (existing != null)
-            CupertinoActionSheetAction(
-              isDestructiveAction: true,
-              onPressed: () => Navigator.pop(ctx, 'remove'),
-              child: Text(t.insBudgetRemove),
-            ),
-        ],
-        cancelButton: CupertinoActionSheetAction(
-          onPressed: () => Navigator.pop(ctx),
-          child: Text(t.cancel),
+    final choice = await showChoiceSheet<String>(
+      context,
+      title: name,
+      options: [
+        ChoiceOption(
+          value: 'set',
+          label: t.insBudgetSet,
+          icon: LucideIcons.pencil,
         ),
-      ),
+        if (existing != null)
+          ChoiceOption(
+            value: 'remove',
+            label: t.insBudgetRemove,
+            icon: LucideIcons.trash2,
+            destructive: true,
+          ),
+      ],
     );
     if (choice == null || !mounted) return;
     final repo = ref.read(dataRepositoryProvider);
@@ -68,7 +65,7 @@ class _InsightsPageState extends ConsumerState<InsightsPage> {
       await _save(() => repo.removeBudget(categoryId));
       return;
     }
-    final halalas = await _askLimit(existing?.limitHalalas);
+    final halalas = await _askLimit(existing?.limitHalalas, subtitle: name);
     if (halalas == null || !mounted) return;
     await _save(() => repo.setBudget(categoryId, halalas));
   }
@@ -97,7 +94,8 @@ class _InsightsPageState extends ConsumerState<InsightsPage> {
     );
   }
 
-  Future<int?> _askLimit(int? current) => askBudgetLimit(context, current);
+  Future<int?> _askLimit(int? current, {String? subtitle}) =>
+      askBudgetLimit(context, current, subtitle: subtitle, monthly: false);
 
   Future<void> _save(Future<void> Function() action) =>
       saveBudgetChange(context, ref, action);
