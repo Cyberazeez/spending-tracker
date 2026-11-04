@@ -1,5 +1,7 @@
 import 'dart:math' as math;
 
+import '../../../ui/trailing_box.dart';
+
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart' show DateFormat;
 
@@ -59,7 +61,7 @@ class MonthBars extends StatelessWidget {
                 ),
               ),
               if (budgetHalalas != null)
-                Flexible(
+                TrailingBox(
                   child: Directionality(
                     textDirection: TextDirection.ltr,
                     child: FittedBox(

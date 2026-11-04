@@ -1,5 +1,7 @@
 import 'dart:math' as math;
 
+import '../../../ui/trailing_box.dart';
+
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart' show DateFormat;
 
@@ -53,7 +55,7 @@ class WeekBars extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              Flexible(
+              TrailingBox(
                 child: FittedBox(
                   fit: BoxFit.scaleDown,
                   child: Text(

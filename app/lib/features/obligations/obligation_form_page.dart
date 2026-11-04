@@ -1,4 +1,7 @@
 import 'package:flutter/cupertino.dart';
+
+import '../../ui/chevron.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
 
@@ -530,8 +533,7 @@ class _TapRow extends StatelessWidget {
                   style: TextStyle(color: AppTokens.muted.resolveFrom(context)),
                 ),
               ),
-              Icon(
-                CupertinoIcons.chevron_forward,
+              ForwardChevron(
                 size: 14,
                 color: AppTokens.muted.resolveFrom(context),
               ),

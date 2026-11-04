@@ -1,4 +1,7 @@
 import 'package:flutter/cupertino.dart';
+
+import '../../ui/chevron.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/format.dart';
@@ -164,8 +167,7 @@ class ReviewPage extends ConsumerWidget {
                                         ],
                                       ),
                                     ),
-                                    Icon(
-                                      CupertinoIcons.chevron_forward,
+                                    ForwardChevron(
                                       size: 14,
                                       color: AppTokens.muted.resolveFrom(
                                         context,

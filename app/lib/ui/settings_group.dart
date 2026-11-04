@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 
+import 'chevron.dart';
+
 import 'app_card.dart';
 import 'tokens.dart';
 
@@ -144,7 +146,7 @@ class SettingsRow extends StatelessWidget {
               control!,
             ] else if (onTap != null && !danger) ...[
               const SizedBox(width: 6),
-              Icon(CupertinoIcons.chevron_forward, size: 14, color: muted),
+              ForwardChevron(size: 14, color: muted),
             ],
           ],
         ),

@@ -51,7 +51,9 @@ export function buildSystem(a: Aggregates, language: "en" | "ar"): string {
     "Answer only from the numbers below; quote the SAR figures you use. If the numbers do not answer the question, say so.",
     "Never invent merchants, transactions or figures. You only know category totals, not individual purchases.",
     "Stay on budgeting and spending. Keep answers under 120 words, plain text, no markdown.",
-    `Write in ${language === "ar" ? "Arabic" : "English"}.`,
+    `Always answer in ${
+      language === "ar" ? "Arabic" : "English"
+    }, whatever language the question is written in.`,
     ...describeAggregates(a),
   ].join("\n");
 }

@@ -1,4 +1,7 @@
 import 'package:flutter/cupertino.dart';
+
+import '../../ui/trailing_box.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart' show DateFormat;
@@ -316,7 +319,7 @@ class _DayHeader extends StatelessWidget {
       children: [
         Expanded(child: labelText),
         const SizedBox(width: 8),
-        Flexible(child: totalText),
+        TrailingBox(child: totalText),
       ],
     );
   }

@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 
+import '../../../ui/trailing_box.dart';
+
 import '../../../core/format.dart';
 import '../../../core/models.dart';
 import '../../../core/money.dart';
@@ -121,7 +123,7 @@ class TxnRow extends StatelessWidget {
                 Expanded(child: titleBlock),
                 if (!stacked) ...[
                   const SizedBox(width: 8),
-                  Flexible(child: amountText),
+                  TrailingBox(child: amountText),
                 ],
               ],
             ),

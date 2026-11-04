@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 
+import '../../../ui/trailing_box.dart';
+
 import '../../../core/money.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/app_card.dart';
@@ -159,7 +161,7 @@ class _GroupRow extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 10),
-            Flexible(
+            TrailingBox(
               child: Directionality(
                 textDirection: TextDirection.ltr,
                 child: FittedBox(
