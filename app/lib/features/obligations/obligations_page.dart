@@ -1,4 +1,8 @@
 import 'package:flutter/cupertino.dart';
+
+import '../../ui/confirm_sheet.dart';
+import '../../ui/amount_sheet.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -37,18 +41,7 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
       await action();
     } catch (_) {
       if (!mounted) return;
-      await showCupertinoDialog<void>(
-        context: context,
-        builder: (ctx) => CupertinoAlertDialog(
-          content: Text(t.obSaveFailed),
-          actions: [
-            CupertinoDialogAction(
-              onPressed: () => Navigator.pop(ctx),
-              child: Text(t.done),
-            ),
-          ],
-        ),
-      );
+      await showNoticeSheet(context, title: t.obSaveFailed);
     } finally {
       if (mounted) {
         ref.invalidate(obligationsProvider);
@@ -108,22 +101,11 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
     }
     if (choice == 'stop') {
       if (!mounted) return;
-      final sure = await showCupertinoDialog<bool>(
-        context: context,
-        builder: (ctx) => CupertinoAlertDialog(
-          content: Text(t.obStopConfirm(i.name)),
-          actions: [
-            CupertinoDialogAction(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: Text(t.cancel),
-            ),
-            CupertinoDialogAction(
-              isDestructiveAction: true,
-              onPressed: () => Navigator.pop(ctx, true),
-              child: Text(t.obStop),
-            ),
-          ],
-        ),
+      final sure = await showConfirmSheet(
+        context,
+        title: t.obStopConfirm(i.name),
+        confirmLabel: t.obStop,
+        destructive: true,
       );
       if (sure == true) {
         await _run(() => repo.stopObligation(i.obligationId));
@@ -143,63 +125,15 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
     await _run(() => repo.setInstanceStatus(i.id, choice));
   }
 
-  Future<int?> _askAmount(int? current) async {
+  Future<int?> _askAmount(int? current) {
     final t = AppLocalizations.of(context);
-    final controller = TextEditingController(
-      text: current == null ? '' : (current / 100).toStringAsFixed(2),
+    return showAmountSheet(
+      context,
+      title: t.obEditAmountPrompt,
+      initialHalalas: current,
+      maxHalalas: maxBudgetHalalas,
+      invalidText: t.obAmountInvalid,
     );
-    String? error;
-    final result = await showCupertinoDialog<int>(
-      context: context,
-      builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setLocal) => CupertinoAlertDialog(
-          title: Text(t.obEditAmountPrompt),
-          content: Column(
-            children: [
-              const SizedBox(height: 8),
-              CupertinoTextField(
-                controller: controller,
-                autofocus: true,
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
-                ),
-              ),
-              if (error != null)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: Text(
-                    error!,
-                    style: TextStyle(
-                      color: CupertinoColors.systemRed.resolveFrom(ctx),
-                      fontSize: 13,
-                    ),
-                  ),
-                ),
-            ],
-          ),
-          actions: [
-            CupertinoDialogAction(
-              onPressed: () => Navigator.pop(ctx),
-              child: Text(t.cancel),
-            ),
-            CupertinoDialogAction(
-              isDefaultAction: true,
-              onPressed: () {
-                final v = parseHalalas(controller.text);
-                if (v == null || v > maxBudgetHalalas) {
-                  setLocal(() => error = t.obAmountInvalid);
-                } else {
-                  Navigator.pop(ctx, v);
-                }
-              },
-              child: Text(t.insSave),
-            ),
-          ],
-        ),
-      ),
-    );
-    controller.dispose();
-    return result;
   }
 
   @override

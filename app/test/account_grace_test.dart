@@ -24,7 +24,7 @@ void main() {
       await _signIn(tester, h);
       expect(find.text('Welcome back'), findsOneWidget);
       expect(find.textContaining('deletion is cancelled'), findsOneWidget);
-      await tester.tap(find.widgetWithText(CupertinoDialogAction, 'OK'));
+      await tester.tap(find.text('OK'));
       await tester.pumpAndSettle();
       expect(find.text('Welcome back'), findsNothing);
     },
@@ -34,5 +34,14 @@ void main() {
     final h = Harness();
     await _signIn(tester, h);
     expect(find.text('Welcome back'), findsNothing);
+  });
+
+  testWidgets('opening the app asks again to cancel a standing deletion', (
+    tester,
+  ) async {
+    final h = Harness(signedIn: true);
+    await tester.pumpWidget(await h.build());
+    await tester.pumpAndSettle();
+    expect(h.auth.reactivateCalls, 1);
   });
 }

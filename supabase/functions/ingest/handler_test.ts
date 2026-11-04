@@ -81,6 +81,12 @@ async function setup(
       rows.push(row);
       return Promise.resolve(`id${rows.length}`);
     },
+    findRetryableRaw: (_u, h) => {
+      const i = rows.findIndex((r) => r.dedupe_hash === h);
+      if (i < 0) return Promise.resolve(null);
+      const id = `id${i + 1}`;
+      return Promise.resolve(saved.some((s) => s.rawId === id) ? null : id);
+    },
     touchToken: () => {
       touched++;
       return Promise.resolve();
@@ -348,10 +354,35 @@ Deno.test("ingest: an unknown format stays needs_review and nothing is saved", a
   assert.equal(s.rows[0].parse_status, "needs_review");
 });
 
-Deno.test("ingest: if saving the parse fails the SMS is still stored and the call still succeeds", async () => {
+Deno.test("ingest: if saving the parse fails the SMS is stored and the call fails so the app retries", async () => {
   const s = await setup({ failSave: true });
-  const res = await s.call(SMS);
-  assert.equal(res.status, 200);
+  const res = await s.call(SMS).catch(() => null);
+  // handleIngest rethrows; the real server turns that into a 500
+  assert.equal(res, null);
+  assert.equal(s.rows.length, 1);
+  assert.equal(s.rows[0].parse_status, "needs_review");
+  assert.equal(s.saved.length, 0);
+});
+
+Deno.test("ingest: the retry after a failed save parses the stored message once and never twice", async () => {
+  const opts = { failSave: true };
+  const s = await setup(opts);
+  await s.call(SMS).catch(() => null);
+  opts.failSave = false;
+  const retry = await s.call(SMS);
+  assert.equal(retry.status, 200);
+  assert.equal(s.rows.length, 1, "no second raw row");
+  assert.equal(s.saved.length, 1, "parsed on the retry");
+  await s.call(SMS);
+  assert.equal(s.saved.length, 1, "a third delivery is a plain duplicate");
+});
+
+Deno.test("ingest: a message that fails twice is answered with success the second time (no endless retry)", async () => {
+  const s = await setup({ failSave: true });
+  const first = await s.call(SMS).catch(() => null);
+  assert.equal(first, null);
+  const second = await s.call(SMS);
+  assert.equal(second.status, 200);
   assert.equal(s.rows.length, 1);
   assert.equal(s.rows[0].parse_status, "needs_review");
 });
@@ -550,6 +581,22 @@ Deno.test("ingest: an own-account transfer out finds the incoming row that arriv
   );
   assert.deepEqual(s.marked, [{ ids: ["in1"], cat: "c-transfers" }]);
   assert.equal(s.transferLookups[0].type, "transfer_in");
+});
+
+Deno.test("ingest: an outgoing transfer is internal when the incoming one of the same move already is", async () => {
+  const s = await setup({ counterparts: [{ id: "in1", isInternal: true }] });
+  await s.call(
+    {
+      sender: "barq app",
+      body: BARQ_LOCAL.replace("**6000", "**9999"),
+      received_at: "2026-11-04T03:40:58Z",
+    },
+    { "x-ingest-token": s.token },
+  );
+  const row = s.saved[0].rows[0];
+  assert.equal(row.type, "transfer_out");
+  assert.equal(row.is_internal, true);
+  assert.equal(row.excluded_from_spend, true);
 });
 
 Deno.test("ingest: a failed counterpart lookup never costs the transaction", async () => {

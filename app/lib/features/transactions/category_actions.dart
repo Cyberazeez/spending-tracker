@@ -1,4 +1,7 @@
 import 'package:flutter/cupertino.dart';
+
+import '../../ui/confirm_sheet.dart';
+
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -64,28 +67,15 @@ Future<void> pickCategory(
         final others = await repo.sameMerchantCount(norm, excludingId: txn.id);
         if (others > 0 && context.mounted) {
           final cat = cats.firstWhere((c) => c.id == picked);
-          final choice = await showCupertinoDialog<bool>(
-            context: context,
-            builder: (ctx) => CupertinoAlertDialog(
-              title: Text(t.applyPastTitle(others)),
-              content: Text(
-                t.applyPastBody(
-                  txn.merchant ?? norm,
-                  cat.label(arabic: arabic),
-                ),
-              ),
-              actions: [
-                CupertinoDialogAction(
-                  onPressed: () => Navigator.pop(ctx, false),
-                  child: Text(t.applyPastNo),
-                ),
-                CupertinoDialogAction(
-                  isDefaultAction: true,
-                  onPressed: () => Navigator.pop(ctx, true),
-                  child: Text(t.applyPastYes),
-                ),
-              ],
+          final choice = await showConfirmSheet(
+            context,
+            title: t.applyPastTitle(others),
+            message: t.applyPastBody(
+              txn.merchant ?? norm,
+              cat.label(arabic: arabic),
             ),
+            confirmLabel: t.applyPastYes,
+            cancelLabel: t.applyPastNo,
           );
           if (choice == null) return; // dismissed: do nothing
           alsoPast = choice;
@@ -100,18 +90,7 @@ Future<void> pickCategory(
     }
   } catch (_) {
     if (context.mounted) {
-      await showCupertinoDialog<void>(
-        context: context,
-        builder: (ctx) => CupertinoAlertDialog(
-          content: Text(t.categorySaveFailed),
-          actions: [
-            CupertinoDialogAction(
-              onPressed: () => Navigator.pop(ctx),
-              child: Text(t.done),
-            ),
-          ],
-        ),
-      );
+      await showNoticeSheet(context, title: t.categorySaveFailed);
     }
   } finally {
     if (context.mounted) ref.invalidate(transactionsProvider);

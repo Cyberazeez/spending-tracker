@@ -164,6 +164,27 @@ void main() {
     expect(i.subscriptionsMonthly, 5500);
   });
 
+  test(
+    'a recurring purchase in an excluded category is not a subscription',
+    () {
+      final i = computeInsights(
+        [
+          for (final d in ['2026-09-12', '2026-10-12', '2026-11-12'])
+            tx('$d 09:00', 5500, merchant: 'tuition', cat: 'c-x'),
+        ],
+        now,
+        excludedCategories: {'c-x'},
+      );
+      expect(i.subscriptions, isEmpty);
+    },
+  );
+
+  test('a budget percent never goes below zero when refunds exceed spend', () {
+    expect(budgetPercent(-5000, 100000), 0);
+    expect(budgetPercent(0, 100000), 0);
+    expect(budgetPercent(25000, 100000), 25);
+  });
+
   test('savings rate and the salary-above-base flag', () {
     final ok = computeInsights(
       [

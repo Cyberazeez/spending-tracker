@@ -11,8 +11,11 @@ String formatSar(int halalas, {required bool arabic, bool symbol = true}) {
   final whole = NumberFormat('#,##0', 'en').format(halalas.abs() ~/ 100);
   final frac = (halalas.abs() % 100).toString().padLeft(2, '0');
   final n = '$whole.$frac';
-  if (symbol) return arabic ? '$n $riyalSign' : '$riyalSign $n';
-  return arabic ? '$n ر.س' : 'SAR $n';
+  final neg = halalas < 0
+      ? '-'
+      : ''; // a net-negative total (refunds above spend) keeps its sign
+  if (symbol) return arabic ? '$neg$n $riyalSign' : '$neg$riyalSign $n';
+  return arabic ? '$neg$n ر.س' : '${neg}SAR $n';
 }
 
 const _arabicDigits = '٠١٢٣٤٥٦٧٨٩';

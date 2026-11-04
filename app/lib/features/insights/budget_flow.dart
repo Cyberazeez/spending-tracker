@@ -1,4 +1,7 @@
 import 'package:flutter/cupertino.dart';
+
+import '../../ui/confirm_sheet.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -43,18 +46,7 @@ Future<void> saveBudgetChange(
     await action();
   } catch (_) {
     if (!context.mounted) return;
-    await showCupertinoDialog<void>(
-      context: context,
-      builder: (ctx) => CupertinoAlertDialog(
-        content: Text(t.obSaveFailed),
-        actions: [
-          CupertinoDialogAction(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text(t.done),
-          ),
-        ],
-      ),
-    );
+    await showNoticeSheet(context, title: t.obSaveFailed);
   } finally {
     if (context.mounted) {
       ref.invalidate(budgetsProvider);

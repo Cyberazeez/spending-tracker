@@ -1,4 +1,7 @@
 import 'package:flutter/cupertino.dart';
+
+import '../../ui/confirm_sheet.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -63,18 +66,7 @@ class MorePage extends ConsumerWidget {
     final t = AppLocalizations.of(context);
     final granted = await controller.enable();
     if (granted || !context.mounted) return;
-    await showCupertinoDialog<void>(
-      context: context,
-      builder: (ctx) => CupertinoAlertDialog(
-        content: Text(t.remindersDenied),
-        actions: [
-          CupertinoDialogAction(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text(t.done),
-          ),
-        ],
-      ),
-    );
+    await showNoticeSheet(context, title: t.remindersDenied);
   }
 
   @override
@@ -200,18 +192,7 @@ class _AiRowState extends ConsumerState<_AiRow> {
     if (!mounted) return;
     setState(() => _pending = null);
     if (failed) {
-      await showCupertinoDialog<void>(
-        context: context,
-        builder: (ctx) => CupertinoAlertDialog(
-          content: Text(t.obSaveFailed),
-          actions: [
-            CupertinoDialogAction(
-              onPressed: () => Navigator.pop(ctx),
-              child: Text(t.done),
-            ),
-          ],
-        ),
-      );
+      await showNoticeSheet(context, title: t.obSaveFailed);
     }
   }
 

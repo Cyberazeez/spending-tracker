@@ -1,4 +1,7 @@
 import 'package:flutter/cupertino.dart';
+
+import '../../ui/confirm_sheet.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../account/account_providers.dart';
@@ -39,11 +42,20 @@ class _ShellPageState extends ConsumerState<ShellPage>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _syncCapture();
     // The flag may already be set when the shell first builds (sign-in redirects before it is read).
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) _showReactivated();
     });
+    _startUp();
+  }
+
+  /// A sign-in whose reactivation call failed (offline) would leave the deletion standing: ask again, and only then
+  /// set up capture (the token service refuses accounts with a pending deletion).
+  Future<void> _startUp() async {
+    final was = await ref.read(authRepositoryProvider).reactivateIfPending();
+    if (!mounted) return;
+    if (was) ref.read(accountReactivatedProvider.notifier).set(true);
+    _syncCapture();
   }
 
   /// A sign-in that just cancelled a pending account deletion tells the person once.
@@ -51,19 +63,11 @@ class _ShellPageState extends ConsumerState<ShellPage>
     if (!ref.read(accountReactivatedProvider)) return;
     ref.read(accountReactivatedProvider.notifier).set(false);
     final t = AppLocalizations.of(context);
-    showCupertinoDialog<void>(
-      context: context,
-      builder: (ctx) => CupertinoAlertDialog(
-        title: Text(t.reactivatedTitle),
-        content: Text(t.reactivatedBody),
-        actions: [
-          CupertinoDialogAction(
-            isDefaultAction: true,
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: Text(t.reactivatedOk),
-          ),
-        ],
-      ),
+    showNoticeSheet(
+      context,
+      title: t.reactivatedTitle,
+      message: t.reactivatedBody,
+      okLabel: t.reactivatedOk,
     );
   }
 

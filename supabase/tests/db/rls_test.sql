@@ -8,6 +8,7 @@ declare
   b uuid := '00000000-0000-0000-0000-00000000000b';
   f uuid := '00000000-0000-0000-0000-0000000000f1';
   g uuid := '00000000-0000-0000-0000-0000000000f2';
+  h uuid := '00000000-0000-0000-0000-0000000000f3';
   a_ob uuid;
   n int;
   denied boolean;
@@ -447,6 +448,30 @@ begin
   if public.purge_deleted_accounts() <> 1 then raise exception 'purge did not remove the expired account'; end if;
   select count(*) into n from auth.users where id = g;
   if n <> 0 then raise exception 'expired account still exists'; end if;
+  -- asking twice restarts the clock, and the sign-in of the password re-check in between does not save the account
+  insert into auth.users (id, aud, role, email, last_sign_in_at)
+    values ('00000000-0000-0000-0000-0000000000f4', 'authenticated', 'authenticated', 'rls-twice@example.test', null);
+  perform public.request_account_deletion('00000000-0000-0000-0000-0000000000f4');
+  update public.account_deletions set requested_at = now() - interval '40 days'
+    where user_id = '00000000-0000-0000-0000-0000000000f4';
+  update auth.users set last_sign_in_at = now() where id = '00000000-0000-0000-0000-0000000000f4';
+  perform public.request_account_deletion('00000000-0000-0000-0000-0000000000f4');
+  select count(*) into n from public.account_deletions
+    where user_id = '00000000-0000-0000-0000-0000000000f4' and requested_at > now() - interval '1 minute';
+  if n <> 1 then raise exception 'a second deletion request did not restart the clock'; end if;
+  if public.purge_deleted_accounts() <> 0 then raise exception 'a re-requested account was purged at once'; end if;
+  delete from auth.users where id = '00000000-0000-0000-0000-0000000000f4';
+  -- an account that signed in after asking to be deleted is kept, and its stale request is cleared
+  insert into auth.users (id, aud, role, email, last_sign_in_at)
+    values (h, 'authenticated', 'authenticated', 'rls-back@example.test', now());
+  insert into public.account_deletions (user_id, requested_at) values (h, now() - interval '40 days');
+  update auth.users set last_sign_in_at = now() where id = h;
+  if public.purge_deleted_accounts() <> 0 then raise exception 'purge deleted an account that signed in again'; end if;
+  select count(*) into n from auth.users where id = h;
+  if n <> 1 then raise exception 'a returning account was deleted'; end if;
+  select count(*) into n from public.account_deletions where user_id = h;
+  if n <> 0 then raise exception 'the stale deletion request was not cleared'; end if;
+  delete from auth.users where id = h;
   select count(*) into n from public.transactions where user_id = g;
   if n <> 0 then raise exception 'expired account left rows behind'; end if;
   

@@ -7,6 +7,8 @@ const url = Deno.env.get("SUPABASE_URL")!;
 const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
 
+const CATEGORIZE_LIMIT_PER_DAY = 20;
+
 const CORS = {
   "access-control-allow-origin": "*",
   "access-control-allow-headers": "authorization, content-type, apikey",
@@ -38,6 +40,16 @@ Deno.serve(async (req) => {
   const db = createClient(url, serviceKey, { auth: { persistSession: false } });
 
   try {
+    // Same per-user daily limit idea as the chat: the money cap alone lets a script call this in a tight loop.
+    const used = await db.rpc("bump_rate_limit", {
+      p_user: userId,
+      p_bucket: "ai_categorize",
+      p_window: "day",
+    });
+    if (used.error) throw new Error("rate_limit_failed");
+    if (Number(used.data) > CATEGORIZE_LIMIT_PER_DAY) {
+      return json(200, { ok: false, reason: "cap_reached" });
+    }
     const [settings, cats] = await Promise.all([
       db.from("settings").select("ai_enabled, ai_monthly_cap_halalas").eq("user_id", userId)
         .maybeSingle(),

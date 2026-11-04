@@ -10,6 +10,8 @@ const url = Deno.env.get("SUPABASE_URL")!;
 const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
 
+const TIPS_LIMIT_PER_DAY = 30;
+
 const CORS = {
   "access-control-allow-origin": "*",
   "access-control-allow-headers": "authorization, content-type, apikey, x-client-info",
@@ -45,6 +47,15 @@ Deno.serve(async (req) => {
       body = await req.json();
     } catch {
       return json(400, { error: "invalid_json" });
+    }
+    const used = await db.rpc("bump_rate_limit", {
+      p_user: userId,
+      p_bucket: "ai_tips",
+      p_window: "day",
+    });
+    if (used.error) throw new Error("rate_limit_failed");
+    if (Number(used.data) > TIPS_LIMIT_PER_DAY) {
+      return json(200, { ok: false, reason: "cap_reached" });
     }
     const [settings, cats] = await Promise.all([
       db.from("settings").select("ai_enabled, ai_monthly_cap_halalas, locale").eq("user_id", userId)
