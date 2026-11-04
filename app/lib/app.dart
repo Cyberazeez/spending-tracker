@@ -1,4 +1,7 @@
 import 'package:flutter/cupertino.dart';
+
+import 'core/money.dart';
+
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -55,16 +58,19 @@ class _SpendingTrackerAppState extends ConsumerState<SpendingTrackerApp> {
       ],
       onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
       // Hide content in the app switcher snapshot.
-      builder: (context, child) => Stack(
-        children: [
-          ?child,
-          if (_covered)
-            Positioned.fill(
-              child: ColoredBox(
-                color: CupertinoColors.systemBackground.resolveFrom(context),
+      builder: (context, child) => DefaultTextStyle.merge(
+        style: const TextStyle(fontFamilyFallback: [riyalFont]),
+        child: Stack(
+          children: [
+            ?child,
+            if (_covered)
+              Positioned.fill(
+                child: ColoredBox(
+                  color: CupertinoColors.systemBackground.resolveFrom(context),
+                ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }

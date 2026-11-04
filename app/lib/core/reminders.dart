@@ -57,7 +57,10 @@ List<ReminderItem> reminderItems(
           final date = formatDay(r.dueDate);
           return amount == null
               ? t.reminderBody(date)
-              : t.reminderBodyAmount(date, formatSar(amount, arabic: arabic));
+              : t.reminderBodyAmount(
+                  date,
+                  formatSar(amount, arabic: arabic, symbol: false),
+                );
         }(),
         at: r.fireAt,
       ),

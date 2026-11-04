@@ -176,7 +176,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get quickAdd => 'Quick add';
 
   @override
-  String get qaAmount => 'Amount (SAR)';
+  String get qaAmount => 'Amount (⃁)';
 
   @override
   String get qaMerchant => 'Merchant or note';
@@ -223,7 +223,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reviewLoadFailed => 'Could not load messages.';
 
   @override
-  String get sar => 'SAR';
+  String get sar => '⃁';
 
   @override
   String get loadFailed => 'Could not load. Pull to retry.';
@@ -381,7 +381,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get obEditAmount => 'Edit amount';
 
   @override
-  String get obEditAmountPrompt => 'Amount in SAR';
+  String get obEditAmountPrompt => 'Amount in ⃁';
 
   @override
   String get obAmountInvalid => 'Enter an amount like 700 or 1,250.50';
@@ -404,7 +404,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get insMonthlyBudgetPrompt => 'Monthly budget in SAR';
+  String get insMonthlyBudgetPrompt => 'Monthly budget in ⃁';
 
   @override
   String get homeToday => 'Spent today';
@@ -518,7 +518,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get insBudgetRemove => 'Remove budget';
 
   @override
-  String get insBudgetPrompt => 'Monthly limit in SAR';
+  String get insBudgetPrompt => 'Monthly limit in ⃁';
 
   @override
   String get insBudgetInvalid => 'Enter an amount like 1500 or 1,500.50';
@@ -804,7 +804,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get obfAmountEstimated => 'Estimated';
 
   @override
-  String get obfAmount => 'Amount in SAR';
+  String get obfAmount => 'Amount in ⃁';
 
   @override
   String get obfAmountBillNote =>
@@ -1144,7 +1144,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deleteWarn =>
-      'This permanently deletes your account and all your data: transactions, bills, budgets and settings. It cannot be undone.';
+      'Your account and all your data (transactions, bills, budgets and settings) will be permanently deleted after 30 days. Sign in again before then and nothing is deleted.';
 
   @override
   String get deleteWord => 'DELETE';
@@ -1180,8 +1180,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deleteSureBody =>
-      'All your data will be permanently deleted. This cannot be undone and nothing can be restored.';
+      'Your account is closed now and everything is permanently deleted after 30 days, with no way to restore it. Signing in again within 30 days cancels the deletion.';
 
   @override
   String get deleteSureConfirm => 'Delete everything';
+
+  @override
+  String get reactivatedTitle => 'Welcome back';
+
+  @override
+  String get reactivatedBody =>
+      'Your account is active again and the deletion is cancelled. All your data is still here.';
+
+  @override
+  String get reactivatedOk => 'OK';
 }

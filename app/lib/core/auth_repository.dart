@@ -44,7 +44,9 @@ abstract class AuthRepository {
   bool get hasSession;
   String? get userId;
   Stream<bool> get signedIn;
-  Future<void> signIn(String email, String password);
+
+  /// Signs in. True when this sign-in cancelled a pending account deletion (the 30-day grace period).
+  Future<bool> signIn(String email, String password);
 
   /// Creates an account (family testing: open sign-up). Throws [SignUpException].
   Future<SignUpResult> signUp({
@@ -63,7 +65,8 @@ abstract class AuthRepository {
   /// Starts an email change: the new address gets a confirmation link and the old one stays until it is used.
   Future<void> changeEmail(String email);
 
-  /// Deletes the account and all its data after checking [password] again (server side). Signs out on success.
+  /// Asks to delete the account after checking [password] again (server side): it is removed with all its data after
+  /// 30 days unless the person signs in again before then. Signs out on success.
   /// Throws [DeleteAccountException].
   Future<void> deleteAccount(String password);
 
@@ -86,7 +89,7 @@ class SupabaseAuthRepository implements AuthRepository {
       _client.auth.onAuthStateChange.map((e) => e.session != null);
 
   @override
-  Future<void> signIn(String email, String password) async {
+  Future<bool> signIn(String email, String password) async {
     try {
       await _client.auth.signInWithPassword(
         email: email.trim(),
@@ -101,6 +104,12 @@ class SupabaseAuthRepository implements AuthRepository {
       throw const SignInException(SignInFailure.invalidCredentials);
     } catch (_) {
       throw const SignInException(SignInFailure.network);
+    }
+    // Signing in cancels a pending deletion. Failing to ask is harmless: the next sign-in asks again.
+    try {
+      return await _client.rpc('reactivate_my_account') == true;
+    } catch (_) {
+      return false;
     }
   }
 

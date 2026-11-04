@@ -52,8 +52,8 @@ void main() {
     expect(find.text('Today'), findsOneWidget);
     expect(find.text('Yesterday'), findsOneWidget);
     expect(find.textContaining(RegExp(r'Sun .*25 Oct')), findsOneWidget);
-    expect(find.text('SAR 41.09'), findsOneWidget); // 19.50 + 21.59
-    expect(find.text('SAR 429.99'), findsOneWidget);
+    expect(find.text('⃁ 41.09'), findsOneWidget); // 19.50 + 21.59
+    expect(find.text('⃁ 429.99'), findsOneWidget);
   });
 
   testWidgets(
@@ -108,7 +108,7 @@ void main() {
       await open(tester, h);
       expect(find.text('barq'), findsOneWidget);
       expect(
-        find.text('SAR 10.00'),
+        find.text('⃁ 10.00'),
         findsOneWidget,
       ); // the day total is only Otten
       expect(find.textContaining('Internal'), findsOneWidget);
@@ -172,12 +172,12 @@ void main() {
         ];
       await open(tester, h);
       final title = tester.getTopLeft(find.text('Otten'));
-      final amount = tester.getTopLeft(find.text('− SAR 13,822.93'));
+      final amount = tester.getTopLeft(find.text('− ⃁ 13,822.93'));
       expect(
         amount.dy,
         greaterThan(title.dy),
       ); // under the title, not squeezed beside it
-      final size = tester.getSize(find.text('− SAR 13,822.93'));
+      final size = tester.getSize(find.text('− ⃁ 13,822.93'));
       expect(size.height, greaterThan(20)); // not scaled down to a tiny size
     },
   );

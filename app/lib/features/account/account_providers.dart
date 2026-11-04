@@ -101,3 +101,15 @@ final welcomeVisibleProvider = Provider.autoDispose<bool>((ref) {
   final age = ref.watch(clockProvider)().difference(seen);
   return age.inDays < welcomeLifetimeDays;
 });
+
+/// Set when a sign-in just cancelled a pending account deletion; the shell shows the notice once and clears it.
+final accountReactivatedProvider = NotifierProvider<AccountReactivated, bool>(
+  AccountReactivated.new,
+);
+
+class AccountReactivated extends Notifier<bool> {
+  @override
+  bool build() => false;
+
+  void set(bool value) => state = value;
+}

@@ -89,7 +89,7 @@ void main() {
     );
     expect(
       find.bySemanticsLabel(
-        RegExp(r'SAR 50\.00 so far this month, SAR 9\.00 by the same day'),
+        RegExp(r'⃁ 50\.00 so far this month, ⃁ 9\.00 by the same day'),
       ),
       findsOneWidget,
     );
@@ -113,11 +113,11 @@ void main() {
       MonthBars(totals: totals, budgetHalalas: 800000, arabic: false),
     );
     expect(
-      find.bySemanticsLabel(RegExp(r'^(Aug|Sep|Oct|Nov): SAR')),
+      find.bySemanticsLabel(RegExp(r'^(Aug|Sep|Oct|Nov): ⃁')),
       findsNWidgets(4),
     );
-    expect(find.bySemanticsLabel('Nov: SAR 4,812.00'), findsOneWidget);
-    expect(find.text('Budget SAR 8,000.00'), findsOneWidget);
+    expect(find.bySemanticsLabel('Nov: ⃁ 4,812.00'), findsOneWidget);
+    expect(find.text('Budget ⃁ 8,000.00'), findsOneWidget);
     handle.dispose();
   });
 
@@ -221,7 +221,7 @@ void main() {
       tester,
       const InsightLine(
         title: 'A fairly long merchant name that needs room',
-        amount: 'SAR 1.00',
+        amount: '⃁ 1.00',
       ),
     );
     final name = tester.getSize(
@@ -245,7 +245,7 @@ void main() {
         arabic: false,
       ),
     );
-    expect(find.bySemanticsLabel('Where it goes: SAR 70.00'), findsOneWidget);
+    expect(find.bySemanticsLabel('Where it goes: ⃁ 70.00'), findsOneWidget);
     expect(
       find.textContaining('%'),
       findsNWidgets(7),

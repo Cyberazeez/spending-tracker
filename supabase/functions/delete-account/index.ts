@@ -23,8 +23,8 @@ const deps: DeleteDeps = {
     const { error } = await probe.auth.signInWithPassword({ email, password });
     return !error;
   },
-  async deleteUser(userId) {
-    const { error } = await admin.auth.admin.deleteUser(userId);
+  async requestDeletion(userId) {
+    const { error } = await admin.rpc("request_account_deletion", { p_user: userId });
     if (error) throw new Error("delete_failed");
   },
   async bumpRateLimit(userId) {

@@ -100,7 +100,8 @@ class _DeleteAccountPageState extends ConsumerState<DeleteAccountPage> {
       await releaseCapture(capture, tokens);
       await releaseWidget(widget, tokens);
       await reminders.clear();
-      await prefs.remove('welcome_hidden_$uid');
+      await prefs.remove('welcome_collapsed_$uid');
+      await prefs.remove('welcome_first_$uid');
       await prefs.setBool('reminders_on', false);
     } catch (_) {}
     lock.lockNow();
