@@ -10,7 +10,7 @@ ObligationInstance inst({String kind = 'fixed'}) => ObligationInstance(
   name: 'Gym',
   kind: kind,
   periodStart: DateTime.utc(2026, 10), // this cycle (the test clock is 30 Oct)
-  dueDate: DateTime.utc(2026, 11, 5),
+  dueDate: DateTime.utc(2026, 10, 31),
   status: 'pending',
   expectedHalalas: 15000,
 );

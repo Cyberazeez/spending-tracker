@@ -42,8 +42,8 @@ void main() {
     tester,
   ) async {
     final h = await open(tester, [
-      inst('1', 'Horse and foal', '2026-11-05'),
-      inst('2', 'Murabahah', '2026-11-28', expected: 385833),
+      inst('1', 'Horse and foal', '2026-10-31'),
+      inst('2', 'Murabahah', '2026-10-31', expected: 385833),
       inst('3', 'Old one', '2026-09-28', period: '2026-09-01'),
     ]);
     expect(h.data.refreshCalls, greaterThan(0));
@@ -66,7 +66,7 @@ void main() {
       await open(tester, [
         inst('1', 'House Card', '2026-10-31'),
         // issued in October, due in November: still this month's cycle
-        inst('2', 'Horse and foal', '2026-11-05'),
+        inst('2', 'Horse and foal', '2026-10-31'),
         inst('3', 'Murabahah', '2026-11-28', period: '2026-11-01'),
         inst('4', 'Far one', '2026-11-29', period: '2026-11-01'),
       ]);
@@ -109,7 +109,7 @@ void main() {
       name: 'Electricity (SEC)',
       kind: 'bill',
       periodStart: DateTime.utc(2026, 10),
-      dueDate: DateTime.utc(2026, 11, 28),
+      dueDate: DateTime.utc(2026, 10, 28),
       status: 'pending',
       expectedHalalas: 69200,
       usualMinHalalas: 65800,
@@ -121,7 +121,7 @@ void main() {
   });
 
   testWidgets('an amount can be edited by hand', (tester) async {
-    final h = await open(tester, [inst('1', 'Electricity', '2026-11-05')]);
+    final h = await open(tester, [inst('1', 'Electricity', '2026-10-31')]);
     await tester.tap(find.text('Electricity'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Edit amount'));
@@ -134,7 +134,7 @@ void main() {
   });
 
   testWidgets('an invalid edited amount is refused', (tester) async {
-    final h = await open(tester, [inst('1', 'Electricity', '2026-11-05')]);
+    final h = await open(tester, [inst('1', 'Electricity', '2026-10-31')]);
     await tester.tap(find.text('Electricity'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Edit amount'));
@@ -163,7 +163,7 @@ void main() {
   testWidgets('mark paid from the row actions moves it to history', (
     tester,
   ) async {
-    final h = await open(tester, [inst('1', 'Horse and foal', '2026-11-05')]);
+    final h = await open(tester, [inst('1', 'Horse and foal', '2026-10-31')]);
     await tester.tap(find.text('Horse and foal'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Mark as paid'));
@@ -180,7 +180,7 @@ void main() {
     tester,
   ) async {
     final h = await open(tester, [
-      inst('1', 'Internet', '2026-11-02', matchState: 'suggested'),
+      inst('1', 'Internet', '2026-10-31', matchState: 'suggested'),
     ]);
     expect(
       find.textContaining('Mark "Internet" as paid with this payment?'),
@@ -194,7 +194,7 @@ void main() {
 
   testWidgets('confirming a suggestion marks it paid', (tester) async {
     final h = await open(tester, [
-      inst('1', 'Internet', '2026-11-02', matchState: 'suggested'),
+      inst('1', 'Internet', '2026-10-31', matchState: 'suggested'),
     ]);
     await tester.tap(find.text('Confirm'));
     await tester.pumpAndSettle();
@@ -268,7 +268,7 @@ void main() {
 
   testWidgets('arabic labels and RTL amounts', (tester) async {
     final h = Harness(signedIn: true);
-    h.data.instances = [inst('1', 'Horse', '2026-11-05')];
+    h.data.instances = [inst('1', 'Horse', '2026-10-31')];
     await tester.pumpWidget(await h.build(prefs: {'locale': 'ar'}));
     await tester.pumpAndSettle();
     await tester.tap(find.text('الفواتير').last);
@@ -290,7 +290,7 @@ void main() {
         });
         final h = Harness(signedIn: true);
         h.data.instances = [
-          inst('1', 'Horse and foal', '2026-11-05'),
+          inst('1', 'Horse and foal', '2026-10-31'),
           inst('2', 'Old one', '2026-09-28', period: '2026-09-01'),
           inst('3', 'Murabahah', '2026-11-28', period: '2026-11-01'),
         ];
