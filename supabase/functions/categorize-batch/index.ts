@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { MODEL } from "../_shared/ai.ts";
+import { effectiveSpent, globalCapFromEnv } from "../_shared/ai_budget.ts";
 import { runBatch } from "./handler.ts";
 
 const url = Deno.env.get("SUPABASE_URL")!;
@@ -52,10 +53,18 @@ Deno.serve(async (req) => {
         aiEnabled: settings.data.ai_enabled,
         capHalalas: Number(settings.data.ai_monthly_cap_halalas),
         async spentHalalas() {
-          const { data, error } = await db.from("ai_usage").select("cost_halalas")
-            .gte("created_at", monthStartUtc()); // all users: the cap is a global ceiling
-          if (error) throw new Error("usage_read_failed");
-          return (data ?? []).reduce((s, r) => s + Number(r.cost_halalas), 0);
+          // This user's spend against their own cap, plus one ceiling over all users (see _shared/ai_budget.ts).
+          const { data, error } = await db.rpc("ai_spend_summary", {
+            p_user: userId,
+            p_since: monthStartUtc(),
+          });
+          const row = Array.isArray(data) ? data[0] : data;
+          if (error || !row) throw new Error("usage_read_failed");
+          return effectiveSpent(
+            Number(row.mine_halalas),
+            Number(row.total_halalas),
+            globalCapFromEnv(Deno.env.get("AI_GLOBAL_CAP_HALALAS")),
+          );
         },
         async recordUsage(x) {
           const { error } = await db.from("ai_usage").insert({

@@ -165,18 +165,30 @@ void main() {
   });
 
   test('savings rate and the salary-above-base flag', () {
-    final ok = computeInsights([
-      tx('2026-11-01 08:00', 1410000, type: 'salary', direction: 'in'),
-      tx('2026-11-02 10:00', 410000),
-    ], now);
+    final ok = computeInsights(
+      [
+        tx('2026-11-01 08:00', 1410000, type: 'salary', direction: 'in'),
+        tx('2026-11-02 10:00', 410000),
+      ],
+      now,
+      baseSalary: 1410000,
+    );
     expect(ok.salary, 1410000);
     expect(ok.savingsRate, closeTo(0.709, 0.001));
     expect(ok.salaryAboveBase, isFalse);
 
-    final high = computeInsights([
+    final high = computeInsights(
+      [tx('2026-11-01 08:00', 1500000, type: 'salary', direction: 'in')],
+      now,
+      baseSalary: 1410000,
+    );
+    expect(high.salaryAboveBase, isTrue);
+
+    // base salary not set (a new account): never a warning
+    final unset = computeInsights([
       tx('2026-11-01 08:00', 1500000, type: 'salary', direction: 'in'),
     ], now);
-    expect(high.salaryAboveBase, isTrue);
+    expect(unset.salaryAboveBase, isFalse);
 
     final none = computeInsights([tx('2026-11-02 10:00', 1000)], now);
     expect(none.savingsRate, isNull);

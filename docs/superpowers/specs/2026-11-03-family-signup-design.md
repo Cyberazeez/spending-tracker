@@ -48,3 +48,6 @@ Internal testers must be added as users in App Store Connect (free, up to 100, n
 
 ## Order and deploys
 Each stage is its own PR. Stage A migration is applied after merge, only on the owner's "go", before any app build that depends on it. Stages B and C need function deploys (hand deploy, owner "go").
+
+## Status
+- Stage A built 2026-11-04 (migration `20261104100000_signup_safe_seeds.sql`, per-user AI cap in both AI functions, RLS test with a third user). Decision to confirm with the owner: the all-users AI ceiling (default 5,700 halalas, about 15 USD a month; secret `AI_GLOBAL_CAP_HALALAS`).

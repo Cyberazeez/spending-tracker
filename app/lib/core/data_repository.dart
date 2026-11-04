@@ -75,6 +75,9 @@ abstract class DataRepository {
   /// The tips saved for [month] ("YYYY-MM"), newest first, or empty.
   Future<List<String>> savedAiTips(String month);
 
+  /// The base monthly salary from Settings (0 = not set).
+  Future<int> baseSalaryHalalas();
+
   /// The one overall monthly spending limit, or null when not set.
   Future<int?> monthlyBudgetHalalas();
   Future<void> setMonthlyBudget(int? halalas);
@@ -449,6 +452,15 @@ class SupabaseDataRepository implements DataRepository {
       for (final t in (rows.first['tips'] as List?) ?? const [])
         if (t is Map && t['text'] is String) t['text'] as String,
     ];
+  }
+
+  @override
+  Future<int> baseSalaryHalalas() async {
+    final row = await _db
+        .from('settings')
+        .select('base_salary_halalas')
+        .maybeSingle();
+    return (row?['base_salary_halalas'] as num?)?.toInt() ?? 0;
   }
 
   @override

@@ -1,0 +1,115 @@
+-- Family sign-up, stage A (2026-11-04): a new account must start clean.
+-- Until now every new auth user was seeded with the owner's bank accounts, bills and household categories.
+-- Now: new users get only generic things; the owner's extras live in seed_owner_extras, which no trigger calls.
+-- Existing rows (the owner's) are not touched.
+
+-- 1. The owner-only part, run by hand for the owner (and by the RLS test).
+create or replace function public.seed_owner_extras(p_user uuid)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  insert into public.categories (user_id, name, name_ar, kind, excluded_from_spend, sort_order) values
+    (p_user, 'Horse',      'الخيل',       'spend', false, 6),
+    (p_user, 'House Card', 'بطاقة البيت', 'spend', false, 13)
+  on conflict (user_id, name) do nothing;
+
+  insert into public.own_accounts (user_id, bank, last4, kind, label, is_active, is_house_card) values
+    (p_user, 'alrajhi', '6331', 'account',     'Al Rajhi account',          true,  false),
+    (p_user, 'alrajhi', '1271', 'debit_card',  'Al Rajhi mada card',        true,  false),
+    (p_user, 'snb',     '0102', 'account',     'SNB account',               true,  false),
+    (p_user, 'snb',     '0103', 'account',     'SNB account',               true,  false),
+    (p_user, 'snb',     '3301', 'debit_card',  'SNB mada card',             true,  false),
+    (p_user, 'alinma',  '6000', 'account',     'Alinma main account',       true,  false),
+    (p_user, 'alinma',  '6698', 'debit_card',  'Alinma mada card',          true,  false),
+    (p_user, 'alinma',  '8119', 'credit_card', 'Alinma credit card (daily)', true, false),
+    (p_user, 'd360',    '5911', 'account',     'D360 account',              true,  false),
+    (p_user, 'd360',    '0513', 'account',     'D360 account',              true,  false),
+    (p_user, 'd360',    '7705', 'debit_card',  'D360 card',                 true,  false),
+    (p_user, 'd360',    '8920', 'debit_card',  'House Card',                true,  true),
+    (p_user, 'd360',    '5745', 'debit_card',  'D360 card (cancelled)',     false, false),
+    (p_user, 'barq',    '1224', 'debit_card',  'barq virtual card',         true,  false),
+    (p_user, 'barq',    '9105', 'debit_card',  'barq Apple Pay card',       true,  false),
+    (p_user, 'barq',    '1345', 'wallet',      'barq wallet',               true,  false),
+    (p_user, 'stc',     '6190', 'debit_card',  'STC Bank card',             true,  false)
+  on conflict (user_id, bank, last4) do nothing;
+
+  -- the household rules (horse payee, House Card) need the two categories above
+  perform public.seed_merchant_rules(p_user);
+  perform public.seed_obligations(p_user);
+end;
+$$;
+revoke execute on function public.seed_owner_extras(uuid) from public, anon, authenticated;
+grant execute on function public.seed_owner_extras(uuid) to service_role;
+
+-- 2. What every new account gets: settings (AI off) and the generic categories and merchant rules.
+create or replace function public.seed_defaults(p_user uuid)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  insert into public.settings (user_id) values (p_user) on conflict do nothing;
+
+  insert into public.categories (user_id, name, name_ar, kind, excluded_from_spend, sort_order) values
+    (p_user, 'Groceries',      'بقالة',            'spend',    false, 1),
+    (p_user, 'Dining',         'مطاعم',            'spend',    false, 2),
+    (p_user, 'Fuel',           'وقود',             'spend',    false, 3),
+    (p_user, 'Utilities',      'فواتير',           'spend',    false, 4),
+    (p_user, 'Rent/Housing',   'سكن',              'spend',    false, 5),
+    (p_user, 'Transport',      'مواصلات',          'spend',    false, 7),
+    (p_user, 'Shopping',       'تسوق',             'spend',    false, 8),
+    (p_user, 'Subscriptions',  'اشتراكات',         'spend',    false, 9),
+    (p_user, 'Health',         'صحة',              'spend',    false, 10),
+    (p_user, 'Entertainment',  'ترفيه',            'spend',    false, 11),
+    (p_user, 'Travel',         'سفر',              'spend',    false, 12),
+    (p_user, 'Transfers',      'تحويلات',          'transfer', true,  14),
+    (p_user, 'Fees',           'رسوم',             'fee',      false, 15),
+    (p_user, 'Income',         'دخل',              'income',   true,  16),
+    (p_user, 'Other',          'أخرى',             'spend',    false, 17),
+    (p_user, 'Loans',          'قروض',             'spend',    false, 18),
+    (p_user, 'Car',            'سيارة',            'spend',    false, 19)
+  on conflict (user_id, name) do nothing;
+
+  -- Rules that point at a category the account does not have (Horse, House Card) simply insert nothing.
+  perform public.seed_merchant_rules(p_user);
+end;
+$$;
+revoke execute on function public.seed_defaults(uuid) from public, anon, authenticated;
+grant execute on function public.seed_defaults(uuid) to service_role;
+
+-- 3. The second sign-up trigger (obligations) no longer seeds anything. Kept as a no-op so the trigger stays valid.
+create or replace function public.handle_new_user_obligations()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  return new;
+end;
+$$;
+
+-- 4. New accounts do not inherit the owner's salary assumptions (existing rows keep their values).
+--    0 means "not set": the app then shows no "salary above base" warning.
+alter table public.settings alter column base_salary_halalas set default 0;
+alter table public.settings alter column salary_account_last4 set default '{}';
+
+-- 5. AI spend this month, summed in the database (a plain select would be cut at the API's row limit).
+create or replace function public.ai_spend_summary(p_user uuid, p_since timestamptz)
+returns table (mine_halalas bigint, total_halalas bigint)
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select coalesce(sum(cost_halalas) filter (where user_id = p_user), 0)::bigint,
+         coalesce(sum(cost_halalas), 0)::bigint
+  from public.ai_usage
+  where created_at >= p_since;
+$$;
+revoke execute on function public.ai_spend_summary(uuid, timestamptz) from public, anon, authenticated;
+grant execute on function public.ai_spend_summary(uuid, timestamptz) to service_role;

@@ -333,6 +333,11 @@ class FakeDataRepository implements DataRepository {
   int suggestCalls = 0;
   final tipCalls = <(Map<String, dynamic>, String)>[];
 
+  int baseSalary = 1410000;
+
+  @override
+  Future<int> baseSalaryHalalas() async => baseSalary;
+
   @override
   Future<bool> aiEnabled() async => aiOn;
 
