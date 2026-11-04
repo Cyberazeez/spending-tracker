@@ -193,6 +193,7 @@ class FakeDataRepository implements DataRepository {
         return false;
       }
       if (filter.hideInternal && t.isInternal) return false;
+      if (filter.aiOnly && t.categorySource != 'ai') return false;
       return true;
     }).toList();
   }

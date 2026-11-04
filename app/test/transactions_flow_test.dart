@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:spending_tracker/core/models.dart';
 
+import 'package:spending_tracker/ui/pill_tab_bar.dart';
+
 import 'support/fakes.dart';
 
 Txn tx(
@@ -45,7 +47,7 @@ void main() {
     );
     await tester.pumpAndSettle();
     final lastBottom = tester.getBottomLeft(find.text('Shop 39')).dy;
-    final tabTop = tester.getTopLeft(find.byType(CupertinoTabBar)).dy;
+    final tabTop = tester.getTopLeft(find.byType(PillTabBar)).dy;
     expect(lastBottom, lessThanOrEqualTo(tabTop));
   });
 

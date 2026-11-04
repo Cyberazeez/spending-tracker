@@ -667,27 +667,22 @@ class AppLocalizationsAr extends AppLocalizations {
   String get captureSetupTitle => 'إعداد التقاط الرسائل';
 
   @override
-  String get captureIntro =>
-      'تصل رسائل البنك إلى التطبيق عبر أتمتة واحدة في تطبيق الاختصارات. لا تسمح Apple للتطبيقات بإنشائها، لذا افعلها مرة واحدة:';
+  String get captureIntro => 'افعل هذا مرة واحدة:';
 
   @override
-  String get captureStep1 =>
-      'افتح الاختصارات، ثم تبويب الأتمتة، واضغط + ثم اختر رسالة.';
+  String get captureStep1 => 'الاختصارات > الأتمتة > + > رسالة';
 
   @override
-  String get captureStep2 =>
-      'اجعل الرسالة تحتوي على: SAR. اختر التشغيل الفوري ثم التالي.';
+  String get captureStep2 => 'الرسالة تحتوي «SAR»، تشغيل فوري';
 
   @override
-  String get captureStep3 =>
-      'اضغط إضافة إجراء، وابحث عن «Add bank message» واختر الذي يحمل أيقونة هذا التطبيق.';
+  String get captureStep3 => 'أضف إجراء «Add bank message» (أيقونة التطبيق)';
 
   @override
-  String get captureStep4 =>
-      'اضغط على Message واختر متغير Message. ثم اضغط على Sender واختر متغير Sender.';
+  String get captureStep4 => 'اجعل Message وSender المتغيرين المطابقين';
 
   @override
-  String get captureStep5 => 'اضغط تم. ستُضاف رسالة البنك التالية تلقائيًا.';
+  String get captureStep5 => 'تم. تُضاف رسائل البنك تلقائيًا.';
 
   @override
   String get captureOpenShortcuts => 'فتح الاختصارات';
@@ -697,10 +692,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get captureSendNow => 'إرسال الرسائل المنتظرة الآن';
-
-  @override
-  String get captureHelp =>
-      'إذا ظهر «1 بالانتظار» مع الخطأ -1009 فالهاتف كان بلا اتصال. تُحفظ الرسالة وتُرسل عند عودة الاتصال.';
 
   @override
   String get homeOverview => 'نظرة عامة';
@@ -1016,7 +1007,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String aiSuggestDone(String n) {
-    return 'تم تصنيف $n عمليات. راجعها، ويمكنك تغيير أي منها.';
+    return 'تم تصنيف $n عمليات. اضغط «اقتراح الذكاء» لمراجعتها.';
   }
 
   @override
@@ -1037,4 +1028,10 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get aiReasonFailed => 'تعذر الحصول على إجابة. حاول لاحقاً.';
+
+  @override
+  String get txAiTag => 'ذكاء';
+
+  @override
+  String get txChipAi => 'اقتراح الذكاء';
 }
