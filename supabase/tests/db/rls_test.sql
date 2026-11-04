@@ -7,6 +7,7 @@ declare
   a uuid := '00000000-0000-0000-0000-00000000000a';
   b uuid := '00000000-0000-0000-0000-00000000000b';
   f uuid := '00000000-0000-0000-0000-0000000000f1';
+  a_ob uuid;
   n int;
   denied boolean;
 begin
@@ -285,6 +286,7 @@ begin
   reset role;
 
   -- a family member sees none of the owner's data, and cannot reach it through the app's functions
+  a_ob := (select id from public.obligations where user_id = a limit 1);
   perform set_config('request.jwt.claims', json_build_object('sub', f, 'role', 'authenticated')::text, true);
   set local role authenticated;
   select count(*) into n from public.own_accounts;
@@ -298,9 +300,24 @@ begin
   select count(*) into n from public.settings;
   if n <> 1 then raise exception 'F sees % settings rows', n; end if;
   denied := false;
-  begin perform public.stop_my_obligation((select id from public.obligations where user_id = a limit 1) ); exception when others then denied := true; end;
-  if not denied then raise exception 'F stopped one of the owner''s obligations'; end if;
+  begin perform public.stop_my_obligation(a_ob); exception when others then denied := (sqlerrm = 'not found'); end;
+  if not denied then raise exception 'F could stop one of the owner''s obligations (or got another error)'; end if;
+  denied := false;
+  begin perform public.seed_owner_extras(f); exception when insufficient_privilege then denied := true; end;
+  if not denied then raise exception 'F called seed_owner_extras'; end if;
+  denied := false;
+  begin perform public.ai_spend_summary(f, now() - interval '1 day'); exception when insufficient_privilege then denied := true; end;
+  if not denied then raise exception 'F called ai_spend_summary'; end if;
   reset role;
+  select count(*) into n from public.obligations where id = a_ob and active;
+  if n <> 1 then raise exception 'the owner''s obligation changed'; end if;
+
+  -- AI spend is summed per user and over everybody
+  insert into public.ai_usage (user_id, day, purpose, cost_halalas) values (a, current_date, 'insights', 7), (f, current_date, 'insights', 5);
+  select count(*) into n from public.ai_spend_summary(a, date_trunc('month', now())) s where s.mine_halalas >= 7 and s.total_halalas >= s.mine_halalas + 5;
+  if n <> 1 then raise exception 'ai_spend_summary wrong'; end if;
+  select count(*) into n from public.settings where user_id = f and base_salary_halalas = 0;
+  if n <> 1 then raise exception 'a new user inherited the owner''s salary'; end if;
   -- statement import: rows land as csv history, categories map by name, a second import changes nothing
   n := public.import_statement_rows(a, '[{"ref":"alinma:8119:1:1","date":"2026-05-19","type":"purchase","direction":"out","amount":2740,"merchant":"LULU","norm":"lulu","category":"Groceries","card":"8119","bank":"alinma"},{"ref":"alinma:8119:2:1","date":"2026-05-20","type":"refund","direction":"in","amount":100,"merchant":"X","norm":"x","category":null,"card":"8119","bank":"alinma"},{"ref":"alinma:8119:3:1","date":"2026-05-21","type":"wallet_topup","direction":"out","amount":500,"merchant":"barq","norm":"barq","category":"Transfers","card":"8119","bank":"alinma"},{"ref":"bad","date":"2026-05-20","type":"transfer_out","direction":"out","amount":100,"merchant":"X","norm":"x","category":null,"card":null,"bank":null}]'::jsonb);
   if n <> 3 then raise exception 'import inserted %, expected 3', n; end if;

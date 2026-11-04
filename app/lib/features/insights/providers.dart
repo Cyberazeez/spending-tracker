@@ -10,9 +10,11 @@ final insightsProvider = FutureProvider.autoDispose<Insights>((ref) async {
   final repo = ref.watch(dataRepositoryProvider);
   final txns = await repo.spendingHistory();
   final cats = await repo.categories();
+  final baseSalary = await repo.baseSalaryHalalas().catchError((_) => 0);
   return computeInsights(
     txns,
     ref.watch(clockProvider)(),
+    baseSalary: baseSalary,
     excludedCategories: {
       for (final c in cats)
         if (c.excludedFromSpend) c.id,

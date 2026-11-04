@@ -6,9 +6,6 @@ import '../obligations/logic.dart' show riyadhToday;
 /// Largest budget the app accepts (100 million SAR), matching what the tips function will take.
 const maxBudgetHalalas = 10000000000;
 
-/// The salary the owner expects each month; anything above is flagged.
-const baseSalaryHalalas = 1410000;
-
 /// What was spent on one Riyadh calendar day ([day] is that date at UTC midnight, like `riyadhToday`).
 class DaySpend {
   const DaySpend(this.day, this.halalas);
@@ -69,6 +66,7 @@ class Insights {
     required this.savingsRate,
     required this.salaryAboveBase,
     required this.hasData,
+    this.baseSalary = 0,
   });
 
   final int monthSpend;
@@ -102,8 +100,11 @@ class Insights {
   /// (salary - spend) / salary, or null when no salary arrived this month.
   final double? savingsRate;
 
-  /// This month's salary is above [baseSalaryHalalas]: an anomaly worth a look.
+  /// This month's salary is above the base salary from Settings: an anomaly worth a look.
   final bool salaryAboveBase;
+
+  /// The base salary used for that flag (from Settings; 0 = not set, no warning).
+  final int baseSalary;
   final bool hasData;
 
   int get subscriptionsMonthly =>
@@ -129,7 +130,7 @@ int spendOf(Txn t) {
 Insights computeInsights(
   List<Txn> all,
   DateTime now, {
-  int baseSalary = baseSalaryHalalas,
+  int baseSalary = 0,
 
   /// Categories flagged "excluded from spend" (Transfers, Income): their money is not spending.
   Set<String> excludedCategories = const {},
@@ -273,7 +274,8 @@ Insights computeInsights(
     subscriptions: subs,
     salary: salary,
     savingsRate: salary > 0 ? (salary - monthSpend) / salary : null,
-    salaryAboveBase: salary > baseSalary,
+    salaryAboveBase: baseSalary > 0 && salary > baseSalary,
+    baseSalary: baseSalary,
     hasData: all.isNotEmpty,
   );
 }

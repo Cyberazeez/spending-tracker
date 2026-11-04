@@ -92,3 +92,24 @@ begin
   return new;
 end;
 $$;
+
+-- 4. New accounts do not inherit the owner's salary assumptions (existing rows keep their values).
+--    0 means "not set": the app then shows no "salary above base" warning.
+alter table public.settings alter column base_salary_halalas set default 0;
+alter table public.settings alter column salary_account_last4 set default '{}';
+
+-- 5. AI spend this month, summed in the database (a plain select would be cut at the API's row limit).
+create or replace function public.ai_spend_summary(p_user uuid, p_since timestamptz)
+returns table (mine_halalas bigint, total_halalas bigint)
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select coalesce(sum(cost_halalas) filter (where user_id = p_user), 0)::bigint,
+         coalesce(sum(cost_halalas), 0)::bigint
+  from public.ai_usage
+  where created_at >= p_since;
+$$;
+revoke execute on function public.ai_spend_summary(uuid, timestamptz) from public, anon, authenticated;
+grant execute on function public.ai_spend_summary(uuid, timestamptz) to service_role;

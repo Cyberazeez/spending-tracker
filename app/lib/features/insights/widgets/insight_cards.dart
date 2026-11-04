@@ -249,7 +249,7 @@ class SummaryCard extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    t.insSalaryAbove(sar(baseSalaryHalalas)),
+                    t.insSalaryAbove(sar(insights.baseSalary)),
                     style: TextStyle(color: muted, fontSize: 12),
                   ),
                 ),

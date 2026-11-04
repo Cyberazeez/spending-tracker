@@ -101,6 +101,6 @@ Unique `(user_id, bank, last4)`. Seed: Al Rajhi 6331 (account), 1271 (mada card)
 Account numbers, IBANs, personal names, balances, full SMS bodies for insights. Parsing fallback sends the SMS with those fields masked; categorization sends merchant string only; insights send aggregates only.
 
 ## Sign-up seeds and AI budget (family sign-up stage A, 2026-11-04)
-- A new auth user is seeded by `seed_defaults` only: `settings` (AI off), 17 generic categories (no Horse, no House Card) and the generic merchant rules. **No** `own_accounts`, **no** obligations, no household rules (`acct:7892`, `card:8920`).
+- A new auth user is seeded by `seed_defaults` only: `settings` (AI off, base salary 0 = not set, no salary account), 17 generic categories (no Horse, no House Card) and the generic merchant rules. **No** `own_accounts`, **no** obligations, no household rules (`acct:7892`, `card:8920`).
 - The owner's extras (Horse and House Card categories, 17 own accounts, household rules, the seven obligations) are `seed_owner_extras(user)`, service role only, called by no trigger. Existing rows are unchanged.
-- AI budget: each user is measured against their own `ai_monthly_cap_halalas`; one ceiling over all users (`AI_GLOBAL_CAP_HALALAS` function secret, default 5,700 halalas, about 15 USD) makes every user `cap_reached` once reached. See `supabase/functions/_shared/ai_budget.ts`.
+- AI budget: each user is measured against their own `ai_monthly_cap_halalas`; one ceiling over all users (`AI_GLOBAL_CAP_HALALAS` function secret, default 5,700 halalas, about 15 USD) makes every user `cap_reached` once reached. See `supabase/functions/_shared/ai_budget.ts`. Spend is summed in the database by `ai_spend_summary(user, since)` (service role only), not by selecting rows.
