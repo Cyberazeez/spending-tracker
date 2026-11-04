@@ -19,6 +19,7 @@ import '../ai/providers.dart';
 import '../insights/budget_flow.dart';
 import '../insights/providers.dart' show monthlyBudgetProvider;
 import '../../ui/bottom_inset.dart';
+import '../../ui/choice_sheet.dart';
 import '../../ui/settings_group.dart';
 import '../../ui/tokens.dart';
 
@@ -27,25 +28,24 @@ class MorePage extends ConsumerWidget {
 
   Future<void> _pickLanguage(BuildContext context, WidgetRef ref) async {
     final t = AppLocalizations.of(context);
-    final choice = await showCupertinoModalPopup<String>(
-      context: context,
-      builder: (ctx) => CupertinoActionSheet(
-        title: Text(t.language),
-        actions: [
-          CupertinoActionSheetAction(
-            onPressed: () => Navigator.pop(ctx, 'en'),
-            child: Text(t.languageEnglish),
-          ),
-          CupertinoActionSheetAction(
-            onPressed: () => Navigator.pop(ctx, 'ar'),
-            child: Text(t.languageArabic),
-          ),
-        ],
-        cancelButton: CupertinoActionSheetAction(
-          onPressed: () => Navigator.pop(ctx),
-          child: Text(t.cancel),
+    final current = ref.read(localeProvider).languageCode;
+    final choice = await showChoiceSheet<String>(
+      context,
+      title: t.language,
+      options: [
+        ChoiceOption(
+          value: 'en',
+          label: t.languageEnglish,
+          icon: LucideIcons.globe,
+          selected: current == 'en',
         ),
-      ),
+        ChoiceOption(
+          value: 'ar',
+          label: t.languageArabic,
+          icon: LucideIcons.languages,
+          selected: current == 'ar',
+        ),
+      ],
     );
     if (choice != null) await ref.read(localeProvider.notifier).set(choice);
   }
