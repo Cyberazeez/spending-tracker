@@ -178,16 +178,8 @@ class TransactionsPage extends ConsumerWidget {
                 : [
                     SliverToBoxAdapter(
                       child: SuggestCategoriesCard(
-                        uncategorized: list
-                            .where(
-                              (x) =>
-                                  x.categoryId == null &&
-                                  !x.isInternal &&
-                                  (x.type == 'purchase' ||
-                                      x.type == 'refund') &&
-                                  x.merchantNorm != null,
-                            )
-                            .length,
+                        uncategorized:
+                            ref.watch(uncategorizedCountProvider).value ?? 0,
                       ),
                     ),
                     Builder(

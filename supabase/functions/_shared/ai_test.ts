@@ -144,6 +144,48 @@ Deno.test("batch: guesses become rules for the right category and report how man
   assert.ok(!String(x.calls[0].init.body).includes("12345"));
 });
 
+Deno.test("batch: merchants with terminal numbers go masked and the guess is saved on their full names", async () => {
+  const x = deps({
+    reply: {
+      content: [{
+        type: "text",
+        text: '{"kfia":"Other","areas roissy":"Dining","hungerstation llc":"Dining"}',
+      }],
+      usage: { input_tokens: 400, output_tokens: 20 },
+    },
+  });
+  const saved: { merchantNorm: string; categoryId: string }[] = [];
+  const r = await runBatch({
+    ai: x.d,
+    categoryIds: { Dining: "c-d", Other: "c-o", Income: "c-i" },
+    uncategorizedMerchants: () =>
+      Promise.resolve([
+        "kfia 1831",
+        "kfia 2204",
+        "areas roissy 2191712",
+        "1830337 g4",
+        "hungerstation llc",
+      ]),
+    saveGuesses: (g) => {
+      saved.push(...g);
+      return Promise.resolve(g.length);
+    },
+  });
+  assert.equal(r.ok && r.guessed, 4);
+  assert.deepEqual(saved.map((g) => g.merchantNorm).sort(), [
+    "areas roissy 2191712",
+    "hungerstation llc",
+    "kfia 1831",
+    "kfia 2204",
+  ]);
+  const body = String(x.calls[0].init.body);
+  assert.ok(!/\d{4,}/.test(body.replace(/max_tokens":\d+/, "")), body);
+  assert.ok(
+    body.includes("kfia") && !body.includes("g4"),
+    "a name with under 3 letters is not sent",
+  );
+});
+
 Deno.test("batch: the AI is never asked about Income, Transfers or Fees", async () => {
   const x = deps();
   await runBatch({
