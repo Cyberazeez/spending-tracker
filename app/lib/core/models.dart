@@ -369,10 +369,14 @@ class InstalmentPlan {
 /// What an AI call (suggest categories, savings tips) came back with. [reason] is one of the server's codes
 /// (`disabled`, `no_key`, `cap_reached`, `failed`) or `offline` when the call itself did not get through.
 class AiOutcome {
-  const AiOutcome.ok({this.updated = 0, this.tips = const []})
+  const AiOutcome.ok({this.updated = 0, this.tips = const [], this.reply = ''})
     : ok = true,
       reason = null;
-  const AiOutcome.fail(this.reason) : ok = false, updated = 0, tips = const [];
+  const AiOutcome.fail(this.reason)
+    : ok = false,
+      updated = 0,
+      tips = const [],
+      reply = '';
 
   final bool ok;
   final String? reason;
@@ -383,12 +387,16 @@ class AiOutcome {
   /// Short savings tips (insights).
   final List<String> tips;
 
+  /// The assistant's answer (chat).
+  final String reply;
+
   factory AiOutcome.fromJson(Map<String, dynamic> j) {
     if (j['ok'] != true) {
       return AiOutcome.fail((j['reason'] as String?) ?? 'failed');
     }
     return AiOutcome.ok(
       updated: (j['updated'] as num?)?.toInt() ?? 0,
+      reply: (j['reply'] as String?) ?? '',
       tips: [
         for (final t in (j['tips'] as List?) ?? const [])
           if (t is Map && t['text'] is String) t['text'] as String,

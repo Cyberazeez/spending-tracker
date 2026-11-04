@@ -100,7 +100,8 @@ export type TipsOutcome =
 
 const sar = (h: number) => (h / 100).toFixed(2);
 
-export function buildPrompt(a: Aggregates, language: "en" | "ar"): string {
+/** The month's numbers as plain lines, shared by the tips prompt and the chat system prompt. */
+export function describeAggregates(a: Aggregates): string[] {
   const lines = a.categories.map((c) =>
     `- ${safeName(c.name)}: spent ${sar(c.spentHalalas)} SAR, 3-month average ${
       sar(c.avg3Halalas)
@@ -108,11 +109,6 @@ export function buildPrompt(a: Aggregates, language: "en" | "ar"): string {
     (c.budgetHalalas === null ? "" : `, budget ${sar(c.budgetHalalas)} SAR`)
   );
   return [
-    "You are a careful personal-finance assistant. Give at most 5 short, specific savings tips for this month.",
-    "Every tip must quote the SAR figures it is based on (use only the numbers below). No generic advice.",
-    `Write in ${
-      language === "ar" ? "Arabic" : "English"
-    }. Reply with only a JSON array of strings.`,
     `Month: ${a.month}`,
     `Spent so far: ${sar(a.spendHalalas)} SAR (same day last month: ${
       sar(a.lastMonthToDateHalalas)
@@ -121,6 +117,17 @@ export function buildPrompt(a: Aggregates, language: "en" | "ar"): string {
     `Subscriptions per month: ${sar(a.subscriptionsMonthlyHalalas)} SAR`,
     "Categories:",
     ...lines,
+  ];
+}
+
+export function buildPrompt(a: Aggregates, language: "en" | "ar"): string {
+  return [
+    "You are a careful personal-finance assistant. Give at most 5 short, specific savings tips for this month.",
+    "Every tip must quote the SAR figures it is based on (use only the numbers below). No generic advice.",
+    `Write in ${
+      language === "ar" ? "Arabic" : "English"
+    }. Reply with only a JSON array of strings.`,
+    ...describeAggregates(a),
   ].join("\n");
 }
 

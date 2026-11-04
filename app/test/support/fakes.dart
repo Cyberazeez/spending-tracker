@@ -444,6 +444,19 @@ class FakeDataRepository implements DataRepository {
     return tipsResult;
   }
 
+  final chatCalls = <(Map<String, dynamic>, List<Map<String, String>>)>[];
+  AiOutcome chatResult = const AiOutcome.ok(reply: 'Dining is 900.00 SAR.');
+
+  @override
+  Future<AiOutcome> aiChat(
+    Map<String, dynamic> a,
+    List<Map<String, String>> turns,
+    String language,
+  ) async {
+    chatCalls.add((a, turns));
+    return chatResult;
+  }
+
   @override
   Future<List<String>> savedAiTips(String month) async => saved;
 

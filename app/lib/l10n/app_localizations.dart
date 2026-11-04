@@ -2245,6 +2245,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No category matches'**
   String get categoryNoMatch;
+
+  /// No description provided for @aiChatTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask about your spending'**
+  String get aiChatTitle;
+
+  /// No description provided for @aiChatOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask a question'**
+  String get aiChatOpen;
+
+  /// No description provided for @aiChatHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask about a category or a budget'**
+  String get aiChatHint;
+
+  /// No description provided for @aiChatSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get aiChatSend;
+
+  /// No description provided for @aiChatIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask about this month\'s spending, a category or a budget. I only see totals, never merchants or messages.'**
+  String get aiChatIntro;
+
+  /// No description provided for @aiChatThinking.
+  ///
+  /// In en, this message translates to:
+  /// **'Thinking…'**
+  String get aiChatThinking;
+
+  /// No description provided for @aiChatNoData.
+  ///
+  /// In en, this message translates to:
+  /// **'There is nothing to talk about yet. Come back once some spending is recorded.'**
+  String get aiChatNoData;
+
+  /// No description provided for @aiChatPromptCut.
+  ///
+  /// In en, this message translates to:
+  /// **'Where can I cut spending?'**
+  String get aiChatPromptCut;
+
+  /// No description provided for @aiChatPromptBudget.
+  ///
+  /// In en, this message translates to:
+  /// **'Am I on track with my budgets?'**
+  String get aiChatPromptBudget;
+
+  /// No description provided for @aiChatPromptLast.
+  ///
+  /// In en, this message translates to:
+  /// **'How does this month compare with last month?'**
+  String get aiChatPromptLast;
+
+  /// No description provided for @aiChatPromptCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Why is {category} so high?'**
+  String aiChatPromptCategory(String category);
+
+  /// No description provided for @aiChatRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get aiChatRetry;
+
+  /// No description provided for @aiTipsTapHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to ask about a category or a budget'**
+  String get aiTipsTapHint;
 }
 
 class _AppLocalizationsDelegate

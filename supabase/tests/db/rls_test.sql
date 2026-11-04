@@ -451,6 +451,12 @@ begin
   if n <> 0 then raise exception 'expired account left rows behind'; end if;
   
 
+  -- the AI chat can record its spend, and an unknown purpose is still refused
+  insert into public.ai_usage (user_id, day, purpose, cost_halalas) values (a, current_date, 'chat', 1);
+  denied := false;
+  begin insert into public.ai_usage (user_id, day, purpose) values (a, current_date, 'nonsense'); exception when check_violation then denied := true; end;
+  if not denied then raise exception 'ai_usage accepted an unknown purpose'; end if;
+
   -- every table in public must have RLS on (catches a future table that forgets it)
   select count(*) into n from pg_class c join pg_namespace ns on ns.oid = c.relnamespace
     where ns.nspname = 'public' and c.relkind = 'r' and not c.relrowsecurity;
