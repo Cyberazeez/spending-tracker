@@ -263,7 +263,7 @@ class HomePage extends ConsumerWidget {
                             ),
                           ),
                         ),
-                      if (review.isNotEmpty || gaps.isNotEmpty) ...[
+                      if (review.isNotEmpty || silent != null) ...[
                         const SizedBox(height: 12),
                         Wrap(
                           spacing: 10,
@@ -274,7 +274,7 @@ class HomePage extends ConsumerWidget {
                                 dot: const Color(0xFFFFB340),
                                 onTap: () => context.push(reviewPath),
                               ),
-                            if (gaps.isNotEmpty)
+                            if (silent != null)
                               AttentionChip(
                                 label: t.captureStatus,
                                 dot: const Color(0xFFFF6B66),

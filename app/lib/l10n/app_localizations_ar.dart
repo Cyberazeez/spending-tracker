@@ -91,9 +91,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get languageArabic => 'العربية';
 
   @override
-  String get ingestToken => 'رمز الاستقبال';
-
-  @override
   String get captureStatus => 'التقاط الرسائل';
 
   @override
@@ -103,57 +100,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get captureNone => 'لا شيء بالانتظار';
-
-  @override
-  String get tokenScreenTitle => 'رمز الاستقبال';
-
-  @override
-  String get tokenIntro =>
-      'يرسل اختصار iOS كل رسالة بنكية إلى هذا الرابط مع الرمز في ترويسة X-Ingest-Token.';
-
-  @override
-  String get ingestUrl => 'الرابط';
-
-  @override
-  String get ingestHeader => 'الترويسة';
-
-  @override
-  String get tokenStatus => 'الحالة';
-
-  @override
-  String get tokenNone => 'لا يوجد رمز فعّال';
-
-  @override
-  String tokenActive(String created) {
-    return 'فعّال، أُنشئ $created';
-  }
-
-  @override
-  String tokenLastUsed(String time) {
-    return 'آخر رسالة وصلت $time';
-  }
-
-  @override
-  String get tokenNeverUsed => 'لم تصل أي رسالة بعد';
-
-  @override
-  String get tokenGenerate => 'إنشاء رمز جديد';
-
-  @override
-  String get tokenRotate => 'استبدال الرمز';
-
-  @override
-  String get tokenConfirmTitle => 'استبدال الرمز؟';
-
-  @override
-  String get tokenConfirmBody =>
-      'سيتوقف الرمز القديم فوراً وستحتاج إلى تحديث الاختصارات.';
-
-  @override
-  String get tokenShownOnce => 'انسخ الرمز الآن. يظهر مرة واحدة فقط.';
-
-  @override
-  String get tokenCopied => 'تم النسخ';
 
   @override
   String get copy => 'نسخ';
@@ -276,40 +222,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get reviewLoadFailed => 'تعذّر تحميل الرسائل.';
-
-  @override
-  String get gapsTitle => 'فجوات محتملة';
-
-  @override
-  String get gapsIntro =>
-      'آخر مرة وصلت فيها رسالة من كل جهة. الصمت الطويل قد يعني أن الاختصار متوقف.';
-
-  @override
-  String get gapsNever => 'لم تصل أي رسالة بعد';
-
-  @override
-  String gapsLast(String when) {
-    return 'آخر رسالة $when';
-  }
-
-  @override
-  String gapsDays(int days) {
-    String _temp0 = intl.Intl.pluralLogic(
-      days,
-      locale: localeName,
-      other: 'قبل $days يوم',
-      few: 'قبل $days أيام',
-      two: 'قبل يومين',
-      one: 'قبل يوم',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String get gapsToday => 'اليوم';
-
-  @override
-  String get gapsEmpty => 'لا توجد رسائل بعد';
 
   @override
   String get sar => 'ر.س';

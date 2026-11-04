@@ -5,7 +5,7 @@ Bottom tab bar (Cupertino): **Home, Transactions, Obligations, Insights, More**.
 ## 0. Launch and lock
 - **Splash** then **Lock** (Face ID/Touch ID via `local_auth`). Success to last tab. Failure shows "Try again" and "Use passcode" (device passcode fallback). Re-lock after 30 s in background.
 - **Login** (first run or signed out): email, password, "Sign in". Error: wrong credentials, no network. No sign-up link.
-- **First-run setup** (once): choose language, confirm own accounts list, base salary, show the ingest token (once) with a link to the Shortcuts guide.
+- **First-run setup** (once): choose language, confirm own accounts list, base salary, open More > SMS capture for the Shortcuts steps (the app provisions its own token).
 
 ## 1. Home
 - Month-to-date spend (SAR), vs same day last month, top category, budget alerts strip (80%/100%), next 3 obligations with due date and amount, "Needs review (n)" badge, "no messages for N days" alert (opens SMS capture).

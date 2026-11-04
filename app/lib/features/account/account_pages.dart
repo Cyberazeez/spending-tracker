@@ -110,6 +110,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   }
 
   Future<void> _save() async {
+    if (_busy) return;
     final t = AppLocalizations.of(context);
     final auth = ref.read(authRepositoryProvider);
     final name = _name.text.trim();
@@ -118,7 +119,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       setState(() => _error = t.accountNameTooLong);
       return;
     }
-    final emailChanged = email != (auth.email ?? '');
+    final emailChanged =
+        email.toLowerCase() != (auth.email ?? '').toLowerCase();
     if (emailChanged &&
         !RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(email)) {
       setState(() => _error = t.accountEmailInvalid);
@@ -130,9 +132,11 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       _info = null;
     });
     try {
-      if (name != (auth.displayName ?? '')) await auth.updateName(name);
+      if (name != (auth.displayName ?? '')) {
+        await auth.updateName(name);
+        ref.read(accountRevisionProvider.notifier).bump();
+      }
       if (emailChanged) await auth.changeEmail(email);
-      ref.read(accountRevisionProvider.notifier).bump();
       if (!mounted) return;
       if (emailChanged) {
         setState(() => _info = t.accountEmailSent);
@@ -218,6 +222,7 @@ class _SecurityPageState extends ConsumerState<SecurityPage> {
   }
 
   Future<void> _save() async {
+    if (_busy) return;
     final t = AppLocalizations.of(context);
     if (_current.text.isEmpty) {
       setState(() => _error = t.fieldRequired);

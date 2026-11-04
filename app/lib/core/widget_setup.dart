@@ -41,6 +41,36 @@ Future<void> _ensure(
   }
 }
 
+/// After a password change: a fresh widget token replaces the old one (kept as is when the phone is offline).
+Future<void> renewWidgetToken(
+  WidgetBridge bridge,
+  TokenRepository tokens,
+  String? Function() currentUser,
+) async {
+  try {
+    await _running;
+  } catch (_) {}
+  final run = _renew(bridge, tokens, currentUser).whenComplete(() {
+    _running = null;
+  });
+  _running = run;
+  return run;
+}
+
+Future<void> _renew(
+  WidgetBridge bridge,
+  TokenRepository tokens,
+  String? Function() currentUser,
+) async {
+  final userId = currentUser();
+  if (userId == null) return;
+  try {
+    final token = await tokens.rotate(label: 'Widget', kind: 'widget');
+    if (currentUser() != userId) return;
+    await bridge.saveCredentials(AppConfig.supabaseUrl, token, userId);
+  } catch (_) {}
+}
+
 /// Sign-out: the widget token stops working on the server and its numbers are wiped from the shared storage.
 /// Needs the session, so call it before the actual sign-out.
 Future<void> releaseWidget(WidgetBridge bridge, TokenRepository tokens) async {

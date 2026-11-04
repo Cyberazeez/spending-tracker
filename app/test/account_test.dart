@@ -124,6 +124,40 @@ void main() {
     expect(h.auth.passwordCalls, isEmpty);
   });
 
+  testWidgets(
+    'offline during a password change is not called a wrong password',
+    (tester) async {
+      final h = await openAccount(tester);
+      h.auth.passwordFailWith = PasswordFailure.network;
+      await fill(tester, 'oldpassword', 'newpassword1', 'newpassword1');
+      expect(find.textContaining('current password is wrong'), findsNothing);
+      expect(find.textContaining('at least 8'), findsNothing);
+      expect(find.textContaining('connection'), findsWidgets);
+    },
+  );
+
+  testWidgets('pressing Done twice sends the change once', (tester) async {
+    final h = await openAccount(tester);
+    await tester.tap(find.text('Security'));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byType(CupertinoTextField).at(0),
+      'oldpassword',
+    );
+    await tester.enterText(
+      find.byType(CupertinoTextField).at(1),
+      'newpassword1',
+    );
+    await tester.enterText(
+      find.byType(CupertinoTextField).at(2),
+      'newpassword1',
+    );
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pumpAndSettle();
+    expect(h.auth.passwordCalls, hasLength(1));
+  });
+
   testWidgets('a wrong current password is reported', (tester) async {
     final h = await openAccount(tester);
     h.auth.passwordFailWith = PasswordFailure.wrongCurrent;
@@ -135,10 +169,19 @@ void main() {
     tester,
   ) async {
     final h = await openAccount(tester);
+    final clearsBefore = h.capture.clears;
+    final widgetClearsBefore = h.widget.clears;
+    final revokesBefore = h.tokens.revokedKinds.length;
     await fill(tester, 'oldpassword', 'newpassword1', 'newpassword1');
     expect(h.auth.passwordCalls, [('oldpassword', 'newpassword1')]);
     expect(find.text('Password changed.'), findsOneWidget);
-    expect(h.tokens.revokedKinds, containsAll(['app', 'widget']));
+    // fresh tokens are stored without wiping the phone's offline queue
+    await tester.pump(const Duration(milliseconds: 50));
+    expect(h.capture.clears, clearsBefore);
+    expect(h.widget.clears, widgetClearsBefore);
+    expect(h.capture.saved, isNotEmpty);
+    expect(h.widget.savedCredentials, isNotEmpty);
+    expect(h.tokens.revokedKinds.length, revokesBefore);
     await tester.tap(find.text('Done'));
     await tester.pumpAndSettle();
     expect(find.text('Current password'), findsNothing);

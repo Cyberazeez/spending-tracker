@@ -254,12 +254,6 @@ abstract class AppLocalizations {
   /// **'العربية'**
   String get languageArabic;
 
-  /// No description provided for @ingestToken.
-  ///
-  /// In en, this message translates to:
-  /// **'Ingest token'**
-  String get ingestToken;
-
   /// No description provided for @captureStatus.
   ///
   /// In en, this message translates to:
@@ -277,96 +271,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Nothing waiting'**
   String get captureNone;
-
-  /// No description provided for @tokenScreenTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Ingest token'**
-  String get tokenScreenTitle;
-
-  /// No description provided for @tokenIntro.
-  ///
-  /// In en, this message translates to:
-  /// **'The iOS Shortcut sends each bank SMS to this URL with the token in the X-Ingest-Token header.'**
-  String get tokenIntro;
-
-  /// No description provided for @ingestUrl.
-  ///
-  /// In en, this message translates to:
-  /// **'URL'**
-  String get ingestUrl;
-
-  /// No description provided for @ingestHeader.
-  ///
-  /// In en, this message translates to:
-  /// **'Header'**
-  String get ingestHeader;
-
-  /// No description provided for @tokenStatus.
-  ///
-  /// In en, this message translates to:
-  /// **'Status'**
-  String get tokenStatus;
-
-  /// No description provided for @tokenNone.
-  ///
-  /// In en, this message translates to:
-  /// **'No active token'**
-  String get tokenNone;
-
-  /// No description provided for @tokenActive.
-  ///
-  /// In en, this message translates to:
-  /// **'Active, created {created}'**
-  String tokenActive(String created);
-
-  /// No description provided for @tokenLastUsed.
-  ///
-  /// In en, this message translates to:
-  /// **'Last message received {time}'**
-  String tokenLastUsed(String time);
-
-  /// No description provided for @tokenNeverUsed.
-  ///
-  /// In en, this message translates to:
-  /// **'No message received yet'**
-  String get tokenNeverUsed;
-
-  /// No description provided for @tokenGenerate.
-  ///
-  /// In en, this message translates to:
-  /// **'Create new token'**
-  String get tokenGenerate;
-
-  /// No description provided for @tokenRotate.
-  ///
-  /// In en, this message translates to:
-  /// **'Replace token'**
-  String get tokenRotate;
-
-  /// No description provided for @tokenConfirmTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Replace the token?'**
-  String get tokenConfirmTitle;
-
-  /// No description provided for @tokenConfirmBody.
-  ///
-  /// In en, this message translates to:
-  /// **'The old token stops working immediately. You will need to update your Shortcuts.'**
-  String get tokenConfirmBody;
-
-  /// No description provided for @tokenShownOnce.
-  ///
-  /// In en, this message translates to:
-  /// **'Copy this token now. It is shown only once.'**
-  String get tokenShownOnce;
-
-  /// No description provided for @tokenCopied.
-  ///
-  /// In en, this message translates to:
-  /// **'Copied'**
-  String get tokenCopied;
 
   /// No description provided for @copy.
   ///
@@ -601,48 +505,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not load messages.'**
   String get reviewLoadFailed;
-
-  /// No description provided for @gapsTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Possible gaps'**
-  String get gapsTitle;
-
-  /// No description provided for @gapsIntro.
-  ///
-  /// In en, this message translates to:
-  /// **'When each sender last reached the app. A long silence may mean a Shortcut is off.'**
-  String get gapsIntro;
-
-  /// No description provided for @gapsNever.
-  ///
-  /// In en, this message translates to:
-  /// **'Nothing received yet'**
-  String get gapsNever;
-
-  /// No description provided for @gapsLast.
-  ///
-  /// In en, this message translates to:
-  /// **'Last message {when}'**
-  String gapsLast(String when);
-
-  /// No description provided for @gapsDays.
-  ///
-  /// In en, this message translates to:
-  /// **'{days, plural, =1{1 day ago} other{{days} days ago}}'**
-  String gapsDays(int days);
-
-  /// No description provided for @gapsToday.
-  ///
-  /// In en, this message translates to:
-  /// **'today'**
-  String get gapsToday;
-
-  /// No description provided for @gapsEmpty.
-  ///
-  /// In en, this message translates to:
-  /// **'No messages yet'**
-  String get gapsEmpty;
 
   /// No description provided for @sar.
   ///

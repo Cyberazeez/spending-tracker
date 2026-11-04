@@ -100,12 +100,11 @@ class SupabaseAuthRepository implements AuthRepository {
     try {
       await _client.auth.signInWithPassword(email: me, password: current);
     } on AuthApiException catch (e) {
-      if (e.statusCode == '400' || e.code == 'invalid_credentials') {
+      // Only a rejected password is "wrong"; rate limits and server errors are a network problem.
+      if (e.code == 'invalid_credentials') {
         throw const PasswordException(PasswordFailure.wrongCurrent);
       }
       throw const PasswordException(PasswordFailure.network);
-    } on AuthException {
-      throw const PasswordException(PasswordFailure.wrongCurrent);
     } catch (_) {
       throw const PasswordException(PasswordFailure.network);
     }
@@ -113,8 +112,11 @@ class SupabaseAuthRepository implements AuthRepository {
       await _client.auth.updateUser(UserAttributes(password: next));
     } on AuthWeakPasswordException {
       throw const PasswordException(PasswordFailure.tooShort);
-    } on AuthException {
-      throw const PasswordException(PasswordFailure.tooShort);
+    } on AuthApiException catch (e) {
+      if (e.code == 'weak_password') {
+        throw const PasswordException(PasswordFailure.tooShort);
+      }
+      throw const PasswordException(PasswordFailure.network);
     } catch (_) {
       throw const PasswordException(PasswordFailure.network);
     }

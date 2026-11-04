@@ -32,31 +32,38 @@ class PrimaryButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final enabled = onPressed != null && !busy;
     final accent = AppTokens.accent.resolveFrom(context);
-    return CupertinoButton(
-      padding: EdgeInsets.zero,
-      minimumSize: const Size(44, 52),
-      onPressed: enabled ? onPressed : null,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: enabled ? accent : accent.withValues(alpha: 0.4),
-          borderRadius: BorderRadius.circular(26),
-        ),
-        child: SizedBox(
-          width: double.infinity,
-          height: 52,
-          child: Center(
-            child: busy
-                ? CupertinoActivityIndicator(
-                    color: AppTokens.onAccent.resolveFrom(context),
-                  )
-                : Text(
-                    label,
-                    style: TextStyle(
+    return Semantics(
+      button: true,
+      enabled: enabled,
+      label: label,
+      excludeSemantics: true,
+      onTap: enabled ? onPressed : null,
+      child: CupertinoButton(
+        padding: EdgeInsets.zero,
+        minimumSize: const Size(44, 52),
+        onPressed: enabled ? onPressed : null,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: enabled ? accent : accent.withValues(alpha: 0.4),
+            borderRadius: BorderRadius.circular(26),
+          ),
+          child: SizedBox(
+            width: double.infinity,
+            height: 52,
+            child: Center(
+              child: busy
+                  ? CupertinoActivityIndicator(
                       color: AppTokens.onAccent.resolveFrom(context),
-                      fontSize: 17,
-                      fontWeight: FontWeight.w700,
+                    )
+                  : Text(
+                      label,
+                      style: TextStyle(
+                        color: AppTokens.onAccent.resolveFrom(context),
+                        fontSize: 17,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
-                  ),
+            ),
           ),
         ),
       ),
@@ -115,23 +122,31 @@ class AppField extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
       ),
     );
-    if (label == null) return field;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsetsDirectional.only(start: 4, bottom: 6),
-          child: Text(
-            label!,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: AppTokens.muted.resolveFrom(context),
+    if (label == null) {
+      return Semantics(label: placeholder, textField: true, child: field);
+    }
+    return Semantics(
+      label: label,
+      textField: true,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ExcludeSemantics(
+            child: Padding(
+              padding: const EdgeInsetsDirectional.only(start: 4, bottom: 6),
+              child: Text(
+                label!,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: AppTokens.muted.resolveFrom(context),
+                ),
+              ),
             ),
           ),
-        ),
-        field,
-      ],
+          field,
+        ],
+      ),
     );
   }
 }

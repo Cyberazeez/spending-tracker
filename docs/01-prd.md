@@ -32,7 +32,7 @@ As the owner, every bank SMS I receive reaches the app without my touching it.
 - Every message is stored raw with a parse status. Nothing is silently dropped.
 - Duplicate deliveries do not create duplicate transactions.
 - Token: shown once, only its hash stored, rotatable, endpoint rate-limited.
-- Fallbacks I must have: quick-add (manual), a share-sheet shortcut, a "possible gaps" view, CSV import.
+- Fallbacks I must have: quick-add (manual), a share-sheet shortcut, CSV import. (The possible-gaps screen was removed 2026-11-04; Home still warns when no message arrived for 3 days.)
 - Done when: a real SMS from each supported bank (see Open items for Al Rajhi/SNB samples) lands as a correct transaction in under 10 s, and a replay of the same SMS creates nothing new.
 
 ### F2. Parsing

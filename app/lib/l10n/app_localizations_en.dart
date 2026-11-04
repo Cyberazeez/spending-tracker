@@ -90,9 +90,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get languageArabic => 'العربية';
 
   @override
-  String get ingestToken => 'Ingest token';
-
-  @override
   String get captureStatus => 'SMS capture';
 
   @override
@@ -102,57 +99,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get captureNone => 'Nothing waiting';
-
-  @override
-  String get tokenScreenTitle => 'Ingest token';
-
-  @override
-  String get tokenIntro =>
-      'The iOS Shortcut sends each bank SMS to this URL with the token in the X-Ingest-Token header.';
-
-  @override
-  String get ingestUrl => 'URL';
-
-  @override
-  String get ingestHeader => 'Header';
-
-  @override
-  String get tokenStatus => 'Status';
-
-  @override
-  String get tokenNone => 'No active token';
-
-  @override
-  String tokenActive(String created) {
-    return 'Active, created $created';
-  }
-
-  @override
-  String tokenLastUsed(String time) {
-    return 'Last message received $time';
-  }
-
-  @override
-  String get tokenNeverUsed => 'No message received yet';
-
-  @override
-  String get tokenGenerate => 'Create new token';
-
-  @override
-  String get tokenRotate => 'Replace token';
-
-  @override
-  String get tokenConfirmTitle => 'Replace the token?';
-
-  @override
-  String get tokenConfirmBody =>
-      'The old token stops working immediately. You will need to update your Shortcuts.';
-
-  @override
-  String get tokenShownOnce => 'Copy this token now. It is shown only once.';
-
-  @override
-  String get tokenCopied => 'Copied';
 
   @override
   String get copy => 'Copy';
@@ -275,38 +221,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reviewLoadFailed => 'Could not load messages.';
-
-  @override
-  String get gapsTitle => 'Possible gaps';
-
-  @override
-  String get gapsIntro =>
-      'When each sender last reached the app. A long silence may mean a Shortcut is off.';
-
-  @override
-  String get gapsNever => 'Nothing received yet';
-
-  @override
-  String gapsLast(String when) {
-    return 'Last message $when';
-  }
-
-  @override
-  String gapsDays(int days) {
-    String _temp0 = intl.Intl.pluralLogic(
-      days,
-      locale: localeName,
-      other: '$days days ago',
-      one: '1 day ago',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String get gapsToday => 'today';
-
-  @override
-  String get gapsEmpty => 'No messages yet';
 
   @override
   String get sar => 'SAR';
