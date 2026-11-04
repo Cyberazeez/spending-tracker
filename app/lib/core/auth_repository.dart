@@ -2,6 +2,17 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 enum SignInFailure { invalidCredentials, network }
 
+enum SignUpFailure { emailTaken, weakPassword, invalidEmail, disabled, network }
+
+class SignUpException implements Exception {
+  const SignUpException(this.failure);
+  final SignUpFailure failure;
+}
+
+/// What happened after a successful sign-up request: the account is signed in at once, or the person must first
+/// follow the confirmation link emailed to them (only when the project asks for email confirmation).
+enum SignUpResult { signedIn, confirmEmail }
+
 enum PasswordFailure { wrongCurrent, tooShort, network }
 
 class PasswordException implements Exception {
@@ -20,6 +31,13 @@ abstract class AuthRepository {
   String? get userId;
   Stream<bool> get signedIn;
   Future<void> signIn(String email, String password);
+
+  /// Creates an account (family testing: open sign-up). Throws [SignUpException].
+  Future<SignUpResult> signUp({
+    required String name,
+    required String email,
+    required String password,
+  });
   Future<void> signOut();
 
   String? get email;
@@ -65,6 +83,43 @@ class SupabaseAuthRepository implements AuthRepository {
       throw const SignInException(SignInFailure.invalidCredentials);
     } catch (_) {
       throw const SignInException(SignInFailure.network);
+    }
+  }
+
+  @override
+  Future<SignUpResult> signUp({
+    required String name,
+    required String email,
+    required String password,
+  }) async {
+    try {
+      final res = await _client.auth.signUp(
+        email: email.trim(),
+        password: password,
+        data: {'name': name.trim()},
+      );
+      // With "confirm email" on, no session comes back and the person has to use the emailed link first.
+      return res.session == null
+          ? SignUpResult.confirmEmail
+          : SignUpResult.signedIn;
+    } on AuthWeakPasswordException {
+      throw const SignUpException(SignUpFailure.weakPassword);
+    } on AuthApiException catch (e) {
+      switch (e.code) {
+        case 'user_already_exists':
+        case 'email_exists':
+          throw const SignUpException(SignUpFailure.emailTaken);
+        case 'weak_password':
+          throw const SignUpException(SignUpFailure.weakPassword);
+        case 'email_address_invalid':
+        case 'validation_failed':
+          throw const SignUpException(SignUpFailure.invalidEmail);
+        case 'signup_disabled':
+          throw const SignUpException(SignUpFailure.disabled);
+      }
+      throw const SignUpException(SignUpFailure.network);
+    } catch (_) {
+      throw const SignUpException(SignUpFailure.network);
     }
   }
 

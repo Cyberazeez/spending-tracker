@@ -20,6 +20,24 @@ void main() {
       );
     });
 
+    test(
+      'signed out may open the sign-up screen; signed in may not stay on it',
+      () {
+        expect(
+          redirectFor(hasSession: false, locked: true, location: signUpPath),
+          isNull,
+        );
+        expect(
+          redirectFor(hasSession: true, locked: false, location: signUpPath),
+          homePath,
+        );
+        expect(
+          redirectFor(hasSession: true, locked: true, location: signUpPath),
+          lockPath,
+        );
+      },
+    );
+
     test('signed in but locked goes to the lock screen', () {
       for (final loc in ['/', homePath, loginPath, accountPath]) {
         expect(

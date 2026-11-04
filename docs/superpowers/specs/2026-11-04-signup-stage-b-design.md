@@ -1,4 +1,6 @@
-# Family sign-up, stage B: invite codes and the sign-up screen (design, 2026-11-04). Not built yet.
+# Family sign-up, stage B: invite codes and the sign-up screen (design, 2026-11-04).
+
+> **Decision 2026-11-04 (owner):** for the closed family test no invite codes are built. Only TestFlight invitees have the app, so the app gets a plain sign-up screen (name, email, password) using Supabase Auth directly; the owner turns on "Allow new users to sign up" and turns off "Confirm email" in the dashboard. The rest of this document (codes, `signup` function, Invite family screen) is the design for the public release and is **not built**.
 
 Decided earlier: invite-only, email + password. Stage A (clean seeds, per-user AI cap) is live. Supabase Auth's own
 "allow new users to sign up" stays **off**; the only door is the `signup` function below.
