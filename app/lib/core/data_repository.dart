@@ -72,6 +72,14 @@ abstract class DataRepository {
   /// Asks the server for savings tips on these month totals (numbers and category names only).
   Future<AiOutcome> aiTips(Map<String, dynamic> aggregates, String language);
 
+  /// One chat turn about the month's totals. [turns] is the conversation so far as role/content pairs, ending with
+  /// the person's message.
+  Future<AiOutcome> aiChat(
+    Map<String, dynamic> aggregates,
+    List<Map<String, String>> turns,
+    String language,
+  );
+
   /// The tips saved for [month] ("YYYY-MM"), newest first, or empty.
   Future<List<String>> savedAiTips(String month);
 
@@ -447,6 +455,17 @@ class SupabaseDataRepository implements DataRepository {
         'aggregates': aggregates,
         'language': language,
       });
+
+  @override
+  Future<AiOutcome> aiChat(
+    Map<String, dynamic> aggregates,
+    List<Map<String, String>> turns,
+    String language,
+  ) => _invokeAi('ai-chat', {
+    'aggregates': aggregates,
+    'messages': turns,
+    'language': language,
+  });
 
   @override
   Future<List<String>> savedAiTips(String month) async {

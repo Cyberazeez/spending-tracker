@@ -5,7 +5,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../core/models.dart';
 import '../../../core/providers.dart';
 import '../../../l10n/app_localizations.dart';
-import '../../../ui/app_card.dart';
+import '../../../router.dart';
 import '../../../ui/tokens.dart';
 import '../../insights/metrics.dart';
 import '../ai_aggregates.dart';
@@ -87,94 +87,155 @@ class _AiTipsCardState extends ConsumerState<AiTipsCard> {
       return const SizedBox.shrink();
     }
     final t = AppLocalizations.of(context);
-    final text = AppTokens.text.resolveFrom(context);
-    final muted = AppTokens.muted.resolveFrom(context);
-    final accent = AppTokens.accent.resolveFrom(context);
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: AppCard(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(LucideIcons.sparkles, size: 20, color: accent),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    t.aiTipsTitle,
-                    style: TextStyle(
-                      color: text,
-                      fontSize: 17,
-                      fontWeight: FontWeight.w600,
+    final arabic = ref.watch(localeProvider).languageCode == 'ar';
+    const onHero = Color(0xFFFFFFFF);
+    const softHero = Color(0xCCFFFFFF);
+    final open = ref.read(routerProvider).push;
+
+    Widget pill(String label, VoidCallback? onPressed, {Widget? leading}) =>
+        CupertinoButton(
+          padding: EdgeInsets.zero,
+          minimumSize: const Size(44, 44),
+          onPressed: onPressed,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+            decoration: BoxDecoration(
+              color: const Color(0x33FFFFFF),
+              borderRadius: BorderRadius.circular(18),
+            ),
+            child: _busy && leading != null
+                ? const CupertinoActivityIndicator(color: onHero)
+                : Text(
+                    label,
+                    style: const TextStyle(
+                      color: onHero,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
-                ),
+          ),
+        );
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => open(aiChatPath),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(AppTokens.radiusHero),
+            gradient: LinearGradient(
+              begin: AlignmentDirectional.topStart.resolve(
+                Directionality.of(context),
+              ),
+              end: AlignmentDirectional.bottomEnd.resolve(
+                Directionality.of(context),
+              ),
+              colors: [
+                AppTokens.heroFrom.resolveFrom(context),
+                AppTokens.heroTo.resolveFrom(context),
               ],
             ),
-            const SizedBox(height: 10),
-            if (_tips.isEmpty && _error == null)
-              Text(t.aiTipsEmpty, style: TextStyle(color: muted, fontSize: 14)),
-            for (final tip in _tips)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(22),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 6),
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          color: accent,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const SizedBox(width: 6, height: 6),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
+                    const Icon(LucideIcons.sparkles, size: 20, color: onHero),
+                    const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        tip,
-                        style: TextStyle(color: text, fontSize: 15),
+                        t.aiTipsTitle,
+                        style: const TextStyle(
+                          color: onHero,
+                          fontSize: 17,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
+                    ),
+                    Icon(
+                      arabic
+                          ? LucideIcons.chevronLeft
+                          : LucideIcons.chevronRight,
+                      size: 20,
+                      color: softHero,
                     ),
                   ],
                 ),
-              ),
-            if (_error != null)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Text(
-                  _error!,
-                  style: TextStyle(
-                    color: AppTokens.danger.resolveFrom(context),
-                    fontSize: 14,
+                const SizedBox(height: 12),
+                if (_tips.isEmpty && _error == null)
+                  Text(
+                    t.aiTipsEmpty,
+                    style: const TextStyle(color: softHero, fontSize: 14),
                   ),
-                ),
-              ),
-            if (_tips.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 4),
-                child: Text(
-                  t.aiTipsNote,
-                  style: TextStyle(color: muted, fontSize: 12),
-                ),
-              ),
-            CupertinoButton(
-              padding: EdgeInsets.zero,
-              minimumSize: const Size(44, 44),
-              onPressed: _busy ? null : _ask,
-              child: _busy
-                  ? const CupertinoActivityIndicator()
-                  : Text(
-                      _tips.isEmpty ? t.aiTipsGet : t.aiTipsRefresh,
-                      style: TextStyle(
-                        color: accent,
-                        fontWeight: FontWeight.w700,
+                for (final tip in _tips)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.only(top: 7),
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              color: onHero,
+                              shape: BoxShape.circle,
+                            ),
+                            child: SizedBox(width: 6, height: 6),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            tip,
+                            style: const TextStyle(
+                              color: onHero,
+                              fontSize: 15,
+                              height: 1.3,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                if (_error != null)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Text(
+                      _error!,
+                      style: const TextStyle(
+                        color: Color(0xFFFFD6D4),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
+                  ),
+                if (_tips.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 4),
+                    child: Text(
+                      t.aiTipsNote,
+                      style: const TextStyle(color: softHero, fontSize: 12),
+                    ),
+                  ),
+                const SizedBox(height: 4),
+                Wrap(
+                  spacing: 8,
+                  children: [
+                    pill(
+                      _tips.isEmpty ? t.aiTipsGet : t.aiTipsRefresh,
+                      _busy ? null : _ask,
+                      leading: const SizedBox.shrink(),
+                    ),
+                    pill(t.aiChatOpen, () => open(aiChatPath)),
+                  ],
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

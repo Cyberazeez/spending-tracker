@@ -392,5 +392,28 @@
   "deleteSureConfirm": "احذف كل شيء",
   "reactivatedTitle": "أهلًا بعودتك",
   "reactivatedBody": "حسابك نشط مرة أخرى وتم إلغاء الحذف. كل بياناتك ما زالت موجودة.",
-  "reactivatedOk": "حسنًا"
+  "reactivatedOk": "حسنًا",
+  "categorySearch": "ابحث في التصنيفات",
+  "categorySuggested": "مقترح لهذا التاجر",
+  "categoryNoMatch": "لا يوجد تصنيف مطابق",
+  "aiChatTitle": "اسأل عن مصاريفك",
+  "aiChatOpen": "اطرح سؤالًا",
+  "aiChatHint": "اسأل عن تصنيف أو ميزانية",
+  "aiChatSend": "إرسال",
+  "aiChatIntro": "اسأل عن مصاريف هذا الشهر أو تصنيف أو ميزانية. أرى المجاميع فقط، ولا أرى التجار ولا الرسائل.",
+  "aiChatThinking": "جارٍ التفكير…",
+  "aiChatNoData": "لا يوجد ما نتحدث عنه بعد. عد عندما تُسجَّل بعض المصاريف.",
+  "aiChatPromptCut": "أين يمكنني تقليل المصاريف؟",
+  "aiChatPromptBudget": "هل أنا ملتزم بميزانياتي؟",
+  "aiChatPromptLast": "كيف يقارن هذا الشهر بالشهر الماضي؟",
+  "aiChatPromptCategory": "لماذا {category} مرتفع جدًا؟",
+  "aiChatRetry": "حاول مرة أخرى",
+  "aiTipsTapHint": "اضغط لتسأل عن تصنيف أو ميزانية",
+  "@aiChatPromptCategory": {
+    "placeholders": {
+      "category": {
+        "type": "String"
+      }
+    }
+  }
 }

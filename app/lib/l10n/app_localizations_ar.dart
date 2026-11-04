@@ -1188,4 +1188,56 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get reactivatedOk => 'حسنًا';
+
+  @override
+  String get categorySearch => 'ابحث في التصنيفات';
+
+  @override
+  String get categorySuggested => 'مقترح لهذا التاجر';
+
+  @override
+  String get categoryNoMatch => 'لا يوجد تصنيف مطابق';
+
+  @override
+  String get aiChatTitle => 'اسأل عن مصاريفك';
+
+  @override
+  String get aiChatOpen => 'اطرح سؤالًا';
+
+  @override
+  String get aiChatHint => 'اسأل عن تصنيف أو ميزانية';
+
+  @override
+  String get aiChatSend => 'إرسال';
+
+  @override
+  String get aiChatIntro =>
+      'اسأل عن مصاريف هذا الشهر أو تصنيف أو ميزانية. أرى المجاميع فقط، ولا أرى التجار ولا الرسائل.';
+
+  @override
+  String get aiChatThinking => 'جارٍ التفكير…';
+
+  @override
+  String get aiChatNoData =>
+      'لا يوجد ما نتحدث عنه بعد. عد عندما تُسجَّل بعض المصاريف.';
+
+  @override
+  String get aiChatPromptCut => 'أين يمكنني تقليل المصاريف؟';
+
+  @override
+  String get aiChatPromptBudget => 'هل أنا ملتزم بميزانياتي؟';
+
+  @override
+  String get aiChatPromptLast => 'كيف يقارن هذا الشهر بالشهر الماضي؟';
+
+  @override
+  String aiChatPromptCategory(String category) {
+    return 'لماذا $category مرتفع جدًا؟';
+  }
+
+  @override
+  String get aiChatRetry => 'حاول مرة أخرى';
+
+  @override
+  String get aiTipsTapHint => 'اضغط لتسأل عن تصنيف أو ميزانية';
 }

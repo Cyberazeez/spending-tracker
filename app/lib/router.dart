@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import 'core/lock.dart';
 import 'core/providers.dart';
+import 'features/ai/ai_chat_page.dart';
 import 'features/auth/login_page.dart';
 import 'features/auth/signup_page.dart';
 import 'features/auth/lock_page.dart';
@@ -30,6 +31,7 @@ const quickAddPath = '/home/quick-add';
 const reviewPath = '/home/review';
 const capturePath = '/home/capture';
 const obligationFormPath = '/home/obligation';
+const aiChatPath = '/home/ai-chat';
 
 /// Back from a sub-screen: pops it (animated, same as the swipe), or goes Home if it was opened directly.
 void popOrHome(BuildContext context) {
@@ -131,6 +133,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: 'capture',
             pageBuilder: (_, state) => _page(state, const CapturePage()),
+          ),
+          GoRoute(
+            path: 'ai-chat',
+            pageBuilder: (_, state) => _page(state, const AiChatPage()),
           ),
           GoRoute(
             path: 'obligation',

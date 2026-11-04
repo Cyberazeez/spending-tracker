@@ -732,5 +732,28 @@
   "deleteSureConfirm": "Delete everything",
   "reactivatedTitle": "Welcome back",
   "reactivatedBody": "Your account is active again and the deletion is cancelled. All your data is still here.",
-  "reactivatedOk": "OK"
+  "reactivatedOk": "OK",
+  "categorySearch": "Search categories",
+  "categorySuggested": "Suggested for this merchant",
+  "categoryNoMatch": "No category matches",
+  "aiChatTitle": "Ask about your spending",
+  "aiChatOpen": "Ask a question",
+  "aiChatHint": "Ask about a category or a budget",
+  "aiChatSend": "Send",
+  "aiChatIntro": "Ask about this month's spending, a category or a budget. I only see totals, never merchants or messages.",
+  "aiChatThinking": "Thinking…",
+  "aiChatNoData": "There is nothing to talk about yet. Come back once some spending is recorded.",
+  "aiChatPromptCut": "Where can I cut spending?",
+  "aiChatPromptBudget": "Am I on track with my budgets?",
+  "aiChatPromptLast": "How does this month compare with last month?",
+  "aiChatPromptCategory": "Why is {category} so high?",
+  "aiChatRetry": "Try again",
+  "aiTipsTapHint": "Tap to ask about a category or a budget",
+  "@aiChatPromptCategory": {
+    "placeholders": {
+      "category": {
+        "type": "String"
+      }
+    }
+  }
 }

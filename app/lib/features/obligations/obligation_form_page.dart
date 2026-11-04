@@ -8,6 +8,7 @@ import '../../core/models.dart';
 import '../../core/money.dart';
 import '../../core/providers.dart';
 import '../../l10n/app_localizations.dart';
+import '../../ui/category_sheet.dart';
 import '../../router.dart';
 import '../../ui/app_card.dart';
 import '../../ui/app_form.dart';
@@ -194,25 +195,13 @@ class _ObligationFormPageState extends ConsumerState<ObligationFormPage> {
 
   Future<void> _pickCategory(List<Category> cats, bool arabic) async {
     final t = AppLocalizations.of(context);
-    final picked = await showCupertinoModalPopup<String>(
-      context: context,
-      builder: (ctx) => CupertinoActionSheet(
-        actions: [
-          CupertinoActionSheetAction(
-            onPressed: () => Navigator.pop(ctx, ''),
-            child: Text(t.obfNoCategory),
-          ),
-          for (final c in cats)
-            CupertinoActionSheetAction(
-              onPressed: () => Navigator.pop(ctx, c.id),
-              child: Text(c.label(arabic: arabic)),
-            ),
-        ],
-        cancelButton: CupertinoActionSheetAction(
-          onPressed: () => Navigator.pop(ctx),
-          child: Text(t.cancel),
-        ),
-      ),
+    final picked = await showCategorySheet(
+      context,
+      cats: cats,
+      arabic: arabic,
+      selectedId: _categoryId,
+      removeLabel: t.obfNoCategory,
+      removeIsDestructive: false,
     );
     if (picked != null) {
       setState(() => _categoryId = picked.isEmpty ? null : picked);

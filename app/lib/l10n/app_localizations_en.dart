@@ -1194,4 +1194,56 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reactivatedOk => 'OK';
+
+  @override
+  String get categorySearch => 'Search categories';
+
+  @override
+  String get categorySuggested => 'Suggested for this merchant';
+
+  @override
+  String get categoryNoMatch => 'No category matches';
+
+  @override
+  String get aiChatTitle => 'Ask about your spending';
+
+  @override
+  String get aiChatOpen => 'Ask a question';
+
+  @override
+  String get aiChatHint => 'Ask about a category or a budget';
+
+  @override
+  String get aiChatSend => 'Send';
+
+  @override
+  String get aiChatIntro =>
+      'Ask about this month\'s spending, a category or a budget. I only see totals, never merchants or messages.';
+
+  @override
+  String get aiChatThinking => 'Thinking…';
+
+  @override
+  String get aiChatNoData =>
+      'There is nothing to talk about yet. Come back once some spending is recorded.';
+
+  @override
+  String get aiChatPromptCut => 'Where can I cut spending?';
+
+  @override
+  String get aiChatPromptBudget => 'Am I on track with my budgets?';
+
+  @override
+  String get aiChatPromptLast => 'How does this month compare with last month?';
+
+  @override
+  String aiChatPromptCategory(String category) {
+    return 'Why is $category so high?';
+  }
+
+  @override
+  String get aiChatRetry => 'Try again';
+
+  @override
+  String get aiTipsTapHint => 'Tap to ask about a category or a budget';
 }

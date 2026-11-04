@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/models.dart';
+import '../../core/money.dart';
+import '../../ui/category_sheet.dart';
 import '../../core/providers.dart';
 import '../../l10n/app_localizations.dart';
 import 'providers.dart';
@@ -18,31 +20,32 @@ Future<void> pickCategory(
   final arabic = ref.read(localeProvider).languageCode == 'ar';
   final repo = ref.read(dataRepositoryProvider);
 
-  // `null` = dismissed, `''` = remove the category.
-  final picked = await showCupertinoModalPopup<String>(
-    context: context,
-    builder: (ctx) => CupertinoActionSheet(
-      title: Text(t.categoryPickTitle),
-      message: txn.merchant == null ? null : Text(txn.merchant!),
-      actions: [
-        for (final c in cats)
-          CupertinoActionSheetAction(
-            isDefaultAction: c.id == txn.categoryId,
-            onPressed: () => Navigator.pop(ctx, c.id),
-            child: Text(c.label(arabic: arabic)),
-          ),
-        if (txn.categoryId != null)
-          CupertinoActionSheetAction(
-            isDestructiveAction: true,
-            onPressed: () => Navigator.pop(ctx, ''),
-            child: Text(t.categoryRemove),
-          ),
-      ],
-      cancelButton: CupertinoActionSheetAction(
-        onPressed: () => Navigator.pop(ctx),
-        child: Text(t.cancel),
-      ),
-    ),
+  // `null` = dismissed, `''` = remove the category. Suggestions: what the same merchant was filed under before.
+  final counts = <String, int>{};
+  final norm0 = txn.merchantNorm;
+  if (norm0 != null && norm0.isNotEmpty) {
+    for (final o in ref.read(transactionsProvider).value ?? const <Txn>[]) {
+      if (o.id != txn.id && o.merchantNorm == norm0 && o.categoryId != null) {
+        counts[o.categoryId!] = (counts[o.categoryId!] ?? 0) + 1;
+      }
+    }
+  }
+  final suggestedIds =
+      (counts.entries.toList()..sort((a, b) => b.value.compareTo(a.value)))
+          .take(3)
+          .map((e) => e.key)
+          .toList();
+  final picked = await showCategorySheet(
+    context,
+    cats: cats,
+    arabic: arabic,
+    selectedId: txn.categoryId,
+    subtitle: [
+      if (txn.merchant != null) txn.merchant!,
+      formatSar(txn.amountHalalas, arabic: arabic),
+    ].join(' · '),
+    suggestedIds: suggestedIds,
+    removeLabel: txn.categoryId != null ? t.categoryRemove : null,
   );
   if (picked == null || !context.mounted) return;
   if (picked == txn.categoryId) return;
