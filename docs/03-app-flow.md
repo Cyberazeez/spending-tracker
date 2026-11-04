@@ -4,7 +4,7 @@ Bottom tab bar (Cupertino): **Home, Transactions, Obligations, Insights, More**.
 
 ## 0. Launch and lock
 - **Splash** then **Lock** (Face ID/Touch ID via `local_auth`). Success to last tab. Failure shows "Try again" and "Use passcode" (device passcode fallback). Re-lock after 30 s in background.
-- **Login** (first run or signed out): email, password, "Sign in". Error: wrong credentials, no network. No sign-up link.
+- **Login** (first run or signed out): email, password, "Sign in". Error: wrong credentials, no network. A **Create account** link opens the sign-up screen (name, email, password twice; 8 characters minimum): errors for taken email, weak password, sign-up closed, no network; if the project asks for email confirmation the screen says to check the email. Swipe back returns to login.
 - **First-run setup** (once): choose language, confirm own accounts list, base salary, open More > SMS capture for the Shortcuts steps (the app provisions its own token).
 
 ## 1. Home

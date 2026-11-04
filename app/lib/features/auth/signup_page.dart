@@ -5,6 +5,7 @@ import '../../core/auth_repository.dart';
 import '../../core/lock.dart';
 import '../../core/providers.dart';
 import '../../l10n/app_localizations.dart';
+import '../../router.dart';
 import '../../ui/app_form.dart';
 import '../../ui/tokens.dart';
 
@@ -76,9 +77,10 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
         setState(
           () => _error = switch (e.failure) {
             SignUpFailure.emailTaken => t.signUpEmailTaken,
-            SignUpFailure.weakPassword => t.secTooShort,
+            SignUpFailure.weakPassword => t.signUpWeak,
             SignUpFailure.invalidEmail => t.accountEmailInvalid,
             SignUpFailure.disabled => t.signUpDisabled,
+            SignUpFailure.tryLater => t.signUpTryLater,
             SignUpFailure.network => t.networkError,
           },
         );
@@ -95,74 +97,80 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
       backgroundColor: AppTokens.bg.resolveFrom(context),
       navigationBar: appNavBar(context, t.signUpTitle),
       child: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
-          children: [
-            if (_checkEmail)
-              Padding(
-                padding: const EdgeInsets.only(top: 24),
-                child: Text(
-                  t.signUpCheckEmail,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: AppTokens.text.resolveFrom(context),
-                    fontSize: 17,
-                    height: 1.4,
+        child: AutofillGroup(
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+            children: [
+              if (_checkEmail) ...[
+                Padding(
+                  padding: const EdgeInsets.only(top: 24, bottom: 24),
+                  child: Text(
+                    t.signUpCheckEmail,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: AppTokens.text.resolveFrom(context),
+                      fontSize: 17,
+                      height: 1.4,
+                    ),
                   ),
                 ),
-              )
-            else ...[
-              AppField(
-                controller: _name,
-                label: t.accountName,
-                placeholder: t.accountNameHint,
-                textInputAction: TextInputAction.next,
-                autofillHints: const [AutofillHints.name],
-              ),
-              const SizedBox(height: 16),
-              AppField(
-                controller: _email,
-                label: t.email,
-                keyboardType: TextInputType.emailAddress,
-                textInputAction: TextInputAction.next,
-                autofillHints: const [AutofillHints.email],
-              ),
-              const SizedBox(height: 16),
-              AppField(
-                controller: _password,
-                label: t.password,
-                obscure: true,
-                textInputAction: TextInputAction.next,
-                autofillHints: const [AutofillHints.newPassword],
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 6, left: 4),
-                child: Text(
-                  t.secRulesHint,
-                  style: TextStyle(
-                    color: AppTokens.muted.resolveFrom(context),
-                    fontSize: 12,
+                PrimaryButton(
+                  label: t.signUpBackToSignIn,
+                  onPressed: () => popOrHome(context),
+                ),
+              ] else ...[
+                AppField(
+                  controller: _name,
+                  label: t.accountName,
+                  placeholder: t.accountNameHint,
+                  textInputAction: TextInputAction.next,
+                  autofillHints: const [AutofillHints.name],
+                ),
+                const SizedBox(height: 16),
+                AppField(
+                  controller: _email,
+                  label: t.email,
+                  keyboardType: TextInputType.emailAddress,
+                  textInputAction: TextInputAction.next,
+                  autofillHints: const [AutofillHints.email],
+                ),
+                const SizedBox(height: 16),
+                AppField(
+                  controller: _password,
+                  label: t.password,
+                  obscure: true,
+                  textInputAction: TextInputAction.next,
+                  autofillHints: const [AutofillHints.newPassword],
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 6, left: 4),
+                  child: Text(
+                    t.secRulesHint,
+                    style: TextStyle(
+                      color: AppTokens.muted.resolveFrom(context),
+                      fontSize: 12,
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              AppField(
-                controller: _again,
-                label: t.secConfirm,
-                obscure: true,
-                textInputAction: TextInputAction.done,
-                autofillHints: const [AutofillHints.newPassword],
-                onSubmitted: (_) => _submit(),
-              ),
-              if (_error != null) FormError(_error!),
-              const SizedBox(height: 24),
-              PrimaryButton(
-                label: t.signUpTitle,
-                busy: _busy,
-                onPressed: _submit,
-              ),
+                const SizedBox(height: 16),
+                AppField(
+                  controller: _again,
+                  label: t.secConfirm,
+                  obscure: true,
+                  textInputAction: TextInputAction.done,
+                  autofillHints: const [AutofillHints.newPassword],
+                  onSubmitted: (_) => _submit(),
+                ),
+                if (_error != null) FormError(_error!),
+                const SizedBox(height: 24),
+                PrimaryButton(
+                  label: t.signUpTitle,
+                  busy: _busy,
+                  onPressed: _submit,
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );

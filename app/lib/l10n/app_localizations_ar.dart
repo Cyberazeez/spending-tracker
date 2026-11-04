@@ -1043,4 +1043,14 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get signUpCheckEmail =>
       'تحقق من بريدك واضغط رابط التأكيد، ثم عد وسجّل الدخول.';
+
+  @override
+  String get signUpWeak =>
+      'كلمة المرور ضعيفة. استخدم 8 أحرف على الأقل مع حروف وأرقام.';
+
+  @override
+  String get signUpTryLater => 'تعذر إنشاء الحساب الآن. حاول بعد دقائق.';
+
+  @override
+  String get signUpBackToSignIn => 'العودة لتسجيل الدخول';
 }

@@ -2,7 +2,14 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 enum SignInFailure { invalidCredentials, network }
 
-enum SignUpFailure { emailTaken, weakPassword, invalidEmail, disabled, network }
+enum SignUpFailure {
+  emailTaken,
+  weakPassword,
+  invalidEmail,
+  disabled,
+  tryLater,
+  network,
+}
 
 class SignUpException implements Exception {
   const SignUpException(this.failure);
@@ -98,6 +105,10 @@ class SupabaseAuthRepository implements AuthRepository {
         password: password,
         data: {'name': name.trim()},
       );
+      // With "confirm email" on, a registered address comes back as a user with no identities and no error.
+      if (res.user != null && (res.user!.identities ?? const []).isEmpty) {
+        throw const SignUpException(SignUpFailure.emailTaken);
+      }
       // With "confirm email" on, no session comes back and the person has to use the emailed link first.
       return res.session == null
           ? SignUpResult.confirmEmail
@@ -116,8 +127,14 @@ class SupabaseAuthRepository implements AuthRepository {
           throw const SignUpException(SignUpFailure.invalidEmail);
         case 'signup_disabled':
           throw const SignUpException(SignUpFailure.disabled);
+        case 'over_request_rate_limit':
+        case 'over_email_send_rate_limit':
+          throw const SignUpException(SignUpFailure.tryLater);
       }
-      throw const SignUpException(SignUpFailure.network);
+      // Any other answer from the server (including a 5xx) is "try later", not "no connection".
+      throw const SignUpException(SignUpFailure.tryLater);
+    } on SignUpException {
+      rethrow;
     } catch (_) {
       throw const SignUpException(SignUpFailure.network);
     }

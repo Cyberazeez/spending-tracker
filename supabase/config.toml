@@ -3,9 +3,14 @@
 project_id = "evepfssanoffnwtqjmyq"
 
 [auth]
-# Single-user app: the owner account is created by hand in the dashboard.
-enable_signup = false
+# Closed family test (2026-11-04): open sign-up, no email confirmation, so testers invited on TestFlight can start at once.
+# Must match the dashboard (Authentication > Sign In / Providers), or a CLI deploy would switch it back.
+# Before the public release: invite codes (see docs/superpowers/specs/2026-11-04-signup-stage-b-design.md).
+enable_signup = true
 enable_anonymous_sign_ins = false
+
+[auth.email]
+enable_confirmations = false
 
 [functions.ingest]
 # The iOS Shortcut cannot send a JWT. The function authenticates the X-Ingest-Token itself.

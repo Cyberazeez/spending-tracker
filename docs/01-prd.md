@@ -3,7 +3,7 @@
 Status: APPROVED by owner (2026-10-30). Nothing is built yet.
 
 ## Who it's for
-One user (Azeez), Riyadh. iPhone (iOS 27), Windows laptop, no Mac. Single-user app: signups are disabled after the owner account exists. Opening it to family testers is a planned phase (owner, 2026-11-03; see the plan): multi-user, with its own spec first.
+One user (Azeez), Riyadh. iPhone (iOS 27), Windows laptop, no Mac. Built for one user; since 2026-11-04 it is a multi-user **closed test**: family testers invited on TestFlight create their own accounts in the app (open sign-up, email + password, no confirmation). Public release later (invite codes, Sign in with Apple and Google).
 
 ## Problem
 Spending is spread over six banks and wallets. Azeez pays one credit card (Alinma 8119) for almost everything, settles it around the 2nd of each month, then pays the monthly bills. He wants every purchase captured automatically from bank SMS, a clear view of where money goes, a tracker for regular obligations, and budgets that warn before overspending.

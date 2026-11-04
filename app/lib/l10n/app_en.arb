@@ -657,5 +657,8 @@
   "signUpNameRequired": "Enter your name (up to 60 letters).",
   "signUpEmailTaken": "This email already has an account. Sign in instead.",
   "signUpDisabled": "Sign-up is closed right now. Ask the owner.",
-  "signUpCheckEmail": "Check your email and tap the confirmation link, then come back and sign in."
+  "signUpCheckEmail": "Check your email and tap the confirmation link, then come back and sign in.",
+  "signUpWeak": "That password is too weak. Use at least 8 characters and mix letters and numbers.",
+  "signUpTryLater": "Could not create the account right now. Try again in a few minutes.",
+  "signUpBackToSignIn": "Back to sign in"
 }

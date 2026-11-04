@@ -1963,6 +1963,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Check your email and tap the confirmation link, then come back and sign in.'**
   String get signUpCheckEmail;
+
+  /// No description provided for @signUpWeak.
+  ///
+  /// In en, this message translates to:
+  /// **'That password is too weak. Use at least 8 characters and mix letters and numbers.'**
+  String get signUpWeak;
+
+  /// No description provided for @signUpTryLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not create the account right now. Try again in a few minutes.'**
+  String get signUpTryLater;
+
+  /// No description provided for @signUpBackToSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to sign in'**
+  String get signUpBackToSignIn;
 }
 
 class _AppLocalizationsDelegate

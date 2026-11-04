@@ -77,6 +77,12 @@ void main() {
     h.auth.signUpFailWith = SignUpFailure.network;
     await fill(tester);
     expect(find.textContaining('Could not reach the server'), findsOneWidget);
+    h.auth.signUpFailWith = SignUpFailure.tryLater;
+    await fill(tester);
+    expect(find.textContaining('Try again in a few minutes'), findsOneWidget);
+    h.auth.signUpFailWith = SignUpFailure.weakPassword;
+    await fill(tester);
+    expect(find.textContaining('too weak'), findsOneWidget);
   });
 
   testWidgets('when email confirmation is on, the person is told to check it', (
@@ -87,6 +93,10 @@ void main() {
     await fill(tester);
     expect(find.textContaining('confirmation link'), findsOneWidget);
     expect(find.text('Home'), findsNothing);
+    await tester.tap(find.text('Back to sign in'));
+    await tester.pumpAndSettle();
+    expect(find.text('Back to sign in'), findsNothing);
+    expect(find.text('Sign in'), findsWidgets);
   });
 
   for (final lang in ['en', 'ar']) {

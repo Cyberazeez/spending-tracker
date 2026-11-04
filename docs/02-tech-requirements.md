@@ -44,7 +44,7 @@ docs/  scripts/  codemagic.yaml  .github/workflows/ci.yml
 Supabase Free allows 2 active projects and pauses a project after about a week with no activity; Pro is from $25/month. As a single project this is free. The weekly insights cron and daily SMS keep it active; if the app is unused for a week it pauses and the first request wakes it (restore from the dashboard if it does not).
 
 ## Auth and secrets
-- Supabase Auth, email and password. Signups disabled after the owner account exists. Session persisted by the SDK; Face ID lock sits on top (re-lock on background > 30 s).
+- Supabase Auth, email and password. Open sign-up for the closed family test (2026-11-04; `supabase/config.toml` `enable_signup = true`, confirmations off); new accounts are seeded cleanly by the `handle_new_user` trigger. Session persisted by the SDK; Face ID lock sits on top (re-lock on background > 30 s).
 - Ingest: 256-bit random token (`stk_` + 43 base64url chars), sent as `X-Ingest-Token`. Only its plain SHA-256 is stored (no pepper needed at 256 bits of randomness). Rotation via `rotate-token`. Rate limit 60 requests/min per token.
 - Secrets live only in: Supabase Edge Function secrets (`ANTHROPIC_API_KEY`; the service role key is provided by the runtime), Codemagic encrypted variables (App Store Connect API key: key id, issuer id, .p8), and a gitignored `.env`. `.env.example` lists names only. Nothing sensitive in logs: log message ids and parse status, never bodies.
 
