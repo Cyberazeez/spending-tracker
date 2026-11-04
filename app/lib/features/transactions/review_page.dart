@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../ui/chevron.dart';
 
@@ -10,6 +11,7 @@ import '../../core/providers.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ui/app_form.dart';
 import '../../ui/empty_state.dart';
+import '../../ui/choice_sheet.dart';
 import '../../ui/tokens.dart';
 import '../obligations/widgets/bills_widgets.dart';
 import 'manual_form.dart';
@@ -20,41 +22,33 @@ class ReviewPage extends ConsumerWidget {
 
   Future<void> _open(BuildContext context, WidgetRef ref, RawMessage m) async {
     final t = AppLocalizations.of(context);
-    await showCupertinoModalPopup<void>(
-      context: context,
-      builder: (ctx) => CupertinoActionSheet(
-        title: Text(t.reviewFrom(m.sender)),
-        message: Directionality(
-          textDirection: TextDirection.ltr,
-          child: Text(m.body, textAlign: TextAlign.start),
+    final choice = await showChoiceSheet<String>(
+      context,
+      title: t.reviewFrom(m.sender),
+      message: m.body,
+      options: [
+        ChoiceOption(
+          value: 'convert',
+          label: t.reviewConvert,
+          icon: LucideIcons.squarePen,
         ),
-        actions: [
-          CupertinoActionSheetAction(
-            onPressed: () {
-              Navigator.pop(ctx);
-              _convert(context, ref, m);
-            },
-            child: Text(t.reviewConvert),
-          ),
-          CupertinoActionSheetAction(
-            isDestructiveAction: true,
-            onPressed: () async {
-              Navigator.pop(ctx);
-              try {
-                await ref.read(dataRepositoryProvider).dismissRaw(m.id);
-              } finally {
-                ref.invalidate(needsReviewProvider);
-              }
-            },
-            child: Text(t.reviewDismiss),
-          ),
-        ],
-        cancelButton: CupertinoActionSheetAction(
-          onPressed: () => Navigator.pop(ctx),
-          child: Text(t.cancel),
+        ChoiceOption(
+          value: 'dismiss',
+          label: t.reviewDismiss,
+          icon: LucideIcons.trash2,
+          destructive: true,
         ),
-      ),
+      ],
     );
+    if (choice == 'convert') {
+      if (context.mounted) _convert(context, ref, m);
+    } else if (choice == 'dismiss') {
+      try {
+        await ref.read(dataRepositoryProvider).dismissRaw(m.id);
+      } finally {
+        ref.invalidate(needsReviewProvider);
+      }
+    }
   }
 
   void _convert(BuildContext context, WidgetRef ref, RawMessage m) {

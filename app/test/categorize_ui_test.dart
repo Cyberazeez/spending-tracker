@@ -57,6 +57,28 @@ void main() {
     expect(find.text('OTTEN'), findsNothing);
   });
 
+  testWidgets('the filter picks a category through the category sheet', (
+    tester,
+  ) async {
+    final h = Harness(signedIn: true)
+      ..data.txns = [tx('1', 'OTTEN', categoryId: 'c-din'), tx('2', 'XYZ')];
+    await open(tester, h);
+    await tester.tap(find.byIcon(LucideIcons.listFilter));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Category'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Dining'));
+    await tester.pumpAndSettle();
+    expect(h.data.lastFilter.categoryId, 'c-din');
+    // the filter sheet now shows the chosen category and offers to clear
+    await tester.tap(find.byIcon(LucideIcons.listFilter));
+    await tester.pumpAndSettle();
+    expect(find.text('Clear filters'), findsOneWidget);
+    await tester.tap(find.text('Clear filters'));
+    await tester.pumpAndSettle();
+    expect(h.data.lastFilter.categoryId, isNull);
+  });
+
   testWidgets('recategorizing asks about past ones and remembers the rule', (
     tester,
   ) async {

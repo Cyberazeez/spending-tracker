@@ -14,6 +14,7 @@ import '../../ui/app_card.dart';
 import '../../ui/bottom_inset.dart';
 import '../../ui/empty_state.dart';
 import '../../ui/skeleton.dart';
+import '../../ui/choice_sheet.dart';
 import '../../ui/tokens.dart';
 import '../insights/metrics.dart';
 import 'logic.dart';
@@ -59,46 +60,46 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
   Future<void> _rowActions(ObligationInstance i, String status) async {
     final t = AppLocalizations.of(context);
     final repo = ref.read(dataRepositoryProvider);
-    final choice = await showCupertinoModalPopup<String>(
-      context: context,
-      builder: (ctx) => CupertinoActionSheet(
-        title: Text(i.name),
-        actions: [
-          CupertinoActionSheetAction(
-            onPressed: () => Navigator.pop(ctx, 'amount'),
-            child: Text(t.obEditAmount),
-          ),
-          if (i.kind != 'card_statement')
-            CupertinoActionSheetAction(
-              onPressed: () => Navigator.pop(ctx, 'edit'),
-              child: Text(t.obEditDetails),
-            ),
-          if (status == 'pending' || status == 'overdue') ...[
-            CupertinoActionSheetAction(
-              onPressed: () => Navigator.pop(ctx, 'paid'),
-              child: Text(t.obMarkPaid),
-            ),
-            CupertinoActionSheetAction(
-              onPressed: () => Navigator.pop(ctx, 'skipped'),
-              child: Text(t.obSkip),
-            ),
-          ] else
-            CupertinoActionSheetAction(
-              onPressed: () => Navigator.pop(ctx, 'pending'),
-              child: Text(t.obReopen),
-            ),
-          if (i.kind != 'card_statement')
-            CupertinoActionSheetAction(
-              isDestructiveAction: true,
-              onPressed: () => Navigator.pop(ctx, 'stop'),
-              child: Text(t.obStop),
-            ),
-        ],
-        cancelButton: CupertinoActionSheetAction(
-          onPressed: () => Navigator.pop(ctx),
-          child: Text(t.cancel),
+    final choice = await showChoiceSheet<String>(
+      context,
+      title: i.name,
+      options: [
+        ChoiceOption(
+          value: 'amount',
+          label: t.obEditAmount,
+          icon: LucideIcons.banknote,
         ),
-      ),
+        if (i.kind != 'card_statement')
+          ChoiceOption(
+            value: 'edit',
+            label: t.obEditDetails,
+            icon: LucideIcons.pencil,
+          ),
+        if (status == 'pending' || status == 'overdue') ...[
+          ChoiceOption(
+            value: 'paid',
+            label: t.obMarkPaid,
+            icon: LucideIcons.circleCheck,
+          ),
+          ChoiceOption(
+            value: 'skipped',
+            label: t.obSkip,
+            icon: LucideIcons.skipForward,
+          ),
+        ] else
+          ChoiceOption(
+            value: 'pending',
+            label: t.obReopen,
+            icon: LucideIcons.rotateCcw,
+          ),
+        if (i.kind != 'card_statement')
+          ChoiceOption(
+            value: 'stop',
+            label: t.obStop,
+            icon: LucideIcons.circleStop,
+            destructive: true,
+          ),
+      ],
     );
     if (choice == null) return;
     if (choice == 'edit') {

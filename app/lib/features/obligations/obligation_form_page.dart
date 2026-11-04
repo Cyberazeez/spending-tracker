@@ -12,6 +12,7 @@ import '../../core/money.dart';
 import '../../core/providers.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ui/category_sheet.dart';
+import '../../ui/choice_sheet.dart';
 import '../../router.dart';
 import '../../ui/app_card.dart';
 import '../../ui/app_form.dart';
@@ -177,21 +178,17 @@ class _ObligationFormPageState extends ConsumerState<ObligationFormPage> {
 
   Future<void> _pickMonth(bool arabic) async {
     final t = AppLocalizations.of(context);
-    final picked = await showCupertinoModalPopup<int>(
-      context: context,
-      builder: (ctx) => CupertinoActionSheet(
-        actions: [
-          for (var m = 1; m <= 12; m++)
-            CupertinoActionSheetAction(
-              onPressed: () => Navigator.pop(ctx, m),
-              child: Text(monthName(DateTime.utc(2026, m), arabic: arabic)),
-            ),
-        ],
-        cancelButton: CupertinoActionSheetAction(
-          onPressed: () => Navigator.pop(ctx),
-          child: Text(t.cancel),
-        ),
-      ),
+    final picked = await showChoiceSheet<int>(
+      context,
+      title: t.obfStartMonth,
+      options: [
+        for (var m = 1; m <= 12; m++)
+          ChoiceOption(
+            value: m,
+            label: monthName(DateTime.utc(2026, m), arabic: arabic),
+            selected: m == _startMonth,
+          ),
+      ],
     );
     if (picked != null) setState(() => _startMonth = picked);
   }

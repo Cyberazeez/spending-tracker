@@ -1,9 +1,11 @@
 import 'package:flutter/cupertino.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/models.dart';
 import '../../core/money.dart';
 import '../../ui/category_sheet.dart';
+import '../../ui/choice_sheet.dart';
 import '../../core/providers.dart';
 import '../../l10n/app_localizations.dart';
 import 'providers.dart';
@@ -122,56 +124,64 @@ Future<void> showFilterSheet(BuildContext context, WidgetRef ref) async {
   final cats = ref.read(categoriesProvider).value ?? const <Category>[];
   final f = ref.read(txFilterProvider);
   final ctl = ref.read(txFilterProvider.notifier);
-  await showCupertinoModalPopup<void>(
-    context: context,
-    builder: (ctx) => CupertinoActionSheet(
-      title: Text(t.filterTitle),
-      actions: [
-        CupertinoActionSheetAction(
-          onPressed: () {
-            ctl.set(f.copyWith(categoryId: null, uncategorizedOnly: false));
-            Navigator.pop(ctx);
-          },
-          child: Text(t.filterAll),
-        ),
-        CupertinoActionSheetAction(
-          onPressed: () {
-            ctl.set(f.copyWith(categoryId: null, uncategorizedOnly: true));
-            Navigator.pop(ctx);
-          },
-          child: Text(t.filterUncategorized),
-        ),
-        for (final c in cats)
-          CupertinoActionSheetAction(
-            onPressed: () {
-              ctl.set(f.copyWith(categoryId: c.id, uncategorizedOnly: false));
-              Navigator.pop(ctx);
-            },
-            child: Text(c.label(arabic: arabic)),
-          ),
-        CupertinoActionSheetAction(
-          onPressed: () {
-            ctl.set(f.copyWith(hideInternal: !f.hideInternal));
-            Navigator.pop(ctx);
-          },
-          child: Text(
-            f.hideInternal ? t.filterShowInternal : t.filterHideInternal,
-          ),
-        ),
-        if (f.isActive)
-          CupertinoActionSheetAction(
-            isDestructiveAction: true,
-            onPressed: () {
-              ctl.clear();
-              Navigator.pop(ctx);
-            },
-            child: Text(t.filterClear),
-          ),
-      ],
-      cancelButton: CupertinoActionSheetAction(
-        onPressed: () => Navigator.pop(ctx),
-        child: Text(t.cancel),
+  final chosen = cats.where((c) => c.id == f.categoryId).firstOrNull;
+  final choice = await showChoiceSheet<String>(
+    context,
+    title: t.filterTitle,
+    options: [
+      ChoiceOption(
+        value: 'all',
+        label: t.filterAll,
+        icon: LucideIcons.layoutList,
+        selected: f.categoryId == null && !f.uncategorizedOnly,
       ),
-    ),
+      ChoiceOption(
+        value: 'uncat',
+        label: t.filterUncategorized,
+        icon: LucideIcons.circleHelp,
+        selected: f.uncategorizedOnly,
+      ),
+      ChoiceOption(
+        value: 'cat',
+        label: chosen?.label(arabic: arabic) ?? t.categoryPickTitle,
+        icon: LucideIcons.tag,
+        selected: chosen != null,
+      ),
+      ChoiceOption(
+        value: 'internal',
+        label: f.hideInternal ? t.filterShowInternal : t.filterHideInternal,
+        icon: LucideIcons.arrowLeftRight,
+        selected: f.hideInternal,
+      ),
+      if (f.isActive)
+        ChoiceOption(
+          value: 'clear',
+          label: t.filterClear,
+          icon: LucideIcons.x,
+          destructive: true,
+        ),
+    ],
   );
+  if (choice == null) return;
+  switch (choice) {
+    case 'all':
+      ctl.set(f.copyWith(categoryId: null, uncategorizedOnly: false));
+    case 'uncat':
+      ctl.set(f.copyWith(categoryId: null, uncategorizedOnly: true));
+    case 'internal':
+      ctl.set(f.copyWith(hideInternal: !f.hideInternal));
+    case 'clear':
+      ctl.clear();
+    case 'cat':
+      if (!context.mounted) return;
+      final id = await showCategorySheet(
+        context,
+        cats: cats,
+        arabic: arabic,
+        selectedId: f.categoryId,
+      );
+      if (id != null && id.isNotEmpty) {
+        ctl.set(f.copyWith(categoryId: id, uncategorizedOnly: false));
+      }
+  }
 }

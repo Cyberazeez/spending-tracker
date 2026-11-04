@@ -29,6 +29,7 @@ Future<T?> showChoiceSheet<T>(
   BuildContext context, {
   required String title,
   String? subtitle,
+  String? message,
   required List<ChoiceOption<T>> options,
 }) {
   return showCupertinoModalPopup<T>(
@@ -38,26 +39,52 @@ Future<T?> showChoiceSheet<T>(
       subtitle: subtitle,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: AppTokens.card.resolveFrom(ctx),
-            borderRadius: BorderRadius.circular(18),
-          ),
-          child: Column(
-            children: [
-              for (var i = 0; i < options.length; i++) ...[
-                _Row<T>(option: options[i]),
-                if (i < options.length - 1)
-                  Container(
-                    height: 1,
-                    margin: const EdgeInsets.symmetric(horizontal: 14),
-                    color: AppTokens.bar
-                        .resolveFrom(ctx)
-                        .withValues(alpha: 0.6),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (message != null)
+              Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: AppTokens.card.resolveFrom(ctx),
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                child: Directionality(
+                  textDirection: TextDirection.ltr,
+                  child: Text(
+                    message,
+                    style: TextStyle(
+                      color: AppTokens.muted.resolveFrom(ctx),
+                      fontSize: 14,
+                      height: 1.35,
+                      decoration: TextDecoration.none,
+                    ),
                   ),
-              ],
-            ],
-          ),
+                ),
+              ),
+            DecoratedBox(
+              decoration: BoxDecoration(
+                color: AppTokens.card.resolveFrom(ctx),
+                borderRadius: BorderRadius.circular(18),
+              ),
+              child: Column(
+                children: [
+                  for (var i = 0; i < options.length; i++) ...[
+                    _Row<T>(option: options[i]),
+                    if (i < options.length - 1)
+                      Container(
+                        height: 1,
+                        margin: const EdgeInsets.symmetric(horizontal: 14),
+                        color: AppTokens.bar
+                            .resolveFrom(ctx)
+                            .withValues(alpha: 0.6),
+                      ),
+                  ],
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     ),

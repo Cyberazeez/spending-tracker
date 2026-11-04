@@ -10,6 +10,7 @@ import '../../l10n/app_localizations.dart';
 import '../../ui/app_card.dart';
 import '../../ui/app_form.dart';
 import '../../ui/empty_state.dart';
+import '../../ui/choice_sheet.dart';
 import '../../ui/tokens.dart';
 import 'account_providers.dart';
 
@@ -220,26 +221,19 @@ class _AddAccountSheetState extends ConsumerState<_AddAccountSheet> {
   }
 
   Future<void> _pick(
+    String title,
     List<String> options,
+    String current,
     String Function(String) nameOf,
     ValueChanged<String> set,
   ) async {
-    final t = AppLocalizations.of(context);
-    final picked = await showCupertinoModalPopup<String>(
-      context: context,
-      builder: (ctx) => CupertinoActionSheet(
-        actions: [
-          for (final o in options)
-            CupertinoActionSheetAction(
-              onPressed: () => Navigator.pop(ctx, o),
-              child: Text(nameOf(o)),
-            ),
-        ],
-        cancelButton: CupertinoActionSheetAction(
-          onPressed: () => Navigator.pop(ctx),
-          child: Text(t.cancel),
-        ),
-      ),
+    final picked = await showChoiceSheet<String>(
+      context,
+      title: title,
+      options: [
+        for (final o in options)
+          ChoiceOption(value: o, label: nameOf(o), selected: o == current),
+      ],
     );
     if (picked != null) setState(() => set(picked));
   }
@@ -339,14 +333,22 @@ class _AddAccountSheetState extends ConsumerState<_AddAccountSheet> {
             pickRow(
               t.bankPick,
               bankName(_bank),
-              () => _pick(OwnAccount.banks, bankName, (v) => _bank = v),
+              () => _pick(
+                t.bankPick,
+                OwnAccount.banks,
+                _bank,
+                bankName,
+                (v) => _bank = v,
+              ),
             ),
             const SizedBox(height: 12),
             pickRow(
               t.bankKind,
               kindName(t, _kind),
               () => _pick(
+                t.bankKind,
                 OwnAccount.kinds,
+                _kind,
                 (k) => kindName(t, k),
                 (v) => _kind = v,
               ),
