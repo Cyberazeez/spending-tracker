@@ -57,4 +57,28 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Sign out'), findsOneWidget);
   });
+
+  testWidgets('swipe goes back from Quick add and from the obligation form', (
+    tester,
+  ) async {
+    final h = Harness(signedIn: true);
+    await tester.pumpWidget(await h.build());
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Transactions').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.bySemanticsLabel('Add a transaction'));
+    await tester.pumpAndSettle();
+    expect(find.text('Quick add'), findsWidgets);
+    await tester.dragFrom(const Offset(3, 300), const Offset(700, 0));
+    await tester.pumpAndSettle();
+    expect(find.byType(CupertinoNavigationBarBackButton), findsNothing);
+    await tester.tap(find.text('Obligations').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.bySemanticsLabel('Add an obligation'));
+    await tester.pumpAndSettle();
+    expect(find.text('New obligation'), findsOneWidget);
+    await tester.dragFrom(const Offset(3, 300), const Offset(700, 0));
+    await tester.pumpAndSettle();
+    expect(find.text('New obligation'), findsNothing);
+  });
 }

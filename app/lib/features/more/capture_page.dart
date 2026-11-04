@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/capture_bridge.dart';
 import '../../l10n/app_localizations.dart';
-import '../../router.dart';
 import '../../ui/app_card.dart';
+import '../../ui/app_form.dart';
 import '../../ui/bottom_inset.dart';
 import '../../ui/tokens.dart';
 
@@ -34,14 +34,7 @@ class CapturePage extends ConsumerWidget {
     ];
     return CupertinoPageScaffold(
       backgroundColor: AppTokens.bg.resolveFrom(context),
-      navigationBar: CupertinoNavigationBar(
-        backgroundColor: AppTokens.bg.resolveFrom(context),
-        border: null,
-        middle: Text(t.captureSetupTitle),
-        leading: CupertinoNavigationBarBackButton(
-          onPressed: () => popOrHome(context),
-        ),
-      ),
+      navigationBar: appNavBar(context, t.captureSetupTitle),
       child: SafeArea(
         child: CustomScrollView(
           slivers: [
@@ -105,10 +98,10 @@ class CapturePage extends ConsumerWidget {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  CupertinoButton.filled(
+                  PrimaryButton(
+                    label: t.captureOpenShortcuts,
                     onPressed: () =>
                         ref.read(captureBridgeProvider).openShortcuts(),
-                    child: Text(t.captureOpenShortcuts),
                   ),
                   const SizedBox(height: 16),
                   AppCard(

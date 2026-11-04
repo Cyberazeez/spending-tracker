@@ -12,6 +12,7 @@ import '../../core/providers.dart';
 import '../../l10n/app_localizations.dart';
 import '../../router.dart';
 import '../../ui/app_card.dart';
+import '../../ui/app_form.dart';
 import '../../ui/bottom_inset.dart';
 import '../../ui/empty_state.dart';
 import '../../ui/skeleton.dart';
@@ -164,9 +165,9 @@ class TransactionsPage extends ConsumerWidget {
                               icon: CupertinoIcons.tray,
                               title: t.txEmptyTitle,
                               body: t.txEmptyBody,
-                              action: CupertinoButton.filled(
+                              action: PrimaryButton(
+                                label: t.quickAdd,
                                 onPressed: () => context.push(quickAddPath),
-                                child: Text(t.quickAdd),
                               ),
                             ),
                     ),

@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/providers.dart';
 import '../../l10n/app_localizations.dart';
 import '../../router.dart';
+import '../../ui/app_form.dart';
+import '../../ui/tokens.dart';
 import 'manual_form.dart';
 import 'providers.dart';
 
@@ -14,12 +16,8 @@ class QuickAddPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = AppLocalizations.of(context);
     return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        middle: Text(t.quickAdd),
-        leading: CupertinoNavigationBarBackButton(
-          onPressed: () => popOrHome(context),
-        ),
-      ),
+      backgroundColor: AppTokens.bg.resolveFrom(context),
+      navigationBar: appNavBar(context, t.quickAdd),
       child: SafeArea(
         child: ManualTxnForm(
           onSave: (txn) async {

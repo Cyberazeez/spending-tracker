@@ -1,11 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../core/auth_repository.dart';
 import '../../core/lock.dart';
 import '../../core/providers.dart';
 import '../../l10n/app_localizations.dart';
-import '../../ui/theme.dart';
+import '../../ui/app_form.dart';
+import '../../ui/tokens.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -55,67 +57,68 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     final t = AppLocalizations.of(context);
     final missingEmail = _submitted && _email.text.trim().isEmpty;
     final missingPassword = _submitted && _password.text.isEmpty;
+    final accent = AppTokens.accent.resolveFrom(context);
     return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(middle: Text(t.loginTitle)),
+      backgroundColor: AppTokens.bg.resolveFrom(context),
       child: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(20, 48, 20, 24),
           children: [
-            const SizedBox(height: 24),
-            CupertinoTextField(
+            Center(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: accent.withValues(alpha: 0.18),
+                  shape: BoxShape.circle,
+                ),
+                child: SizedBox(
+                  width: 72,
+                  height: 72,
+                  child: Icon(LucideIcons.wallet, size: 34, color: accent),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Center(
+              child: Text(
+                t.loginTitle,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: AppTokens.text.resolveFrom(context),
+                  fontSize: 30,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
+            const SizedBox(height: 32),
+            AppField(
               controller: _email,
               placeholder: t.email,
               keyboardType: TextInputType.emailAddress,
-              autocorrect: false,
               textInputAction: TextInputAction.next,
               autofillHints: const [AutofillHints.username],
-              padding: const EdgeInsets.all(14),
             ),
-            if (missingEmail) _Error(t.fieldRequired),
+            if (missingEmail) FormError(t.fieldRequired),
             const SizedBox(height: 12),
-            CupertinoTextField(
+            AppField(
               controller: _password,
               placeholder: t.password,
-              obscureText: true,
+              obscure: true,
               textInputAction: TextInputAction.done,
               autofillHints: const [AutofillHints.password],
               onSubmitted: (_) => _submit(),
-              padding: const EdgeInsets.all(14),
             ),
-            if (missingPassword) _Error(t.fieldRequired),
+            if (missingPassword) FormError(t.fieldRequired),
             if (_failure != null)
-              _Error(
+              FormError(
                 _failure == SignInFailure.invalidCredentials
                     ? t.invalidCredentials
                     : t.networkError,
               ),
             const SizedBox(height: 24),
-            CupertinoButton.filled(
-              onPressed: _busy ? null : _submit,
-              child: _busy
-                  ? const CupertinoActivityIndicator()
-                  : Text(t.signIn),
-            ),
+            PrimaryButton(label: t.signIn, busy: _busy, onPressed: _submit),
           ],
         ),
       ),
     );
   }
-}
-
-class _Error extends StatelessWidget {
-  const _Error(this.text);
-  final String text;
-
-  @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(top: 6),
-    child: Text(
-      text,
-      style: TextStyle(
-        color: AppColors.danger.resolveFrom(context),
-        fontSize: 13,
-      ),
-    ),
-  );
 }

@@ -3,7 +3,9 @@ import 'package:flutter/cupertino.dart';
 import '../../core/models.dart';
 import '../../core/money.dart';
 import '../../l10n/app_localizations.dart';
-import '../../ui/theme.dart';
+import '../../ui/app_form.dart';
+import '../../ui/tokens.dart';
+import '../obligations/widgets/bills_widgets.dart';
 
 /// Amount + merchant + spent/received + time. Used by Quick add and by "Add as transaction" in the review inbox.
 class ManualTxnForm extends StatefulWidget {
@@ -98,44 +100,20 @@ class _ManualTxnFormState extends State<ManualTxnForm> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        CupertinoSlidingSegmentedControl<String>(
-          groupValue: _direction,
-          children: {
-            'out': Padding(
-              padding: const EdgeInsets.all(8),
-              child: Text(t.qaSpent),
-            ),
-            'in': Padding(
-              padding: const EdgeInsets.all(8),
-              child: Text(t.qaReceived),
-            ),
-          },
-          onValueChanged: (v) => setState(() => _direction = v ?? 'out'),
+        PillSegments<String>(
+          value: _direction,
+          labels: {'out': t.qaSpent, 'in': t.qaReceived},
+          onChanged: (v) => setState(() => _direction = v),
         ),
         const SizedBox(height: 16),
-        CupertinoTextField(
+        AppField(
           controller: _amount,
           placeholder: t.qaAmount,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          padding: const EdgeInsets.all(14),
         ),
-        if (_invalid)
-          Padding(
-            padding: const EdgeInsets.only(top: 6),
-            child: Text(
-              t.qaAmountInvalid,
-              style: TextStyle(
-                color: AppColors.danger.resolveFrom(context),
-                fontSize: 13,
-              ),
-            ),
-          ),
+        if (_invalid) FormError(t.qaAmountInvalid),
         const SizedBox(height: 12),
-        CupertinoTextField(
-          controller: _merchant,
-          placeholder: t.qaMerchant,
-          padding: const EdgeInsets.all(14),
-        ),
+        AppField(controller: _merchant, placeholder: t.qaMerchant),
         const SizedBox(height: 12),
         CupertinoButton(
           padding: EdgeInsets.zero,
@@ -144,26 +122,16 @@ class _ManualTxnFormState extends State<ManualTxnForm> {
             alignment: AlignmentDirectional.centerStart,
             child: Directionality(
               textDirection: TextDirection.ltr,
-              child: Text('${t.qaWhen}: ${_fmt(_when)}'),
-            ),
-          ),
-        ),
-        if (_failed)
-          Padding(
-            padding: const EdgeInsets.only(top: 6),
-            child: Text(
-              t.qaSaveFailed,
-              style: TextStyle(
-                color: AppColors.danger.resolveFrom(context),
-                fontSize: 13,
+              child: Text(
+                '${t.qaWhen}: ${_fmt(_when)}',
+                style: TextStyle(color: AppTokens.accent.resolveFrom(context)),
               ),
             ),
           ),
-        const SizedBox(height: 20),
-        CupertinoButton.filled(
-          onPressed: _busy ? null : _save,
-          child: _busy ? const CupertinoActivityIndicator() : Text(t.qaSave),
         ),
+        if (_failed) FormError(t.qaSaveFailed),
+        const SizedBox(height: 20),
+        PrimaryButton(label: t.qaSave, busy: _busy, onPressed: _save),
       ],
     );
   }
