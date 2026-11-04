@@ -419,7 +419,7 @@ abstract class AppLocalizations {
   /// No description provided for @qaAmount.
   ///
   /// In en, this message translates to:
-  /// **'Amount (SAR)'**
+  /// **'Amount (⃁)'**
   String get qaAmount;
 
   /// No description provided for @qaMerchant.
@@ -509,7 +509,7 @@ abstract class AppLocalizations {
   /// No description provided for @sar.
   ///
   /// In en, this message translates to:
-  /// **'SAR'**
+  /// **'⃁'**
   String get sar;
 
   /// No description provided for @loadFailed.
@@ -785,7 +785,7 @@ abstract class AppLocalizations {
   /// No description provided for @obEditAmountPrompt.
   ///
   /// In en, this message translates to:
-  /// **'Amount in SAR'**
+  /// **'Amount in ⃁'**
   String get obEditAmountPrompt;
 
   /// No description provided for @obAmountInvalid.
@@ -827,7 +827,7 @@ abstract class AppLocalizations {
   /// No description provided for @insMonthlyBudgetPrompt.
   ///
   /// In en, this message translates to:
-  /// **'Monthly budget in SAR'**
+  /// **'Monthly budget in ⃁'**
   String get insMonthlyBudgetPrompt;
 
   /// No description provided for @homeToday.
@@ -1013,7 +1013,7 @@ abstract class AppLocalizations {
   /// No description provided for @insBudgetPrompt.
   ///
   /// In en, this message translates to:
-  /// **'Monthly limit in SAR'**
+  /// **'Monthly limit in ⃁'**
   String get insBudgetPrompt;
 
   /// No description provided for @insBudgetInvalid.
@@ -1511,7 +1511,7 @@ abstract class AppLocalizations {
   /// No description provided for @obfAmount.
   ///
   /// In en, this message translates to:
-  /// **'Amount in SAR'**
+  /// **'Amount in ⃁'**
   String get obfAmount;
 
   /// No description provided for @obfAmountBillNote.

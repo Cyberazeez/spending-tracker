@@ -69,8 +69,8 @@ void main() {
       ];
     await openTransactions(tester, h);
     expect(find.text('OTTEN'), findsOneWidget);
-    expect(find.text('− SAR 19.00'), findsOneWidget);
-    expect(find.text('+ SAR 13,822.93'), findsOneWidget);
+    expect(find.text('− ⃁ 19.00'), findsOneWidget);
+    expect(find.text('+ ⃁ 13,822.93'), findsOneWidget);
     expect(find.textContaining('Internal'), findsOneWidget);
     expect(find.textContaining('14:05'), findsWidgets);
     expect(find.text('Today'), findsOneWidget); // grouped by day
@@ -101,7 +101,7 @@ void main() {
       expect(h.data.added, isEmpty);
 
       await tester.enterText(
-        find.widgetWithText(CupertinoTextField, 'Amount (SAR)'),
+        find.widgetWithText(CupertinoTextField, 'Amount (⃁)'),
         '25.5',
       );
       await tester.enterText(
@@ -125,7 +125,7 @@ void main() {
     await tester.tap(find.text('Received'));
     await tester.pumpAndSettle();
     await tester.enterText(
-      find.widgetWithText(CupertinoTextField, 'Amount (SAR)'),
+      find.widgetWithText(CupertinoTextField, 'Amount (⃁)'),
       '100',
     );
     await tester.tap(find.widgetWithText(CupertinoButton, 'Save'));
@@ -175,7 +175,7 @@ void main() {
         await tester.tap(find.text('Add as transaction'));
         await tester.pumpAndSettle();
         await tester.enterText(
-          find.widgetWithText(CupertinoTextField, 'Amount (SAR)'),
+          find.widgetWithText(CupertinoTextField, 'Amount (⃁)'),
           '944.96',
         );
         await tester.tap(find.widgetWithText(CupertinoButton, 'Save'));
@@ -210,7 +210,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('النشاط').last);
     await tester.pumpAndSettle();
-    expect(find.text('− 19.00 ر.س'), findsOneWidget);
+    expect(find.text('− 19.00 ⃁'), findsOneWidget);
     expect(find.textContaining('بدون فئة'), findsWidgets);
   });
 }

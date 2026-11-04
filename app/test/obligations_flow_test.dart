@@ -47,7 +47,7 @@ void main() {
     expect(find.text('Horse and foal'), findsOneWidget);
     expect(find.text('Murabahah'), findsOneWidget);
     expect(find.text('Old one'), findsNothing);
-    expect(find.text('SAR 4,038.33'), findsOneWidget); // 180.00 + 3,858.33
+    expect(find.text('⃁ 4,038.33'), findsOneWidget); // 180.00 + 3,858.33
   });
 
   testWidgets('upcoming is split into this month and next month boxes', (
@@ -84,11 +84,8 @@ void main() {
       usualMaxHalalas: 72600,
     );
     await open(tester, [range]);
-    expect(
-      find.textContaining('Usually SAR 658.00 to SAR 726.00'),
-      findsOneWidget,
-    );
-    expect(find.textContaining('Expected SAR 692.00'), findsOneWidget);
+    expect(find.textContaining('Usually ⃁ 658.00 to ⃁ 726.00'), findsOneWidget);
+    expect(find.textContaining('Expected ⃁ 692.00'), findsOneWidget);
   });
 
   testWidgets('an amount can be edited by hand', (tester) async {
@@ -101,7 +98,7 @@ void main() {
     await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();
     expect(h.data.instanceCalls, contains('amount:1:70050'));
-    expect(find.textContaining('Expected SAR 700.50'), findsOneWidget);
+    expect(find.textContaining('Expected ⃁ 700.50'), findsOneWidget);
   });
 
   testWidgets('an invalid edited amount is refused', (tester) async {
@@ -200,9 +197,7 @@ void main() {
       await tester.tap(find.text('Bills').last);
       await tester.pumpAndSettle();
       expect(
-        find.textContaining(
-          'Includes Autopia instalment 2 of 6 (SAR 1,653.50)',
-        ),
+        find.textContaining('Includes Autopia instalment 2 of 6 (⃁ 1,653.50)'),
         findsOneWidget,
       );
     },

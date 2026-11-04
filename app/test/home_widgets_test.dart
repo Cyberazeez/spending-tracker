@@ -95,7 +95,7 @@ void main() {
     );
     expect(find.text('112%'), findsOneWidget);
     expect(
-      find.text('SAR 0.00'),
+      find.text('⃁ 0.00'),
       findsWidgets,
     ); // nothing left to spend, never negative
   });
@@ -120,11 +120,8 @@ void main() {
     ];
     final handle = t.ensureSemantics();
     await pump(t, WeekBars(days: days, arabic: false));
-    expect(
-      find.bySemanticsLabel(RegExp(r'^Spent SAR .* on ')),
-      findsNWidgets(7),
-    );
-    expect(find.bySemanticsLabel('Spent SAR 145.00 on Sunday'), findsOneWidget);
+    expect(find.bySemanticsLabel(RegExp(r'^Spent ⃁ .* on ')), findsNWidgets(7));
+    expect(find.bySemanticsLabel('Spent ⃁ 145.00 on Sunday'), findsOneWidget);
     handle.dispose();
   });
 
@@ -156,7 +153,7 @@ void main() {
     expect(find.text('Transport'), findsOneWidget);
     expect(find.text('75%'), findsOneWidget);
     expect(find.text('25%'), findsOneWidget);
-    expect(find.text('SAR 1,500.00'), findsOneWidget);
+    expect(find.text('⃁ 1,500.00'), findsOneWidget);
   });
 
   testWidgets('bill card: overdue, soon, estimate and unknown amount', (
@@ -194,7 +191,7 @@ void main() {
     expect(find.text('Due in 5 days'), findsOneWidget);
     expect(find.text('Due in 25 days'), findsOneWidget);
     expect(find.text('Due tomorrow'), findsOneWidget);
-    expect(find.text('~SAR 1,994.00'), findsOneWidget);
+    expect(find.text('~⃁ 1,994.00'), findsOneWidget);
     expect(find.text('—'), findsOneWidget);
   });
 
@@ -226,7 +223,7 @@ void main() {
         ),
       );
       expect(find.textContaining('%'), findsNWidgets(1)); // only the ring
-      expect(find.textContaining('+SAR 4,790.00'), findsOneWidget);
+      expect(find.textContaining('+⃁ 4,790.00'), findsOneWidget);
     },
   );
 

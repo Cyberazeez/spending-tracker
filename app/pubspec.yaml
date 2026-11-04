@@ -29,3 +29,9 @@ dev_dependencies:
 flutter:
   generate: true
   uses-material-design: true
+  fonts:
+    - family: SaudiRiyal
+      fonts:
+        - asset: assets/fonts/SaudiRiyal-Regular.ttf
+        - asset: assets/fonts/SaudiRiyal-Bold.ttf
+          weight: 700

@@ -6,10 +6,10 @@ void main() {
     test(
       'English puts SAR first, Arabic puts it after, digits stay Western',
       () {
-        expect(formatSar(123456, arabic: false), 'SAR 1,234.56');
-        expect(formatSar(123456, arabic: true), '1,234.56 ر.س');
-        expect(formatSar(5, arabic: false), 'SAR 0.05');
-        expect(formatSar(1410000, arabic: false), 'SAR 14,100.00');
+        expect(formatSar(123456, arabic: false), '⃁ 1,234.56');
+        expect(formatSar(123456, arabic: true), '1,234.56 ⃁');
+        expect(formatSar(5, arabic: false), '⃁ 0.05');
+        expect(formatSar(1410000, arabic: false), '⃁ 14,100.00');
       },
     );
   });

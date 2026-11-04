@@ -228,7 +228,7 @@ void main() {
     final h = Harness(signedIn: true);
     h.data.aiOn = true;
     h.data.history = [spend('1', 90000, cat: 'c-din')];
-    h.data.saved = ['Saved tip: SAR 900 on dining.'];
+    h.data.saved = ['Saved tip: ⃁ 900 on dining.'];
     tester.view.physicalSize = const Size(800, 3000);
     tester.view.devicePixelRatio = 2;
     addTearDown(tester.view.reset);
@@ -256,7 +256,7 @@ void main() {
       h.data.txns = [spend('1', 90000), spend('2', 50000, cat: 'c-din')];
       h.data.history = h.data.txns;
       h.data.saved = [
-        'Cut dining: SAR 900 vs SAR 600 average, a long tip that wraps.',
+        'Cut dining: ⃁ 900 vs ⃁ 600 average, a long tip that wraps.',
       ];
       tester.view.physicalSize = const Size(720, 1280);
       tester.view.devicePixelRatio = 2;

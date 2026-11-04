@@ -177,7 +177,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get quickAdd => 'إضافة سريعة';
 
   @override
-  String get qaAmount => 'المبلغ (ر.س)';
+  String get qaAmount => 'المبلغ (⃁)';
 
   @override
   String get qaMerchant => 'المتجر أو ملاحظة';
@@ -224,7 +224,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get reviewLoadFailed => 'تعذّر تحميل الرسائل.';
 
   @override
-  String get sar => 'ر.س';
+  String get sar => '⃁';
 
   @override
   String get loadFailed => 'تعذّر التحميل. اسحب لإعادة المحاولة.';

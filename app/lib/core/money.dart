@@ -1,10 +1,17 @@
 import 'package:intl/intl.dart';
 
-/// Western digits in every language, SAR shown before the number in English and after it in Arabic.
-String formatSar(int halalas, {required bool arabic}) {
+/// The Saudi riyal sign (Unicode 17). iOS has no system font for it yet, so the app bundles one
+/// ([riyalFont]); text that leaves the app (notifications) uses the letters instead.
+const riyalSign = '\u20C1';
+const riyalFont = 'SaudiRiyal';
+
+/// Western digits in every language, the riyal sign before the number in English and after it in Arabic.
+/// [symbol] false gives "SAR" / "ر.س" for places that cannot draw the sign.
+String formatSar(int halalas, {required bool arabic, bool symbol = true}) {
   final whole = NumberFormat('#,##0', 'en').format(halalas.abs() ~/ 100);
   final frac = (halalas.abs() % 100).toString().padLeft(2, '0');
   final n = '$whole.$frac';
+  if (symbol) return arabic ? '$n $riyalSign' : '$riyalSign $n';
   return arabic ? '$n ر.س' : 'SAR $n';
 }
 

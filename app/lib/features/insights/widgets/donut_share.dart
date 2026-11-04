@@ -58,7 +58,7 @@ class DonutShare extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        arabic ? 'ر.س' : 'SAR',
+                        riyalSign,
                         style: TextStyle(color: muted, fontSize: 12),
                       ),
                       Text(

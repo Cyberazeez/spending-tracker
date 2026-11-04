@@ -70,7 +70,7 @@ void main() {
         ),
       ];
     await open(tester, h);
-    expect(find.text('SAR 5,000.00'), findsWidgets); // month total
+    expect(find.text('⃁ 5,000.00'), findsWidgets); // month total
     expect(find.text('Groceries'), findsOneWidget);
     expect(find.text('Tamimi'), findsOneWidget);
     expect(find.text('65%'), findsOneWidget); // (14,100 - 5,000) / 14,100
@@ -146,7 +146,7 @@ void main() {
     await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();
     expect(h.data.budgetCalls, ['set:c-din:150050']);
-    expect(find.text('of SAR 1,500.50'), findsOneWidget);
+    expect(find.text('of ⃁ 1,500.50'), findsOneWidget);
   });
 
   testWidgets('a budget can be created before any spending in that category', (
@@ -187,7 +187,7 @@ void main() {
     await tester.tap(find.text('Remove budget'));
     await tester.pumpAndSettle();
     expect(h.data.budgetCalls, ['remove:c-din']);
-    expect(find.textContaining('of SAR'), findsNothing);
+    expect(find.textContaining('of ⃁'), findsNothing);
   });
 
   testWidgets('a failed load shows retry', (tester) async {

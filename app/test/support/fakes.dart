@@ -359,7 +359,7 @@ class FakeDataRepository implements DataRepository {
   bool aiOn = false;
   AiOutcome suggestResult = const AiOutcome.ok(updated: 3);
   AiOutcome tipsResult = const AiOutcome.ok(
-    tips: ['Cut dining: SAR 900 vs SAR 600 average.'],
+    tips: ['Cut dining: ⃁ 900 vs ⃁ 600 average.'],
   );
   List<String> saved = [];
   int suggestCalls = 0;

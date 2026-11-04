@@ -115,7 +115,7 @@ void main() {
         ];
       await tester.pumpWidget(await h.build());
       await tester.pumpAndSettle();
-      expect(find.text('SAR 1,200.00'), findsWidgets); // hero and the Food row
+      expect(find.text('⃁ 1,200.00'), findsWidgets); // hero and the Food row
       expect(
         find.text('Food'),
         findsOneWidget,
@@ -144,10 +144,10 @@ void main() {
     await tester.pumpWidget(await h.build());
     await tester.pumpAndSettle();
     expect(find.text('Today'), findsOneWidget);
-    expect(find.text('SAR 45.00'), findsOneWidget);
+    expect(find.text('⃁ 45.00'), findsOneWidget);
     expect(find.text('15%'), findsOneWidget); // 1,200 of 8,000 (the ring)
     expect(
-      find.textContaining(RegExp(r'SAR 8,000\.00.* budget')),
+      find.textContaining(RegExp(r'⃁ 8,000\.00.* budget')),
       findsOneWidget,
     );
   });
