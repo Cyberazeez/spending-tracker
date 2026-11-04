@@ -665,27 +665,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get captureSetupTitle => 'Set up SMS capture';
 
   @override
-  String get captureIntro =>
-      'Bank SMS reach the app through one Shortcuts automation. Apple does not let apps create it, so do it once:';
+  String get captureIntro => 'Do this once:';
 
   @override
-  String get captureStep1 =>
-      'Open Shortcuts, go to the Automation tab, tap + and choose Message.';
+  String get captureStep1 => 'Shortcuts > Automation > + > Message';
 
   @override
-  String get captureStep2 =>
-      'Set Message contains: SAR. Choose Run Immediately, then Next.';
+  String get captureStep2 => 'Message contains “SAR”, Run Immediately';
 
   @override
-  String get captureStep3 =>
-      'Tap Add Action, search “Add bank message” and pick the one with this app\'s icon.';
+  String get captureStep3 => 'Add action “Add bank message” (this app\'s icon)';
 
   @override
-  String get captureStep4 =>
-      'Tap Message and choose the Message variable. Tap Sender and choose the Sender variable.';
+  String get captureStep4 => 'Set Message and Sender to the matching variables';
 
   @override
-  String get captureStep5 => 'Tap Done. The next bank SMS is added by itself.';
+  String get captureStep5 => 'Done. Bank SMS are added by themselves.';
 
   @override
   String get captureOpenShortcuts => 'Open Shortcuts';
@@ -695,10 +690,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get captureSendNow => 'Send waiting messages now';
-
-  @override
-  String get captureHelp =>
-      'If it says 1 waiting with error -1009, the phone was offline. The message is kept and sent when you are back online.';
 
   @override
   String get homeOverview => 'Overview';
@@ -1017,7 +1008,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String aiSuggestDone(String n) {
-    return 'Categorised $n transactions. Check them; you can change any.';
+    return 'Categorised $n transactions. Tap “AI suggested” to review them.';
   }
 
   @override
@@ -1038,4 +1029,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aiReasonFailed => 'Could not get an answer. Try again later.';
+
+  @override
+  String get txAiTag => 'AI';
+
+  @override
+  String get txChipAi => 'AI suggested';
 }

@@ -159,6 +159,42 @@ void main() {
     expect(find.textContaining('Categorised 3 transactions'), findsOneWidget);
   });
 
+  testWidgets('AI-categorised rows carry an AI tag and the chip filters them', (
+    tester,
+  ) async {
+    final ai = Txn(
+      id: 'a',
+      type: 'purchase',
+      direction: 'out',
+      amountHalalas: 2500,
+      occurredAt: DateTime.utc(2026, 10, 29, 9),
+      merchant: 'Cafe One',
+      merchantNorm: 'cafe one',
+      categoryId: 'c-din',
+      categorySource: 'ai',
+    );
+    final manual = Txn(
+      id: 'm',
+      type: 'purchase',
+      direction: 'out',
+      amountHalalas: 4000,
+      occurredAt: DateTime.utc(2026, 10, 29, 10),
+      merchant: 'Market Two',
+      merchantNorm: 'market two',
+      categoryId: 'c-gro',
+      categorySource: 'manual',
+    );
+    await open(tester, aiOn: true, txns: [ai, manual]);
+    await tester.tap(find.text('Transactions').last);
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Dining · AI'), findsOneWidget);
+    expect(find.textContaining('Groceries · AI'), findsNothing);
+    await tester.tap(find.text('AI suggested'));
+    await tester.pumpAndSettle();
+    expect(find.text('Cafe One'), findsOneWidget);
+    expect(find.text('Market Two'), findsNothing);
+  });
+
   testWidgets('a used-up AI budget is explained', (tester) async {
     final h = await open(tester, aiOn: true, txns: [spend('1', 500)]);
     h.data.suggestResult = const AiOutcome.fail('cap_reached');

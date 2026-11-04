@@ -10,6 +10,7 @@ class Txn {
     this.categoryId,
     this.isInternal = false,
     this.excludedFromSpend = false,
+    this.categorySource,
   });
 
   final String id;
@@ -22,6 +23,9 @@ class Txn {
   final String? categoryId;
   final bool isInternal;
   final bool excludedFromSpend;
+
+  /// How the category was set: `rule`, `manual`, `ai`, ... (null when unknown). `ai` rows are shown with a tag.
+  final String? categorySource;
 
   bool get isIncoming => direction == 'in';
 
@@ -36,6 +40,7 @@ class Txn {
     categoryId: r['category_id'] as String?,
     isInternal: (r['is_internal'] as bool?) ?? false,
     excludedFromSpend: (r['excluded_from_spend'] as bool?) ?? false,
+    categorySource: r['category_source'] as String?,
   );
 }
 
@@ -113,23 +118,29 @@ class TxFilter {
     this.categoryId,
     this.uncategorizedOnly = false,
     this.hideInternal = false,
+    this.aiOnly = false,
   });
   final String query;
   final String? categoryId;
   final bool uncategorizedOnly;
   final bool hideInternal;
 
+  /// Only rows whose category was suggested by the AI.
+  final bool aiOnly;
+
   bool get isActive =>
       query.isNotEmpty ||
       categoryId != null ||
       uncategorizedOnly ||
-      hideInternal;
+      hideInternal ||
+      aiOnly;
 
   TxFilter copyWith({
     String? query,
     Object? categoryId = _keep,
     bool? uncategorizedOnly,
     bool? hideInternal,
+    bool? aiOnly,
   }) => TxFilter(
     query: query ?? this.query,
     categoryId: identical(categoryId, _keep)
@@ -137,6 +148,7 @@ class TxFilter {
         : categoryId as String?,
     uncategorizedOnly: uncategorizedOnly ?? this.uncategorizedOnly,
     hideInternal: hideInternal ?? this.hideInternal,
+    aiOnly: aiOnly ?? this.aiOnly,
   );
 
   static const _keep = Object();

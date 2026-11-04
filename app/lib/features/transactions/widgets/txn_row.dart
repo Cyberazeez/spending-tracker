@@ -40,6 +40,7 @@ class TxnRow extends StatelessWidget {
     final time = formatDateTime(txn.occurredAt).split(' ').last;
     final sub = [
       uncategorised ? t.txChooseCategory : category!.label(arabic: arabic),
+      if (txn.categorySource == 'ai') t.txAiTag,
       if (txn.isInternal) t.txInternal,
       time.replaceAll(RegExp('[\\u2066\\u2069]'), ''),
     ].join(' · ');

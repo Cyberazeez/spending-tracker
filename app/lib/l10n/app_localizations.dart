@@ -1247,37 +1247,37 @@ abstract class AppLocalizations {
   /// No description provided for @captureIntro.
   ///
   /// In en, this message translates to:
-  /// **'Bank SMS reach the app through one Shortcuts automation. Apple does not let apps create it, so do it once:'**
+  /// **'Do this once:'**
   String get captureIntro;
 
   /// No description provided for @captureStep1.
   ///
   /// In en, this message translates to:
-  /// **'Open Shortcuts, go to the Automation tab, tap + and choose Message.'**
+  /// **'Shortcuts > Automation > + > Message'**
   String get captureStep1;
 
   /// No description provided for @captureStep2.
   ///
   /// In en, this message translates to:
-  /// **'Set Message contains: SAR. Choose Run Immediately, then Next.'**
+  /// **'Message contains “SAR”, Run Immediately'**
   String get captureStep2;
 
   /// No description provided for @captureStep3.
   ///
   /// In en, this message translates to:
-  /// **'Tap Add Action, search “Add bank message” and pick the one with this app\'s icon.'**
+  /// **'Add action “Add bank message” (this app\'s icon)'**
   String get captureStep3;
 
   /// No description provided for @captureStep4.
   ///
   /// In en, this message translates to:
-  /// **'Tap Message and choose the Message variable. Tap Sender and choose the Sender variable.'**
+  /// **'Set Message and Sender to the matching variables'**
   String get captureStep4;
 
   /// No description provided for @captureStep5.
   ///
   /// In en, this message translates to:
-  /// **'Tap Done. The next bank SMS is added by itself.'**
+  /// **'Done. Bank SMS are added by themselves.'**
   String get captureStep5;
 
   /// No description provided for @captureOpenShortcuts.
@@ -1297,12 +1297,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Send waiting messages now'**
   String get captureSendNow;
-
-  /// No description provided for @captureHelp.
-  ///
-  /// In en, this message translates to:
-  /// **'If it says 1 waiting with error -1009, the phone was offline. The message is kept and sent when you are back online.'**
-  String get captureHelp;
 
   /// No description provided for @homeOverview.
   ///
@@ -1871,7 +1865,7 @@ abstract class AppLocalizations {
   /// No description provided for @aiSuggestDone.
   ///
   /// In en, this message translates to:
-  /// **'Categorised {n} transactions. Check them; you can change any.'**
+  /// **'Categorised {n} transactions. Tap “AI suggested” to review them.'**
   String aiSuggestDone(String n);
 
   /// No description provided for @aiSuggestNone.
@@ -1909,6 +1903,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not get an answer. Try again later.'**
   String get aiReasonFailed;
+
+  /// No description provided for @txAiTag.
+  ///
+  /// In en, this message translates to:
+  /// **'AI'**
+  String get txAiTag;
+
+  /// No description provided for @txChipAi.
+  ///
+  /// In en, this message translates to:
+  /// **'AI suggested'**
+  String get txChipAi;
 }
 
 class _AppLocalizationsDelegate

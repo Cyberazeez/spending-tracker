@@ -120,11 +120,12 @@ class SupabaseDataRepository implements DataRepository {
     var q = _db
         .from('transactions')
         .select(
-          'id, type, direction, amount_halalas, merchant_raw, merchant_norm, category_id, occurred_at, is_internal, excluded_from_spend',
+          'id, type, direction, amount_halalas, merchant_raw, merchant_norm, category_id, category_source, occurred_at, is_internal, excluded_from_spend',
         )
         .isFilter('deleted_at', null);
     final text = normalizeMerchant(filter.query);
     if (text.isNotEmpty) q = q.ilike('merchant_norm', '%$text%');
+    if (filter.aiOnly) q = q.eq('category_source', 'ai');
     if (filter.uncategorizedOnly) {
       q = q.isFilter('category_id', null);
     } else if (filter.categoryId != null) {
@@ -512,7 +513,7 @@ class SupabaseDataRepository implements DataRepository {
       final rows = await _db
           .from('transactions')
           .select(
-            'id, type, direction, amount_halalas, merchant_raw, merchant_norm, category_id, occurred_at, is_internal, excluded_from_spend',
+            'id, type, direction, amount_halalas, merchant_raw, merchant_norm, category_id, category_source, occurred_at, is_internal, excluded_from_spend',
           )
           .isFilter('deleted_at', null)
           .gte('occurred_at', start.toIso8601String())
