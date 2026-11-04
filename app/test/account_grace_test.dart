@@ -24,7 +24,7 @@ void main() {
       await _signIn(tester, h);
       expect(find.text('Welcome back'), findsOneWidget);
       expect(find.textContaining('deletion is cancelled'), findsOneWidget);
-      await tester.tap(find.widgetWithText(CupertinoDialogAction, 'OK'));
+      await tester.tap(find.text('OK'));
       await tester.pumpAndSettle();
       expect(find.text('Welcome back'), findsNothing);
     },

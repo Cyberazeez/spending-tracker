@@ -1,4 +1,7 @@
 import 'package:flutter/cupertino.dart';
+
+import '../../ui/confirm_sheet.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../account/account_providers.dart';
@@ -51,19 +54,11 @@ class _ShellPageState extends ConsumerState<ShellPage>
     if (!ref.read(accountReactivatedProvider)) return;
     ref.read(accountReactivatedProvider.notifier).set(false);
     final t = AppLocalizations.of(context);
-    showCupertinoDialog<void>(
-      context: context,
-      builder: (ctx) => CupertinoAlertDialog(
-        title: Text(t.reactivatedTitle),
-        content: Text(t.reactivatedBody),
-        actions: [
-          CupertinoDialogAction(
-            isDefaultAction: true,
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: Text(t.reactivatedOk),
-          ),
-        ],
-      ),
+    showNoticeSheet(
+      context,
+      title: t.reactivatedTitle,
+      message: t.reactivatedBody,
+      okLabel: t.reactivatedOk,
     );
   }
 

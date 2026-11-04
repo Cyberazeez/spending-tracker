@@ -4,6 +4,7 @@ import '../../core/models.dart';
 import '../../core/money.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ui/app_form.dart';
+import '../../ui/sheet_frame.dart';
 import '../../ui/tokens.dart';
 import '../obligations/widgets/bills_widgets.dart';
 
@@ -68,25 +69,38 @@ class _ManualTxnFormState extends State<ManualTxnForm> {
   }
 
   Future<void> _pickTime() async {
+    final t = AppLocalizations.of(context);
     var picked = _when;
-    await showCupertinoModalPopup<void>(
+    final result = await showCupertinoModalPopup<DateTime>(
       context: context,
-      builder: (ctx) => Container(
-        height: 280,
-        color: CupertinoColors.systemBackground.resolveFrom(ctx),
-        child: SafeArea(
-          top: false,
-          child: CupertinoDatePicker(
-            mode: CupertinoDatePickerMode.dateAndTime,
-            use24hFormat: true,
-            initialDateTime: _when,
-            maximumDate: DateTime.now().add(const Duration(minutes: 1)),
-            onDateTimeChanged: (d) => picked = d,
+      builder: (ctx) => SheetFrame(
+        title: t.qaWhen,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SizedBox(
+                height: 216,
+                child: CupertinoDatePicker(
+                  mode: CupertinoDatePickerMode.dateAndTime,
+                  use24hFormat: true,
+                  initialDateTime: _when,
+                  maximumDate: DateTime.now().add(const Duration(minutes: 1)),
+                  onDateTimeChanged: (d) => picked = d,
+                ),
+              ),
+              const SizedBox(height: 8),
+              PrimaryButton(
+                label: t.done,
+                onPressed: () => Navigator.pop(ctx, picked),
+              ),
+            ],
           ),
         ),
       ),
     );
-    if (mounted) setState(() => _when = picked);
+    if (result != null && mounted) setState(() => _when = result);
   }
 
   String _fmt(DateTime d) {

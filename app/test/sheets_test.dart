@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:spending_tracker/l10n/app_localizations.dart';
 import 'package:spending_tracker/ui/amount_sheet.dart';
 import 'package:spending_tracker/ui/choice_sheet.dart';
+import 'package:spending_tracker/ui/confirm_sheet.dart';
 
 Future<void> _host(
   WidgetTester tester,
@@ -181,4 +182,63 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   }
+
+  testWidgets(
+    'confirm sheet: confirm is true, cancel is false, outside is null',
+    (tester) async {
+      bool? got;
+      await _host(
+        tester,
+        (c) async => got = await showConfirmSheet(
+          c,
+          title: 'Remove D360 7705?',
+          message: 'This cannot be undone.',
+          confirmLabel: 'Remove',
+          destructive: true,
+        ),
+      );
+      expect(find.text('Remove D360 7705?'), findsOneWidget);
+      expect(find.text('This cannot be undone.'), findsOneWidget);
+      await tester.tap(find.text('Remove'));
+      await tester.pumpAndSettle();
+      expect(got, isTrue);
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Cancel').last);
+      await tester.pumpAndSettle();
+      expect(got, isFalse);
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+      await tester.tapAt(const Offset(10, 10));
+      await tester.pumpAndSettle();
+      expect(got, isNull);
+    },
+  );
+
+  testWidgets('notice sheet: one button closes it', (tester) async {
+    await _host(
+      tester,
+      (c) => showNoticeSheet(c, title: 'Could not save', okLabel: 'OK'),
+    );
+    expect(find.text('Could not save'), findsOneWidget);
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+    expect(find.text('Could not save'), findsNothing);
+  });
+
+  testWidgets('confirm sheet survives 2x text in Arabic', (tester) async {
+    await _host(
+      tester,
+      (c) => showConfirmSheet(
+        c,
+        title: 'هل تريد حذف حسابك؟',
+        message: 'سيتم حذف كل شيء نهائيًا بعد ٣٠ يومًا دون إمكانية الاستعادة.',
+        confirmLabel: 'احذف كل شيء',
+        destructive: true,
+      ),
+      arabic: true,
+      scale: 2,
+    );
+    expect(tester.takeException(), isNull);
+  });
 }

@@ -1,4 +1,7 @@
 import 'package:flutter/cupertino.dart';
+
+import '../../ui/confirm_sheet.dart';
+
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -51,22 +54,11 @@ class OwnAccountsPage extends ConsumerWidget {
   ) async {
     final t = AppLocalizations.of(context);
     final name = '${bankName(a.bank)} ${a.last4}';
-    final sure = await showCupertinoDialog<bool>(
-      context: context,
-      builder: (ctx) => CupertinoAlertDialog(
-        content: Text(t.bankRemoveConfirm(name)),
-        actions: [
-          CupertinoDialogAction(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: Text(t.cancel),
-          ),
-          CupertinoDialogAction(
-            isDestructiveAction: true,
-            onPressed: () => Navigator.pop(ctx, true),
-            child: Text(t.bankRemove),
-          ),
-        ],
-      ),
+    final sure = await showConfirmSheet(
+      context,
+      title: t.bankRemoveConfirm(name),
+      confirmLabel: t.bankRemove,
+      destructive: true,
     );
     if (sure != true) return;
     try {
