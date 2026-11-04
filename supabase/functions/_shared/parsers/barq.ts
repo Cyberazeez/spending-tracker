@@ -96,6 +96,24 @@ export function parseBarq(rawBody: string, receivedAt: Date): ParseResult {
     });
   }
 
+  // "Debit Transfer local" (to a bank account, with a Fees line). Only the debit side has a real sample so far.
+  if (/^Debit Transfer local/i.test(head)) {
+    const amt = one(new RegExp(`Amount:?\\s*${NUM}\\s*SAR`));
+    const fee = one(new RegExp(`Fees:?\\s*${NUM}\\s*SAR`));
+    if (!amt || !at) return { kind: "unparsed" };
+    const feeHalalas = fee ? toHalalas(fee) : 0;
+    return tx({
+      bank: "barq",
+      type: "transfer_out",
+      direction: "out",
+      amountHalalas: toHalalas(amt),
+      feeHalalas: feeHalalas > 0 ? feeHalalas : undefined,
+      counterpartyName: one(/^To:?\s*(.+)$/m),
+      counterpartyLast4: last4(one(/\ba\/c:?\s*\*+(\d{4})/i)),
+      occurredAt: at,
+    });
+  }
+
   if (/^Money Added to your Barq wallet/i.test(head)) {
     const amt = one(new RegExp(`amount:?\\s*${NUM}\\s*SAR`));
     if (!amt || !at) return { kind: "unparsed" };
