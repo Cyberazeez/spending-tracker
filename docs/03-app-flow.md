@@ -5,10 +5,10 @@ Bottom tab bar (Cupertino): **Home, Transactions, Obligations, Insights, More**.
 ## 0. Launch and lock
 - **Splash** then **Lock** (Face ID/Touch ID via `local_auth`). Success to last tab. Failure shows "Try again" and "Use passcode" (device passcode fallback). Re-lock after 30 s in background.
 - **Login** (first run or signed out): email, password, "Sign in". Error: wrong credentials, no network. No sign-up link.
-- **First-run setup** (once): choose language, confirm own accounts list, base salary, show the ingest token (once) with a link to the Shortcuts guide.
+- **First-run setup** (once): choose language, confirm own accounts list, base salary, open More > SMS capture for the Shortcuts steps (the app provisions its own token).
 
 ## 1. Home
-- Month-to-date spend (SAR), vs same day last month, top category, budget alerts strip (80%/100%), next 3 obligations with due date and amount, "Needs review (n)" badge, "Possible gaps" badge.
+- Month-to-date spend (SAR), vs same day last month, top category, budget alerts strip (80%/100%), next 3 obligations with due date and amount, "Needs review (n)" badge, "no messages for N days" alert (opens SMS capture).
 - Tap spend to Transactions filtered to this month. Tap an obligation to its detail. Tap Needs review to the inbox.
 - Empty (no data yet): "Waiting for your first SMS" with button to Setup guide and Quick add.
 - Error: shows cached numbers with "Offline, last updated HH:mm".
@@ -44,9 +44,8 @@ Bottom tab bar (Cupertino): **Home, Transactions, Obligations, Insights, More**.
 - **Categories and rules:** edit categories, see rules (confirmed vs auto-unconfirmed), confirm or delete a rule.
 - **Own accounts:** list with bank, last4, kind, active, house card.
 - **Settings:** language (English/العربية), base salary, notifications (due dates, budgets), AI switch and monthly cap with spend so far this month, week start fixed to Sunday, theme (system).
-- **Ingest token:** show status, last used, Rotate (confirm sheet shows new token once with copy button), Revoke.
+- **Account** (2026-11-04): Profile (name, email; an email change is confirmed by a link sent to the new address), Security (change password: current one is checked first; afterwards this phone's capture and widget tokens are replaced and reconnect by themselves), Privacy (placeholder for now). **Removed:** the Ingest token screen (the app issues its own token; hand-built shortcuts are no longer supported from the app) and the Possible gaps screen (Home's "no messages for N days" alert now opens SMS capture).
 - **Setup guide:** per sender Shortcuts steps with screenshots, "Test now" button that waits for a test SMS to arrive.
-- **Possible gaps:** per sender, days since last captured SMS vs usual cadence, tap for a backfill form.
 - **Data:** CSV import (map columns, preview, dedupe), CSV export, delete all data (double confirm).
 - **Sign out.**
 
@@ -55,3 +54,5 @@ Bottom tab bar (Cupertino): **Home, Transactions, Obligations, Insights, More**.
 
 ## 9. Widget (milestone 6)
 - Small/medium: month-to-date spend, top category, next 3 obligations. Reads `home_widget` shared data; refreshes when the app syncs. Empty state: "Open the app to sync".
+
+- **Navigation (2026-11-04):** every sub-screen is an iOS page: swipe from the left edge (right edge in Arabic) or the back button returns, one level at a time.

@@ -73,7 +73,7 @@ class HomePage extends ConsumerWidget {
             trailing: CupertinoButton(
               padding: EdgeInsets.zero,
               minimumSize: const Size(44, 44),
-              onPressed: () => context.go(quickAddPath),
+              onPressed: () => context.push(quickAddPath),
               child: DecoratedBox(
                 decoration: BoxDecoration(
                   color: AppTokens.accent.resolveFrom(context),
@@ -163,7 +163,7 @@ class HomePage extends ConsumerWidget {
                           icon: LucideIcons.triangleAlert,
                           color: AppTokens.warnText.resolveFrom(context),
                           text: t.homeStale(silent.toString()),
-                          onTap: () => context.go(gapsPath),
+                          onTap: () => context.push(capturePath),
                         ),
                         const SizedBox(height: 16),
                       ],
@@ -263,7 +263,7 @@ class HomePage extends ConsumerWidget {
                             ),
                           ),
                         ),
-                      if (review.isNotEmpty || gaps.isNotEmpty) ...[
+                      if (review.isNotEmpty || silent != null) ...[
                         const SizedBox(height: 12),
                         Wrap(
                           spacing: 10,
@@ -272,13 +272,13 @@ class HomePage extends ConsumerWidget {
                               AttentionChip(
                                 label: t.homeToReview(review.length),
                                 dot: const Color(0xFFFFB340),
-                                onTap: () => context.go(reviewPath),
+                                onTap: () => context.push(reviewPath),
                               ),
-                            if (gaps.isNotEmpty)
+                            if (silent != null)
                               AttentionChip(
-                                label: t.gapsTitle,
+                                label: t.captureStatus,
                                 dot: const Color(0xFFFF6B66),
-                                onTap: () => context.go(gapsPath),
+                                onTap: () => context.push(capturePath),
                               ),
                           ],
                         ),

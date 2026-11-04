@@ -1,13 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../core/format.dart';
 import '../../core/models.dart';
 import '../../core/providers.dart';
 import '../../l10n/app_localizations.dart';
-import '../../router.dart';
+import '../../ui/app_form.dart';
 import '../../ui/empty_state.dart';
+import '../../ui/tokens.dart';
+import '../obligations/widgets/bills_widgets.dart';
 import 'manual_form.dart';
 import 'providers.dart';
 
@@ -58,7 +59,12 @@ class ReviewPage extends ConsumerWidget {
     Navigator.of(context, rootNavigator: true).push(
       CupertinoPageRoute<void>(
         builder: (ctx) => CupertinoPageScaffold(
-          navigationBar: CupertinoNavigationBar(middle: Text(t.reviewConvert)),
+          backgroundColor: AppTokens.bg.resolveFrom(ctx),
+          navigationBar: CupertinoNavigationBar(
+            backgroundColor: AppTokens.bg.resolveFrom(ctx),
+            border: null,
+            middle: Text(t.reviewConvert),
+          ),
           child: SafeArea(
             child: ManualTxnForm(
               initialTime: m.receivedAt,
@@ -80,12 +86,8 @@ class ReviewPage extends ConsumerWidget {
     final t = AppLocalizations.of(context);
     final items = ref.watch(needsReviewProvider);
     return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        middle: Text(t.reviewTitle),
-        leading: CupertinoNavigationBarBackButton(
-          onPressed: () => context.go(homePath),
-        ),
-      ),
+      backgroundColor: AppTokens.bg.resolveFrom(context),
+      navigationBar: appNavBar(context, t.reviewTitle),
       child: SafeArea(
         child: items.when(
           loading: () => const Center(child: CupertinoActivityIndicator()),
@@ -103,25 +105,80 @@ class ReviewPage extends ConsumerWidget {
                   title: t.reviewEmpty,
                   body: t.reviewEmptyBody,
                 )
-              : ListView.builder(
-                  itemCount: list.length,
-                  itemBuilder: (_, i) {
-                    final m = list[i];
-                    return CupertinoListTile(
-                      title: Text(m.sender),
-                      subtitle: Directionality(
-                        textDirection: TextDirection.ltr,
-                        child: Text(
-                          m.body.replaceAll('\n', ' · '),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      additionalInfo: Text(formatDateTime(m.receivedAt)),
-                      trailing: const CupertinoListTileChevron(),
-                      onTap: () => _open(context, ref, m),
-                    );
-                  },
+              : ListView(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+                  children: [
+                    RowsCard(
+                      children: [
+                        for (final m in list)
+                          Semantics(
+                            button: true,
+                            child: GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onTap: () => _open(context, ref, m),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 12,
+                                ),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            m.sender,
+                                            style: TextStyle(
+                                              color: AppTokens.text.resolveFrom(
+                                                context,
+                                              ),
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 2),
+                                          Directionality(
+                                            textDirection: TextDirection.ltr,
+                                            child: Text(
+                                              m.body.replaceAll('\n', ' · '),
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: TextStyle(
+                                                color: AppTokens.muted
+                                                    .resolveFrom(context),
+                                                fontSize: 13,
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(height: 2),
+                                          Text(
+                                            formatDateTime(m.receivedAt),
+                                            style: TextStyle(
+                                              color: AppTokens.muted
+                                                  .resolveFrom(context),
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Icon(
+                                      CupertinoIcons.chevron_forward,
+                                      size: 14,
+                                      color: AppTokens.muted.resolveFrom(
+                                        context,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ],
                 ),
         ),
       ),

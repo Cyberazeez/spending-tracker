@@ -12,6 +12,7 @@ import '../../core/providers.dart';
 import '../../l10n/app_localizations.dart';
 import '../../router.dart';
 import '../../ui/app_card.dart';
+import '../../ui/app_form.dart';
 import '../../ui/bottom_inset.dart';
 import '../../ui/empty_state.dart';
 import '../../ui/skeleton.dart';
@@ -77,7 +78,7 @@ class TransactionsPage extends ConsumerWidget {
                 CupertinoButton(
                   padding: EdgeInsets.zero,
                   minimumSize: const Size(44, 44),
-                  onPressed: () => context.go(quickAddPath),
+                  onPressed: () => context.push(quickAddPath),
                   child: DecoratedBox(
                     decoration: BoxDecoration(
                       color: AppTokens.accent.resolveFrom(context),
@@ -123,7 +124,7 @@ class TransactionsPage extends ConsumerWidget {
                   const SizedBox(height: 8),
                   FilterChips(
                     reviewCount: review.length,
-                    onReview: () => context.go(reviewPath),
+                    onReview: () => context.push(reviewPath),
                   ),
                 ],
               ),
@@ -164,9 +165,9 @@ class TransactionsPage extends ConsumerWidget {
                               icon: CupertinoIcons.tray,
                               title: t.txEmptyTitle,
                               body: t.txEmptyBody,
-                              action: CupertinoButton.filled(
-                                onPressed: () => context.go(quickAddPath),
-                                child: Text(t.quickAdd),
+                              action: PrimaryButton(
+                                label: t.quickAdd,
+                                onPressed: () => context.push(quickAddPath),
                               ),
                             ),
                     ),

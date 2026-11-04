@@ -254,12 +254,6 @@ abstract class AppLocalizations {
   /// **'العربية'**
   String get languageArabic;
 
-  /// No description provided for @ingestToken.
-  ///
-  /// In en, this message translates to:
-  /// **'Ingest token'**
-  String get ingestToken;
-
   /// No description provided for @captureStatus.
   ///
   /// In en, this message translates to:
@@ -277,96 +271,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Nothing waiting'**
   String get captureNone;
-
-  /// No description provided for @tokenScreenTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Ingest token'**
-  String get tokenScreenTitle;
-
-  /// No description provided for @tokenIntro.
-  ///
-  /// In en, this message translates to:
-  /// **'The iOS Shortcut sends each bank SMS to this URL with the token in the X-Ingest-Token header.'**
-  String get tokenIntro;
-
-  /// No description provided for @ingestUrl.
-  ///
-  /// In en, this message translates to:
-  /// **'URL'**
-  String get ingestUrl;
-
-  /// No description provided for @ingestHeader.
-  ///
-  /// In en, this message translates to:
-  /// **'Header'**
-  String get ingestHeader;
-
-  /// No description provided for @tokenStatus.
-  ///
-  /// In en, this message translates to:
-  /// **'Status'**
-  String get tokenStatus;
-
-  /// No description provided for @tokenNone.
-  ///
-  /// In en, this message translates to:
-  /// **'No active token'**
-  String get tokenNone;
-
-  /// No description provided for @tokenActive.
-  ///
-  /// In en, this message translates to:
-  /// **'Active, created {created}'**
-  String tokenActive(String created);
-
-  /// No description provided for @tokenLastUsed.
-  ///
-  /// In en, this message translates to:
-  /// **'Last message received {time}'**
-  String tokenLastUsed(String time);
-
-  /// No description provided for @tokenNeverUsed.
-  ///
-  /// In en, this message translates to:
-  /// **'No message received yet'**
-  String get tokenNeverUsed;
-
-  /// No description provided for @tokenGenerate.
-  ///
-  /// In en, this message translates to:
-  /// **'Create new token'**
-  String get tokenGenerate;
-
-  /// No description provided for @tokenRotate.
-  ///
-  /// In en, this message translates to:
-  /// **'Replace token'**
-  String get tokenRotate;
-
-  /// No description provided for @tokenConfirmTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Replace the token?'**
-  String get tokenConfirmTitle;
-
-  /// No description provided for @tokenConfirmBody.
-  ///
-  /// In en, this message translates to:
-  /// **'The old token stops working immediately. You will need to update your Shortcuts.'**
-  String get tokenConfirmBody;
-
-  /// No description provided for @tokenShownOnce.
-  ///
-  /// In en, this message translates to:
-  /// **'Copy this token now. It is shown only once.'**
-  String get tokenShownOnce;
-
-  /// No description provided for @tokenCopied.
-  ///
-  /// In en, this message translates to:
-  /// **'Copied'**
-  String get tokenCopied;
 
   /// No description provided for @copy.
   ///
@@ -601,48 +505,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not load messages.'**
   String get reviewLoadFailed;
-
-  /// No description provided for @gapsTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Possible gaps'**
-  String get gapsTitle;
-
-  /// No description provided for @gapsIntro.
-  ///
-  /// In en, this message translates to:
-  /// **'When each sender last reached the app. A long silence may mean a Shortcut is off.'**
-  String get gapsIntro;
-
-  /// No description provided for @gapsNever.
-  ///
-  /// In en, this message translates to:
-  /// **'Nothing received yet'**
-  String get gapsNever;
-
-  /// No description provided for @gapsLast.
-  ///
-  /// In en, this message translates to:
-  /// **'Last message {when}'**
-  String gapsLast(String when);
-
-  /// No description provided for @gapsDays.
-  ///
-  /// In en, this message translates to:
-  /// **'{days, plural, =1{1 day ago} other{{days} days ago}}'**
-  String gapsDays(int days);
-
-  /// No description provided for @gapsToday.
-  ///
-  /// In en, this message translates to:
-  /// **'today'**
-  String get gapsToday;
-
-  /// No description provided for @gapsEmpty.
-  ///
-  /// In en, this message translates to:
-  /// **'No messages yet'**
-  String get gapsEmpty;
 
   /// No description provided for @sar.
   ///
@@ -1915,6 +1777,156 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'AI suggested'**
   String get txChipAi;
+
+  /// No description provided for @accountTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get accountTitle;
+
+  /// No description provided for @accountProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get accountProfile;
+
+  /// No description provided for @accountSecurity.
+  ///
+  /// In en, this message translates to:
+  /// **'Security'**
+  String get accountSecurity;
+
+  /// No description provided for @accountSecurityHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Change password'**
+  String get accountSecurityHint;
+
+  /// No description provided for @accountPrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy'**
+  String get accountPrivacy;
+
+  /// No description provided for @accountName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get accountName;
+
+  /// No description provided for @accountNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Your name'**
+  String get accountNameHint;
+
+  /// No description provided for @accountSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get accountSave;
+
+  /// No description provided for @accountNameTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Use up to 60 letters.'**
+  String get accountNameTooLong;
+
+  /// No description provided for @accountEmailInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid email address.'**
+  String get accountEmailInvalid;
+
+  /// No description provided for @accountEmailSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your new address for a confirmation link. The old one stays until you use it.'**
+  String get accountEmailSent;
+
+  /// No description provided for @accountSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save. Try again.'**
+  String get accountSaveFailed;
+
+  /// No description provided for @secChangePassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Change password'**
+  String get secChangePassword;
+
+  /// No description provided for @secCurrent.
+  ///
+  /// In en, this message translates to:
+  /// **'Current password'**
+  String get secCurrent;
+
+  /// No description provided for @secNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New password'**
+  String get secNew;
+
+  /// No description provided for @secConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat new password'**
+  String get secConfirm;
+
+  /// No description provided for @secRulesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'At least 8 characters.'**
+  String get secRulesHint;
+
+  /// No description provided for @secWrongCurrent.
+  ///
+  /// In en, this message translates to:
+  /// **'The current password is wrong.'**
+  String get secWrongCurrent;
+
+  /// No description provided for @secTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Use at least 8 characters.'**
+  String get secTooShort;
+
+  /// No description provided for @secMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'The two passwords do not match.'**
+  String get secMismatch;
+
+  /// No description provided for @secSame.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a different password.'**
+  String get secSame;
+
+  /// No description provided for @secDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Password changed.'**
+  String get secDone;
+
+  /// No description provided for @secNote.
+  ///
+  /// In en, this message translates to:
+  /// **'This also resets SMS capture and the widget on this phone. They reconnect by themselves.'**
+  String get secNote;
+
+  /// No description provided for @privacyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your data is stored in your own account and only you can read it. More options will appear here soon.'**
+  String get privacyBody;
+
+  /// No description provided for @moreAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get moreAccount;
 }
 
 class _AppLocalizationsDelegate

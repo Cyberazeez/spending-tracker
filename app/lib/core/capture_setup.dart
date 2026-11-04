@@ -43,6 +43,40 @@ Future<void> _ensure(
   }
 }
 
+/// After a password change: a fresh app token replaces the old one. The offline queue is left alone, and if the phone
+/// is offline the old token simply stays (it is still valid), so there is never a moment without a token.
+Future<void> renewCaptureToken(
+  CaptureBridge bridge,
+  TokenRepository tokens,
+  String? Function() currentUser,
+) async {
+  try {
+    await _running; // an in-flight provisioning finishes first
+  } catch (_) {}
+  final run = _renew(bridge, tokens, currentUser).whenComplete(() {
+    _running = null;
+  });
+  _running = run;
+  return run;
+}
+
+Future<void> _renew(
+  CaptureBridge bridge,
+  TokenRepository tokens,
+  String? Function() currentUser,
+) async {
+  final userId = currentUser();
+  if (userId == null) return;
+  try {
+    final token = await tokens.rotate(label: 'App', kind: 'app');
+    if (currentUser() != userId) return; // signed out meanwhile
+    await bridge.saveCredentials(AppConfig.supabaseUrl, token, userId);
+    await bridge.flush();
+  } catch (_) {
+    // Offline: the current token keeps working.
+  }
+}
+
 /// Sign-out: the app token stops working on the server and is wiped from this phone.
 /// Needs the session, so call it before the actual sign-out.
 Future<void> releaseCapture(

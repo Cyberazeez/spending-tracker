@@ -102,7 +102,7 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
     );
     if (choice == null) return;
     if (choice == 'edit') {
-      if (mounted) context.go('$obligationFormPath?id=${i.obligationId}');
+      if (mounted) context.push('$obligationFormPath?id=${i.obligationId}');
       return;
     }
     if (choice == 'stop') {
@@ -225,7 +225,7 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
             trailing: CupertinoButton(
               padding: EdgeInsets.zero,
               minimumSize: const Size(44, 44),
-              onPressed: () => context.go(obligationFormPath),
+              onPressed: () => context.push(obligationFormPath),
               child: DecoratedBox(
                 decoration: BoxDecoration(
                   color: AppTokens.accent.resolveFrom(context),

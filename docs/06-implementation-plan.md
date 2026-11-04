@@ -87,7 +87,7 @@ Widget build notes (2026-11-02): the extension is `app/ios/SpendingWidget` (bund
 
 ## UI redesign and later items (owner, 2026-11-03)
 - Stage 1 (built): Home. Design layer in `app/lib/ui/tokens.dart`, widgets in `app/lib/features/home/widgets/`.
-- Stages 2 to 5: Transactions, Insights (charts: trends, categories), Bills, More; then login, lock and token screens. One PR each, owner tests on TestFlight in between.
+- Stages 2 to 5: Transactions, Insights (charts: trends, categories), Bills, More; then login, lock and the sub-screens (done 2026-11-04: login, lock, review, quick add, SMS capture restyled; Ingest token and Possible gaps screens removed; Account added). One PR each, owner tests on TestFlight in between.
 - Add obligations by hand (a form to create bills and fixed payments).
 - AI switch in More, suggest-categories button and AI tips card (built 2026-11-03; no server change: the functions `categorize-batch` and `insights-tips` were already deployed and the owner stored `ANTHROPIC_API_KEY`). Not built: a usage-vs-cap readout (`ai_usage` is not readable by the app; would need a small function).
 - Apple Wallet / Apple Pay capture (needs a real sample from the owner first).

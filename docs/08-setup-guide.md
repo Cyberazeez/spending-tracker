@@ -21,7 +21,7 @@ For each one: Shortcuts app, Automation, `+`, **Message**.
 3. Add the action **Get Contents of URL**:
    - URL: `https://evepfssanoffnwtqjmyq.supabase.co/functions/v1/ingest`
    - Method: `POST`
-   - Header: `X-Ingest-Token` = your token (More, Ingest token, or `scripts/get-ingest-token.ps1` on Windows)
+   - Header: `X-Ingest-Token` = your token (`scripts/get-ingest-token.ps1` on Windows; the app no longer shows it. Prefer the app's own "Add bank message" action, see More > SMS capture)
    - Request body: **JSON** with three fields: `sender` = Shortcut Input, Sender; `body` = Shortcut Input, Content; `received_at` = Current Date (ISO 8601).
 4. Only the `X-Ingest-Token` header is needed. No Authorization header.
 

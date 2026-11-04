@@ -91,9 +91,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get languageArabic => 'العربية';
 
   @override
-  String get ingestToken => 'رمز الاستقبال';
-
-  @override
   String get captureStatus => 'التقاط الرسائل';
 
   @override
@@ -103,57 +100,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get captureNone => 'لا شيء بالانتظار';
-
-  @override
-  String get tokenScreenTitle => 'رمز الاستقبال';
-
-  @override
-  String get tokenIntro =>
-      'يرسل اختصار iOS كل رسالة بنكية إلى هذا الرابط مع الرمز في ترويسة X-Ingest-Token.';
-
-  @override
-  String get ingestUrl => 'الرابط';
-
-  @override
-  String get ingestHeader => 'الترويسة';
-
-  @override
-  String get tokenStatus => 'الحالة';
-
-  @override
-  String get tokenNone => 'لا يوجد رمز فعّال';
-
-  @override
-  String tokenActive(String created) {
-    return 'فعّال، أُنشئ $created';
-  }
-
-  @override
-  String tokenLastUsed(String time) {
-    return 'آخر رسالة وصلت $time';
-  }
-
-  @override
-  String get tokenNeverUsed => 'لم تصل أي رسالة بعد';
-
-  @override
-  String get tokenGenerate => 'إنشاء رمز جديد';
-
-  @override
-  String get tokenRotate => 'استبدال الرمز';
-
-  @override
-  String get tokenConfirmTitle => 'استبدال الرمز؟';
-
-  @override
-  String get tokenConfirmBody =>
-      'سيتوقف الرمز القديم فوراً وستحتاج إلى تحديث الاختصارات.';
-
-  @override
-  String get tokenShownOnce => 'انسخ الرمز الآن. يظهر مرة واحدة فقط.';
-
-  @override
-  String get tokenCopied => 'تم النسخ';
 
   @override
   String get copy => 'نسخ';
@@ -276,40 +222,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get reviewLoadFailed => 'تعذّر تحميل الرسائل.';
-
-  @override
-  String get gapsTitle => 'فجوات محتملة';
-
-  @override
-  String get gapsIntro =>
-      'آخر مرة وصلت فيها رسالة من كل جهة. الصمت الطويل قد يعني أن الاختصار متوقف.';
-
-  @override
-  String get gapsNever => 'لم تصل أي رسالة بعد';
-
-  @override
-  String gapsLast(String when) {
-    return 'آخر رسالة $when';
-  }
-
-  @override
-  String gapsDays(int days) {
-    String _temp0 = intl.Intl.pluralLogic(
-      days,
-      locale: localeName,
-      other: 'قبل $days يوم',
-      few: 'قبل $days أيام',
-      two: 'قبل يومين',
-      one: 'قبل يوم',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String get gapsToday => 'اليوم';
-
-  @override
-  String get gapsEmpty => 'لا توجد رسائل بعد';
 
   @override
   String get sar => 'ر.س';
@@ -1034,4 +946,82 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get txChipAi => 'اقتراح الذكاء';
+
+  @override
+  String get accountTitle => 'الحساب';
+
+  @override
+  String get accountProfile => 'الملف الشخصي';
+
+  @override
+  String get accountSecurity => 'الأمان';
+
+  @override
+  String get accountSecurityHint => 'تغيير كلمة المرور';
+
+  @override
+  String get accountPrivacy => 'الخصوصية';
+
+  @override
+  String get accountName => 'الاسم';
+
+  @override
+  String get accountNameHint => 'اسمك';
+
+  @override
+  String get accountSave => 'حفظ';
+
+  @override
+  String get accountNameTooLong => 'استخدم حتى 60 حرفاً.';
+
+  @override
+  String get accountEmailInvalid => 'أدخل بريداً إلكترونياً صحيحاً.';
+
+  @override
+  String get accountEmailSent =>
+      'تحقق من عنوانك الجديد لرابط التأكيد. يبقى القديم حتى تستخدمه.';
+
+  @override
+  String get accountSaveFailed => 'تعذر الحفظ. حاول مرة أخرى.';
+
+  @override
+  String get secChangePassword => 'تغيير كلمة المرور';
+
+  @override
+  String get secCurrent => 'كلمة المرور الحالية';
+
+  @override
+  String get secNew => 'كلمة المرور الجديدة';
+
+  @override
+  String get secConfirm => 'أعد كلمة المرور الجديدة';
+
+  @override
+  String get secRulesHint => '8 أحرف على الأقل.';
+
+  @override
+  String get secWrongCurrent => 'كلمة المرور الحالية غير صحيحة.';
+
+  @override
+  String get secTooShort => 'استخدم 8 أحرف على الأقل.';
+
+  @override
+  String get secMismatch => 'كلمتا المرور غير متطابقتين.';
+
+  @override
+  String get secSame => 'اختر كلمة مرور مختلفة.';
+
+  @override
+  String get secDone => 'تم تغيير كلمة المرور.';
+
+  @override
+  String get secNote =>
+      'يعيد هذا ضبط التقاط الرسائل والودجت على هذا الهاتف. يعيدان الاتصال تلقائياً.';
+
+  @override
+  String get privacyBody =>
+      'بياناتك محفوظة في حسابك ولا يقرأها غيرك. ستظهر خيارات أخرى هنا قريباً.';
+
+  @override
+  String get moreAccount => 'الحساب';
 }

@@ -26,40 +26,16 @@
   "language": "اللغة",
   "languageEnglish": "English",
   "languageArabic": "العربية",
-  "ingestToken": "رمز الاستقبال",
   "captureStatus": "التقاط الرسائل",
   "captureWaiting": "{count} بالانتظار",
-  "@captureWaiting": {"placeholders": {"count": {"type": "int"}}},
+  "@captureWaiting": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "captureNone": "لا شيء بالانتظار",
-  "tokenScreenTitle": "رمز الاستقبال",
-  "tokenIntro": "يرسل اختصار iOS كل رسالة بنكية إلى هذا الرابط مع الرمز في ترويسة X-Ingest-Token.",
-  "ingestUrl": "الرابط",
-  "ingestHeader": "الترويسة",
-  "tokenStatus": "الحالة",
-  "tokenNone": "لا يوجد رمز فعّال",
-  "tokenActive": "فعّال، أُنشئ {created}",
-  "@tokenActive": {
-    "placeholders": {
-      "created": {
-        "type": "String"
-      }
-    }
-  },
-  "tokenLastUsed": "آخر رسالة وصلت {time}",
-  "@tokenLastUsed": {
-    "placeholders": {
-      "time": {
-        "type": "String"
-      }
-    }
-  },
-  "tokenNeverUsed": "لم تصل أي رسالة بعد",
-  "tokenGenerate": "إنشاء رمز جديد",
-  "tokenRotate": "استبدال الرمز",
-  "tokenConfirmTitle": "استبدال الرمز؟",
-  "tokenConfirmBody": "سيتوقف الرمز القديم فوراً وستحتاج إلى تحديث الاختصارات.",
-  "tokenShownOnce": "انسخ الرمز الآن. يظهر مرة واحدة فقط.",
-  "tokenCopied": "تم النسخ",
   "copy": "نسخ",
   "cancel": "إلغاء",
   "continueLabel": "متابعة",
@@ -113,27 +89,6 @@
   "reviewConvert": "إضافة كعملية",
   "reviewDismiss": "ليست عملية",
   "reviewLoadFailed": "تعذّر تحميل الرسائل.",
-  "gapsTitle": "فجوات محتملة",
-  "gapsIntro": "آخر مرة وصلت فيها رسالة من كل جهة. الصمت الطويل قد يعني أن الاختصار متوقف.",
-  "gapsNever": "لم تصل أي رسالة بعد",
-  "gapsLast": "آخر رسالة {when}",
-  "@gapsLast": {
-    "placeholders": {
-      "when": {
-        "type": "String"
-      }
-    }
-  },
-  "gapsDays": "{days, plural, =1{قبل يوم} =2{قبل يومين} few{قبل {days} أيام} other{قبل {days} يوم}}",
-  "@gapsDays": {
-    "placeholders": {
-      "days": {
-        "type": "int"
-      }
-    }
-  },
-  "gapsToday": "اليوم",
-  "gapsEmpty": "لا توجد رسائل بعد",
   "sar": "ر.س",
   "loadFailed": "تعذّر التحميل. اسحب لإعادة المحاولة.",
   "searchHint": "ابحث عن متجر",
@@ -362,5 +317,30 @@
   "aiReasonOffline": "لا يوجد اتصال. حاول مرة أخرى.",
   "aiReasonFailed": "تعذر الحصول على إجابة. حاول لاحقاً.",
   "txAiTag": "ذكاء",
-  "txChipAi": "اقتراح الذكاء"
+  "txChipAi": "اقتراح الذكاء",
+  "accountTitle": "الحساب",
+  "accountProfile": "الملف الشخصي",
+  "accountSecurity": "الأمان",
+  "accountSecurityHint": "تغيير كلمة المرور",
+  "accountPrivacy": "الخصوصية",
+  "accountName": "الاسم",
+  "accountNameHint": "اسمك",
+  "accountSave": "حفظ",
+  "accountNameTooLong": "استخدم حتى 60 حرفاً.",
+  "accountEmailInvalid": "أدخل بريداً إلكترونياً صحيحاً.",
+  "accountEmailSent": "تحقق من عنوانك الجديد لرابط التأكيد. يبقى القديم حتى تستخدمه.",
+  "accountSaveFailed": "تعذر الحفظ. حاول مرة أخرى.",
+  "secChangePassword": "تغيير كلمة المرور",
+  "secCurrent": "كلمة المرور الحالية",
+  "secNew": "كلمة المرور الجديدة",
+  "secConfirm": "أعد كلمة المرور الجديدة",
+  "secRulesHint": "8 أحرف على الأقل.",
+  "secWrongCurrent": "كلمة المرور الحالية غير صحيحة.",
+  "secTooShort": "استخدم 8 أحرف على الأقل.",
+  "secMismatch": "كلمتا المرور غير متطابقتين.",
+  "secSame": "اختر كلمة مرور مختلفة.",
+  "secDone": "تم تغيير كلمة المرور.",
+  "secNote": "يعيد هذا ضبط التقاط الرسائل والودجت على هذا الهاتف. يعيدان الاتصال تلقائياً.",
+  "privacyBody": "بياناتك محفوظة في حسابك ولا يقرأها غيرك. ستظهر خيارات أخرى هنا قريباً.",
+  "moreAccount": "الحساب"
 }

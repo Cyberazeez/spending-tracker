@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 
+import 'tokens.dart';
+
 class EmptyState extends StatelessWidget {
   const EmptyState({
     super.key,
@@ -16,7 +18,8 @@ class EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final secondary = CupertinoColors.secondaryLabel.resolveFrom(context);
+    final secondary = AppTokens.muted.resolveFrom(context);
+    final text = AppTokens.text.resolveFrom(context);
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -28,7 +31,11 @@ class EmptyState extends StatelessWidget {
             Text(
               title,
               textAlign: TextAlign.center,
-              style: CupertinoTheme.of(context).textTheme.navTitleTextStyle,
+              style: TextStyle(
+                color: text,
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+              ),
             ),
             if (body != null) ...[
               const SizedBox(height: 8),

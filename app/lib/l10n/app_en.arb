@@ -26,40 +26,16 @@
   "language": "Language",
   "languageEnglish": "English",
   "languageArabic": "العربية",
-  "ingestToken": "Ingest token",
   "captureStatus": "SMS capture",
   "captureWaiting": "{count} waiting",
-  "@captureWaiting": {"placeholders": {"count": {"type": "int"}}},
+  "@captureWaiting": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "captureNone": "Nothing waiting",
-  "tokenScreenTitle": "Ingest token",
-  "tokenIntro": "The iOS Shortcut sends each bank SMS to this URL with the token in the X-Ingest-Token header.",
-  "ingestUrl": "URL",
-  "ingestHeader": "Header",
-  "tokenStatus": "Status",
-  "tokenNone": "No active token",
-  "tokenActive": "Active, created {created}",
-  "@tokenActive": {
-    "placeholders": {
-      "created": {
-        "type": "String"
-      }
-    }
-  },
-  "tokenLastUsed": "Last message received {time}",
-  "@tokenLastUsed": {
-    "placeholders": {
-      "time": {
-        "type": "String"
-      }
-    }
-  },
-  "tokenNeverUsed": "No message received yet",
-  "tokenGenerate": "Create new token",
-  "tokenRotate": "Replace token",
-  "tokenConfirmTitle": "Replace the token?",
-  "tokenConfirmBody": "The old token stops working immediately. You will need to update your Shortcuts.",
-  "tokenShownOnce": "Copy this token now. It is shown only once.",
-  "tokenCopied": "Copied",
   "copy": "Copy",
   "cancel": "Cancel",
   "continueLabel": "Continue",
@@ -113,27 +89,6 @@
   "reviewConvert": "Add as transaction",
   "reviewDismiss": "Not a transaction",
   "reviewLoadFailed": "Could not load messages.",
-  "gapsTitle": "Possible gaps",
-  "gapsIntro": "When each sender last reached the app. A long silence may mean a Shortcut is off.",
-  "gapsNever": "Nothing received yet",
-  "gapsLast": "Last message {when}",
-  "@gapsLast": {
-    "placeholders": {
-      "when": {
-        "type": "String"
-      }
-    }
-  },
-  "gapsDays": "{days, plural, =1{1 day ago} other{{days} days ago}}",
-  "@gapsDays": {
-    "placeholders": {
-      "days": {
-        "type": "int"
-      }
-    }
-  },
-  "gapsToday": "today",
-  "gapsEmpty": "No messages yet",
   "sar": "SAR",
   "loadFailed": "Could not load. Pull to retry.",
   "searchHint": "Search merchants",
@@ -223,11 +178,41 @@
   "obGroupNext": "Next month · {month}",
   "obGroupLater": "{month} {year}",
   "obMonthCommittedNote": "Paid and still to pay",
-  "@obGroupThis": {"placeholders": {"month": {"type": "String"}}},
-  "@obGroupNext": {"placeholders": {"month": {"type": "String"}}},
-  "@obGroupLater": {"placeholders": {"month": {"type": "String"}, "year": {"type": "String"}}},
+  "@obGroupThis": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "@obGroupNext": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "@obGroupLater": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      },
+      "year": {
+        "type": "String"
+      }
+    }
+  },
   "obUsually": "Usually {min} to {max}",
-  "@obUsually": {"placeholders": {"min": {"type": "String"}, "max": {"type": "String"}}},
+  "@obUsually": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
+    }
+  },
   "obEditAmount": "Edit amount",
   "obEditAmountPrompt": "Amount in SAR",
   "obAmountInvalid": "Enter an amount like 700 or 1,250.50",
@@ -239,7 +224,13 @@
   "insMonthlyBudgetPrompt": "Monthly budget in SAR",
   "homeToday": "Spent today",
   "homeBudgetUsed": "Monthly budget used",
-  "@insMonthlyBudgetUsed": {"placeholders": {"percent": {"type": "String"}}},
+  "@insMonthlyBudgetUsed": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
   "homeMonthlyWarn": "Monthly budget at {percent}%",
   "homeMonthlyOver": "Over the monthly budget",
   "remindersTitle": "Bill reminders",
@@ -249,9 +240,30 @@
   "remindersDenied": "Notifications are turned off for this app. Turn them on in iPhone Settings, then try again.",
   "reminderBody": "Due {date}",
   "reminderBodyAmount": "Due {date} · about {amount}",
-  "@homeMonthlyWarn": {"placeholders": {"percent": {"type": "String"}}},
-  "@reminderBody": {"placeholders": {"date": {"type": "String"}}},
-  "@reminderBodyAmount": {"placeholders": {"date": {"type": "String"}, "amount": {"type": "String"}}},
+  "@homeMonthlyWarn": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "@reminderBody": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@reminderBodyAmount": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "insThisMonth": "This month",
   "insSpent": "Spent so far",
   "insVsLast": "Same day last month",
@@ -411,19 +423,64 @@
   "homeTodayShort": "Today",
   "homeSameShort": "Same",
   "homeOfBudget": "of {amount} budget",
-  "@homeOfBudget": {"placeholders": {"amount": {"type": "String"}}},
+  "@homeOfBudget": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "homeLower": "{percent}% lower",
-  "@homeLower": {"placeholders": {"percent": {"type": "String"}}},
+  "@homeLower": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
   "homeHigher": "{percent}% higher",
-  "@homeHigher": {"placeholders": {"percent": {"type": "String"}}},
+  "@homeHigher": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
   "homeToReview": "{count} to review",
-  "@homeToReview": {"placeholders": {"count": {"type": "int"}}},
+  "@homeToReview": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "homeWeekTotal": "{amount} total",
-  "@homeWeekTotal": {"placeholders": {"amount": {"type": "String"}}},
+  "@homeWeekTotal": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "homeBarLabel": "Spent {amount} on {weekday}",
-  "@homeBarLabel": {"placeholders": {"amount": {"type": "String"}, "weekday": {"type": "String"}}},
+  "@homeBarLabel": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "weekday": {
+        "type": "String"
+      }
+    }
+  },
   "homeDueIn": "Due in {days} days",
-  "@homeDueIn": {"placeholders": {"days": {"type": "int"}}},
+  "@homeDueIn": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
   "homeDueTomorrow": "Due tomorrow",
   "homeDueToday": "Due today",
   "groupFood": "Food",
@@ -446,19 +503,55 @@
   "insLegendLast": "Last month",
   "insMonthsTitle": "Last 4 months",
   "insBudgetLine": "Budget {amount}",
-  "@insBudgetLine": {"placeholders": {"amount": {"type": "String"}}},
+  "@insBudgetLine": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "insWhereTitle": "Where it goes",
   "insTrendLabel": "{now} so far this month, {before} by the same day last month",
-  "@insTrendLabel": {"placeholders": {"now": {"type": "String"}, "before": {"type": "String"}}},
+  "@insTrendLabel": {
+    "placeholders": {
+      "now": {
+        "type": "String"
+      },
+      "before": {
+        "type": "String"
+      }
+    }
+  },
   "insMonthBarLabel": "{month}: {amount}",
-  "@insMonthBarLabel": {"placeholders": {"month": {"type": "String"}, "amount": {"type": "String"}}},
+  "@insMonthBarLabel": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "insVisits": "{count} visits",
-  "@insVisits": {"placeholders": {"count": {"type": "int"}}},
+  "@insVisits": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "insVisit": "1 visit",
   "insSavingsRateLabel": "Savings rate",
   "insSpikeBadge": "Spending spike",
   "insSubsServices": "{count} services a month",
-  "@insSubsServices": {"placeholders": {"count": {"type": "int"}}},
+  "@insSubsServices": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "obNew": "New obligation",
   "obEditTitle": "Edit obligation",
   "obfName": "Name",
@@ -493,7 +586,13 @@
   "obStop": "Stop tracking",
   "obStopConfirm": "{name} will stop appearing. Paid history stays.",
   "obAddHint": "Add an obligation",
-  "@obStopConfirm": {"placeholders": {"name": {"type": "String"}}},
+  "@obStopConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "obfNameTaken": "You already have an obligation with this name.",
   "aiTitle": "AI assistant",
   "aiSubtitle": "Sends only totals and merchant names. Never message text, names or account numbers.",
@@ -512,8 +611,45 @@
   "aiReasonCap": "This month's AI budget is used up. It resets next month.",
   "aiReasonOffline": "No connection. Try again.",
   "aiReasonFailed": "Could not get an answer. Try again later.",
-  "@aiSuggestTitle": {"placeholders": {"n": {"type": "String"}}},
-  "@aiSuggestDone": {"placeholders": {"n": {"type": "String"}}},
+  "@aiSuggestTitle": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "@aiSuggestDone": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
   "txAiTag": "AI",
-  "txChipAi": "AI suggested"
+  "txChipAi": "AI suggested",
+  "accountTitle": "Account",
+  "accountProfile": "Profile",
+  "accountSecurity": "Security",
+  "accountSecurityHint": "Change password",
+  "accountPrivacy": "Privacy",
+  "accountName": "Name",
+  "accountNameHint": "Your name",
+  "accountSave": "Save",
+  "accountNameTooLong": "Use up to 60 letters.",
+  "accountEmailInvalid": "Enter a valid email address.",
+  "accountEmailSent": "Check your new address for a confirmation link. The old one stays until you use it.",
+  "accountSaveFailed": "Could not save. Try again.",
+  "secChangePassword": "Change password",
+  "secCurrent": "Current password",
+  "secNew": "New password",
+  "secConfirm": "Repeat new password",
+  "secRulesHint": "At least 8 characters.",
+  "secWrongCurrent": "The current password is wrong.",
+  "secTooShort": "Use at least 8 characters.",
+  "secMismatch": "The two passwords do not match.",
+  "secSame": "Choose a different password.",
+  "secDone": "Password changed.",
+  "secNote": "This also resets SMS capture and the widget on this phone. They reconnect by themselves.",
+  "privacyBody": "Your data is stored in your own account and only you can read it. More options will appear here soon.",
+  "moreAccount": "Account"
 }

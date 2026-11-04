@@ -4,7 +4,7 @@ import 'package:spending_tracker/router.dart';
 void main() {
   group('redirectFor', () {
     test('signed out always goes to login', () {
-      for (final loc in ['/', homePath, lockPath, tokenPath]) {
+      for (final loc in ['/', homePath, lockPath, accountPath]) {
         expect(
           redirectFor(hasSession: false, locked: true, location: loc),
           loginPath,
@@ -21,7 +21,7 @@ void main() {
     });
 
     test('signed in but locked goes to the lock screen', () {
-      for (final loc in ['/', homePath, loginPath, tokenPath]) {
+      for (final loc in ['/', homePath, loginPath, accountPath]) {
         expect(
           redirectFor(hasSession: true, locked: true, location: loc),
           lockPath,
@@ -39,7 +39,7 @@ void main() {
         isNull,
       );
       expect(
-        redirectFor(hasSession: true, locked: false, location: tokenPath),
+        redirectFor(hasSession: true, locked: false, location: accountPath),
         isNull,
       );
       expect(

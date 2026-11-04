@@ -44,6 +44,6 @@ Each bank has a parser in `supabase/functions/_shared/parsers/` and real, redact
    - Action *Get Contents of URL*: URL `https://evepfssanoffnwtqjmyq.supabase.co/functions/v1/ingest`, Method `POST`, Headers `X-Ingest-Token` = your token, Request Body `JSON` with `sender` (Shortcut Input, Sender), `body` (Shortcut Input, Content) and `received_at` (Current Date, ISO 8601).
    - Wait for a real SMS from that bank, or send yourself a test.
    - Only the `X-Ingest-Token` header is needed (no Authorization header). Replacing the token later breaks every Shortcut until you paste the new one in, and a Shortcut with *Notify When Run* off fails silently. If the app's *last message received* looks stale, check the Shortcut first.
-5. **Tell me:** did it run without a prompt? what does the sender show as? Check the result in the app (More, Ingest token shows *last message received*) or in the dashboard table `raw_messages`.
+5. **Tell me:** did it run without a prompt? what does the sender show as? Check the result in the app (More > SMS capture shows what is waiting and the last send result) or in the dashboard table `raw_messages`.
 
 The message bodies stored at this stage are unparsed (`needs_review`). One-time codes are stored as `[redacted]`.

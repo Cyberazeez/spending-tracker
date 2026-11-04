@@ -1,9 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../core/lock.dart';
 import '../../l10n/app_localizations.dart';
+import '../../ui/app_form.dart';
 import '../../ui/empty_state.dart';
+import '../../ui/tokens.dart';
 
 class LockPage extends ConsumerStatefulWidget {
   const LockPage({super.key});
@@ -32,13 +35,17 @@ class _LockPageState extends ConsumerState<LockPage> {
     final t = AppLocalizations.of(context);
     final state = ref.watch(lockProvider);
     return CupertinoPageScaffold(
+      backgroundColor: AppTokens.bg.resolveFrom(context),
       child: EmptyState(
-        icon: CupertinoIcons.lock_fill,
+        icon: LucideIcons.lock,
         title: t.lockTitle,
         body: state.failed ? t.unlockFailed : t.lockBody,
-        action: CupertinoButton.filled(
-          onPressed: state.busy ? null : _unlock,
-          child: Text(t.unlock),
+        action: SizedBox(
+          width: 220,
+          child: PrimaryButton(
+            label: t.unlock,
+            onPressed: state.busy ? null : _unlock,
+          ),
         ),
       ),
     );

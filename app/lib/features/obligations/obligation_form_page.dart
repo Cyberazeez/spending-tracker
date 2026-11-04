@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
 
 import '../../core/format.dart';
@@ -11,6 +10,7 @@ import '../../core/providers.dart';
 import '../../l10n/app_localizations.dart';
 import '../../router.dart';
 import '../../ui/app_card.dart';
+import '../../ui/app_form.dart';
 import '../../ui/tokens.dart';
 import '../insights/metrics.dart';
 import '../transactions/providers.dart';
@@ -157,7 +157,7 @@ class _ObligationFormPageState extends ConsumerState<ObligationFormPage> {
             ),
           );
       ref.invalidate(obligationsProvider);
-      if (mounted) context.go(homePath);
+      if (mounted) popOrHome(context);
     } on PostgrestException catch (e) {
       if (mounted) {
         setState(
@@ -271,13 +271,9 @@ class _ObligationFormPageState extends ConsumerState<ObligationFormPage> {
 
     return CupertinoPageScaffold(
       backgroundColor: AppTokens.bg.resolveFrom(context),
-      navigationBar: CupertinoNavigationBar(
-        backgroundColor: AppTokens.bg.resolveFrom(context),
-        border: null,
-        middle: Text(widget.obligationId == null ? t.obNew : t.obEditTitle),
-        leading: CupertinoNavigationBarBackButton(
-          onPressed: () => context.go(homePath),
-        ),
+      navigationBar: appNavBar(
+        context,
+        widget.obligationId == null ? t.obNew : t.obEditTitle,
       ),
       child: SafeArea(
         child: _loading
@@ -422,11 +418,10 @@ class _ObligationFormPageState extends ConsumerState<ObligationFormPage> {
                         ),
                       ),
                     ),
-                  CupertinoButton.filled(
-                    onPressed: _busy ? null : _save,
-                    child: _busy
-                        ? const CupertinoActivityIndicator()
-                        : Text(t.obfSave),
+                  PrimaryButton(
+                    label: t.obfSave,
+                    busy: _busy,
+                    onPressed: _save,
                   ),
                   const SizedBox(height: 32),
                 ],

@@ -201,26 +201,6 @@ void main() {
     });
   });
 
-  testWidgets('possible gaps lists senders with how long ago', (tester) async {
-    final h = Harness(signedIn: true)
-      ..data.gaps = [
-        SenderGap(
-          sender: 'D360 Bank',
-          lastReceivedAt: DateTime.utc(2026, 10, 20, 10),
-        ),
-        SenderGap(sender: 'alinma', lastReceivedAt: h0()),
-      ];
-    await tester.pumpWidget(await h.build());
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('More'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Possible gaps'));
-    await tester.pumpAndSettle();
-    expect(find.text('D360 Bank'), findsOneWidget);
-    expect(find.text('alinma'), findsOneWidget);
-    expect(find.textContaining('days ago'), findsOneWidget);
-  });
-
   testWidgets('arabic: amounts read right-to-left with SAR after the number', (
     tester,
   ) async {
