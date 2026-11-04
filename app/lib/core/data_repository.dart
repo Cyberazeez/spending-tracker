@@ -75,6 +75,16 @@ abstract class DataRepository {
   /// The tips saved for [month] ("YYYY-MM"), newest first, or empty.
   Future<List<String>> savedAiTips(String month);
 
+  /// The user's own accounts, cards and wallets (Account > Bank accounts).
+  Future<List<OwnAccount>> ownAccounts();
+  Future<void> addOwnAccount({
+    required String bank,
+    required String last4,
+    required String kind,
+    String? label,
+  });
+  Future<void> deleteOwnAccount(String id);
+
   /// The base monthly salary from Settings (0 = not set).
   Future<int> baseSalaryHalalas();
 
@@ -452,6 +462,36 @@ class SupabaseDataRepository implements DataRepository {
       for (final t in (rows.first['tips'] as List?) ?? const [])
         if (t is Map && t['text'] is String) t['text'] as String,
     ];
+  }
+
+  @override
+  Future<List<OwnAccount>> ownAccounts() async {
+    final rows = await _db
+        .from('own_accounts')
+        .select('id, bank, last4, kind, label')
+        .order('bank')
+        .order('last4');
+    return rows.map<OwnAccount>(OwnAccount.fromRow).toList();
+  }
+
+  @override
+  Future<void> addOwnAccount({
+    required String bank,
+    required String last4,
+    required String kind,
+    String? label,
+  }) async {
+    await _db.from('own_accounts').insert({
+      'bank': bank,
+      'last4': last4,
+      'kind': kind,
+      'label': (label == null || label.trim().isEmpty) ? null : label.trim(),
+    });
+  }
+
+  @override
+  Future<void> deleteOwnAccount(String id) async {
+    await _db.from('own_accounts').delete().eq('id', id);
   }
 
   @override

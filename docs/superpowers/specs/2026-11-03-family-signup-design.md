@@ -51,3 +51,5 @@ Each stage is its own PR. Stage A migration is applied after merge, only on the 
 
 ## Status
 - Stage A built 2026-11-04 (migration `20261104100000_signup_safe_seeds.sql`, per-user AI cap in both AI functions, RLS test with a third user). Decision to confirm with the owner: the all-users AI ceiling (default 5,700 halalas, about 15 USD a month; secret `AI_GLOBAL_CAP_HALALAS`).
+
+- Stage C built 2026-11-04: welcome card, Bank accounts screen, Delete my account (`delete-account` function). Stage B invite codes were replaced by open sign-up for the closed test (see the stage B spec).

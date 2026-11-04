@@ -57,6 +57,13 @@ class AccountPage extends ConsumerWidget {
                   onTap: () => context.push(profilePath),
                 ),
                 SettingsRow(
+                  icon: LucideIcons.landmark,
+                  color: const Color(0xFFFFB340),
+                  title: t.accountBanks,
+                  subtitle: t.accountBanksShort,
+                  onTap: () => context.push(banksPath),
+                ),
+                SettingsRow(
                   icon: LucideIcons.shieldCheck,
                   color: const Color(0xFF3CC4A8),
                   title: t.accountSecurity,
@@ -375,6 +382,18 @@ class PrivacyPage extends StatelessWidget {
                   height: 1.4,
                 ),
               ),
+            ),
+            const SizedBox(height: 16),
+            SettingsGroup(
+              children: [
+                SettingsRow(
+                  icon: LucideIcons.trash2,
+                  color: AppTokens.danger.resolveFrom(context),
+                  title: t.deleteAccountRow,
+                  danger: true,
+                  onTap: () => context.push(deleteAccountPath),
+                ),
+              ],
             ),
           ],
         ),

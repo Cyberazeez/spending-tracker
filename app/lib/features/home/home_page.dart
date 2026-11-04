@@ -21,6 +21,7 @@ import '../shell/tabs.dart';
 import '../transactions/providers.dart';
 import 'category_groups.dart';
 import 'logic.dart';
+import 'widgets/welcome_card.dart';
 import 'widgets/attention_chip.dart';
 import 'widgets/bill_card.dart';
 import 'widgets/hero_card.dart';
@@ -135,6 +136,10 @@ class HomePage extends ConsumerWidget {
               }
               if (!ins.hasData && gaps.isEmpty && obligations.isEmpty) {
                 return [
+                  const SliverPadding(
+                    padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
+                    sliver: SliverToBoxAdapter(child: WelcomeCard()),
+                  ),
                   SliverFillRemaining(
                     hasScrollBody: false,
                     child: EmptyState(
@@ -158,6 +163,7 @@ class HomePage extends ConsumerWidget {
                   padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
                   sliver: SliverList.list(
                     children: [
+                      const WelcomeCard(),
                       if (silent != null) ...[
                         _NoticeCard(
                           icon: LucideIcons.triangleAlert,

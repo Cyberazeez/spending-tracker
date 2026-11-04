@@ -418,5 +418,28 @@ begin
     where ns.nspname = 'public' and c.relkind = 'r' and not c.relrowsecurity;
   if n <> 0 then raise exception '% public table(s) without RLS', n; end if;
 
+  -- deleting an account removes every row of that user in every public table (account deletion relies on the cascade)
+  insert into public.ingest_tokens (user_id, token_hash) values (f, 'hash-f');
+  insert into public.raw_messages (user_id, sender, body, received_at, dedupe_hash) values (f, 'alinma', 'body-f', now(), 'h-f');
+  insert into public.ai_usage (user_id, day, purpose) values (f, current_date, 'insights');
+  insert into public.own_accounts (user_id, bank, last4, kind) values (f, 'snb', '1111', 'account');
+  perform public.bump_rate_limit(f, 'ingest_min', 'minute');
+  delete from auth.users where id = f;
+  declare
+    t record;
+    c int;
+    total int := 0;
+  begin
+    for t in
+      select table_name from information_schema.columns
+      where table_schema = 'public' and column_name = 'user_id'
+    loop
+      execute format('select count(*) from public.%I where user_id = $1', t.table_name) into c using f;
+      if c <> 0 then raise exception 'account deletion left % rows in %', c, t.table_name; end if;
+      total := total + 1;
+    end loop;
+    if total < 12 then raise exception 'cascade check looked at only % tables', total; end if;
+  end;
+
   raise exception 'RLS_TESTS_OK';
 end $$;

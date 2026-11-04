@@ -1981,6 +1981,216 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Back to sign in'**
   String get signUpBackToSignIn;
+
+  /// No description provided for @accountBanks.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank accounts'**
+  String get accountBanks;
+
+  /// No description provided for @accountBanksShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Your own accounts and cards'**
+  String get accountBanksShort;
+
+  /// No description provided for @accountBanksHint.
+  ///
+  /// In en, this message translates to:
+  /// **'List your own accounts, cards and wallets so moving money between them is not counted as spending.'**
+  String get accountBanksHint;
+
+  /// No description provided for @banksEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No accounts yet.'**
+  String get banksEmpty;
+
+  /// No description provided for @bankAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add account'**
+  String get bankAdd;
+
+  /// No description provided for @bankPick.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank'**
+  String get bankPick;
+
+  /// No description provided for @bankKind.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get bankKind;
+
+  /// No description provided for @bankLast4.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 4 digits'**
+  String get bankLast4;
+
+  /// No description provided for @bankLabelOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Name (optional)'**
+  String get bankLabelOptional;
+
+  /// No description provided for @bankSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get bankSave;
+
+  /// No description provided for @bankLast4Invalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter exactly 4 digits.'**
+  String get bankLast4Invalid;
+
+  /// No description provided for @bankDuplicate.
+  ///
+  /// In en, this message translates to:
+  /// **'This account is already in the list.'**
+  String get bankDuplicate;
+
+  /// No description provided for @bankRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get bankRemove;
+
+  /// No description provided for @bankRemoveConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {name}?'**
+  String bankRemoveConfirm(String name);
+
+  /// No description provided for @kindAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get kindAccount;
+
+  /// No description provided for @kindDebit.
+  ///
+  /// In en, this message translates to:
+  /// **'Debit card'**
+  String get kindDebit;
+
+  /// No description provided for @kindCredit.
+  ///
+  /// In en, this message translates to:
+  /// **'Credit card'**
+  String get kindCredit;
+
+  /// No description provided for @kindWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet'**
+  String get kindWallet;
+
+  /// No description provided for @welcomeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Get started'**
+  String get welcomeTitle;
+
+  /// No description provided for @welcomeHide.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide'**
+  String get welcomeHide;
+
+  /// No description provided for @welcomeProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'{done} of {total} done'**
+  String welcomeProgress(String done, String total);
+
+  /// No description provided for @welcomeAccounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your bank accounts'**
+  String get welcomeAccounts;
+
+  /// No description provided for @welcomeCapture.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up SMS capture'**
+  String get welcomeCapture;
+
+  /// No description provided for @welcomeBudget.
+  ///
+  /// In en, this message translates to:
+  /// **'Set a monthly budget'**
+  String get welcomeBudget;
+
+  /// No description provided for @deleteAccountRow.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete my account'**
+  String get deleteAccountRow;
+
+  /// No description provided for @deleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete account'**
+  String get deleteTitle;
+
+  /// No description provided for @deleteWarn.
+  ///
+  /// In en, this message translates to:
+  /// **'This permanently deletes your account and all your data: transactions, bills, budgets and settings. It cannot be undone.'**
+  String get deleteWarn;
+
+  /// No description provided for @deleteWord.
+  ///
+  /// In en, this message translates to:
+  /// **'DELETE'**
+  String get deleteWord;
+
+  /// No description provided for @deleteTypeWord.
+  ///
+  /// In en, this message translates to:
+  /// **'Type {word} to confirm'**
+  String deleteTypeWord(String word);
+
+  /// No description provided for @deleteWordMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Type {word} exactly to confirm.'**
+  String deleteWordMismatch(String word);
+
+  /// No description provided for @deletePassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Your password'**
+  String get deletePassword;
+
+  /// No description provided for @deleteButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete my account'**
+  String get deleteButton;
+
+  /// No description provided for @deleteWrongPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'The password is wrong.'**
+  String get deleteWrongPassword;
+
+  /// No description provided for @deleteTooMany.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many tries. Try again tomorrow.'**
+  String get deleteTooMany;
+
+  /// No description provided for @deleteFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not delete. Check your connection and try again.'**
+  String get deleteFailed;
 }
 
 class _AppLocalizationsDelegate

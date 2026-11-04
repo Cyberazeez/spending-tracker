@@ -1053,4 +1053,119 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get signUpBackToSignIn => 'العودة لتسجيل الدخول';
+
+  @override
+  String get accountBanks => 'الحسابات البنكية';
+
+  @override
+  String get accountBanksShort => 'حساباتك وبطاقاتك';
+
+  @override
+  String get accountBanksHint =>
+      'أضف حساباتك وبطاقاتك ومحافظك حتى لا يُحتسب تحويل المال بينها كمصروف.';
+
+  @override
+  String get banksEmpty => 'لا توجد حسابات بعد.';
+
+  @override
+  String get bankAdd => 'إضافة حساب';
+
+  @override
+  String get bankPick => 'البنك';
+
+  @override
+  String get bankKind => 'النوع';
+
+  @override
+  String get bankLast4 => 'آخر 4 أرقام';
+
+  @override
+  String get bankLabelOptional => 'الاسم (اختياري)';
+
+  @override
+  String get bankSave => 'إضافة';
+
+  @override
+  String get bankLast4Invalid => 'أدخل 4 أرقام بالضبط.';
+
+  @override
+  String get bankDuplicate => 'هذا الحساب موجود في القائمة.';
+
+  @override
+  String get bankRemove => 'حذف';
+
+  @override
+  String bankRemoveConfirm(String name) {
+    return 'حذف $name؟';
+  }
+
+  @override
+  String get kindAccount => 'حساب';
+
+  @override
+  String get kindDebit => 'بطاقة مدى';
+
+  @override
+  String get kindCredit => 'بطاقة ائتمان';
+
+  @override
+  String get kindWallet => 'محفظة';
+
+  @override
+  String get welcomeTitle => 'ابدأ من هنا';
+
+  @override
+  String get welcomeHide => 'إخفاء';
+
+  @override
+  String welcomeProgress(String done, String total) {
+    return 'تم $done من $total';
+  }
+
+  @override
+  String get welcomeAccounts => 'أضف حساباتك البنكية';
+
+  @override
+  String get welcomeCapture => 'فعّل التقاط الرسائل';
+
+  @override
+  String get welcomeBudget => 'حدد ميزانية شهرية';
+
+  @override
+  String get deleteAccountRow => 'حذف حسابي';
+
+  @override
+  String get deleteTitle => 'حذف الحساب';
+
+  @override
+  String get deleteWarn =>
+      'يحذف حسابك وجميع بياناتك نهائياً: العمليات والفواتير والميزانيات والإعدادات. لا يمكن التراجع.';
+
+  @override
+  String get deleteWord => 'حذف';
+
+  @override
+  String deleteTypeWord(String word) {
+    return 'اكتب $word للتأكيد';
+  }
+
+  @override
+  String deleteWordMismatch(String word) {
+    return 'اكتب $word بالضبط للتأكيد.';
+  }
+
+  @override
+  String get deletePassword => 'كلمة المرور';
+
+  @override
+  String get deleteButton => 'حذف حسابي';
+
+  @override
+  String get deleteWrongPassword => 'كلمة المرور غير صحيحة.';
+
+  @override
+  String get deleteTooMany => 'محاولات كثيرة. حاول غداً.';
+
+  @override
+  String get deleteFailed => 'تعذر الحذف. تحقق من الاتصال وحاول مرة أخرى.';
 }
