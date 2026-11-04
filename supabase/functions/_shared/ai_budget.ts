@@ -6,7 +6,7 @@
  * Returns the number the caller compares with the user's cap: the user's own spend normally, or "infinite" once the
  * global ceiling is reached (so every user gets `cap_reached`).
  */
-export const DEFAULT_GLOBAL_CAP_HALALAS = 5700; // about 15 USD a month over all users
+export const DEFAULT_GLOBAL_CAP_HALALAS = 1875; // 5 USD a month over all users (3.75 SAR per USD)
 
 export function effectiveSpent(
   userSpentHalalas: number,
