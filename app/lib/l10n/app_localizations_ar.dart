@@ -1188,4 +1188,13 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get reactivatedOk => 'حسنًا';
+
+  @override
+  String get categorySearch => 'ابحث في التصنيفات';
+
+  @override
+  String get categorySuggested => 'مقترح لهذا التاجر';
+
+  @override
+  String get categoryNoMatch => 'لا يوجد تصنيف مطابق';
 }

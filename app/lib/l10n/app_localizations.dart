@@ -2227,6 +2227,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'OK'**
   String get reactivatedOk;
+
+  /// No description provided for @categorySearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search categories'**
+  String get categorySearch;
+
+  /// No description provided for @categorySuggested.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggested for this merchant'**
+  String get categorySuggested;
+
+  /// No description provided for @categoryNoMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'No category matches'**
+  String get categoryNoMatch;
 }
 
 class _AppLocalizationsDelegate

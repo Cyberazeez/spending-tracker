@@ -392,5 +392,8 @@
   "deleteSureConfirm": "احذف كل شيء",
   "reactivatedTitle": "أهلًا بعودتك",
   "reactivatedBody": "حسابك نشط مرة أخرى وتم إلغاء الحذف. كل بياناتك ما زالت موجودة.",
-  "reactivatedOk": "حسنًا"
+  "reactivatedOk": "حسنًا",
+  "categorySearch": "ابحث في التصنيفات",
+  "categorySuggested": "مقترح لهذا التاجر",
+  "categoryNoMatch": "لا يوجد تصنيف مطابق"
 }

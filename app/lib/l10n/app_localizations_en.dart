@@ -1194,4 +1194,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reactivatedOk => 'OK';
+
+  @override
+  String get categorySearch => 'Search categories';
+
+  @override
+  String get categorySuggested => 'Suggested for this merchant';
+
+  @override
+  String get categoryNoMatch => 'No category matches';
 }

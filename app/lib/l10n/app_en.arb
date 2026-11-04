@@ -732,5 +732,8 @@
   "deleteSureConfirm": "Delete everything",
   "reactivatedTitle": "Welcome back",
   "reactivatedBody": "Your account is active again and the deletion is cancelled. All your data is still here.",
-  "reactivatedOk": "OK"
+  "reactivatedOk": "OK",
+  "categorySearch": "Search categories",
+  "categorySuggested": "Suggested for this merchant",
+  "categoryNoMatch": "No category matches"
 }

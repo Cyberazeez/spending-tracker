@@ -7,6 +7,7 @@ import '../../core/models.dart';
 import '../../core/money.dart';
 import '../../core/providers.dart';
 import '../../l10n/app_localizations.dart';
+import '../../ui/category_sheet.dart';
 import '../../core/format.dart';
 import '../../ui/app_card.dart';
 import '../../ui/bottom_inset.dart';
@@ -112,23 +113,13 @@ class _InsightsPageState extends ConsumerState<InsightsPage> {
     bool arabic,
   ) async {
     final t = AppLocalizations.of(context);
-    final picked = await showCupertinoModalPopup<Category>(
-      context: context,
-      builder: (ctx) => CupertinoActionSheet(
-        title: Text(t.insBudgetSet),
-        actions: [
-          for (final c in cats)
-            CupertinoActionSheetAction(
-              onPressed: () => Navigator.pop(ctx, c),
-              child: Text(c.label(arabic: arabic)),
-            ),
-        ],
-        cancelButton: CupertinoActionSheetAction(
-          onPressed: () => Navigator.pop(ctx),
-          child: Text(t.cancel),
-        ),
-      ),
+    final pickedId = await showCategorySheet(
+      context,
+      cats: cats,
+      arabic: arabic,
+      title: t.insBudgetSet,
     );
+    final picked = cats.where((c) => c.id == pickedId).firstOrNull;
     if (picked == null || !mounted) return;
     await _budgetActions(
       picked.id,
