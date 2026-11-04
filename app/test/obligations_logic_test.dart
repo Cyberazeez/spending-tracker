@@ -134,18 +134,14 @@ void main() {
   group('billing cycles', () {
     final today = d('2026-11-04');
 
-    test(
-      'a bill belongs to the month it was issued for, not the month it is due',
-      () {
-        // STC: issued in November, due 2 December
-        expect(
-          cycleOf(inst('stc', '2026-12-02', period: '2026-11-01')),
-          d('2026-11-01'),
-        );
-        // no period known: the due month
-        expect(cycleOf(inst('x', '2026-12-02')), d('2026-12-01'));
-      },
-    );
+    test('a bill belongs to the month it is due, not the month it covers', () {
+      // STC: covers November, due 2 December
+      expect(
+        cycleOf(inst('stc', '2026-12-02', period: '2026-11-01')),
+        d('2026-12-01'),
+      );
+      expect(cycleOf(inst('x', '2026-11-02')), d('2026-11-01'));
+    });
 
     test('cycleRows: this cycle only, open items first, paid ones last, skipped never', () {
       final all = [
@@ -160,10 +156,12 @@ void main() {
       expect(cycleRows(all, currentCycle(today), today).map((i) => i.id), [
         'card',
         'sec',
-        'stc',
         'paid',
       ]);
-      expect(cycleRows(all, nextCycle(today), today).map((i) => i.id), ['dec']);
+      expect(cycleRows(all, nextCycle(today), today).map((i) => i.id), [
+        'stc',
+        'dec',
+      ]);
     });
 
     test('an unpaid bill of an earlier cycle is left over, even inside its grace days', () {
