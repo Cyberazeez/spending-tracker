@@ -116,6 +116,14 @@ class SupabaseAuthRepository implements AuthRepository {
 
   @override
   Future<bool> reactivateIfPending() async {
+    // Only right after a password sign-in: an older session (another device, still valid for up to an hour after a
+    // deletion request) must not cancel a deletion. The server never purges an account that signed in after asking.
+    final last = DateTime.tryParse(
+      _client.auth.currentUser?.lastSignInAt ?? '',
+    );
+    if (last == null || DateTime.now().difference(last).inMinutes > 15) {
+      return false;
+    }
     try {
       return await _client.rpc('reactivate_my_account') == true;
     } catch (_) {

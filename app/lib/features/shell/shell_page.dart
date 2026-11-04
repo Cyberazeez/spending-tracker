@@ -42,17 +42,20 @@ class _ShellPageState extends ConsumerState<ShellPage>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _syncCapture();
     // The flag may already be set when the shell first builds (sign-in redirects before it is read).
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) _showReactivated();
     });
-    // A sign-in whose reactivation call failed (offline) would leave the deletion standing: ask again on open.
-    ref.read(authRepositoryProvider).reactivateIfPending().then((was) {
-      if (was && mounted) {
-        ref.read(accountReactivatedProvider.notifier).set(true);
-      }
-    });
+    _startUp();
+  }
+
+  /// A sign-in whose reactivation call failed (offline) would leave the deletion standing: ask again, and only then
+  /// set up capture (the token service refuses accounts with a pending deletion).
+  Future<void> _startUp() async {
+    final was = await ref.read(authRepositoryProvider).reactivateIfPending();
+    if (!mounted) return;
+    if (was) ref.read(accountReactivatedProvider.notifier).set(true);
+    _syncCapture();
   }
 
   /// A sign-in that just cancelled a pending account deletion tells the person once.

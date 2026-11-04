@@ -122,6 +122,9 @@ export async function handleIngest(req: Request, deps: IngestDeps): Promise<Resp
   const duplicate = id === null;
   // A replay of a message whose first parse failed finishes the parse now (rows are unique per raw message and type).
   if (id === null && !otp) id = await deps.findRetryableRaw(found.userId, hash);
+  // The first attempt that fails is answered with an error so the app sends it again; a second failure is answered
+  // with success so one message that can never be parsed does not stay in the app's queue forever.
+  const retrying = duplicate && id !== null;
   await deps.touchToken(found.id);
 
   if (id !== null && !otp) {
@@ -200,7 +203,7 @@ export async function handleIngest(req: Request, deps: IngestDeps): Promise<Resp
     } catch (e) {
       // The raw message is stored; answering with an error makes the app send it again, and the retry parses it.
       console.error("parse_save_failed", (e as Error).message);
-      throw e;
+      if (!retrying) throw e;
     }
   }
 

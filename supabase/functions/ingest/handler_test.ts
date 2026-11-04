@@ -377,6 +377,16 @@ Deno.test("ingest: the retry after a failed save parses the stored message once 
   assert.equal(s.saved.length, 1, "a third delivery is a plain duplicate");
 });
 
+Deno.test("ingest: a message that fails twice is answered with success the second time (no endless retry)", async () => {
+  const s = await setup({ failSave: true });
+  const first = await s.call(SMS).catch(() => null);
+  assert.equal(first, null);
+  const second = await s.call(SMS);
+  assert.equal(second.status, 200);
+  assert.equal(s.rows.length, 1);
+  assert.equal(s.rows[0].parse_status, "needs_review");
+});
+
 Deno.test("ingest: a duplicate delivery is not parsed twice", async () => {
   const s = await setup();
   await s.call(SMS);
