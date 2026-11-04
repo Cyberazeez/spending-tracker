@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { generateToken, INGEST_TOKEN_KINDS, sha256Hex } from "../_shared/token.ts";
+import { INGEST_TOKEN_KINDS, generateToken, sha256Hex } from "../_shared/token.ts";
 import { handleWidgetSummary, WIDGET_LIMIT_PER_DAY, type WidgetDeps } from "./handler.ts";
 
 async function setup(over: Partial<WidgetDeps> = {}) {
@@ -9,8 +9,7 @@ async function setup(over: Partial<WidgetDeps> = {}) {
   const deps: WidgetDeps = {
     findWidgetToken: (h) => Promise.resolve(h === hash ? { id: "t1", userId: "u1" } : null),
     bumpRateLimit: () => Promise.resolve(1),
-    summary: () =>
-      Promise.resolve({ todayHalalas: 4500, monthHalalas: 58055, budgetHalalas: 800000 }),
+    summary: () => Promise.resolve({ todayHalalas: 4500, monthHalalas: 58055, budgetHalalas: 800000 }),
     touchToken: (id) => {
       touched.push(id);
       return Promise.resolve();
