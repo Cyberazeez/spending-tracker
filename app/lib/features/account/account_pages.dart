@@ -263,13 +263,10 @@ class _SecurityPageState extends ConsumerState<SecurityPage> {
       if (mounted) setState(() => _busy = false);
       return;
     }
-    // The password is changed; replacing the phone's tokens is best effort and retried on the next app start.
-    try {
-      await releaseCapture(capture, tokens);
-      await releaseWidget(widget, tokens);
-      unawaited(ensureCaptureReady(capture, tokens, () => auth.userId));
-      unawaited(ensureWidgetReady(widget, tokens, () => auth.userId));
-    } catch (_) {}
+    // The password is changed. Fresh tokens replace the phone's old ones (best effort: offline keeps the old
+    // ones, which still work), and anything queued for upload stays queued.
+    unawaited(renewCaptureToken(capture, tokens, () => auth.userId));
+    unawaited(renewWidgetToken(widget, tokens, () => auth.userId));
     if (!mounted) return;
     setState(() => _busy = false);
     await showCupertinoDialog<void>(
