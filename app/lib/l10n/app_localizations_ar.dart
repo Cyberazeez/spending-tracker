@@ -16,10 +16,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get tabHome => 'الرئيسية';
 
   @override
-  String get tabTransactions => 'العمليات';
+  String get tabTransactions => 'النشاط';
 
   @override
-  String get tabObligations => 'الالتزامات';
+  String get tabObligations => 'الفواتير';
 
   @override
   String get tabInsights => 'التحليلات';
@@ -120,7 +120,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get genericError => 'حدث خطأ. حاول مرة أخرى.';
 
   @override
-  String get txTitle => 'العمليات';
+  String get txTitle => 'النشاط';
 
   @override
   String get txEmptyTitle => 'لا توجد عمليات بعد';
@@ -1168,4 +1168,14 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get deleteFailed => 'تعذر الحذف. تحقق من الاتصال وحاول مرة أخرى.';
+
+  @override
+  String get deleteSureTitle => 'هل أنت متأكد؟';
+
+  @override
+  String get deleteSureBody =>
+      'ستُحذف جميع بياناتك نهائياً. لا يمكن التراجع ولا استعادة أي شيء.';
+
+  @override
+  String get deleteSureConfirm => 'احذف كل شيء';
 }

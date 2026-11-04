@@ -29,7 +29,7 @@ Future<Harness> open(WidgetTester tester, List<ObligationInstance> list) async {
   // 2026-10-30 12:00 UTC is 15:00 in Riyadh
   await tester.pumpWidget(await h.build());
   await tester.pumpAndSettle();
-  await tester.tap(find.text('Obligations').last);
+  await tester.tap(find.text('Bills').last);
   await tester.pumpAndSettle();
   return h;
 }
@@ -197,7 +197,7 @@ void main() {
       ];
       await tester.pumpWidget(await h.build());
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Obligations').last);
+      await tester.tap(find.text('Bills').last);
       await tester.pumpAndSettle();
       expect(
         find.textContaining(
@@ -230,7 +230,7 @@ void main() {
     h.data.failLoad = true;
     await tester.pumpWidget(await h.build());
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Obligations').last);
+    await tester.tap(find.text('Bills').last);
     await tester.pumpAndSettle();
     expect(find.text('Could not load. Pull to retry.'), findsOneWidget);
   });
@@ -240,7 +240,7 @@ void main() {
     h.data.instances = [inst('1', 'Horse', '2026-11-05')];
     await tester.pumpWidget(await h.build(prefs: {'locale': 'ar'}));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('الالتزامات').last);
+    await tester.tap(find.text('الفواتير').last);
     await tester.pumpAndSettle();
     expect(find.text('القادمة'), findsOneWidget);
     expect(find.textContaining('المتوقع'), findsOneWidget);

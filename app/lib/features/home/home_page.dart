@@ -71,27 +71,6 @@ class HomePage extends ConsumerWidget {
             largeTitle: Text(t.homeOverview),
             backgroundColor: AppTokens.bg.resolveFrom(context),
             border: null,
-            trailing: CupertinoButton(
-              padding: EdgeInsets.zero,
-              minimumSize: const Size(44, 44),
-              onPressed: () => context.push(quickAddPath),
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  color: AppTokens.accent.resolveFrom(context),
-                  shape: BoxShape.circle,
-                ),
-                child: SizedBox(
-                  width: 36,
-                  height: 36,
-                  child: Icon(
-                    LucideIcons.plus,
-                    size: 20,
-                    color: AppTokens.onAccent.resolveFrom(context),
-                    semanticLabel: t.homeAddTx,
-                  ),
-                ),
-              ),
-            ),
           ),
           CupertinoSliverRefreshControl(
             onRefresh: () async {

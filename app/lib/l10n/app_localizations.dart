@@ -113,13 +113,13 @@ abstract class AppLocalizations {
   /// No description provided for @tabTransactions.
   ///
   /// In en, this message translates to:
-  /// **'Transactions'**
+  /// **'Activity'**
   String get tabTransactions;
 
   /// No description provided for @tabObligations.
   ///
   /// In en, this message translates to:
-  /// **'Obligations'**
+  /// **'Bills'**
   String get tabObligations;
 
   /// No description provided for @tabInsights.
@@ -311,7 +311,7 @@ abstract class AppLocalizations {
   /// No description provided for @txTitle.
   ///
   /// In en, this message translates to:
-  /// **'Transactions'**
+  /// **'Activity'**
   String get txTitle;
 
   /// No description provided for @txEmptyTitle.
@@ -2191,6 +2191,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not delete. Check your connection and try again.'**
   String get deleteFailed;
+
+  /// No description provided for @deleteSureTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure?'**
+  String get deleteSureTitle;
+
+  /// No description provided for @deleteSureBody.
+  ///
+  /// In en, this message translates to:
+  /// **'All your data will be permanently deleted. This cannot be undone and nothing can be restored.'**
+  String get deleteSureBody;
+
+  /// No description provided for @deleteSureConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete everything'**
+  String get deleteSureConfirm;
 }
 
 class _AppLocalizationsDelegate

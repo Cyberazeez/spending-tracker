@@ -2,8 +2,8 @@
   "@@locale": "en",
   "appTitle": "Spending",
   "tabHome": "Home",
-  "tabTransactions": "Transactions",
-  "tabObligations": "Obligations",
+  "tabTransactions": "Activity",
+  "tabObligations": "Bills",
   "tabInsights": "Insights",
   "tabMore": "More",
   "loginTitle": "Sign in",
@@ -42,7 +42,7 @@
   "done": "Done",
   "tryAgain": "Try again",
   "genericError": "Something went wrong. Try again.",
-  "txTitle": "Transactions",
+  "txTitle": "Activity",
   "txEmptyTitle": "No transactions yet",
   "txEmptyBody": "Bank SMS appear here once your Shortcut is running. You can also add one by hand.",
   "txInternal": "Internal",
@@ -696,8 +696,38 @@
   "deleteWrongPassword": "The password is wrong.",
   "deleteTooMany": "Too many tries. Try again tomorrow.",
   "deleteFailed": "Could not delete. Check your connection and try again.",
-  "@bankRemoveConfirm": {"placeholders": {"name": {"type": "String"}}},
-  "@welcomeProgress": {"placeholders": {"done": {"type": "String"}, "total": {"type": "String"}}},
-  "@deleteTypeWord": {"placeholders": {"word": {"type": "String"}}},
-  "@deleteWordMismatch": {"placeholders": {"word": {"type": "String"}}}
+  "@bankRemoveConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@welcomeProgress": {
+    "placeholders": {
+      "done": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "@deleteTypeWord": {
+    "placeholders": {
+      "word": {
+        "type": "String"
+      }
+    }
+  },
+  "@deleteWordMismatch": {
+    "placeholders": {
+      "word": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteSureTitle": "Are you sure?",
+  "deleteSureBody": "All your data will be permanently deleted. This cannot be undone and nothing can be restored.",
+  "deleteSureConfirm": "Delete everything"
 }

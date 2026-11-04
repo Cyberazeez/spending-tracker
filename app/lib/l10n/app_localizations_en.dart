@@ -16,10 +16,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tabHome => 'Home';
 
   @override
-  String get tabTransactions => 'Transactions';
+  String get tabTransactions => 'Activity';
 
   @override
-  String get tabObligations => 'Obligations';
+  String get tabObligations => 'Bills';
 
   @override
   String get tabInsights => 'Insights';
@@ -119,7 +119,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get genericError => 'Something went wrong. Try again.';
 
   @override
-  String get txTitle => 'Transactions';
+  String get txTitle => 'Activity';
 
   @override
   String get txEmptyTitle => 'No transactions yet';
@@ -1174,4 +1174,14 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deleteFailed =>
       'Could not delete. Check your connection and try again.';
+
+  @override
+  String get deleteSureTitle => 'Are you sure?';
+
+  @override
+  String get deleteSureBody =>
+      'All your data will be permanently deleted. This cannot be undone and nothing can be restored.';
+
+  @override
+  String get deleteSureConfirm => 'Delete everything';
 }

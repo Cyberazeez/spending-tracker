@@ -74,7 +74,7 @@ void main() {
     expect(h.auth.signInCalls, 1);
     expect(h.authenticator.calls, 0);
     expect(find.text('Waiting for your first SMS'), findsOneWidget);
-    expect(find.text('Transactions'), findsWidgets);
+    expect(find.text('Activity'), findsWidgets);
   });
 
   testWidgets(

@@ -26,7 +26,7 @@ Future<Harness> openBills(
   h.data.instances = list;
   await tester.pumpWidget(await h.build(prefs: prefs));
   await tester.pumpAndSettle();
-  await tester.tap(find.text('Obligations').last);
+  await tester.tap(find.text('Bills').last);
   await tester.pumpAndSettle();
   return h;
 }
@@ -229,9 +229,7 @@ void main() {
       });
       await tester.pumpWidget(await h.build(prefs: {'locale': lang}));
       await tester.pumpAndSettle();
-      await tester.tap(
-        find.text(lang == 'en' ? 'Obligations' : 'الالتزامات').last,
-      );
+      await tester.tap(find.text(lang == 'en' ? 'Bills' : 'الفواتير').last);
       await tester.pumpAndSettle();
       await tester.tap(
         find.bySemanticsLabel(
