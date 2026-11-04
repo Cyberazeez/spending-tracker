@@ -29,7 +29,10 @@ class FilterChips extends ConsumerWidget {
         ? null
         : cats.where((c) => c.id == f.categoryId).firstOrNull;
     final onlyBase =
-        f.categoryId == null && !f.uncategorizedOnly && !f.hideInternal;
+        f.categoryId == null &&
+        !f.uncategorizedOnly &&
+        !f.hideInternal &&
+        !f.aiOnly;
     return Wrap(
       spacing: 8,
       runSpacing: 4,
@@ -42,6 +45,7 @@ class FilterChips extends ConsumerWidget {
               categoryId: null,
               uncategorizedOnly: false,
               hideInternal: false,
+              aiOnly: false,
             ),
           ),
         ),
@@ -61,6 +65,11 @@ class FilterChips extends ConsumerWidget {
               categoryId: null,
             ),
           ),
+        ),
+        _Chip(
+          label: t.txChipAi,
+          selected: f.aiOnly,
+          onTap: () => ctl.set(f.copyWith(aiOnly: !f.aiOnly)),
         ),
         _Chip(
           label: t.txChipHideInternal,

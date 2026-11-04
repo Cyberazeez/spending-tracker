@@ -14,6 +14,7 @@ import '../../core/widget_setup.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../l10n/app_localizations.dart';
+import '../../ui/pill_tab_bar.dart';
 import '../../ui/tokens.dart';
 import 'tabs.dart';
 import '../home/home_page.dart';
@@ -108,13 +109,7 @@ class _ShellPageState extends ConsumerState<ShellPage>
     return CupertinoTabScaffold(
       controller: ref.watch(tabControllerProvider),
       backgroundColor: AppTokens.bg.resolveFrom(context),
-      tabBar: CupertinoTabBar(
-        backgroundColor: AppTokens.tab
-            .resolveFrom(context)
-            .withValues(alpha: 0.88),
-        activeColor: AppTokens.accent.resolveFrom(context),
-        inactiveColor: AppTokens.muted.resolveFrom(context),
-        border: null,
+      tabBar: PillTabBar(
         items: [
           BottomNavigationBarItem(
             icon: const Icon(LucideIcons.house),

@@ -128,11 +128,13 @@ class SettingsRow extends StatelessWidget {
             ),
             if (value != null) ...[
               const SizedBox(width: 8),
-              Flexible(
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 140),
                 child: Text(
                   value!,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.end,
                   style: TextStyle(color: muted, fontSize: 14),
                 ),
               ),
