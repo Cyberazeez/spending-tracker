@@ -6,12 +6,34 @@ do $$
 declare
   a uuid := '00000000-0000-0000-0000-00000000000a';
   b uuid := '00000000-0000-0000-0000-00000000000b';
+  f uuid := '00000000-0000-0000-0000-0000000000f1';
   n int;
   denied boolean;
 begin
   insert into auth.users (id, aud, role, email) values
     (a, 'authenticated', 'authenticated', 'rls-a@example.test'),
-    (b, 'authenticated', 'authenticated', 'rls-b@example.test');
+    (b, 'authenticated', 'authenticated', 'rls-b@example.test'),
+    (f, 'authenticated', 'authenticated', 'rls-family@example.test');
+
+  -- A and B stand for the owner (household extras are seeded by hand); F is a family member who signed up.
+  perform public.seed_owner_extras(a);
+  perform public.seed_owner_extras(b);
+
+  -- a fresh sign-up starts clean: generic categories, no bank accounts, no obligations, none of the owner's rules
+  select count(*) into n from public.categories where user_id = f;
+  if n <> 17 then raise exception 'signup: expected 17 generic categories, got %', n; end if;
+  select count(*) into n from public.categories where user_id = f and name in ('Horse', 'House Card');
+  if n <> 0 then raise exception 'signup: household categories leaked to a new user'; end if;
+  select count(*) into n from public.own_accounts where user_id = f;
+  if n <> 0 then raise exception 'signup: a new user got bank accounts'; end if;
+  select count(*) into n from public.obligations where user_id = f;
+  if n <> 0 then raise exception 'signup: a new user got the owner''s obligations'; end if;
+  select count(*) into n from public.merchant_rules where user_id = f and pattern in ('acct:7892', 'card:8920');
+  if n <> 0 then raise exception 'signup: household merchant rules leaked'; end if;
+  select count(*) into n from public.merchant_rules where user_id = f;
+  if n < 40 then raise exception 'signup: the generic merchant rules are missing (%)', n; end if;
+  select count(*) into n from public.settings where user_id = f and ai_enabled = false;
+  if n <> 1 then raise exception 'signup: settings missing or AI not off'; end if;
 
   -- trigger seeded both users
   select count(*) into n from public.categories where user_id in (a, b);
@@ -260,6 +282,24 @@ begin
   begin perform 1 from public.transactions; exception when insufficient_privilege then denied := true; end;
   if not denied then raise exception 'anon could read transactions'; end if;
 
+  reset role;
+
+  -- a family member sees none of the owner's data, and cannot reach it through the app's functions
+  perform set_config('request.jwt.claims', json_build_object('sub', f, 'role', 'authenticated')::text, true);
+  set local role authenticated;
+  select count(*) into n from public.own_accounts;
+  if n <> 0 then raise exception 'F sees bank accounts'; end if;
+  select count(*) into n from public.obligations;
+  if n <> 0 then raise exception 'F sees obligations'; end if;
+  select count(*) into n from public.merchant_rules where pattern like 'acct:%' or pattern like 'card:%';
+  if n <> 0 then raise exception 'F sees household rules'; end if;
+  select count(*) into n from public.categories;
+  if n <> 17 then raise exception 'F sees % categories, expected only their own 17', n; end if;
+  select count(*) into n from public.settings;
+  if n <> 1 then raise exception 'F sees % settings rows', n; end if;
+  denied := false;
+  begin perform public.stop_my_obligation((select id from public.obligations where user_id = a limit 1) ); exception when others then denied := true; end;
+  if not denied then raise exception 'F stopped one of the owner''s obligations'; end if;
   reset role;
   -- statement import: rows land as csv history, categories map by name, a second import changes nothing
   n := public.import_statement_rows(a, '[{"ref":"alinma:8119:1:1","date":"2026-05-19","type":"purchase","direction":"out","amount":2740,"merchant":"LULU","norm":"lulu","category":"Groceries","card":"8119","bank":"alinma"},{"ref":"alinma:8119:2:1","date":"2026-05-20","type":"refund","direction":"in","amount":100,"merchant":"X","norm":"x","category":null,"card":"8119","bank":"alinma"},{"ref":"alinma:8119:3:1","date":"2026-05-21","type":"wallet_topup","direction":"out","amount":500,"merchant":"barq","norm":"barq","category":"Transfers","card":"8119","bank":"alinma"},{"ref":"bad","date":"2026-05-20","type":"transfer_out","direction":"out","amount":100,"merchant":"X","norm":"x","category":null,"card":null,"bank":null}]'::jsonb);

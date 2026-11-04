@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { MODEL } from "../_shared/ai.ts";
+import { effectiveSpent, globalCapFromEnv } from "../_shared/ai_budget.ts";
 import { generateTips, sanitizeAggregates } from "../_shared/tips.ts";
 
 // Optional AI tips on aggregated numbers. Off unless settings.ai_enabled and ANTHROPIC_API_KEY are both set.
@@ -62,10 +63,17 @@ Deno.serve(async (req) => {
         aiEnabled: settings.data.ai_enabled,
         capHalalas: Number(settings.data.ai_monthly_cap_halalas),
         async spentHalalas() {
-          const { data, error } = await db.from("ai_usage").select("cost_halalas")
-            .gte("created_at", monthStartUtc()); // all users: the cap is a global ceiling
+          // This user's spend against their own cap, plus one ceiling over all users (see _shared/ai_budget.ts).
+          const { data, error } = await db.from("ai_usage").select("user_id, cost_halalas")
+            .gte("created_at", monthStartUtc());
           if (error) throw new Error("usage_read_failed");
-          return (data ?? []).reduce((s, r) => s + Number(r.cost_halalas), 0);
+          const rows = data ?? [];
+          const all = rows.reduce((s, r) => s + Number(r.cost_halalas), 0);
+          const mine = rows.filter((r) => r.user_id === userId).reduce(
+            (s, r) => s + Number(r.cost_halalas),
+            0,
+          );
+          return effectiveSpent(mine, all, globalCapFromEnv(Deno.env.get("AI_GLOBAL_CAP_HALALAS")));
         },
         async recordUsage(x) {
           const { error } = await db.from("ai_usage").insert({
