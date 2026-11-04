@@ -13,7 +13,8 @@ create table auth.users (
   id uuid primary key,
   aud text,
   role text,
-  email text
+  email text,
+  last_sign_in_at timestamptz
 );
 
 create table auth.sessions (

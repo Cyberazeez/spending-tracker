@@ -9,8 +9,13 @@ project_id = "evepfssanoffnwtqjmyq"
 enable_signup = true
 enable_anonymous_sign_ins = false
 
+# Ship review 2026-11-04: 8 characters minimum (the app already asks for 8 on change), and a password change needs a
+# recent sign-in. Set the same in the dashboard (Authentication > Sign In / Providers) or this is not applied.
+minimum_password_length = 8
+
 [auth.email]
 enable_confirmations = false
+secure_password_change = true
 
 [functions.ingest]
 # The iOS Shortcut cannot send a JWT. The function authenticates the X-Ingest-Token itself.

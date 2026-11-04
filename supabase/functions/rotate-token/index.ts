@@ -6,6 +6,8 @@ const url = Deno.env.get("SUPABASE_URL")!;
 const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
 
+const ROTATE_LIMIT_PER_DAY = 30;
+
 const CORS = {
   "access-control-allow-origin": "*",
   "access-control-allow-headers": "authorization, content-type, apikey",
@@ -50,6 +52,20 @@ Deno.serve(async (req) => {
     if (revoked.error) return json(500, { error: "server_error" });
     return json(200, { ok: true });
   }
+
+  // An account that asked to be deleted cannot mint tokens (its old access token can live for up to an hour), and a
+  // signed-in user cannot fill the table with revoked rows.
+  const pending = await db.from("account_deletions").select("user_id").eq("user_id", userId)
+    .maybeSingle();
+  if (pending.error) return json(500, { error: "server_error" });
+  if (pending.data) return json(403, { error: "account_pending_deletion" });
+  const used = await db.rpc("bump_rate_limit", {
+    p_user: userId,
+    p_bucket: "rotate_token",
+    p_window: "day",
+  });
+  if (used.error) return json(500, { error: "server_error" });
+  if (Number(used.data) > ROTATE_LIMIT_PER_DAY) return json(429, { error: "rate_limited" });
 
   const token = generateToken();
   // One transaction: revoke this kind's old token and store the new hash. Never leaves zero or two active tokens of a kind.

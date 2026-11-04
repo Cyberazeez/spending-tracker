@@ -14,6 +14,15 @@ void main() {
     );
   });
 
+  group('formatSar negative', () {
+    test('a net-negative total keeps its sign in every form', () {
+      expect(formatSar(-500, arabic: false), '-⃁ 5.00');
+      expect(formatSar(-500, arabic: true), '-5.00 ⃁');
+      expect(formatSar(-500, arabic: false, symbol: false), '-SAR 5.00');
+      expect(formatSar(500, arabic: false), '⃁ 5.00');
+    });
+  });
+
   group('parseHalalas', () {
     test('accepts plain, decimal, grouped and Arabic-Indic input', () {
       expect(parseHalalas('25'), 2500);

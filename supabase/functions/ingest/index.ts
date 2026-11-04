@@ -37,6 +37,14 @@ const deps: IngestDeps = {
     }
     return data?.id ?? null;
   },
+  async findRetryableRaw(userId, dedupeHash) {
+    const { data, error } = await db.from("raw_messages").select("id").eq("user_id", userId).eq(
+      "dedupe_hash",
+      dedupeHash,
+    ).eq("parse_status", "needs_review").is("transaction_id", null).maybeSingle();
+    if (error) throw new Error("retry_lookup_failed");
+    return data?.id ?? null;
+  },
   async loadOwnAccounts(userId) {
     const { data, error } = await db.from("own_accounts").select("bank, last4").eq(
       "user_id",

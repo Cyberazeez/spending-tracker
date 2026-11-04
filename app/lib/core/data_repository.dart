@@ -616,6 +616,8 @@ class SupabaseDataRepository implements DataRepository {
           .isFilter('deleted_at', null)
           .gte('occurred_at', start.toIso8601String())
           .order('occurred_at', ascending: false)
+          // A transfer and its fee share a time; without a tiebreaker the pages can repeat or skip rows.
+          .order('id', ascending: false)
           .range(from, from + page - 1);
       out.addAll(rows.map<Txn>(Txn.fromRow));
       if (rows.length < page) break;

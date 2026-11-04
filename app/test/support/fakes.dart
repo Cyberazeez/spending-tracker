@@ -22,6 +22,7 @@ class FakeAuthRepository implements AuthRepository {
   final _controller = StreamController<bool>.broadcast();
   SignInFailure? failWith;
   int signInCalls = 0;
+  int reactivateCalls = 0;
 
   /// What the next sign-in reports as "cancelled a pending deletion".
   bool reactivateOnSignIn = false;
@@ -103,6 +104,12 @@ class FakeAuthRepository implements AuthRepository {
     _signedIn = true;
     _controller.add(true);
     return reactivateOnSignIn;
+  }
+
+  @override
+  Future<bool> reactivateIfPending() async {
+    reactivateCalls++;
+    return false;
   }
 
   @override

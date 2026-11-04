@@ -28,6 +28,11 @@ export interface IngestDeps {
   bumpRateLimit(userId: string, window: "minute" | "day"): Promise<number>;
   /** Returns the new id, or null when the dedupe hash already exists. */
   insertRaw(row: RawMessageRow): Promise<string | null>;
+  /**
+   * The id of an already stored copy of this message that was never parsed (an earlier try failed after the raw row
+   * was saved), so a retry can finish the job instead of being dropped as a duplicate. Null when there is none.
+   */
+  findRetryableRaw(userId: string, dedupeHash: string): Promise<string | null>;
   touchToken(tokenId: string): Promise<void>;
   loadOwnAccounts(userId: string): Promise<OwnAccount[]>;
   loadCategorization(userId: string): Promise<{ ids: CategoryIds; rules: Rule[] }>;
@@ -103,16 +108,20 @@ export async function handleIngest(req: Request, deps: IngestDeps): Promise<Resp
 
   const otp = isOtpLike(body);
   const storedBody = otp ? REDACTED_BODY : stripBalances(body);
-  const id = await deps.insertRaw({
+  // Hash what is stored, so a one-time code can never be recovered from the hash.
+  const hash = await dedupeKey(sender, storedBody, receivedAt);
+  let id = await deps.insertRaw({
     user_id: found.userId,
     sender,
     body: storedBody,
     received_at: receivedAt.toISOString(),
-    // Hash what is stored, so a one-time code can never be recovered from the hash.
-    dedupe_hash: await dedupeKey(sender, storedBody, receivedAt),
+    dedupe_hash: hash,
     parse_status: otp ? "ignored" : "needs_review",
     ignore_reason: otp ? "otp" : null,
   });
+  const duplicate = id === null;
+  // A replay of a message whose first parse failed finishes the parse now (rows are unique per raw message and type).
+  if (id === null && !otp) id = await deps.findRetryableRaw(found.userId, hash);
   await deps.touchToken(found.id);
 
   if (id !== null && !otp) {
@@ -138,7 +147,8 @@ export async function handleIngest(req: Request, deps: IngestDeps): Promise<Resp
           }).catch(() => []);
           if (head.is_internal) {
             toMark = others.filter((o) => !o.isInternal).map((o) => o.id);
-          } else if (head.type === "transfer_in" && others.some((o) => o.isInternal)) {
+          } else if (others.some((o) => o.isInternal)) {
+            // Either direction: the other bank's message of the same move is already known to be internal.
             head.is_internal = true;
             head.excluded_from_spend = true;
           }
@@ -188,9 +198,11 @@ export async function handleIngest(req: Request, deps: IngestDeps): Promise<Resp
         });
       }
     } catch (e) {
+      // The raw message is stored; answering with an error makes the app send it again, and the retry parses it.
       console.error("parse_save_failed", (e as Error).message);
+      throw e;
     }
   }
 
-  return json(200, { ok: true, duplicate: id === null });
+  return json(200, { ok: true, duplicate });
 }

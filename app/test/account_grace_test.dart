@@ -35,4 +35,13 @@ void main() {
     await _signIn(tester, h);
     expect(find.text('Welcome back'), findsNothing);
   });
+
+  testWidgets('opening the app asks again to cancel a standing deletion', (
+    tester,
+  ) async {
+    final h = Harness(signedIn: true);
+    await tester.pumpWidget(await h.build());
+    await tester.pumpAndSettle();
+    expect(h.auth.reactivateCalls, 1);
+  });
 }

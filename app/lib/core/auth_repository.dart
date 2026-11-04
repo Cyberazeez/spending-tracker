@@ -48,6 +48,10 @@ abstract class AuthRepository {
   /// Signs in. True when this sign-in cancelled a pending account deletion (the 30-day grace period).
   Future<bool> signIn(String email, String password);
 
+  /// Cancels a pending account deletion of the signed-in user (a sign-in that could not reach the server left it
+  /// standing). True when one was cancelled. Never throws.
+  Future<bool> reactivateIfPending();
+
   /// Creates an account (family testing: open sign-up). Throws [SignUpException].
   Future<SignUpResult> signUp({
     required String name,
@@ -105,7 +109,13 @@ class SupabaseAuthRepository implements AuthRepository {
     } catch (_) {
       throw const SignInException(SignInFailure.network);
     }
-    // Signing in cancels a pending deletion. Failing to ask is harmless: the next sign-in asks again.
+    // Signing in cancels a pending deletion. If the call fails the app asks again every time it opens (see
+    // ShellPage), and the server never purges an account that signed in after asking to be deleted.
+    return reactivateIfPending();
+  }
+
+  @override
+  Future<bool> reactivateIfPending() async {
     try {
       return await _client.rpc('reactivate_my_account') == true;
     } catch (_) {

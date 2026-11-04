@@ -196,6 +196,7 @@ Insights computeInsights(
     if (t.direction == 'out' &&
         t.type == 'purchase' &&
         !t.isInternal &&
+        spend > 0 && // not an excluded category (spend is 0 there)
         key <= thisKey &&
         key >= thisKey - 3) {
       final m = t.merchantNorm;
@@ -281,8 +282,9 @@ Insights computeInsights(
 }
 
 /// Share of the monthly budget spent, in whole percent (can pass 100); null when no budget is set.
-int? budgetPercent(int spent, int? budget) =>
-    (budget == null || budget <= 0) ? null : (spent * 100) ~/ budget;
+int? budgetPercent(int spent, int? budget) => (budget == null || budget <= 0)
+    ? null
+    : (spent <= 0 ? 0 : (spent * 100) ~/ budget);
 
 enum BudgetLevel { ok, warn, over }
 

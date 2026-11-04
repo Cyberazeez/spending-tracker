@@ -47,6 +47,12 @@ class _ShellPageState extends ConsumerState<ShellPage>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) _showReactivated();
     });
+    // A sign-in whose reactivation call failed (offline) would leave the deletion standing: ask again on open.
+    ref.read(authRepositoryProvider).reactivateIfPending().then((was) {
+      if (was && mounted) {
+        ref.read(accountReactivatedProvider.notifier).set(true);
+      }
+    });
   }
 
   /// A sign-in that just cancelled a pending account deletion tells the person once.
