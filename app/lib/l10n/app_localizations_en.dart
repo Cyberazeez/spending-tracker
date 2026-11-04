@@ -1027,4 +1027,35 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get moreAccount => 'Account';
+
+  @override
+  String get signUpTitle => 'Create account';
+
+  @override
+  String get signUpLink => 'Create account';
+
+  @override
+  String get signUpNameRequired => 'Enter your name (up to 60 letters).';
+
+  @override
+  String get signUpEmailTaken =>
+      'This email already has an account. Sign in instead.';
+
+  @override
+  String get signUpDisabled => 'Sign-up is closed right now. Ask the owner.';
+
+  @override
+  String get signUpCheckEmail =>
+      'Check your email and tap the confirmation link, then come back and sign in.';
+
+  @override
+  String get signUpWeak =>
+      'That password is too weak. Use at least 8 characters and mix letters and numbers.';
+
+  @override
+  String get signUpTryLater =>
+      'Could not create the account right now. Try again in a few minutes.';
+
+  @override
+  String get signUpBackToSignIn => 'Back to sign in';
 }

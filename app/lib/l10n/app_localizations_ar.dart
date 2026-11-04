@@ -1024,4 +1024,33 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get moreAccount => 'الحساب';
+
+  @override
+  String get signUpTitle => 'إنشاء حساب';
+
+  @override
+  String get signUpLink => 'إنشاء حساب';
+
+  @override
+  String get signUpNameRequired => 'أدخل اسمك (حتى 60 حرفاً).';
+
+  @override
+  String get signUpEmailTaken => 'هذا البريد لديه حساب بالفعل. سجّل الدخول.';
+
+  @override
+  String get signUpDisabled => 'التسجيل مغلق حالياً. اسأل المالك.';
+
+  @override
+  String get signUpCheckEmail =>
+      'تحقق من بريدك واضغط رابط التأكيد، ثم عد وسجّل الدخول.';
+
+  @override
+  String get signUpWeak =>
+      'كلمة المرور ضعيفة. استخدم 8 أحرف على الأقل مع حروف وأرقام.';
+
+  @override
+  String get signUpTryLater => 'تعذر إنشاء الحساب الآن. حاول بعد دقائق.';
+
+  @override
+  String get signUpBackToSignIn => 'العودة لتسجيل الدخول';
 }

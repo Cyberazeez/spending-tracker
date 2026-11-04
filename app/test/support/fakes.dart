@@ -34,6 +34,27 @@ class FakeAuthRepository implements AuthRepository {
   @override
   Stream<bool> get signedIn => _controller.stream;
 
+  SignUpFailure? signUpFailWith;
+  SignUpResult signUpResult = SignUpResult.signedIn;
+  final signUpCalls = <(String, String, String)>[];
+
+  @override
+  Future<SignUpResult> signUp({
+    required String name,
+    required String email,
+    required String password,
+  }) async {
+    if (signUpFailWith != null) throw SignUpException(signUpFailWith!);
+    signUpCalls.add((name, email, password));
+    if (signUpResult == SignUpResult.signedIn) {
+      _signedIn = true;
+      fakeName = name;
+      fakeEmail = email;
+      _controller.add(true);
+    }
+    return signUpResult;
+  }
+
   String? fakeEmail = 'azeez@example.test';
   String? fakeName;
   PasswordFailure? passwordFailWith;

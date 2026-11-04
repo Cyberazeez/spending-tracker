@@ -1927,6 +1927,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Account'**
   String get moreAccount;
+
+  /// No description provided for @signUpTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create account'**
+  String get signUpTitle;
+
+  /// No description provided for @signUpLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Create account'**
+  String get signUpLink;
+
+  /// No description provided for @signUpNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your name (up to 60 letters).'**
+  String get signUpNameRequired;
+
+  /// No description provided for @signUpEmailTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'This email already has an account. Sign in instead.'**
+  String get signUpEmailTaken;
+
+  /// No description provided for @signUpDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign-up is closed right now. Ask the owner.'**
+  String get signUpDisabled;
+
+  /// No description provided for @signUpCheckEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your email and tap the confirmation link, then come back and sign in.'**
+  String get signUpCheckEmail;
+
+  /// No description provided for @signUpWeak.
+  ///
+  /// In en, this message translates to:
+  /// **'That password is too weak. Use at least 8 characters and mix letters and numbers.'**
+  String get signUpWeak;
+
+  /// No description provided for @signUpTryLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not create the account right now. Try again in a few minutes.'**
+  String get signUpTryLater;
+
+  /// No description provided for @signUpBackToSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to sign in'**
+  String get signUpBackToSignIn;
 }
 
 class _AppLocalizationsDelegate

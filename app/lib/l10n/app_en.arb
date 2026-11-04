@@ -651,5 +651,14 @@
   "secDone": "Password changed.",
   "secNote": "This also resets SMS capture and the widget on this phone. They reconnect by themselves.",
   "privacyBody": "Your data is stored in your own account and only you can read it. More options will appear here soon.",
-  "moreAccount": "Account"
+  "moreAccount": "Account",
+  "signUpTitle": "Create account",
+  "signUpLink": "Create account",
+  "signUpNameRequired": "Enter your name (up to 60 letters).",
+  "signUpEmailTaken": "This email already has an account. Sign in instead.",
+  "signUpDisabled": "Sign-up is closed right now. Ask the owner.",
+  "signUpCheckEmail": "Check your email and tap the confirmation link, then come back and sign in.",
+  "signUpWeak": "That password is too weak. Use at least 8 characters and mix letters and numbers.",
+  "signUpTryLater": "Could not create the account right now. Try again in a few minutes.",
+  "signUpBackToSignIn": "Back to sign in"
 }

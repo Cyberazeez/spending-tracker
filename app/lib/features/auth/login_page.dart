@@ -6,6 +6,10 @@ import '../../core/auth_repository.dart';
 import '../../core/lock.dart';
 import '../../core/providers.dart';
 import '../../l10n/app_localizations.dart';
+
+import 'package:go_router/go_router.dart';
+
+import '../../router.dart';
 import '../../ui/app_form.dart';
 import '../../ui/tokens.dart';
 
@@ -116,6 +120,16 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               ),
             const SizedBox(height: 24),
             PrimaryButton(label: t.signIn, busy: _busy, onPressed: _submit),
+            const SizedBox(height: 8),
+            CupertinoButton(
+              padding: EdgeInsets.zero,
+              minimumSize: const Size(44, 44),
+              onPressed: () => context.push(signUpPath),
+              child: Text(
+                t.signUpLink,
+                style: TextStyle(color: accent, fontWeight: FontWeight.w600),
+              ),
+            ),
           ],
         ),
       ),

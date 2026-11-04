@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'core/lock.dart';
 import 'core/providers.dart';
 import 'features/auth/login_page.dart';
+import 'features/auth/signup_page.dart';
 import 'features/auth/lock_page.dart';
 import 'features/more/capture_page.dart';
 import 'features/obligations/obligation_form_page.dart';
@@ -15,6 +16,7 @@ import 'features/shell/shell_page.dart';
 
 const loginPath = '/login';
 const lockPath = '/lock';
+const signUpPath = '/signup';
 const homePath = '/home';
 const accountPath = '/home/account';
 const profilePath = '/home/account/profile';
@@ -44,9 +46,14 @@ String? redirectFor({
   required bool locked,
   required String location,
 }) {
-  if (!hasSession) return location == loginPath ? null : loginPath;
+  if (!hasSession) {
+    return location == loginPath || location == signUpPath ? null : loginPath;
+  }
   if (locked) return location == lockPath ? null : lockPath;
-  if (location == loginPath || location == lockPath || location == '/') {
+  if (location == loginPath ||
+      location == lockPath ||
+      location == signUpPath ||
+      location == '/') {
     return homePath;
   }
   return null;
@@ -71,6 +78,10 @@ final routerProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(path: loginPath, builder: (_, _) => const LoginPage()),
       GoRoute(path: lockPath, builder: (_, _) => const LockPage()),
+      GoRoute(
+        path: signUpPath,
+        pageBuilder: (_, state) => _page(state, const SignUpPage()),
+      ),
       GoRoute(
         path: homePath,
         builder: (_, _) => const ShellPage(),
