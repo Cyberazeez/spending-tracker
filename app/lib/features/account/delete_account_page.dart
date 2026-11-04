@@ -3,7 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/auth_repository.dart';
 import '../../core/capture_bridge.dart';
+import '../../core/capture_setup.dart';
 import '../../core/lock.dart';
+import '../../core/reminder_bridge.dart';
+import '../../core/widget_setup.dart';
 import '../../core/providers.dart';
 import '../../core/widget_bridge.dart';
 import '../../l10n/app_localizations.dart';
@@ -52,6 +55,10 @@ class _DeleteAccountPageState extends ConsumerState<DeleteAccountPage> {
     final capture = ref.read(captureBridgeProvider);
     final widget = ref.read(widgetBridgeProvider);
     final lock = ref.read(lockProvider.notifier);
+    final tokens = ref.read(tokenRepositoryProvider);
+    final reminders = ref.read(reminderBridgeProvider);
+    final prefs = ref.read(sharedPrefsProvider);
+    final uid = auth.userId;
     try {
       await auth.deleteAccount(_password.text);
     } on DeleteAccountException catch (e) {
@@ -67,11 +74,15 @@ class _DeleteAccountPageState extends ConsumerState<DeleteAccountPage> {
       }
       return;
     }
-    // The account is gone. Wipe what this phone kept for it (the tokens died with the account); sign-out already
-    // happened, so the router returns to the login screen by itself.
+    // The account is gone. Wipe what this phone kept for it (the tokens died with the account, revoking them just
+    // fails quietly): credentials, the offline queue, the widget numbers and the scheduled bill reminders. The
+    // sign-out already happened, so the router returns to the login screen by itself.
     try {
-      await capture.clearCredentials();
-      await widget.clearCredentials();
+      await releaseCapture(capture, tokens);
+      await releaseWidget(widget, tokens);
+      await reminders.clear();
+      await prefs.remove('welcome_hidden_$uid');
+      await prefs.setBool('reminders_on', false);
     } catch (_) {}
     lock.lockNow();
   }

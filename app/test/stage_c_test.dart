@@ -77,6 +77,22 @@ void main() {
     });
   });
 
+  testWidgets('the last 4 digits field takes digits only, at most four', (
+    tester,
+  ) async {
+    await start(tester);
+    await openAccountPage(tester);
+    await tester.tap(find.text('Bank accounts'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(CupertinoButton, 'Add account'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(CupertinoTextField).at(0), '12ab34567');
+    final field = tester.widget<CupertinoTextField>(
+      find.byType(CupertinoTextField).at(0),
+    );
+    expect(field.controller!.text, '1234');
+  });
+
   group('bank accounts', () {
     testWidgets('list, add with validation, duplicate, and remove', (
       tester,

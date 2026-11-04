@@ -176,6 +176,14 @@ class SupabaseAuthRepository implements AuthRepository {
         body: {'password': password},
       );
     } on FunctionException catch (e) {
+      // 401: the account is already gone (an earlier try deleted it and its answer was lost) or the session is no
+      // longer valid. Either way there is nothing left to delete, so carry on and clean this phone up.
+      if (e.status == 401) {
+        try {
+          await _client.auth.signOut(scope: SignOutScope.local);
+        } catch (_) {}
+        return;
+      }
       if (e.status == 403) {
         throw const DeleteAccountException(DeleteFailure.wrongPassword);
       }

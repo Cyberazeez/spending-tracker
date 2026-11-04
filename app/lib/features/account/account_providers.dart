@@ -21,7 +21,9 @@ final welcomeHiddenProvider = NotifierProvider<WelcomeHidden, bool>(
 class WelcomeHidden extends Notifier<bool> {
   @override
   bool build() {
-    final uid = ref.watch(authRepositoryProvider).userId;
+    // Re-read whenever somebody signs in or out, so a second account on this phone starts with its own card.
+    ref.watch(signedInProvider);
+    final uid = ref.read(authRepositoryProvider).userId;
     return ref.read(sharedPrefsProvider).getBool(_hiddenKey(uid)) ?? false;
   }
 
@@ -32,8 +34,8 @@ class WelcomeHidden extends Notifier<bool> {
   }
 }
 
-/// The three first steps of a new account and which are done. Loading values count as "done" so the card never
-/// flashes before the answers arrive.
+/// The three first steps of a new account and which are done. While an answer is still loading its step counts as
+/// done, so the card waits for real answers before it shows.
 class WelcomeState {
   const WelcomeState({
     required this.accounts,

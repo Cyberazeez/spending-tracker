@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
@@ -355,6 +356,10 @@ class _AddAccountSheetState extends ConsumerState<_AddAccountSheet> {
               controller: _last4,
               label: t.bankLast4,
               keyboardType: TextInputType.number,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+                LengthLimitingTextInputFormatter(4),
+              ],
               textInputAction: TextInputAction.next,
             ),
             const SizedBox(height: 16),

@@ -424,21 +424,28 @@ begin
   insert into public.ai_usage (user_id, day, purpose) values (f, current_date, 'insights');
   insert into public.own_accounts (user_id, bank, last4, kind) values (f, 'snb', '1111', 'account');
   perform public.bump_rate_limit(f, 'ingest_min', 'minute');
+  select coalesce(sum(cost_halalas), 0) into n from public.ai_usage where created_at >= date_trunc('month', now());
   delete from auth.users where id = f;
   declare
     t record;
     c int;
     total int := 0;
+    after_total bigint;
   begin
+    -- the AI spend ledger survives, anonymously, so deleting an account cannot reset the shared budget
+    select count(*) into c from public.ai_usage where user_id is null and purpose = 'insights';
+    if c < 1 then raise exception 'account deletion removed the AI spend ledger'; end if;
+    select total_halalas into after_total from public.ai_spend_summary(a, date_trunc('month', now()));
+    if after_total < n then raise exception 'AI total dropped after an account was deleted'; end if;
     for t in
       select table_name from information_schema.columns
-      where table_schema = 'public' and column_name = 'user_id'
+      where table_schema = 'public' and column_name = 'user_id' and table_name <> 'ai_usage'
     loop
       execute format('select count(*) from public.%I where user_id = $1', t.table_name) into c using f;
       if c <> 0 then raise exception 'account deletion left % rows in %', c, t.table_name; end if;
       total := total + 1;
     end loop;
-    if total < 12 then raise exception 'cascade check looked at only % tables', total; end if;
+    if total < 11 then raise exception 'cascade check looked at only % tables', total; end if;
   end;
 
   raise exception 'RLS_TESTS_OK';
