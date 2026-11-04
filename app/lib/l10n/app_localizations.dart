@@ -2323,6 +2323,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Tap to ask about a category or a budget'**
   String get aiTipsTapHint;
+
+  /// No description provided for @obCycleStill.
+  ///
+  /// In en, this message translates to:
+  /// **'{month} · still to pay'**
+  String obCycleStill(String month);
+
+  /// No description provided for @obCyclePaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid {paid} of {total} · {done} of {count} bills'**
+  String obCyclePaid(String paid, String total, String done, String count);
+
+  /// No description provided for @obUnpaidBefore.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 unpaid from an earlier month} other{{count} unpaid from earlier months}}'**
+  String obUnpaidBefore(int count);
+
+  /// No description provided for @obNextSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 bill} other{{count} bills}}'**
+  String obNextSummary(int count);
+
+  /// No description provided for @obNextNote.
+  ///
+  /// In en, this message translates to:
+  /// **'About {amount} · tap to see them'**
+  String obNextNote(String amount);
+
+  /// No description provided for @obAmountPending.
+  ///
+  /// In en, this message translates to:
+  /// **'amount comes with the statement'**
+  String get obAmountPending;
 }
 
 class _AppLocalizationsDelegate

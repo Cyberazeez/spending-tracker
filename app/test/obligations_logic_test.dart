@@ -10,11 +10,13 @@ ObligationInstance inst(
   int? actual,
   int grace = 0,
   int lead = 2,
+  String? period,
 }) => ObligationInstance(
   id: id,
   obligationId: 'o-$id',
   name: 'Ob $id',
   kind: 'fixed',
+  periodStart: period == null ? null : DateTime.parse('${period}T00:00:00Z'),
   dueDate: DateTime.parse('${due}T00:00:00Z'),
   status: status,
   expectedHalalas: expected,
@@ -127,5 +129,79 @@ void main() {
     for (var k = 1; k < r.length; k++) {
       expect(r[k].fireAt.isBefore(r[k - 1].fireAt), isFalse);
     }
+  });
+
+  group('billing cycles', () {
+    final today = d('2026-11-04');
+
+    test(
+      'a bill belongs to the month it was issued for, not the month it is due',
+      () {
+        // STC: issued in November, due 2 December
+        expect(
+          cycleOf(inst('stc', '2026-12-02', period: '2026-11-01')),
+          d('2026-11-01'),
+        );
+        // no period known: the due month
+        expect(cycleOf(inst('x', '2026-12-02')), d('2026-12-01'));
+      },
+    );
+
+    test('cycleRows: this cycle only, open items first, paid ones last, skipped never', () {
+      final all = [
+        inst('paid', '2026-11-02', status: 'paid', period: '2026-11-01'),
+        inst('card', '2026-11-25', period: '2026-11-01'),
+        inst('sec', '2026-11-28', period: '2026-11-01'),
+        inst('stc', '2026-12-02', period: '2026-11-01'),
+        inst('skip', '2026-11-10', status: 'skipped', period: '2026-11-01'),
+        inst('dec', '2026-12-28', period: '2026-12-01'),
+        inst('oct', '2026-10-28', period: '2026-10-01'),
+      ];
+      expect(cycleRows(all, currentCycle(today), today).map((i) => i.id), [
+        'card',
+        'sec',
+        'stc',
+        'paid',
+      ]);
+      expect(cycleRows(all, nextCycle(today), today).map((i) => i.id), ['dec']);
+    });
+
+    test('an unpaid bill of an earlier cycle is left over, even inside its grace days', () {
+      final oct = inst('oct', '2026-10-28', grace: 7, period: '2026-10-01');
+      expect(effectiveStatus(oct, today), 'pending'); // still inside grace
+      expect(isLeftover(oct, today), isTrue);
+      final all = [oct, inst('sec', '2026-11-28', period: '2026-11-01')];
+      expect(overdueRows(all, today).map((i) => i.id), ['oct']);
+      // paid ones from earlier months are history, not left over
+      expect(
+        isLeftover(
+          inst('p', '2026-10-28', status: 'paid', period: '2026-10-01'),
+          today,
+        ),
+        isFalse,
+      );
+    });
+
+    test('summarizeCycle: still to pay, paid so far and the counts', () {
+      final rows = [
+        inst(
+          'paid',
+          '2026-11-02',
+          status: 'paid',
+          expected: 50000,
+          actual: 50000,
+          period: '2026-11-01',
+        ),
+        inst('a', '2026-11-28', expected: 385833, period: '2026-11-01'),
+        inst('b', '2026-12-02', expected: 27893, period: '2026-11-01'),
+        inst('card', '2026-11-25', expected: null, period: '2026-11-01'),
+      ];
+      final s = summarizeCycle(rows, today);
+      expect(s.stillHalalas, 385833 + 27893);
+      expect(s.paidHalalas, 50000);
+      expect(s.totalHalalas, 50000 + 385833 + 27893);
+      expect(s.paidCount, 1);
+      expect(s.count, 4);
+    });
   });
 }

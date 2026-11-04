@@ -609,3 +609,23 @@ Deno.test("ingest: a failed counterpart lookup never costs the transaction", asy
   assert.equal(s.saved.length, 1);
   assert.equal(s.saved[0].rows[0].is_internal, false);
 });
+
+Deno.test("ingest: paying the owner's credit card is internal, never spending", async () => {
+  const s = await setup();
+  const res = await s.call(
+    {
+      sender: "alinma",
+      body:
+        "تم سداد البطاقة الائتمانية **8119\nمبلغ 14,834.50 SAR\nحساب **6000\nفي 2026-11-04 06:42\nحد الصرف المتبقي 14,886 SAR",
+      received_at: "2026-11-04T03:42:10Z",
+    },
+    { "x-ingest-token": s.token },
+  );
+  assert.equal(res.status, 200);
+  const row = s.saved[0].rows[0];
+  assert.equal(row.type, "card_payment");
+  assert.equal(row.amount_halalas, 1483450);
+  assert.equal(row.is_internal, true);
+  assert.equal(row.excluded_from_spend, true);
+  assert.ok(!s.rows[0].body.includes("14,886"), "the remaining limit line is not stored");
+});

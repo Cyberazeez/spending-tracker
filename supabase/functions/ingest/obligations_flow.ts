@@ -54,7 +54,7 @@ export async function applyNotice(
       userId,
       obligationId: ob.id,
       rawId,
-      inst: instanceFromStatement(n.totalDueHalalas, n.dueDate, receivedAt),
+      inst: instanceFromStatement(n.totalDueHalalas, n.dueDate, receivedAt, ob.match.plan),
     });
   }
 }

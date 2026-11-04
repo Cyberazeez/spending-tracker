@@ -1,0 +1,15 @@
+{
+  "sender": "alinma",
+  "receivedAt": "2026-11-04T03:42:10.000Z",
+  "body": "تم سداد البطاقة الائتمانية **8119\nمبلغ 14,834.50 SAR\nحساب **6000\nفي 2026-11-04 06:42\nحد الصرف المتبقي 14,886 SAR",
+  "expected": {
+    "kind": "transaction",
+    "type": "card_payment",
+    "direction": "out",
+    "amountHalalas": 1483450,
+    "cardLast4": "8119",
+    "accountLast4": "6000",
+    "internalHint": true,
+    "occurredAt": "2026-11-04T03:42:00.000Z"
+  }
+}

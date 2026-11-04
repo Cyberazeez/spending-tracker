@@ -58,8 +58,15 @@ export function parseAlinma(rawBody: string, receivedAt: Date): ParseResult {
   if (/إصدار كشف حساب/.test(body)) {
     const total = one(new RegExp(`إجمالي المبلغ المستحق\\s*:\\s*SAR\\s*${NUM}`));
     const min = one(new RegExp(`الحد الأدنى للسداد\\s*:\\s*SAR\\s*${NUM}`));
-    const due = body.match(/تاريخ الاستحقاق\s*:\s*(\d{2})-(\d{2})-(\d{4})/);
-    if (!total || !min || !due) return { kind: "unparsed" };
+    // The date came as dd-MM-yyyy in October and as yyyy-MM-dd in November: take either.
+    const dmy = body.match(/تاريخ الاستحقاق\s*:\s*(\d{2})-(\d{2})-(\d{4})/);
+    const ymd = body.match(/تاريخ الاستحقاق\s*:\s*(\d{4})-(\d{2})-(\d{2})/);
+    const dueDate = dmy
+      ? `${dmy[3]}-${dmy[2]}-${dmy[1]}`
+      : ymd
+      ? `${ymd[1]}-${ymd[2]}-${ymd[3]}`
+      : null;
+    if (!total || !min || !dueDate) return { kind: "unparsed" };
     return {
       kind: "notice",
       parser: P,
@@ -67,8 +74,26 @@ export function parseAlinma(rawBody: string, receivedAt: Date): ParseResult {
       cardLast4: last4(one(/\*+(\d{4})/)),
       totalDueHalalas: toHalalas(total),
       minimumDueHalalas: toHalalas(min),
-      dueDate: `${due[3]}-${due[2]}-${due[1]}`,
+      dueDate,
     };
+  }
+
+  // Credit-card payment confirmation: money from the account to the owner's own card (not spending)
+  if (/تم سداد البطاقة الائتمانية/.test(body)) {
+    const amt = one(new RegExp(`مبلغ\\s*${NUM}\\s*SAR`)) ??
+      one(new RegExp(`مبلغ\\s*SAR\\s*${NUM}`));
+    const at = when();
+    if (!amt || !at) return { kind: "unparsed" };
+    return tx({
+      bank: "alinma",
+      type: "card_payment",
+      direction: "out",
+      amountHalalas: toHalalas(amt),
+      cardLast4: last4(one(/البطاقة الائتمانية\s*\*+(\d{4})/)),
+      accountLast4: last4(one(/حساب\s*\*+(\d{4})/)),
+      internalHint: true,
+      occurredAt: at,
+    });
   }
 
   // International purchase: "USD 10.46 - apple pay" + FX + amount due in SAR

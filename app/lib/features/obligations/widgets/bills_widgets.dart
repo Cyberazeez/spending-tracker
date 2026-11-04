@@ -10,11 +10,15 @@ class PillSegments<T> extends StatelessWidget {
     required this.value,
     required this.labels,
     required this.onChanged,
+    this.badges = const {},
   });
 
   final T value;
   final Map<T, String> labels;
   final ValueChanged<T> onChanged;
+
+  /// A small red count next to a label (unpaid items from earlier months, for instance).
+  final Map<T, int> badges;
 
   @override
   Widget build(BuildContext context) {
@@ -53,16 +57,51 @@ class PillSegments<T> extends StatelessWidget {
                               horizontal: 6,
                               vertical: 8,
                             ),
-                            child: Text(
-                              e.value,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: e.key == value
-                                    ? AppTokens.onAccent.resolveFrom(context)
-                                    : AppTokens.muted.resolveFrom(context),
-                              ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Flexible(
+                                  child: Text(
+                                    e.value,
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      color: e.key == value
+                                          ? AppTokens.onAccent.resolveFrom(
+                                              context,
+                                            )
+                                          : AppTokens.muted.resolveFrom(
+                                              context,
+                                            ),
+                                    ),
+                                  ),
+                                ),
+                                if ((badges[e.key] ?? 0) > 0) ...[
+                                  const SizedBox(width: 6),
+                                  DecoratedBox(
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFC5221F),
+                                      borderRadius: BorderRadius.circular(9),
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 6,
+                                        vertical: 1,
+                                      ),
+                                      child: Text(
+                                        '${badges[e.key]}',
+                                        style: const TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w700,
+                                          color: Color(0xFFFFFFFF),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ],
                             ),
                           ),
                         ),

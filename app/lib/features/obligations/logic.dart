@@ -134,3 +134,91 @@ List<MonthGroup> groupByMonth(List<ObligationInstance> rows, DateTime today) {
   }
   return out;
 }
+
+/// The billing cycle an instance belongs to: the month it was issued for (its period), as the first of that month.
+/// An electricity bill issued in November belongs to November even if it is due in early December.
+DateTime cycleOf(ObligationInstance i) {
+  final p = i.periodStart ?? i.dueDate;
+  return DateTime.utc(p.year, p.month);
+}
+
+DateTime currentCycle(DateTime today) => DateTime.utc(today.year, today.month);
+
+DateTime nextCycle(DateTime today) => DateTime.utc(today.year, today.month + 1);
+
+/// Still open (not paid or skipped) and from a cycle before the current one: it was missed, whatever its grace days say.
+bool isLeftover(ObligationInstance i, DateTime today) {
+  final s = effectiveStatus(i, today);
+  return (s == 'pending' || s == 'overdue') &&
+      cycleOf(i).isBefore(currentCycle(today));
+}
+
+/// Everything that belongs to [cycle] except skipped ones: open items first (by due date), then the paid ones.
+List<ObligationInstance> cycleRows(
+  List<ObligationInstance> all,
+  DateTime cycle,
+  DateTime today,
+) {
+  final out = all
+      .where((i) => i.status != 'skipped' && cycleOf(i) == cycle)
+      .toList();
+  int rank(ObligationInstance i) => effectiveStatus(i, today) == 'paid' ? 1 : 0;
+  out.sort((a, b) {
+    final r = rank(a).compareTo(rank(b));
+    return r != 0 ? r : a.dueDate.compareTo(b.dueDate);
+  });
+  return out;
+}
+
+/// The Overdue tab: past due plus anything left open from an earlier cycle. Oldest first.
+List<ObligationInstance> overdueRows(
+  List<ObligationInstance> all,
+  DateTime today,
+) {
+  final out = all
+      .where(
+        (i) => effectiveStatus(i, today) == 'overdue' || isLeftover(i, today),
+      )
+      .toList();
+  out.sort((a, b) => a.dueDate.compareTo(b.dueDate));
+  return out;
+}
+
+class CycleSummary {
+  const CycleSummary({
+    required this.stillHalalas,
+    required this.paidHalalas,
+    required this.paidCount,
+    required this.count,
+  });
+
+  /// Open items' expected amounts less what was already matched (unknown amounts count as zero).
+  final int stillHalalas;
+  final int paidHalalas;
+  final int paidCount;
+  final int count;
+  int get totalHalalas => stillHalalas + paidHalalas;
+}
+
+CycleSummary summarizeCycle(List<ObligationInstance> rows, DateTime today) {
+  var still = 0;
+  var paid = 0;
+  var paidCount = 0;
+  for (final i in rows) {
+    if (effectiveStatus(i, today) == 'paid') {
+      paid += i.actualHalalas ?? i.expectedHalalas ?? 0;
+      paidCount++;
+    } else {
+      still +=
+          ((i.expectedHalalas ?? 0) -
+                  (i.matchState == 'suggested' ? 0 : (i.actualHalalas ?? 0)))
+              .clamp(0, 1 << 40);
+    }
+  }
+  return CycleSummary(
+    stillHalalas: still,
+    paidHalalas: paid,
+    paidCount: paidCount,
+    count: rows.length,
+  );
+}
