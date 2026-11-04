@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../account/account_providers.dart';
 import '../../core/auth_repository.dart';
 import '../../core/lock.dart';
 import '../../core/providers.dart';
@@ -45,10 +46,13 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     // The password is being entered now, so skip the Face ID prompt this once. Done before
     // signing in so the redirect that follows the session never lands on the lock screen.
     final lock = ref.read(lockProvider.notifier)..markUnlocked();
+    // Kept before the await: the session redirect may remove this page before sign-in returns.
+    final reactivated = ref.read(accountReactivatedProvider.notifier);
     try {
-      await ref
+      final cancelled = await ref
           .read(authRepositoryProvider)
           .signIn(_email.text, _password.text);
+      if (cancelled) reactivated.set(true);
       TextInput.finishAutofillContext();
     } on SignInException catch (e) {
       lock.lockNow();

@@ -1144,7 +1144,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deleteWarn =>
-      'This permanently deletes your account and all your data: transactions, bills, budgets and settings. It cannot be undone.';
+      'Your account and all your data (transactions, bills, budgets and settings) will be permanently deleted after 30 days. Sign in again before then and nothing is deleted.';
 
   @override
   String get deleteWord => 'DELETE';
@@ -1180,8 +1180,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deleteSureBody =>
-      'All your data will be permanently deleted. This cannot be undone and nothing can be restored.';
+      'Your account is closed now and everything is permanently deleted after 30 days, with no way to restore it. Signing in again within 30 days cancels the deletion.';
 
   @override
   String get deleteSureConfirm => 'Delete everything';
+
+  @override
+  String get reactivatedTitle => 'Welcome back';
+
+  @override
+  String get reactivatedBody =>
+      'Your account is active again and the deletion is cancelled. All your data is still here.';
+
+  @override
+  String get reactivatedOk => 'OK';
 }

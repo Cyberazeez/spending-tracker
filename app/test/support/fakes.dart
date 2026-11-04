@@ -23,6 +23,9 @@ class FakeAuthRepository implements AuthRepository {
   SignInFailure? failWith;
   int signInCalls = 0;
 
+  /// What the next sign-in reports as "cancelled a pending deletion".
+  bool reactivateOnSignIn = false;
+
   @override
   bool get hasSession => _signedIn;
 
@@ -94,11 +97,12 @@ class FakeAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<void> signIn(String email, String password) async {
+  Future<bool> signIn(String email, String password) async {
     signInCalls++;
     if (failWith != null) throw SignInException(failWith!);
     _signedIn = true;
     _controller.add(true);
+    return reactivateOnSignIn;
   }
 
   @override

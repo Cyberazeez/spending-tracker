@@ -11,7 +11,7 @@ function setup(over: Partial<DeleteDeps> = {}) {
       verified.push([e, p]);
       return Promise.resolve(p === "right-password");
     },
-    deleteUser: (id) => {
+    requestDeletion: (id) => {
       deleted.push(id);
       return Promise.resolve();
     },
@@ -34,11 +34,11 @@ function setup(over: Partial<DeleteDeps> = {}) {
   return { call, deleted, verified };
 }
 
-Deno.test("the right password deletes the caller's own account and nothing else", async () => {
+Deno.test("the right password marks the caller's own account for deletion and nothing else", async () => {
   const { call, deleted, verified } = setup();
   const res = await call({ password: "right-password" });
   assert.equal(res.status, 200);
-  assert.deepEqual(await res.json(), { ok: true });
+  assert.deepEqual(await res.json(), { ok: true, grace_days: 30 });
   assert.deepEqual(deleted, ["u1"]);
   assert.deepEqual(verified, [["me@example.test", "right-password"]]);
 });
@@ -81,8 +81,8 @@ Deno.test("password guessing is rate limited before the password is checked", as
   assert.deepEqual(verified, []);
 });
 
-Deno.test("the response carries nothing but ok", async () => {
+Deno.test("the response carries nothing but ok and the grace period", async () => {
   const { call } = setup();
   const text = await (await call({ password: "right-password" })).text();
-  assert.equal(text, '{"ok":true}');
+  assert.equal(text, '{"ok":true,"grace_days":30}');
 });

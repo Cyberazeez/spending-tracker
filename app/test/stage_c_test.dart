@@ -229,7 +229,7 @@ void main() {
       tester,
     ) async {
       final h = await openDelete(tester);
-      expect(find.textContaining('cannot be undone'), findsOneWidget);
+      expect(find.textContaining('Sign in again before then'), findsOneWidget);
       await submit(tester, word: 'nope');
       expect(find.textContaining('Type DELETE exactly'), findsOneWidget);
       await submit(tester, pw: '');
@@ -266,7 +266,7 @@ void main() {
     );
 
     testWidgets(
-      'Are you sure: cancelling keeps the account and says all data is lost',
+      'Are you sure: cancelling keeps the account and says it is permanent after 30 days',
       (tester) async {
         final h = await openDelete(tester);
         await tester.enterText(find.byType(CupertinoTextField).at(0), 'DELETE');
@@ -279,7 +279,7 @@ void main() {
         );
         await tester.pumpAndSettle();
         expect(find.text('Are you sure?'), findsOneWidget);
-        expect(find.textContaining('cannot be undone'), findsWidgets);
+        expect(find.textContaining('no way to restore it'), findsWidgets);
         await tester.tap(find.text('Cancel'));
         await tester.pumpAndSettle();
         expect(h.auth.deleteCalls, isEmpty);

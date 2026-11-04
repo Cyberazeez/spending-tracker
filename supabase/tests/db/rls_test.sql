@@ -7,6 +7,7 @@ declare
   a uuid := '00000000-0000-0000-0000-00000000000a';
   b uuid := '00000000-0000-0000-0000-00000000000b';
   f uuid := '00000000-0000-0000-0000-0000000000f1';
+  g uuid := '00000000-0000-0000-0000-0000000000f2';
   a_ob uuid;
   n int;
   denied boolean;
@@ -412,6 +413,43 @@ begin
   perform public.bump_rate_limit(b, 'ingest_min', 'minute');
   select count(*) into n from public.rate_limits where bucket = 'old';
   if n <> 0 then raise exception 'old rate limit windows were not purged'; end if;
+
+  -- account deletion grace period: marking, cancelling by signing in, and the purge after 30 days
+  insert into auth.users (id, aud, role, email) values (g, 'authenticated', 'authenticated', 'rls-grace@example.test');
+  insert into public.ingest_tokens (user_id, token_hash) values (g, 'hash-g-grace');
+  insert into auth.sessions (user_id) values (g);
+  perform public.request_account_deletion(g);
+  select count(*) into n from public.ingest_tokens where user_id = g and revoked_at is null;
+  if n <> 0 then raise exception 'deletion request left a live capture token'; end if;
+  select count(*) into n from auth.sessions where user_id = g;
+  if n <> 0 then raise exception 'deletion request left sessions open'; end if;
+  perform set_config('request.jwt.claims', json_build_object('sub', a)::text, true);
+  set local role authenticated;
+  select count(*) into n from public.account_deletions;
+  if n <> 0 then raise exception 'A can see another user''s pending deletion'; end if;
+  denied := false;
+  begin insert into public.account_deletions (user_id) values (a); exception when insufficient_privilege then denied := true; end;
+  if not denied then raise exception 'a client can mark its own account for deletion directly'; end if;
+  denied := false;
+  begin perform public.request_account_deletion(a); exception when insufficient_privilege then denied := true; end;
+  if not denied then raise exception 'a client can call request_account_deletion'; end if;
+  if public.reactivate_my_account() then raise exception 'reactivate reported a cancel for an account that was not pending'; end if;
+  reset role;
+  perform set_config('request.jwt.claims', json_build_object('sub', g)::text, true);
+  set local role authenticated;
+  if not public.reactivate_my_account() then raise exception 'reactivate did not cancel a pending deletion'; end if;
+  if public.reactivate_my_account() then raise exception 'reactivate cancelled twice'; end if;
+  reset role;
+  perform public.request_account_deletion(g);
+  update public.account_deletions set requested_at = now() - interval '29 days' where user_id = g;
+  if public.purge_deleted_accounts() <> 0 then raise exception 'purge removed an account inside the grace period'; end if;
+  update public.account_deletions set requested_at = now() - interval '31 days' where user_id = g;
+  if public.purge_deleted_accounts() <> 1 then raise exception 'purge did not remove the expired account'; end if;
+  select count(*) into n from auth.users where id = g;
+  if n <> 0 then raise exception 'expired account still exists'; end if;
+  select count(*) into n from public.transactions where user_id = g;
+  if n <> 0 then raise exception 'expired account left rows behind'; end if;
+  
 
   -- every table in public must have RLS on (catches a future table that forgets it)
   select count(*) into n from pg_class c join pg_namespace ns on ns.oid = c.relnamespace

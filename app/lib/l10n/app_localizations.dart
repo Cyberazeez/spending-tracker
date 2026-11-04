@@ -2141,7 +2141,7 @@ abstract class AppLocalizations {
   /// No description provided for @deleteWarn.
   ///
   /// In en, this message translates to:
-  /// **'This permanently deletes your account and all your data: transactions, bills, budgets and settings. It cannot be undone.'**
+  /// **'Your account and all your data (transactions, bills, budgets and settings) will be permanently deleted after 30 days. Sign in again before then and nothing is deleted.'**
   String get deleteWarn;
 
   /// No description provided for @deleteWord.
@@ -2201,7 +2201,7 @@ abstract class AppLocalizations {
   /// No description provided for @deleteSureBody.
   ///
   /// In en, this message translates to:
-  /// **'All your data will be permanently deleted. This cannot be undone and nothing can be restored.'**
+  /// **'Your account is closed now and everything is permanently deleted after 30 days, with no way to restore it. Signing in again within 30 days cancels the deletion.'**
   String get deleteSureBody;
 
   /// No description provided for @deleteSureConfirm.
@@ -2209,6 +2209,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Delete everything'**
   String get deleteSureConfirm;
+
+  /// No description provided for @reactivatedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome back'**
+  String get reactivatedTitle;
+
+  /// No description provided for @reactivatedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account is active again and the deletion is cancelled. All your data is still here.'**
+  String get reactivatedBody;
+
+  /// No description provided for @reactivatedOk.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get reactivatedOk;
 }
 
 class _AppLocalizationsDelegate

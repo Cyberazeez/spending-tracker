@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../account/account_providers.dart';
 import '../../core/capture_bridge.dart';
 import '../../core/capture_setup.dart';
 import '../../core/lock.dart';
@@ -39,6 +40,31 @@ class _ShellPageState extends ConsumerState<ShellPage>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _syncCapture();
+    // The flag may already be set when the shell first builds (sign-in redirects before it is read).
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _showReactivated();
+    });
+  }
+
+  /// A sign-in that just cancelled a pending account deletion tells the person once.
+  void _showReactivated() {
+    if (!ref.read(accountReactivatedProvider)) return;
+    ref.read(accountReactivatedProvider.notifier).set(false);
+    final t = AppLocalizations.of(context);
+    showCupertinoDialog<void>(
+      context: context,
+      builder: (ctx) => CupertinoAlertDialog(
+        title: Text(t.reactivatedTitle),
+        content: Text(t.reactivatedBody),
+        actions: [
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text(t.reactivatedOk),
+          ),
+        ],
+      ),
+    );
   }
 
   /// Gives the "Add bank message" Shortcuts action its token (once) and sends anything it queued offline.
@@ -106,6 +132,9 @@ class _ShellPageState extends ConsumerState<ShellPage>
       }
     });
     final t = AppLocalizations.of(context);
+    ref.listen(accountReactivatedProvider, (_, on) {
+      if (on) _showReactivated();
+    });
     return CupertinoTabScaffold(
       controller: ref.watch(tabControllerProvider),
       backgroundColor: AppTokens.bg.resolveFrom(context),

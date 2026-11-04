@@ -687,7 +687,7 @@
   "welcomeBudget": "Set a monthly budget",
   "deleteAccountRow": "Delete my account",
   "deleteTitle": "Delete account",
-  "deleteWarn": "This permanently deletes your account and all your data: transactions, bills, budgets and settings. It cannot be undone.",
+  "deleteWarn": "Your account and all your data (transactions, bills, budgets and settings) will be permanently deleted after 30 days. Sign in again before then and nothing is deleted.",
   "deleteWord": "DELETE",
   "deleteTypeWord": "Type {word} to confirm",
   "deleteWordMismatch": "Type {word} exactly to confirm.",
@@ -728,6 +728,9 @@
     }
   },
   "deleteSureTitle": "Are you sure?",
-  "deleteSureBody": "All your data will be permanently deleted. This cannot be undone and nothing can be restored.",
-  "deleteSureConfirm": "Delete everything"
+  "deleteSureBody": "Your account is closed now and everything is permanently deleted after 30 days, with no way to restore it. Signing in again within 30 days cancels the deletion.",
+  "deleteSureConfirm": "Delete everything",
+  "reactivatedTitle": "Welcome back",
+  "reactivatedBody": "Your account is active again and the deletion is cancelled. All your data is still here.",
+  "reactivatedOk": "OK"
 }

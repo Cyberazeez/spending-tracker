@@ -1,16 +1,19 @@
 /**
  * Account deletion (Apple requires it for apps that let people create accounts). The signed-in user proves who they
- * are again with their password, then their auth user is deleted; every table row follows by `on delete cascade`
- * (checked by the RLS test). Nothing is returned except ok.
+ * are again with their password; the account is then marked for deletion (capture tokens revoked, sessions ended).
+ * Signing in again within GRACE_DAYS cancels it; a daily database job deletes the auth user after that, and every
+ * table row follows by `on delete cascade` (checked by the RLS test).
  */
 export const DELETE_LIMIT_PER_DAY = 5;
+export const GRACE_DAYS = 30;
 
 export interface DeleteDeps {
   /** The user behind the request's JWT, or null. */
   getUser(authorization: string): Promise<{ id: string; email: string } | null>;
   /** True when the email and password sign in. */
   verifyPassword(email: string, password: string): Promise<boolean>;
-  deleteUser(userId: string): Promise<void>;
+  /** Marks the account for deletion in GRACE_DAYS; idempotent. */
+  requestDeletion(userId: string): Promise<void>;
   /** Counts this try; returns how many today. */
   bumpRateLimit(userId: string): Promise<number>;
 }
@@ -46,6 +49,6 @@ export async function handleDeleteAccount(req: Request, deps: DeleteDeps): Promi
   if (!(await deps.verifyPassword(user.email, password))) {
     return json(403, { error: "wrong_password" });
   }
-  await deps.deleteUser(user.id);
-  return json(200, { ok: true });
+  await deps.requestDeletion(user.id);
+  return json(200, { ok: true, grace_days: GRACE_DAYS });
 }

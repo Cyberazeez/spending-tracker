@@ -1139,7 +1139,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get deleteWarn =>
-      'يحذف حسابك وجميع بياناتك نهائياً: العمليات والفواتير والميزانيات والإعدادات. لا يمكن التراجع.';
+      'سيتم حذف حسابك وكل بياناتك (العمليات والفواتير والميزانيات والإعدادات) نهائيًا بعد 30 يومًا. إذا سجّلت الدخول قبل ذلك فلن يُحذف شيء.';
 
   @override
   String get deleteWord => 'حذف';
@@ -1174,8 +1174,18 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get deleteSureBody =>
-      'ستُحذف جميع بياناتك نهائياً. لا يمكن التراجع ولا استعادة أي شيء.';
+      'تم إغلاق حسابك الآن وسيُحذف كل شيء نهائيًا بعد 30 يومًا دون إمكانية الاستعادة. تسجيل الدخول خلال 30 يومًا يلغي الحذف.';
 
   @override
   String get deleteSureConfirm => 'احذف كل شيء';
+
+  @override
+  String get reactivatedTitle => 'أهلًا بعودتك';
+
+  @override
+  String get reactivatedBody =>
+      'حسابك نشط مرة أخرى وتم إلغاء الحذف. كل بياناتك ما زالت موجودة.';
+
+  @override
+  String get reactivatedOk => 'حسنًا';
 }
