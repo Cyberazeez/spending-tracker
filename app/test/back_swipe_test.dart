@@ -64,7 +64,7 @@ void main() {
     final h = Harness(signedIn: true);
     await tester.pumpWidget(await h.build());
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Transactions').last);
+    await tester.tap(find.text('Activity').last);
     await tester.pumpAndSettle();
     await tester.tap(find.bySemanticsLabel('Add a transaction'));
     await tester.pumpAndSettle();
@@ -72,7 +72,7 @@ void main() {
     await tester.dragFrom(const Offset(3, 300), const Offset(700, 0));
     await tester.pumpAndSettle();
     expect(find.byType(CupertinoNavigationBarBackButton), findsNothing);
-    await tester.tap(find.text('Obligations').last);
+    await tester.tap(find.text('Bills').last);
     await tester.pumpAndSettle();
     await tester.tap(find.bySemanticsLabel('Add an obligation'));
     await tester.pumpAndSettle();

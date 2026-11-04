@@ -26,7 +26,7 @@ Txn tx(
 Future<void> openTransactions(WidgetTester tester, Harness h) async {
   await tester.pumpWidget(await h.build());
   await tester.pumpAndSettle();
-  await tester.tap(find.text('Transactions').last);
+  await tester.tap(find.text('Activity').last);
   await tester.pumpAndSettle();
 }
 
@@ -195,7 +195,7 @@ void main() {
       await tester.tap(find.text('More'));
       await tester.pumpAndSettle();
       // no pending review rows: the badge is absent on the list
-      await tester.tap(find.text('Transactions').last);
+      await tester.tap(find.text('Activity').last);
       await tester.pumpAndSettle();
       expect(find.textContaining('to review'), findsNothing);
     });
@@ -208,7 +208,7 @@ void main() {
       ..data.txns = [tx('1', 'purchase', 'out', 1900, merchant: 'OTTEN')];
     await tester.pumpWidget(await h.build(prefs: {'locale': 'ar'}));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('العمليات').last);
+    await tester.tap(find.text('النشاط').last);
     await tester.pumpAndSettle();
     expect(find.text('− 19.00 ر.س'), findsOneWidget);
     expect(find.textContaining('بدون فئة'), findsWidgets);

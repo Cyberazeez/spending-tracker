@@ -13,7 +13,7 @@ class PillTabBar extends CupertinoTabBar {
   }) : super(height: _slot, backgroundColor: const Color(0x00000000));
 
   /// 64 for the pill plus the gap below it and a little air above.
-  static const _slot = 80.0;
+  static const _slot = 88.0;
 
   @override
   bool opaque(BuildContext context) => false;
@@ -43,7 +43,7 @@ class PillTabBar extends CupertinoTabBar {
     final accent = AppTokens.accent.resolveFrom(context);
     final muted = AppTokens.muted.resolveFrom(context);
     return Padding(
-      padding: EdgeInsets.fromLTRB(12, 0, 12, safe > 24 ? safe - 14 : 16),
+      padding: EdgeInsets.fromLTRB(12, 0, 12, safe > 24 ? safe - 6 : 24),
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: AppTokens.tab.resolveFrom(context),

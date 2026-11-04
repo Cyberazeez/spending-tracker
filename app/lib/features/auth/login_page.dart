@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -48,6 +49,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       await ref
           .read(authRepositoryProvider)
           .signIn(_email.text, _password.text);
+      TextInput.finishAutofillContext();
     } on SignInException catch (e) {
       lock.lockNow();
       if (mounted) setState(() => _failure = e.failure);
@@ -65,72 +67,74 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     return CupertinoPageScaffold(
       backgroundColor: AppTokens.bg.resolveFrom(context),
       child: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(20, 48, 20, 24),
-          children: [
-            Center(
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  color: accent.withValues(alpha: 0.18),
-                  shape: BoxShape.circle,
-                ),
-                child: SizedBox(
-                  width: 72,
-                  height: 72,
-                  child: Icon(LucideIcons.wallet, size: 34, color: accent),
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            Center(
-              child: Text(
-                t.loginTitle,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: AppTokens.text.resolveFrom(context),
-                  fontSize: 30,
-                  fontWeight: FontWeight.w800,
+        child: AutofillGroup(
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(20, 48, 20, 24),
+            children: [
+              Center(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: accent.withValues(alpha: 0.18),
+                    shape: BoxShape.circle,
+                  ),
+                  child: SizedBox(
+                    width: 72,
+                    height: 72,
+                    child: Icon(LucideIcons.wallet, size: 34, color: accent),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 32),
-            AppField(
-              controller: _email,
-              placeholder: t.email,
-              keyboardType: TextInputType.emailAddress,
-              textInputAction: TextInputAction.next,
-              autofillHints: const [AutofillHints.username],
-            ),
-            if (missingEmail) FormError(t.fieldRequired),
-            const SizedBox(height: 12),
-            AppField(
-              controller: _password,
-              placeholder: t.password,
-              obscure: true,
-              textInputAction: TextInputAction.done,
-              autofillHints: const [AutofillHints.password],
-              onSubmitted: (_) => _submit(),
-            ),
-            if (missingPassword) FormError(t.fieldRequired),
-            if (_failure != null)
-              FormError(
-                _failure == SignInFailure.invalidCredentials
-                    ? t.invalidCredentials
-                    : t.networkError,
+              const SizedBox(height: 20),
+              Center(
+                child: Text(
+                  t.loginTitle,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: AppTokens.text.resolveFrom(context),
+                    fontSize: 30,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
               ),
-            const SizedBox(height: 24),
-            PrimaryButton(label: t.signIn, busy: _busy, onPressed: _submit),
-            const SizedBox(height: 8),
-            CupertinoButton(
-              padding: EdgeInsets.zero,
-              minimumSize: const Size(44, 44),
-              onPressed: () => context.push(signUpPath),
-              child: Text(
-                t.signUpLink,
-                style: TextStyle(color: accent, fontWeight: FontWeight.w600),
+              const SizedBox(height: 32),
+              AppField(
+                controller: _email,
+                placeholder: t.email,
+                keyboardType: TextInputType.emailAddress,
+                textInputAction: TextInputAction.next,
+                autofillHints: const [AutofillHints.username],
               ),
-            ),
-          ],
+              if (missingEmail) FormError(t.fieldRequired),
+              const SizedBox(height: 12),
+              AppField(
+                controller: _password,
+                placeholder: t.password,
+                obscure: true,
+                textInputAction: TextInputAction.done,
+                autofillHints: const [AutofillHints.password],
+                onSubmitted: (_) => _submit(),
+              ),
+              if (missingPassword) FormError(t.fieldRequired),
+              if (_failure != null)
+                FormError(
+                  _failure == SignInFailure.invalidCredentials
+                      ? t.invalidCredentials
+                      : t.networkError,
+                ),
+              const SizedBox(height: 24),
+              PrimaryButton(label: t.signIn, busy: _busy, onPressed: _submit),
+              const SizedBox(height: 8),
+              CupertinoButton(
+                padding: EdgeInsets.zero,
+                minimumSize: const Size(44, 44),
+                onPressed: () => context.push(signUpPath),
+                child: Text(
+                  t.signUpLink,
+                  style: TextStyle(color: accent, fontWeight: FontWeight.w600),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

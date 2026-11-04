@@ -67,14 +67,67 @@ void main() {
       expect(find.text('Get started'), findsNothing);
     });
 
-    testWidgets('Hide removes it and it stays hidden after a restart', (
-      tester,
-    ) async {
-      await start(tester, setup: (h) => h.data.accounts = []);
-      await tester.tap(find.text('Hide'));
-      await tester.pumpAndSettle();
-      expect(find.text('Get started'), findsNothing);
-    });
+    testWidgets(
+      'Hide folds the card into one line and tapping it opens it again',
+      (tester) async {
+        await start(tester, setup: (h) => h.data.accounts = []);
+        await tester.tap(find.text('Hide'));
+        await tester.pumpAndSettle();
+        expect(find.text('Add your bank accounts'), findsNothing);
+        expect(
+          find.textContaining('Get started · 0 of 3 done'),
+          findsOneWidget,
+        );
+        await tester.tap(find.textContaining('Get started · 0 of 3 done'));
+        await tester.pumpAndSettle();
+        expect(find.text('Add your bank accounts'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'the folded state is remembered and the card expires after a few days',
+      (tester) async {
+        final h = Harness(signedIn: true)..data.accounts = [];
+        tester.view.physicalSize = const Size(800, 2400);
+        tester.view.devicePixelRatio = 2;
+        addTearDown(tester.view.reset);
+        // first shown on 30 Oct 2026 (the harness clock), already folded
+        await tester.pumpWidget(
+          await h.build(
+            prefs: {
+              'welcome_collapsed_user-1': true,
+              'welcome_first_user-1': DateTime.utc(
+                2026,
+                10,
+                30,
+                12,
+              ).toIso8601String(),
+            },
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(
+          find.textContaining('Get started · 0 of 3 done'),
+          findsOneWidget,
+        );
+        // four days later the card is gone for good
+        h.now = DateTime.utc(2026, 11, 3, 12);
+        await tester.pumpWidget(
+          await h.build(
+            prefs: {
+              'welcome_first_user-1': DateTime.utc(
+                2026,
+                10,
+                30,
+                12,
+              ).toIso8601String(),
+            },
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(find.textContaining('Get started'), findsNothing);
+      },
+    );
   });
 
   testWidgets('the last 4 digits field takes digits only, at most four', (
@@ -164,6 +217,12 @@ void main() {
       await t.enterText(find.byType(CupertinoTextField).at(1), pw);
       await t.tap(find.widgetWithText(CupertinoButton, 'Delete my account'));
       await t.pumpAndSettle();
+      // the "Are you sure?" step appears once the form itself is valid
+      final sure = find.text('Delete everything');
+      if (sure.evaluate().isNotEmpty) {
+        await t.tap(sure);
+        await t.pumpAndSettle();
+      }
     }
 
     testWidgets('the warning and the confirmation word are required first', (
@@ -203,6 +262,28 @@ void main() {
         expect(h.capture.clears, greaterThan(0));
         expect(h.widget.clears, greaterThan(0));
         expect(find.text('Sign in'), findsWidgets); // back on the login screen
+      },
+    );
+
+    testWidgets(
+      'Are you sure: cancelling keeps the account and says all data is lost',
+      (tester) async {
+        final h = await openDelete(tester);
+        await tester.enterText(find.byType(CupertinoTextField).at(0), 'DELETE');
+        await tester.enterText(
+          find.byType(CupertinoTextField).at(1),
+          'secret-pass',
+        );
+        await tester.tap(
+          find.widgetWithText(CupertinoButton, 'Delete my account'),
+        );
+        await tester.pumpAndSettle();
+        expect(find.text('Are you sure?'), findsOneWidget);
+        expect(find.textContaining('cannot be undone'), findsWidgets);
+        await tester.tap(find.text('Cancel'));
+        await tester.pumpAndSettle();
+        expect(h.auth.deleteCalls, isEmpty);
+        expect(find.text('Delete account'), findsWidgets); // still on the page
       },
     );
 

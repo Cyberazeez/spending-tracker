@@ -19,7 +19,7 @@ Txn tx(String id, String merchant, {String? categoryId}) => Txn(
 Future<void> open(WidgetTester tester, Harness h) async {
   await tester.pumpWidget(await h.build());
   await tester.pumpAndSettle();
-  await tester.tap(find.text('Transactions').last);
+  await tester.tap(find.text('Activity').last);
   await tester.pumpAndSettle();
 }
 

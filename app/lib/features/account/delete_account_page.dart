@@ -47,6 +47,25 @@ class _DeleteAccountPageState extends ConsumerState<DeleteAccountPage> {
       setState(() => _error = t.fieldRequired);
       return;
     }
+    final sure = await showCupertinoDialog<bool>(
+      context: context,
+      builder: (ctx) => CupertinoAlertDialog(
+        title: Text(t.deleteSureTitle),
+        content: Text(t.deleteSureBody),
+        actions: [
+          CupertinoDialogAction(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(t.cancel),
+          ),
+          CupertinoDialogAction(
+            isDestructiveAction: true,
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(t.deleteSureConfirm),
+          ),
+        ],
+      ),
+    );
+    if (sure != true || !mounted) return;
     setState(() {
       _busy = true;
       _error = null;

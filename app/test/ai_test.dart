@@ -134,14 +134,14 @@ void main() {
       merchantNorm: 'employer',
     );
     await open(tester, aiOn: true, txns: [salary]);
-    await tester.tap(find.text('Transactions').last);
+    await tester.tap(find.text('Activity').last);
     await tester.pumpAndSettle();
     expect(find.text('Suggest with AI'), findsNothing);
   });
 
   testWidgets('Suggest with AI is hidden while AI is off', (tester) async {
     await open(tester, txns: [spend('1', 500)]);
-    await tester.tap(find.text('Transactions').last);
+    await tester.tap(find.text('Activity').last);
     await tester.pumpAndSettle();
     expect(find.text('Suggest with AI'), findsNothing);
   });
@@ -150,7 +150,7 @@ void main() {
     tester,
   ) async {
     final h = await open(tester, aiOn: true, txns: [spend('1', 500)]);
-    await tester.tap(find.text('Transactions').last);
+    await tester.tap(find.text('Activity').last);
     await tester.pumpAndSettle();
     expect(find.text('1 transactions have no category'), findsOneWidget);
     await tester.tap(find.text('Suggest with AI'));
@@ -185,7 +185,7 @@ void main() {
       categorySource: 'manual',
     );
     await open(tester, aiOn: true, txns: [ai, manual]);
-    await tester.tap(find.text('Transactions').last);
+    await tester.tap(find.text('Activity').last);
     await tester.pumpAndSettle();
     expect(find.textContaining('Dining · AI'), findsOneWidget);
     expect(find.textContaining('Groceries · AI'), findsNothing);
@@ -198,7 +198,7 @@ void main() {
   testWidgets('a used-up AI budget is explained', (tester) async {
     final h = await open(tester, aiOn: true, txns: [spend('1', 500)]);
     h.data.suggestResult = const AiOutcome.fail('cap_reached');
-    await tester.tap(find.text('Transactions').last);
+    await tester.tap(find.text('Activity').last);
     await tester.pumpAndSettle();
     await tester.tap(find.text('Suggest with AI'));
     await tester.pumpAndSettle();
@@ -268,8 +268,8 @@ void main() {
       await tester.pumpWidget(await h.build(prefs: {'locale': lang}));
       await tester.pumpAndSettle();
       final tabs = lang == 'en'
-          ? ['Transactions', 'Insights', 'More']
-          : ['العمليات', 'التحليلات', 'المزيد'];
+          ? ['Activity', 'Insights', 'More']
+          : ['النشاط', 'التحليلات', 'المزيد'];
       for (final tab in tabs) {
         await tester.tap(find.text(tab).last);
         await tester.pumpAndSettle();

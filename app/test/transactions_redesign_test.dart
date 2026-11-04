@@ -30,9 +30,7 @@ Txn tx(
 Future<void> open(WidgetTester tester, Harness h, {String? locale}) async {
   await tester.pumpWidget(await h.build(prefs: {'locale': ?locale}));
   await tester.pumpAndSettle();
-  await tester.tap(
-    find.text(locale == 'ar' ? 'العمليات' : 'Transactions').last,
-  );
+  await tester.tap(find.text(locale == 'ar' ? 'النشاط' : 'Activity').last);
   await tester.pumpAndSettle();
 }
 

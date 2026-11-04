@@ -48,8 +48,8 @@ Harness loaded() => Harness(signedIn: true)
     SenderGap(sender: 'alinma', lastReceivedAt: DateTime.utc(2026, 10, 24, 8)),
   ];
 
-const tabsEn = ['Home', 'Transactions', 'Obligations', 'Insights', 'More'];
-const tabsAr = ['الرئيسية', 'العمليات', 'الالتزامات', 'التحليلات', 'المزيد'];
+const tabsEn = ['Home', 'Activity', 'Bills', 'Insights', 'More'];
+const tabsAr = ['الرئيسية', 'النشاط', 'الفواتير', 'التحليلات', 'المزيد'];
 
 void main() {
   for (final lang in ['en', 'ar']) {
@@ -86,6 +86,10 @@ void main() {
     await tester.pumpWidget(await loaded().build());
     await tester.pumpAndSettle();
     final handle = tester.ensureSemantics();
+    // Quick add lives in the Activity tab only, not on Home
+    expect(find.bySemanticsLabel('Add a transaction'), findsNothing);
+    await tester.tap(find.text('Activity').last);
+    await tester.pumpAndSettle();
     expect(find.bySemanticsLabel('Add a transaction'), findsOneWidget);
     handle.dispose();
   });

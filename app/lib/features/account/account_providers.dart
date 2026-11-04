@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/capture_bridge.dart';
+import '../../core/lock.dart';
 import '../../core/models.dart';
 import '../../core/providers.dart';
 import '../insights/providers.dart';
@@ -11,26 +12,52 @@ final ownAccountsProvider = FutureProvider.autoDispose<List<OwnAccount>>(
   retry: (_, _) => null,
 );
 
-String _hiddenKey(String? userId) => 'welcome_hidden_${userId ?? 'none'}';
+String _collapsedKey(String? userId) => 'welcome_collapsed_${userId ?? 'none'}';
+String _firstSeenKey(String? userId) => 'welcome_first_${userId ?? 'none'}';
 
-/// "Hide" on the welcome card, remembered per account on this phone.
-final welcomeHiddenProvider = NotifierProvider<WelcomeHidden, bool>(
-  WelcomeHidden.new,
+/// The welcome card removes itself this many days after it was first shown if it is still not finished.
+const welcomeLifetimeDays = 3;
+
+class WelcomeUi {
+  const WelcomeUi({required this.collapsed, this.firstSeen});
+  final bool collapsed;
+  final DateTime? firstSeen;
+}
+
+/// "Hide" folds the card into one line instead of removing it; tapping the line opens it again. Remembered per
+/// account on this phone, together with the day the card was first shown (it expires after [welcomeLifetimeDays]).
+final welcomeProvider = NotifierProvider<WelcomeController, WelcomeUi>(
+  WelcomeController.new,
 );
 
-class WelcomeHidden extends Notifier<bool> {
+class WelcomeController extends Notifier<WelcomeUi> {
+  String? get _uid => ref.read(authRepositoryProvider).userId;
+
   @override
-  bool build() {
+  WelcomeUi build() {
     // Re-read whenever somebody signs in or out, so a second account on this phone starts with its own card.
     ref.watch(signedInProvider);
-    final uid = ref.read(authRepositoryProvider).userId;
-    return ref.read(sharedPrefsProvider).getBool(_hiddenKey(uid)) ?? false;
+    final prefs = ref.read(sharedPrefsProvider);
+    final first = prefs.getString(_firstSeenKey(_uid));
+    return WelcomeUi(
+      collapsed: prefs.getBool(_collapsedKey(_uid)) ?? false,
+      firstSeen: first == null ? null : DateTime.tryParse(first),
+    );
   }
 
-  Future<void> hide() async {
-    state = true;
-    final uid = ref.read(authRepositoryProvider).userId;
-    await ref.read(sharedPrefsProvider).setBool(_hiddenKey(uid), true);
+  Future<void> setCollapsed(bool value) async {
+    state = WelcomeUi(collapsed: value, firstSeen: state.firstSeen);
+    await ref.read(sharedPrefsProvider).setBool(_collapsedKey(_uid), value);
+  }
+
+  /// Called when the card is first shown: starts its lifetime.
+  Future<void> markSeen() async {
+    if (state.firstSeen != null) return;
+    final now = ref.read(clockProvider)();
+    state = WelcomeUi(collapsed: state.collapsed, firstSeen: now);
+    await ref
+        .read(sharedPrefsProvider)
+        .setString(_firstSeenKey(_uid), now.toIso8601String());
   }
 }
 
@@ -66,9 +93,11 @@ final welcomeStateProvider = Provider.autoDispose<WelcomeState>((ref) {
   );
 });
 
-/// Whether the welcome card shows on Home.
-final welcomeVisibleProvider = Provider.autoDispose<bool>(
-  (ref) =>
-      !ref.watch(welcomeHiddenProvider) &&
-      !ref.watch(welcomeStateProvider).allDone,
-);
+/// Whether the welcome card shows on Home: not finished and not older than [welcomeLifetimeDays].
+final welcomeVisibleProvider = Provider.autoDispose<bool>((ref) {
+  if (ref.watch(welcomeStateProvider).allDone) return false;
+  final seen = ref.watch(welcomeProvider).firstSeen;
+  if (seen == null) return true;
+  final age = ref.watch(clockProvider)().difference(seen);
+  return age.inDays < welcomeLifetimeDays;
+});

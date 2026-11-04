@@ -2,8 +2,8 @@
   "@@locale": "ar",
   "appTitle": "المصروفات",
   "tabHome": "الرئيسية",
-  "tabTransactions": "العمليات",
-  "tabObligations": "الالتزامات",
+  "tabTransactions": "النشاط",
+  "tabObligations": "الفواتير",
   "tabInsights": "التحليلات",
   "tabMore": "المزيد",
   "loginTitle": "تسجيل الدخول",
@@ -42,7 +42,7 @@
   "done": "تم",
   "tryAgain": "حاول مرة أخرى",
   "genericError": "حدث خطأ. حاول مرة أخرى.",
-  "txTitle": "العمليات",
+  "txTitle": "النشاط",
   "txEmptyTitle": "لا توجد عمليات بعد",
   "txEmptyBody": "تظهر رسائل البنك هنا بعد تشغيل الاختصار. ويمكنك أيضاً إضافة عملية يدوياً.",
   "txInternal": "داخلي",
@@ -386,5 +386,8 @@
   "deleteButton": "حذف حسابي",
   "deleteWrongPassword": "كلمة المرور غير صحيحة.",
   "deleteTooMany": "محاولات كثيرة. حاول غداً.",
-  "deleteFailed": "تعذر الحذف. تحقق من الاتصال وحاول مرة أخرى."
+  "deleteFailed": "تعذر الحذف. تحقق من الاتصال وحاول مرة أخرى.",
+  "deleteSureTitle": "هل أنت متأكد؟",
+  "deleteSureBody": "ستُحذف جميع بياناتك نهائياً. لا يمكن التراجع ولا استعادة أي شيء.",
+  "deleteSureConfirm": "احذف كل شيء"
 }

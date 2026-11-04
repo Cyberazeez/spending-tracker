@@ -12,17 +12,73 @@ import '../../shell/tabs.dart';
 
 /// The first steps of a new account: bank accounts, SMS capture, a monthly budget. Disappears by itself when all
 /// three are done, or when the user taps Hide.
-class WelcomeCard extends ConsumerWidget {
+class WelcomeCard extends ConsumerStatefulWidget {
   const WelcomeCard({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<WelcomeCard> createState() => _WelcomeCardState();
+}
+
+class _WelcomeCardState extends ConsumerState<WelcomeCard> {
+  @override
+  void initState() {
+    super.initState();
+    // The card's lifetime starts the first time it is shown.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && ref.read(welcomeVisibleProvider)) {
+        ref.read(welcomeProvider.notifier).markSeen();
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     if (!ref.watch(welcomeVisibleProvider)) return const SizedBox.shrink();
     final t = AppLocalizations.of(context);
     final w = ref.watch(welcomeStateProvider);
     final text = AppTokens.text.resolveFrom(context);
     final muted = AppTokens.muted.resolveFrom(context);
     final accent = AppTokens.accent.resolveFrom(context);
+
+    if (ref.watch(welcomeProvider).collapsed) {
+      // Folded: one line that opens the card again.
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 16),
+        child: Semantics(
+          button: true,
+          label:
+              '${t.welcomeTitle}, ${t.welcomeProgress(w.done.toString(), '3')}',
+          excludeSemantics: true,
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => ref.read(welcomeProvider.notifier).setCollapsed(false),
+            child: AppCard(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: 44),
+                child: Row(
+                  children: [
+                    Icon(LucideIcons.listChecks, size: 20, color: accent),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        '${t.welcomeTitle} · ${t.welcomeProgress(w.done.toString(), '3')}',
+                        style: TextStyle(
+                          color: text,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    Icon(CupertinoIcons.chevron_down, size: 14, color: muted),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
 
     Widget step(bool done, String label, VoidCallback onTap) => Semantics(
       button: true,
@@ -82,7 +138,7 @@ class WelcomeCard extends ConsumerWidget {
                   padding: EdgeInsets.zero,
                   minimumSize: const Size(44, 44),
                   onPressed: () =>
-                      ref.read(welcomeHiddenProvider.notifier).hide(),
+                      ref.read(welcomeProvider.notifier).setCollapsed(true),
                   child: Text(
                     t.welcomeHide,
                     style: TextStyle(color: muted, fontSize: 14),
