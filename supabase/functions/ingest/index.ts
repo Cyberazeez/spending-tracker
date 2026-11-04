@@ -66,6 +66,34 @@ const deps: IngestDeps = {
       })),
     };
   },
+  async findTransferCounterparts(userId, t) {
+    const at = new Date(t.occurredAt).getTime();
+    const { data, error } = await db.from("transactions").select("id, is_internal").eq(
+      "user_id",
+      userId,
+    ).eq("type", t.type).eq("amount_halalas", t.amountHalalas).neq("bank", t.bank).is(
+      "deleted_at",
+      null,
+    ).gte("occurred_at", new Date(at - 5 * 60000).toISOString()).lte(
+      "occurred_at",
+      new Date(at + 5 * 60000).toISOString(),
+    ).limit(5);
+    if (error) throw new Error("counterpart_lookup_failed");
+    return (data ?? []).map((r) => ({ id: r.id as string, isInternal: !!r.is_internal }));
+  },
+  async markInternal(userId, ids, transfersCategoryId) {
+    const { error } = await db.from("transactions").update({
+      is_internal: true,
+      excluded_from_spend: true,
+    }).eq("user_id", userId).in("id", ids);
+    if (error) throw new Error("mark_internal_failed");
+    if (transfersCategoryId) {
+      await db.from("transactions").update({
+        category_id: transfersCategoryId,
+        category_source: "rule",
+      }).eq("user_id", userId).in("id", ids).is("category_id", null);
+    }
+  },
   async saveParsed({ userId, rawId, parser, status, ignoreReason, redactBody, replaceBody, rows }) {
     const ids: Record<string, string> = {};
     if (rows.length) {

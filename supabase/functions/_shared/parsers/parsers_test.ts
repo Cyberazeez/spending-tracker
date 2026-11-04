@@ -211,3 +211,20 @@ Deno.test("only evidenced wallet merchants are treated as top-ups", () => {
     assert.ok(!isTopup(m), m);
   }
 });
+
+Deno.test("barq local transfer: a fee line above zero becomes the fee, zero adds none", () => {
+  const body = (fee: string) =>
+    `Debit Transfer local\nAmount: 50.00 SAR\nFees: ${fee} SAR\nTo: PERSON A\nBank: SOME BANK \na/c: **1234\n2026-11-04 06:40`;
+  const at = new Date("2026-11-04T03:40:58Z");
+  const withFee = parseSms("barq app", body("2.30"), at);
+  assert.ok(withFee.kind === "transaction");
+  assert.equal(withFee.txn.feeHalalas, 230);
+  const none = parseSms("barq app", body("0.00"), at);
+  assert.ok(none.kind === "transaction");
+  assert.equal(none.txn.feeHalalas, undefined);
+});
+
+Deno.test("barq local transfer without an amount or date is left for review", () => {
+  const r = parseSms("barq app", "Debit Transfer local\nTo: PERSON A\na/c: **1234", new Date());
+  assert.equal(r.kind, "unparsed");
+});

@@ -7,7 +7,8 @@ Source: the owner's screenshots (2026-10-30). Names, phone and account numbers a
 
 ## Cross-bank rules learned from the samples
 1. **Wallet top-ups appear twice** (once at the paying bank, once at the receiving wallet). Examples: SNB "online purchase" of 100 at merchant `STC Bank` pairs with STC "إضافة أموال لحسابك" 100; SNB purchase at `MYSR D360` 85.40 pairs with D360 "Account Funding via Apple Pay" 85.4; STC Apple Pay purchase at `barq` pairs with barq "Money Added to your Barq wallet". Merchants `barq`, `STC Bank`, `D360`, `MYSR D360` are therefore treated as **wallet_topup**, and a matcher pairs both sides by amount within 5 minutes. Both are internal, neither is spend.
-2. **Transfers to own accounts** (SNB 0102/0103/3301, Al Rajhi 6331/1271, Alinma 6000/6698/8119, D360 5911/0513/7705/8920, barq 1224/9105, STC 6190) are internal. Some SMS carry the owner's own name plus an IBAN ending 6000: internal.
+2. **Transfers to own accounts** are reported by both banks (barq "Debit Transfer local" and Alinma "حوالة واردة محلية" for one move): the ingest function pairs a transfer with an opposite one of the same amount from another bank within 5 minutes; if one side is internal (own a/c last 4) both are. Rare false pairing: a real incoming transfer of exactly the same amount within 5 minutes of an own-account move.
+   Own-account transfers (SNB 0102/0103/3301, Al Rajhi 6331/1271, Alinma 6000/6698/8119, D360 5911/0513/7705/8920, barq 1224/9105, STC 6190) are internal. Some SMS carry the owner's own name plus an IBAN ending 6000: internal.
 3. **Foreign purchases**: barq shows `19.1 BHD (190.23 SAR) FX 9.9597`: store both. STC shows USD only (`USD 0.58`, AWS): SAR amount unknown until the card statement. Store USD, estimate SAR with a stored FX rate, flag `estimated`.
 4. **Fees** come inside the transfer SMS (Al Rajhi/Alinma 0.58, SNB 2.50): create the transfer and a separate `fee` transaction.
 5. **Dates differ per sender and sometimes per template** (see table). The SMS arrives seconds after the event, so the parser picks the candidate date closest to `received_at` when a template is ambiguous.
@@ -33,6 +34,7 @@ Source: the owner's screenshots (2026-10-30). Names, phone and account numbers a
 | POS International Purchase | amount in BHD etc with SAR, FX, At, Country | purchase (foreign) | same |
 | Refund | card, amount, At, On (date only) | refund | `yyyy-MM-dd` (time from received_at) |
 | Your refund of SAR n from X has been processed | amount, merchant | refund | received_at |
+| Debit Transfer local (amount, Fees, To name, Bank, a/c last4, date line; real sample 2026-11-04, to the owner's own Alinma 6000) | amount, fee, counterparty name, a/c last4 | transfer_out (internal when a/c is an own account; a Fees line above 0 becomes a fee row) | same |
 | Credit/Debit Transfer Internal | amount, counterparty (masked), account last4 | transfer_in / transfer_out | `yyyy-MM-dd HH:mm` |
 | Money Added to your Barq wallet | amount, via, card last4 | wallet_topup | same |
 | Rejected transaction: Insufficient balance | | ignored (declined) | |

@@ -48,6 +48,8 @@ async function setup(
     failSave?: boolean;
     failRules?: boolean;
     failObligations?: boolean;
+    failPairLookup?: boolean;
+    counterparts?: { id: string; isInternal: boolean }[];
     obs?: Ob[];
     open?: Inst[];
   } = {},
@@ -62,6 +64,13 @@ async function setup(
   const dueDates: [string, string][] = [];
   let refreshed = 0;
   let touched = 0;
+  const transferLookups: {
+    type: string;
+    bank: string;
+    amountHalalas: number;
+    occurredAt: string;
+  }[] = [];
+  const marked: { ids: string[]; cat: string | null }[] = [];
   const deps: IngestDeps = {
     findToken: (h) => Promise.resolve(h === hash ? { id: "tok1", userId: "user1" } : null),
     bumpRateLimit: (_user, window) =>
@@ -81,6 +90,15 @@ async function setup(
       opts.failRules
         ? Promise.reject(new Error("db down"))
         : Promise.resolve({ ids: CATS, rules: RULES }),
+    findTransferCounterparts: (_u, t) => {
+      transferLookups.push(t);
+      if (opts.failPairLookup) return Promise.reject(new Error("db down"));
+      return Promise.resolve(opts.counterparts ?? []);
+    },
+    markInternal: (_u, ids, cat) => {
+      marked.push({ ids, cat });
+      return Promise.resolve();
+    },
     saveParsed: (a) => {
       if (opts.failSave) return Promise.reject(new Error("db down"));
       saved.push(a);
@@ -136,6 +154,8 @@ async function setup(
     matches,
     dueDates,
     refreshed: () => refreshed,
+    transferLookups,
+    marked,
   };
 }
 
@@ -479,4 +499,66 @@ Deno.test("ingest: a bill SMS keeps only its facts in the stored body", async ()
   const f = JSON.parse(BILL_BODY);
   await s.call({ sender: f.sender, body: f.body, received_at: f.receivedAt });
   assert.equal(s.saved[0].replaceBody, "[bill notice] STC line ending 7356, total 172.50 SAR");
+});
+
+const BARQ_LOCAL =
+  "Debit Transfer local\nAmount: 50.00 SAR\nFees: 0.00 SAR\nTo: PERSON A\nBank: INMA BANK \na/c: **6000\n2026-11-04 06:40";
+const ALINMA_IN = "حوالة واردة محلية\nمبلغ 50 SAR\nمن PERSON A\nحساب *6000\nفي 06:41 26-11-04";
+
+Deno.test("ingest: a barq local transfer to an own account is internal, not spending", async () => {
+  const s = await setup();
+  const res = await s.call(
+    { sender: "barq app", body: BARQ_LOCAL, received_at: "2026-11-04T03:40:58Z" },
+    { "x-ingest-token": s.token },
+  );
+  assert.equal(res.status, 200);
+  const row = s.saved[0].rows[0];
+  assert.equal(row.type, "transfer_out");
+  assert.equal(row.is_internal, true);
+  assert.equal(row.excluded_from_spend, true);
+  assert.equal(row.counterparty_last4, "6000");
+});
+
+Deno.test("ingest: the other bank's incoming message of the same move is internal too", async () => {
+  const s = await setup({ counterparts: [{ id: "out1", isInternal: true }] });
+  await s.call(
+    { sender: "alinma", body: ALINMA_IN, received_at: "2026-11-04T03:41:32Z" },
+    { "x-ingest-token": s.token },
+  );
+  const row = s.saved[0].rows[0];
+  assert.equal(row.type, "transfer_in");
+  assert.equal(row.is_internal, true);
+  assert.equal(row.excluded_from_spend, true);
+  assert.equal(s.transferLookups[0].type, "transfer_out");
+  assert.equal(s.transferLookups[0].amountHalalas, 5000);
+});
+
+Deno.test("ingest: an incoming transfer with no matching own transfer stays real income", async () => {
+  const s = await setup({ counterparts: [] });
+  await s.call(
+    { sender: "alinma", body: ALINMA_IN, received_at: "2026-11-04T03:41:32Z" },
+    { "x-ingest-token": s.token },
+  );
+  assert.equal(s.saved[0].rows[0].is_internal, false);
+});
+
+Deno.test("ingest: an own-account transfer out finds the incoming row that arrived first and marks it", async () => {
+  const s = await setup({ counterparts: [{ id: "in1", isInternal: false }] });
+  await s.call(
+    { sender: "barq app", body: BARQ_LOCAL, received_at: "2026-11-04T03:40:58Z" },
+    { "x-ingest-token": s.token },
+  );
+  assert.deepEqual(s.marked, [{ ids: ["in1"], cat: "c-transfers" }]);
+  assert.equal(s.transferLookups[0].type, "transfer_in");
+});
+
+Deno.test("ingest: a failed counterpart lookup never costs the transaction", async () => {
+  const s = await setup({ failPairLookup: true });
+  const res = await s.call(
+    { sender: "alinma", body: ALINMA_IN, received_at: "2026-11-04T03:41:32Z" },
+    { "x-ingest-token": s.token },
+  );
+  assert.equal(res.status, 200);
+  assert.equal(s.saved.length, 1);
+  assert.equal(s.saved[0].rows[0].is_internal, false);
 });

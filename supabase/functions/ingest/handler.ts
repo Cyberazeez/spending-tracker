@@ -33,6 +33,16 @@ export interface IngestDeps {
   loadCategorization(userId: string): Promise<{ ids: CategoryIds; rules: Rule[] }>;
   /** Stores the transactions (if any) and updates the raw message's parse status in one go. */
   saveParsed(args: SaveParsedArgs): Promise<SaveResult>;
+  /**
+   * Transfers of the opposite direction, same amount, from another bank, within 5 minutes of this one: a move
+   * between the owner's own accounts is reported once by each bank.
+   */
+  findTransferCounterparts(
+    userId: string,
+    t: { type: string; bank: string; amountHalalas: number; occurredAt: string },
+  ): Promise<{ id: string; isInternal: boolean }[]>;
+  /** Flags stored transfers as internal (not spending) and files the uncategorised ones under Transfers. */
+  markInternal(userId: string, ids: string[], transfersCategoryId: string | null): Promise<void>;
   obligations: ObligationDeps;
 }
 
@@ -114,11 +124,26 @@ export async function handleIngest(req: Request, deps: IngestDeps): Promise<Resp
           ids: {} as CategoryIds,
           rules: [] as Rule[],
         }));
-        const rows = applyCategories(
-          buildRows(r.txn, await deps.loadOwnAccounts(found.userId)),
-          cat.rules,
-          cat.ids,
-        );
+        const built = buildRows(r.txn, await deps.loadOwnAccounts(found.userId));
+        // The other bank's message of the same move: tells an unmarked incoming transfer it is internal, or
+        // (below, once saved) an earlier incoming one. Best effort: a failed lookup leaves the rows as parsed.
+        const head = built[0];
+        let toMark: string[] = [];
+        if (head.type === "transfer_in" || head.type === "transfer_out") {
+          const others = await deps.findTransferCounterparts(found.userId, {
+            type: head.type === "transfer_in" ? "transfer_out" : "transfer_in",
+            bank: head.bank,
+            amountHalalas: head.amount_halalas,
+            occurredAt: head.occurred_at,
+          }).catch(() => []);
+          if (head.is_internal) {
+            toMark = others.filter((o) => !o.isInternal).map((o) => o.id);
+          } else if (head.type === "transfer_in" && others.some((o) => o.isInternal)) {
+            head.is_internal = true;
+            head.excluded_from_spend = true;
+          }
+        }
+        const rows = applyCategories(built, cat.rules, cat.ids);
         const saved = await deps.saveParsed({
           userId: found.userId,
           rawId: id,
@@ -126,6 +151,11 @@ export async function handleIngest(req: Request, deps: IngestDeps): Promise<Resp
           status: "parsed",
           rows,
         });
+        if (toMark.length) {
+          await deps.markInternal(found.userId, toMark, cat.ids["Transfers"] ?? null).catch((e) =>
+            console.error("mark_internal_failed", (e as Error).message)
+          );
+        }
         // The transaction is safe by now; tracking obligations is best effort and never fails the SMS.
         await applyTransactions(deps.obligations, found.userId, rows, saved.ids).catch((e) =>
           console.error("obligation_match_failed", (e as Error).message)

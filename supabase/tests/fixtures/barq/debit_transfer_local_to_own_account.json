@@ -1,0 +1,14 @@
+{
+  "sender": "barq app",
+  "receivedAt": "2026-11-04T03:40:58.000Z",
+  "body": "Debit Transfer local\nAmount: 50.00 SAR\nFees: 0.00 SAR\nTo: PERSON A\nBank: INMA BANK \na/c: **6000\n2026-11-04 06:40",
+  "expected": {
+    "kind": "transaction",
+    "type": "transfer_out",
+    "direction": "out",
+    "amountHalalas": 5000,
+    "counterpartyLast4": "6000",
+    "counterpartyName": "PERSON A",
+    "occurredAt": "2026-11-04T03:40:00.000Z"
+  }
+}
