@@ -148,7 +148,7 @@ void main() {
     final fill = tester.widget<ColoredBox>(
       find.byKey(const ValueKey('cycle-bar-fill')),
     );
-    expect(fill.color!.toARGB32(), AppTokens.accent.color.toARGB32());
+    expect(fill.color.toARGB32(), AppTokens.accent.color.toARGB32());
     final fillW = tester.getSize(find.byKey(const ValueKey('cycle-bar-fill')));
     final barW = tester.getSize(find.byType(LayoutBuilder).last).width;
     expect(fillW.width / barW, closeTo(0.75, 0.01)); // 300 of 400 paid
