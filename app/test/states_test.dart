@@ -2,6 +2,9 @@ import 'dart:ui' show Size;
 
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:go_router/go_router.dart';
+import 'package:spending_tracker/router.dart';
+
 import 'support/fakes.dart';
 
 /// Every tab must survive the two bad situations a real phone meets: the server cannot be reached, and there is
@@ -67,4 +70,60 @@ void main() {
       expect(find.textContaining('تعذّر'), findsAtLeastNWidgets(1));
     });
   }
+
+  // Sub-screens: reached by route, with the server down and with nothing to show.
+  const subScreens = {
+    'Needs review': reviewPath,
+    'Bank accounts': banksPath,
+    'SMS capture': capturePath,
+    'Account': accountPath,
+    'AI chat': aiChatPath,
+  };
+  subScreens.forEach((name, path) {
+    for (final down in [true, false]) {
+      testWidgets(
+        '$name with the server ${down ? 'unreachable' : 'empty'}: no crash',
+        (t) async {
+          t.view.physicalSize = const Size(390 * 3, 844 * 3);
+          t.view.devicePixelRatio = 3;
+          addTearDown(t.view.reset);
+          final h = Harness(signedIn: true);
+          // down from the start, so nothing is cached from an earlier good load
+          h.data.failLoad = down;
+          await t.pumpWidget(await h.build());
+          await t.pumpAndSettle();
+          GoRouter.of(t.element(find.text('Home').last)).go(path);
+          await t.pumpAndSettle();
+          expect(t.takeException(), isNull);
+          if (down && (name == 'Needs review' || name == 'Bank accounts')) {
+            expect(
+              find.textContaining('Could not load'),
+              findsAtLeastNWidgets(1),
+            );
+          }
+        },
+      );
+    }
+  });
+
+  testWidgets(
+    'losing the connection mid-session: a refresh shows the message, no crash',
+    (t) async {
+      t.view.physicalSize = const Size(390 * 3, 844 * 3);
+      t.view.devicePixelRatio = 3;
+      addTearDown(t.view.reset);
+      final h = Harness(signedIn: true);
+      await t.pumpWidget(await h.build());
+      await t.pumpAndSettle();
+      await t.tap(find.text('Activity').last);
+      await t.pumpAndSettle();
+      expect(find.textContaining('Could not load'), findsNothing);
+      h.data.failLoad = true; // the phone goes offline while the screen is open
+      await t.tap(find.text('Bills').last);
+      await t.pumpAndSettle();
+      await t.tap(find.text('Activity').last);
+      await t.pumpAndSettle();
+      expect(t.takeException(), isNull);
+    },
+  );
 }

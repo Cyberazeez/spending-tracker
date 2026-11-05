@@ -406,7 +406,10 @@ class FakeDataRepository implements DataRepository {
   bool accountDuplicate = false;
 
   @override
-  Future<List<OwnAccount>> ownAccounts() async => accounts;
+  Future<List<OwnAccount>> ownAccounts() async {
+    if (failLoad) throw StateError('offline');
+    return accounts;
+  }
 
   @override
   Future<void> addOwnAccount({
