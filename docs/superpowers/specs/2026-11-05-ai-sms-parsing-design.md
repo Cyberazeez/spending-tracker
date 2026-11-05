@@ -29,7 +29,6 @@ After a sender's AI parses are confirmed by enough distinct users, the model pro
 6. Run behind the flag for the owner's own account with a bank that has no fixture; review the results; then enable for paying users.
 7. Phase 2 (template learning) only after enough real confirmed traffic.
 
-## Open decisions (owner)
-- **Names in transfer SMS:** accept sending them (they are in the message the user chose to capture) with a clear privacy note, or send only purchase-like messages and keep transfers in Needs review. Recommended: strip text after "from/to" keywords, accept the residual risk, and say so in the privacy note.
-- Accuracy bar and trust threshold (proposed above).
-- Whether a failed AI parse should refund quota (proposed: yes).
+## Decisions (owner, 2026-11-05)
+- **Transfers stay out of AI parsing.** Transfer and person-to-person messages (names in the text) are never sent to the model; they stay in Needs review or the existing regex parsers. Only purchase, refund, bill, salary, fee and ATM-like messages go through `redactForAi()`.
+- Still open: the accuracy bar and trust threshold (proposed above), and whether a failed AI parse refunds quota (proposed: yes).
