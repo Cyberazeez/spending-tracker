@@ -26,7 +26,7 @@ When one person marks a merchant (for example the text a bank shows for a fuel s
 6. Tests: RLS (no client reads), threshold and conflict cases, personal rule beats community, custom categories never leave, switch off removes votes, free account gets no community rule.
 7. Backfill option: apply a newly promoted rule to a paying user's uncategorised rows (never to rows set manually).
 
-## Open decisions (owner)
-- Thresholds (3 users, 80%) and the 7-day account age.
-- Consent default on vs off (recommended: on, with a clear note and a switch).
-- Whether community suggestions are visible to free users as hints (proposed: no).
+## Decisions (owner, 2026-11-05)
+- **Consent default: on for everyone**, with an off switch in Account > Privacy (turning it off removes that user's votes) and a clear privacy note.
+- **Thresholds:** at least 3 distinct users and at least 80% agreement; accounts must be email-confirmed and at least 7 days old to vote.
+- Still open: whether free users see community suggestions as hints (proposed: no).
