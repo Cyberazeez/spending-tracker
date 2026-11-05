@@ -1,49 +1,43 @@
 # spending-tracker
 
-Single-user personal finance app: bank SMS arrive through an iOS Shortcut, get parsed and categorized, and feed obligations, budgets and insights. Flutter (iOS-first) + Supabase. Planning docs are in `docs/` (start with `01-prd.md`); `CLAUDE.md` holds the working rules.
+Personal finance app for iPhone. Bank SMS reach the app through an iOS Shortcuts automation (the in-app "Add bank message" action), get parsed and categorized, and feed spending, bills, budgets, insights and widgets. SAR, Asia/Riyadh, English and Arabic. Flutter (Cupertino, Riverpod) + Supabase (Postgres with RLS, Edge Functions in Deno). Planning docs are in `docs/` (start with `01-prd.md`); `CLAUDE.md` holds the working rules.
 
 ## Status
-Backend (SMS parsing, categories, obligations, statement import) is live on Supabase. The app (Home, Transactions, Obligations, Insights with budgets, More) is built and tested but not on a phone yet: that needs the Apple Developer account and a Codemagic build (milestone 6). Setup and running: `docs/08-setup-guide.md`.
+Live on TestFlight for the owner and a small closed group of invited family testers. Built so far: SMS capture and parsing for Alinma, Barq, D360, STC, SNB and Al Rajhi; categories with AI suggestions (optional, capped); bills and instalments grouped by billing cycle; credit card statements; budgets and insights; home-screen widgets; bill reminders; account deletion with a 30-day grace period; a step-by-step Shortcuts guide inside the app. Not built yet (public release): Apple/Google sign-in, invite codes, forgot password, paid AI plans. After release: CSV import/export. See `docs/06-implementation-plan.md`.
 
 ## Layout
 | Path | What |
 |---|---|
-| `app/` | Flutter app (Cupertino, Riverpod, go_router, en/ar) |
+| `app/` | Flutter app (iOS first; `lib/features/*`, design layer in `lib/ui/`, strings in `lib/l10n/` en + ar) |
+| `app/ios/` | Runner, the Shortcuts action (App Intent) and the widget extension (Swift) |
 | `supabase/migrations/` | SQL schema, RLS policies, seed defaults |
-| `supabase/functions/` | Edge Functions (Deno): `ingest`, `rotate-token`, `categorize-batch`, `insights-tips`, shared helpers, the statement import tool |
-| `supabase/tests/db/` | RLS isolation test and a local Postgres runner |
-| `scripts/` | `get-ingest-token.ps1` (Windows) |
-| `codemagic.yaml` | iOS build to TestFlight (not run yet) |
+| `supabase/functions/` | Edge Functions: `ingest`, `rotate-token`, `categorize-batch`, `insights-tips`, `ai-chat`, `delete-account`, `widget-summary`, shared parsers and helpers |
+| `supabase/tests/` | RLS isolation test with a local Postgres runner, redacted SMS fixtures |
+| `docs/` | PRD, tech choices, app flow, design brief, backend schema, plan, SMS catalog |
+| `codemagic.yaml` | iOS build to TestFlight (started by hand in Codemagic) |
 
 ## Checks (same as CI)
 ```bash
 cd app && flutter pub get && flutter analyze && flutter test
 cd supabase/functions && deno lint && deno test --allow-read
-bash supabase/tests/db/run_local.sh     # needs a local Postgres server (apt install postgresql)
+bash supabase/tests/db/run_local.sh     # needs a local Postgres server
 ```
-Flutter is pinned to 3.47.9; versions of every package are listed in `docs/02-tech-requirements.md`.
+Flutter is pinned to 3.47.9; package versions are in `docs/02-tech-requirements.md`. Do not run `deno fmt` on the whole functions folder.
 
-## Environment variables
-Names only, see `.env.example`. The app needs none to run: the project URL and publishable key are public and default in `app/lib/config.dart`.
+## Working rules (short)
+- Never commit to `main`; work on a branch and open a pull request. CI must be green.
+- No secrets in git. Variable names only in `.env.example`; real values live in Supabase function secrets, Codemagic variables or `.env` (gitignored).
+- Money is integer halalas. Fixtures and test data contain no real names, phone numbers, IBANs or full account numbers.
+- No SMS parser without a real redacted fixture in `supabase/tests/fixtures/<sender>/`.
 
-## Supabase project
-Deploying with the CLI: `supabase functions deploy ingest --no-verify-jwt` (the Shortcut cannot send a JWT; `supabase/config.toml` sets this too).
+## Releasing
+- **App**: merge to `main`, then start the iOS build in Codemagic by hand; it uploads to TestFlight.
+- **Database**: new files in `supabase/migrations/` are applied to the Supabase project by hand after the owner's go.
+- **Edge Functions**: deployed by hand (bundle each function, then deploy with the Supabase connector or CLI). `ingest` and `widget-summary` are deployed without JWT verification (callers use their own tokens); the others verify the user's JWT. After deploying, check the version number in the Supabase dashboard.
+- The Supabase project is `spending-tracker` (ref `evepfssanoffnwtqjmyq`, region ap-south-1). Migration versions on the remote differ from the file names because they were applied with the connector.
 
-Project `spending-tracker` (ref `evepfssanoffnwtqjmyq`, region ap-south-1). Migrations in this folder were applied with the Supabase connector, so their remote version numbers differ from the file names. Before wiring `supabase db push` into CI, run `supabase migration repair` to align the history.
+## Setting up SMS capture
+In the app: More > SMS capture > "Show me how, step by step" (it also opens once for a new account). In short: Shortcuts > Automation > + > Message, filter "Message contains SAR" (add copies for Arabic or SR messages), Run Immediately on, action "Add bank message" with Message and Sender filled. `docs/08-setup-guide.md` describes the one-automation-per-sender variant.
 
-## Parsers and fixtures
-Each bank has a parser in `supabase/functions/_shared/parsers/` and real, redacted fixtures in `supabase/tests/fixtures/<sender>/` (`docs/07-sms-catalog.md` lists every template). Adding a format = add a fixture first, then make it pass. Unknown formats are never guessed: they stay in the app's *Needs review* list.
-
-## Milestone 1 setup (owner steps)
-1. **Create your user.** Supabase dashboard, project `spending-tracker`: Authentication, Users, *Add user*, tick auto confirm. Defaults (categories, own accounts, settings) are created automatically.
-2. **Turn off sign-ups.** Authentication, Sign In / Providers, switch off *Allow new users to sign up* and anonymous sign-ins. (`supabase/config.toml` records the same settings for CLI deploys.)
-3. **Get an ingest token.** On Windows run `powershell -ExecutionPolicy Bypass -File scripts\get-ingest-token.ps1`. Copy the token it prints (shown once; running it again replaces it).
-4. **Shortcuts test on your iPhone** (this is the riskiest assumption in the project). Shortcuts app, Automation, `+`, *Message*:
-   - Sender / message filter: try choosing the sender `alinma`. If iOS will not let you pick an alphanumeric sender, use *Message Contains* with a word every alinma SMS has (for example `SAR`) and tell me.
-   - Run Immediately, and turn *Notify When Run* off.
-   - Action *Get Contents of URL*: URL `https://evepfssanoffnwtqjmyq.supabase.co/functions/v1/ingest`, Method `POST`, Headers `X-Ingest-Token` = your token, Request Body `JSON` with `sender` (Shortcut Input, Sender), `body` (Shortcut Input, Content) and `received_at` (Current Date, ISO 8601).
-   - Wait for a real SMS from that bank, or send yourself a test.
-   - Only the `X-Ingest-Token` header is needed (no Authorization header). Replacing the token later breaks every Shortcut until you paste the new one in, and a Shortcut with *Notify When Run* off fails silently. If the app's *last message received* looks stale, check the Shortcut first.
-5. **Tell me:** did it run without a prompt? what does the sender show as? Check the result in the app (More > SMS capture shows what is waiting and the last send result) or in the dashboard table `raw_messages`.
-
-The message bodies stored at this stage are unparsed (`needs_review`). One-time codes are stored as `[redacted]`.
+## Public release checklist
+Findings from the 2026-11-05 ship-review that were accepted for the closed test are listed under "Before publishing" in `docs/06-implementation-plan.md` (AI defaults and open sign-up, quotas, token expiry, per-IP limits and more).
