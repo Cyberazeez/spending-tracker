@@ -45,6 +45,22 @@ class RecoveryPending extends Notifier<bool> {
   void set(bool value) => state = value;
 }
 
+/// Fires when an emailed link (reset, confirm) is expired or already used.
+final authLinkFailedProvider = StreamProvider<void>((ref) {
+  return ref.watch(authRepositoryProvider).linkFailed;
+});
+
+/// True after such a link failed, until the Sign in screen has told the person.
+final linkFailedPendingProvider = NotifierProvider<LinkFailedPending, bool>(
+  LinkFailedPending.new,
+);
+
+class LinkFailedPending extends Notifier<bool> {
+  @override
+  bool build() => false;
+  void set(bool value) => state = value;
+}
+
 final sharedPrefsProvider = Provider<SharedPreferences>(
   (ref) => throw UnimplementedError('override sharedPrefsProvider in main()'),
 );

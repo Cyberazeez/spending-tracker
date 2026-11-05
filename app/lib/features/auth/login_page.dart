@@ -13,6 +13,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../router.dart';
 import '../../ui/app_form.dart';
+import '../../ui/confirm_sheet.dart';
 import '../../ui/tokens.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
@@ -28,6 +29,27 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   bool _busy = false;
   bool _submitted = false;
   SignInFailure? _failure;
+
+  @override
+  void initState() {
+    super.initState();
+    // A dead link may have been opened before this screen existed (app started by the link).
+    WidgetsBinding.instance.addPostFrameCallback((_) => _showLinkExpired());
+  }
+
+  /// An emailed link that is expired or already used: say so once and offer a new one.
+  Future<void> _showLinkExpired() async {
+    if (!mounted || !ref.read(linkFailedPendingProvider)) return;
+    ref.read(linkFailedPendingProvider.notifier).set(false);
+    final t = AppLocalizations.of(context);
+    await showNoticeSheet(
+      context,
+      title: t.linkExpiredTitle,
+      message: t.linkExpiredBody,
+      okLabel: t.linkExpiredOk,
+    );
+    if (mounted) context.push(forgotPath);
+  }
 
   @override
   void dispose() {
@@ -65,6 +87,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
+    ref.listen(linkFailedPendingProvider, (_, now) {
+      if (now) _showLinkExpired();
+    });
     final missingEmail = _submitted && _email.text.trim().isEmpty;
     final missingPassword = _submitted && _password.text.isEmpty;
     final accent = AppTokens.accent.resolveFrom(context);

@@ -91,6 +91,9 @@ final routerProvider = Provider<GoRouter>((ref) {
     ref.read(recoveryPendingProvider.notifier).set(true);
     refresh.value++;
   });
+  ref.listen(authLinkFailedProvider, (_, next) {
+    if (next.hasValue) ref.read(linkFailedPendingProvider.notifier).set(true);
+  });
   ref.listen(recoveryPendingProvider, (_, _) => refresh.value++);
   ref.onDispose(refresh.dispose);
 

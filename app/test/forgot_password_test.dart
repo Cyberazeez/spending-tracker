@@ -115,4 +115,22 @@ void main() {
     expect(h.auth.newPasswordCalls, ['newpass123']);
     expect(find.text('Home'), findsWidgets);
   });
+
+  testWidgets('an expired email link tells the person and offers a new one', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(800, 2400);
+    tester.view.devicePixelRatio = 2;
+    addTearDown(tester.view.reset);
+    final h = Harness();
+    await tester.pumpWidget(await h.build());
+    await tester.pumpAndSettle();
+    h.auth.emitLinkFailed();
+    await tester.pumpAndSettle();
+    expect(find.text('This link has expired'), findsOneWidget);
+    await tester.tap(find.text('Request a new link'));
+    await tester.pumpAndSettle();
+    expect(find.text('Reset your password'), findsWidgets);
+    expect(find.text('This link has expired'), findsNothing);
+  });
 }
