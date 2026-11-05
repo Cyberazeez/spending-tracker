@@ -98,6 +98,8 @@ Widget build notes (2026-11-02): the extension is `app/ios/SpendingWidget` (bund
 - **Family testing decision (owner, 2026-11-04):** this is a closed test, not a soft launch. Only people the owner invites on TestFlight have the app, so sign-up is **open without invite codes** (email + password, email confirmation off so testers can start at once). Invite codes (`docs/superpowers/specs/2026-11-04-signup-stage-b-design.md`) stay the design for the public release, together with Apple and Google sign-in.
 
 ## M7. Polish
+**M7 done 2026-11-05.** Delivered: keychain session storage, "last message received" warning, dark mode pass, empty/error state tests, accessibility checks (tap targets, labels, 2x text), in-app Shortcuts guide, README, ship-review and security audit. The owner marked the on-device VoiceOver reading-order and gradient-card contrast check as done (waived) on 2026-11-05. CSV import/export moved to after publishing.
+
 Also: store the Supabase session in the iOS keychain (`flutter_secure_storage` as the auth `LocalStorage`) instead of the default SharedPreferences, add a "last message received" staleness warning, and mark the ingest token clipboard copy as local-only.
 
 Dark mode pass, empty/error states audit, accessibility pass (Dynamic Type, VoiceOver), full Shortcuts setup guide with screenshots, CSV import/export hardening, README, `ship-review` and security audit on the whole repo.
