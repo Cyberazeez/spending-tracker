@@ -48,6 +48,7 @@ async function setup(
     failSave?: boolean;
     failRules?: boolean;
     failObligations?: boolean;
+    failNotice?: boolean;
     failPairLookup?: boolean;
     counterparts?: { id: string; isInternal: boolean }[];
     obs?: Ob[];
@@ -122,6 +123,7 @@ async function setup(
         return Promise.resolve({ obs: opts.obs ?? [], open: opts.open ?? [] });
       },
       upsertNoticeInstance: (a) => {
+        if (opts.failNotice) return Promise.reject(new Error("db down"));
         noticeInstances.push(a);
         return Promise.resolve();
       },
@@ -628,4 +630,20 @@ Deno.test("ingest: paying the owner's credit card is internal, never spending", 
   assert.equal(row.is_internal, true);
   assert.equal(row.excluded_from_spend, true);
   assert.ok(!s.rows[0].body.includes("14,886"), "the remaining limit line is not stored");
+});
+
+Deno.test("ingest: a bill SMS whose instance cannot be saved is retried, not lost", async () => {
+  const opts = { obs: [NET_OB], failNotice: true };
+  const s = await setup(opts);
+  const f = JSON.parse(BILL_BODY);
+  const first = await s.call({ sender: f.sender, body: f.body, received_at: f.receivedAt }).catch(() => null);
+  assert.equal(first, null, "the call fails so the app sends it again");
+  assert.equal(s.rows[0].parse_status, "needs_review");
+  assert.equal(s.saved.length, 0, "not marked parsed");
+  opts.failNotice = false;
+  const retry = await s.call({ sender: f.sender, body: f.body, received_at: f.receivedAt });
+  assert.equal(retry.status, 200);
+  assert.equal(s.noticeInstances.length, 1, "the instance is created on the retry");
+  assert.equal(s.saved.length, 1);
+  assert.equal(s.saved[0].status, "parsed");
 });

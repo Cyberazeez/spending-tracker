@@ -4,6 +4,8 @@ import {
   categorizeMerchants,
   costHalalas,
   maskMerchant,
+  MAX_CATEGORY_NAME_LENGTH,
+  MAX_CATEGORY_NAMES,
   MAX_TOKENS_CATEGORIZE,
 } from "./ai.ts";
 import { runBatch } from "../categorize-batch/handler.ts";
@@ -234,4 +236,16 @@ Deno.test("a reply cut off at the ceiling fails closed, but its usage is still r
   const r = await categorizeMerchants(x.d, ["Noon"], CATS);
   assert.deepEqual(r, { ok: false, reason: "failed" });
   assert.equal(x.usage.length, 1);
+});
+
+Deno.test("a huge or odd category list cannot inflate the prompt: only short names, at most 50", async () => {
+  const { d, calls } = deps();
+  const many = Array.from({ length: 300 }, (_, i) => `Cat${i}`);
+  const names = ["Dining", "x".repeat(MAX_CATEGORY_NAME_LENGTH + 1), ...many];
+  const out = await categorizeMerchants(d, ["HUNGERSTATION LLC"], names);
+  assert.equal(out.ok, true);
+  const prompt = JSON.parse(String(calls[0].init.body)).messages[0].content as string;
+  const listed = prompt.split("\n").find((l) => l.startsWith("Categories: "))!;
+  assert.equal(listed.includes("x".repeat(MAX_CATEGORY_NAME_LENGTH + 1)), false);
+  assert.equal(listed.replace("Categories: ", "").replace(/\.$/, "").split(", ").length, MAX_CATEGORY_NAMES);
 });

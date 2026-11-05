@@ -3,7 +3,7 @@ const OTP_PATTERNS: RegExp[] = [
   /\botp\b/i,
   /verification\s+code/i,
   /security\s+code/i,
-  /one[-\s]?time/i,
+  /\bone[-\s]?time\b/i,
   /passcode/i,
   /رمز\s+(التأكيد|الأمان|السري)/,
   /كلمة\s+المرور\s+(المؤقتة|لمرة)/,

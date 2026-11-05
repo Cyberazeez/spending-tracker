@@ -76,6 +76,8 @@ Deno.test("otp: purchases and transfers are not OTP", () => {
     "Local Online Purchase\nAmount: SAR 90.70\nAt: HUNGERSTATION LLC",
     "تم إيداع الراتب\nمبلغ SAR 13822.93\nلـ حساب **6000",
     "Credit Transfer Internal\nAmount: 106.00 SAR\nSender A/C: **6784",
+    "POS Purchase\nAmount: 45.00 SAR\nAt: PHONE TIME MOBILES\n2026-10-22 20:47",
+    "Local Online Purchase\nAmount: SAR 12.00\nAt: SOMEONE TIMELESS CAFE",
   ];
   for (const m of normal) assert.equal(isOtpLike(m), false, m);
 });
