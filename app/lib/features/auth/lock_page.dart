@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/lock.dart';
 import '../../l10n/app_localizations.dart';
+import '../../ui/app_card.dart';
 import '../../ui/app_form.dart';
 import '../../ui/launch_skeleton.dart';
 import '../../ui/tokens.dart';
@@ -36,42 +37,58 @@ class _LockPageState extends ConsumerState<LockPage> {
     return CupertinoPageScaffold(
       backgroundColor: AppTokens.bg.resolveFrom(context),
       child: LaunchSkeleton(
-        child: Align(
-          alignment: const Alignment(0, 0.55),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Text(
-                  t.lockTitle,
-                  style: TextStyle(
-                    color: AppTokens.text.resolveFrom(context),
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
+        child: Stack(
+          children: [
+            // A scrim over the grey blocks so the text and button are read against a calm background.
+            Positioned.fill(
+              child: ColoredBox(
+                color: AppTokens.bg
+                    .resolveFrom(context)
+                    .withValues(alpha: 0.82),
+              ),
+            ),
+            Align(
+              alignment: const Alignment(0, 0.45),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 32),
+                child: AppCard(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Text(
+                          t.lockTitle,
+                          style: TextStyle(
+                            color: AppTokens.text.resolveFrom(context),
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                      if (state.failed)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: Text(
+                            t.unlockFailed,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: AppTokens.muted.resolveFrom(context),
+                              fontSize: 15,
+                            ),
+                          ),
+                        ),
+                      const SizedBox(height: 4),
+                      PrimaryButton(
+                        label: t.unlock,
+                        onPressed: state.busy ? null : _unlock,
+                      ),
+                    ],
                   ),
                 ),
               ),
-              if (state.failed)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: Text(
-                    t.unlockFailed,
-                    style: TextStyle(
-                      color: AppTokens.text.resolveFrom(context),
-                      fontSize: 15,
-                    ),
-                  ),
-                ),
-              SizedBox(
-                width: 220,
-                child: PrimaryButton(
-                  label: t.unlock,
-                  onPressed: state.busy ? null : _unlock,
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

@@ -266,6 +266,18 @@ abstract class AppLocalizations {
   /// **'{count} waiting'**
   String captureWaiting(int count);
 
+  /// No description provided for @captureLastOk.
+  ///
+  /// In en, this message translates to:
+  /// **'Last sent {time}'**
+  String captureLastOk(String time);
+
+  /// No description provided for @captureLastFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Last send failed ({code})'**
+  String captureLastFailed(String code);
+
   /// No description provided for @captureNone.
   ///
   /// In en, this message translates to:

@@ -99,6 +99,16 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String captureLastOk(String time) {
+    return 'آخر إرسال $time';
+  }
+
+  @override
+  String captureLastFailed(String code) {
+    return 'فشل آخر إرسال ($code)';
+  }
+
+  @override
   String get captureNone => 'لا شيء بالانتظار';
 
   @override

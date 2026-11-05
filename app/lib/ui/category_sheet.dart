@@ -16,6 +16,7 @@ IconData categoryIconByName(String name) => switch (name) {
   'Dining' => LucideIcons.utensils,
   'Coffee' => LucideIcons.coffee,
   'Fuel' => LucideIcons.fuel,
+  'Transport' => LucideIcons.bus,
   'Utilities' => LucideIcons.zap,
   'House Card' => LucideIcons.creditCard,
   'Entertainment' => LucideIcons.film,
