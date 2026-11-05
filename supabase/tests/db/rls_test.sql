@@ -66,7 +66,7 @@ begin
   set local role authenticated;
 
   select count(*) into n from public.categories;
-  if n <> 19 then raise exception 'A sees % categories, expected 19', n; end if;
+  if n <> 21 then raise exception 'A sees % categories, expected 21', n; end if;
   select count(*) into n from public.raw_messages;
   if n <> 1 then raise exception 'A sees % raw_messages, expected 1', n; end if;
   select count(*) into n from public.settings;
