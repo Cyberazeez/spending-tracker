@@ -322,6 +322,19 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
                             : t.obEmptyHistory,
                       ),
                     )
+                  else if (_section == ObSection.history)
+                    for (final g in groupByCycle(rows)) ...[
+                      heading(
+                        '${monthName(g.monthStart, arabic: arabic)} ${ltrIsolate(g.monthStart.year.toString())}',
+                      ),
+                      pad(
+                        RowsCard(
+                          children: [
+                            for (final i in g.items) _row(i, today, arabic, t),
+                          ],
+                        ),
+                      ),
+                    ]
                   else
                     pad(
                       RowsCard(
@@ -562,41 +575,20 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
       'skipped' => PillTone.muted,
       _ => soon ? PillTone.warn : PillTone.muted,
     };
-    final planNo = i.kind == 'card_statement' && i.plan != null
-        ? i.plan!.numberFor(i.periodStart ?? i.dueDate)
-        : null;
-    final amounts = [
-      if (i.expectedHalalas != null)
-        t.obExpected(formatSar(i.expectedHalalas!, arabic: arabic))
-      else if (i.kind == 'card_statement' && status != 'paid')
-        t.obAmountPending,
-      if (i.usualMinHalalas != null &&
-          i.usualMaxHalalas != null &&
-          i.status != 'paid')
-        t.obUsually(
-          formatSar(i.usualMinHalalas!, arabic: arabic),
-          formatSar(i.usualMaxHalalas!, arabic: arabic),
-        ),
-      if (status == 'paid' && i.actualHalalas != null)
-        t.obPaidAmount(formatSar(i.actualHalalas!, arabic: arabic)),
-    ].join(' · ');
+    // Only the amount, in bold: what was paid, else what is expected.
+    final shown = status == 'paid' && i.actualHalalas != null
+        ? i.actualHalalas
+        : i.expectedHalalas;
+    final amount = shown != null
+        ? ltrIsolate(formatSar(shown, arabic: arabic))
+        : (i.kind == 'card_statement' ? t.obAmountPending : '');
     return ObligationRow(
       onTap: () => _rowActions(i, status),
       name: i.name,
       kind: i.kind,
       statusLabel: label,
       tone: tone,
-      detail: [
-        t.obDue(formatDay(i.dueDate)),
-        if (amounts.isNotEmpty) amounts,
-        if (planNo != null)
-          t.obPlanNote(
-            i.plan!.name,
-            planNo.toString(),
-            i.plan!.months.toString(),
-            formatSar(i.plan!.instalmentHalalas, arabic: arabic),
-          ),
-      ].join(' · '),
+      detail: amount,
     );
   }
 }
@@ -610,21 +602,36 @@ class _CycleBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final share = total <= 0 ? 0.0 : (done / total).clamp(0.0, 1.0);
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(4),
-      child: SizedBox(
-        height: 8,
-        child: Stack(
-          children: [
-            Positioned.fill(
-              child: ColoredBox(color: AppTokens.bar.resolveFrom(context)),
+    // A light track with a solid green fill that starts at the leading edge: the green part is what is paid.
+    return Semantics(
+      label: '${(share * 100).round()}%',
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(5),
+        child: SizedBox(
+          height: 10,
+          child: LayoutBuilder(
+            builder: (context, box) => Stack(
+              children: [
+                Positioned.fill(
+                  child: ColoredBox(
+                    color: AppTokens.accent
+                        .resolveFrom(context)
+                        .withValues(alpha: 0.16),
+                  ),
+                ),
+                PositionedDirectional(
+                  start: 0,
+                  top: 0,
+                  bottom: 0,
+                  width: box.maxWidth * share,
+                  child: ColoredBox(
+                    key: const ValueKey('cycle-bar-fill'),
+                    color: AppTokens.accent.resolveFrom(context),
+                  ),
+                ),
+              ],
             ),
-            FractionallySizedBox(
-              alignment: AlignmentDirectional.centerStart,
-              widthFactor: share,
-              child: ColoredBox(color: AppTokens.accent.resolveFrom(context)),
-            ),
-          ],
+          ),
         ),
       ),
     );

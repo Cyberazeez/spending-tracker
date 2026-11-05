@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:spending_tracker/core/models.dart';
 
+import 'package:spending_tracker/ui/tokens.dart';
+
 import 'support/fakes.dart';
 
 ObligationInstance inst(
@@ -116,8 +118,11 @@ void main() {
       usualMaxHalalas: 72600,
     );
     await open(tester, [range]);
-    expect(find.textContaining('Usually ⃁ 658.00 to ⃁ 726.00'), findsOneWidget);
-    expect(find.textContaining('Expected ⃁ 692.00'), findsOneWidget);
+    // a row shows only the amount, in bold: no due date, no "Expected", no usual range
+    expect(find.textContaining('⃁ 692.00'), findsWidgets);
+    expect(find.textContaining('Usually'), findsNothing);
+    expect(find.textContaining('Expected'), findsNothing);
+    expect(find.textContaining('Due '), findsNothing);
   });
 
   testWidgets('an amount can be edited by hand', (tester) async {
@@ -130,7 +135,45 @@ void main() {
     await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();
     expect(h.data.instanceCalls, contains('amount:1:70050'));
-    expect(find.textContaining('Expected ⃁ 700.50'), findsOneWidget);
+    expect(find.textContaining('⃁ 700.50'), findsWidgets);
+  });
+
+  testWidgets('the progress bar fill is the solid accent green', (
+    tester,
+  ) async {
+    await open(tester, [
+      inst('1', 'Paid one', '2026-10-31', status: 'paid', expected: 30000),
+      inst('2', 'Open one', '2026-10-31', expected: 10000),
+    ]);
+    final fill = tester.widget<ColoredBox>(
+      find.byKey(const ValueKey('cycle-bar-fill')),
+    );
+    expect(fill.color!.toARGB32(), AppTokens.accent.color.toARGB32());
+    final fillW = tester.getSize(find.byKey(const ValueKey('cycle-bar-fill')));
+    final barW = tester.getSize(find.byType(LayoutBuilder).last).width;
+    expect(fillW.width / barW, closeTo(0.75, 0.01)); // 300 of 400 paid
+  });
+
+  testWidgets('history is grouped by month, newest first', (tester) async {
+    await open(tester, [
+      inst('1', 'Paid Oct', '2026-10-02', status: 'paid', period: '2026-10-01'),
+      inst('2', 'Paid Sep', '2026-09-28', status: 'paid', period: '2026-09-01'),
+      inst(
+        '3',
+        'Paid Oct late',
+        '2026-10-28',
+        status: 'paid',
+        period: '2026-10-01',
+      ),
+    ]);
+    await tester.tap(find.text('History'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('October'), findsOneWidget);
+    expect(find.textContaining('September'), findsOneWidget);
+    expect(
+      tester.getTopLeft(find.textContaining('October')).dy,
+      lessThan(tester.getTopLeft(find.textContaining('September')).dy),
+    );
   });
 
   testWidgets('an invalid edited amount is refused', (tester) async {
@@ -202,42 +245,38 @@ void main() {
     expect(h.data.instances.first.status, 'paid');
   });
 
-  testWidgets(
-    'the card statement notes the instalment plan it already includes',
-    (tester) async {
-      final h = Harness(signedIn: true);
-      h.data.instances = [
-        ObligationInstance(
-          id: 'st',
-          obligationId: 'o-st',
-          name: 'Credit card 8119 statement',
-          kind: 'card_statement',
-          periodStart: DateTime.utc(2026, 11),
-          dueDate: DateTime.utc(2026, 11, 25),
-          status: 'pending',
-          expectedHalalas: 846323,
-          plan: const InstalmentPlan(
-            name: 'Autopia',
-            instalmentHalalas: 165350,
-            months: 6,
-            firstYear: 2026,
-            firstMonth: 10,
-          ),
+  testWidgets('the card statement row shows only its amount', (tester) async {
+    final h = Harness(signedIn: true);
+    h.data.instances = [
+      ObligationInstance(
+        id: 'st',
+        obligationId: 'o-st',
+        name: 'Credit card 8119 statement',
+        kind: 'card_statement',
+        periodStart: DateTime.utc(2026, 11),
+        dueDate: DateTime.utc(2026, 11, 25),
+        status: 'pending',
+        expectedHalalas: 846323,
+        plan: const InstalmentPlan(
+          name: 'Autopia',
+          instalmentHalalas: 165350,
+          months: 6,
+          firstYear: 2026,
+          firstMonth: 10,
         ),
-      ];
-      await tester.pumpWidget(await h.build());
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Bills').last);
-      await tester.pumpAndSettle();
-      // the November statement is next month's cycle on 30 Oct: open the folded line
-      await tester.tap(find.text('1 bill'));
-      await tester.pumpAndSettle();
-      expect(
-        find.textContaining('Includes Autopia instalment 2 of 6 (⃁ 1,653.50)'),
-        findsOneWidget,
-      );
-    },
-  );
+      ),
+    ];
+    await tester.pumpWidget(await h.build());
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Bills').last);
+    await tester.pumpAndSettle();
+    // the November statement is next month's cycle on 30 Oct: open the folded line
+    await tester.tap(find.text('1 bill'));
+    await tester.pumpAndSettle();
+    // only the amount is shown on the row, the plan note is gone
+    expect(find.textContaining('⃁ 8,463.23'), findsOneWidget);
+    expect(find.textContaining('Includes Autopia'), findsNothing);
+  });
 
   test('instalment plan numbering stays inside the plan', () {
     const plan = InstalmentPlan(
@@ -274,7 +313,7 @@ void main() {
     await tester.tap(find.text('الفواتير').last);
     await tester.pumpAndSettle();
     expect(find.text('القادمة'), findsOneWidget);
-    expect(find.textContaining('المتوقع'), findsOneWidget);
+    expect(find.textContaining('المتوقع'), findsNothing);
   });
 
   for (final lang in ['en', 'ar']) {
