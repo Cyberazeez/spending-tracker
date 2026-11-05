@@ -423,6 +423,36 @@
   "captureStep3": "Add action “Add bank message” (this app's icon)",
   "captureStep4": "Set Message and Sender to the matching variables",
   "captureStep5": "Done. Bank SMS are added by themselves.",
+  "captureGuideOpen": "Show me how, step by step",
+  "captureGuideTitle": "Add the shortcut",
+  "captureGuideNext": "Next",
+  "captureGuideBack": "Back",
+  "captureGuideDone": "Done",
+  "captureGuideStepOf": "Step {n} of {total}",
+  "@captureGuideStepOf": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "captureGuide1Title": "Open Automation",
+  "captureGuide1Body": "In the Shortcuts app, tap Automation, then the + button.",
+  "captureGuide2Title": "Choose Message",
+  "captureGuide2Body": "Pick Message (“When I get a message from…”).",
+  "captureGuide3Title": "Set the filter",
+  "captureGuide3Body": "Change the filter to Message contains and type SAR. Turn Automation on (Run Immediately) and Confirm Before Run off, then tap Next.",
+  "captureGuide4Title": "Add the action",
+  "captureGuide4Body": "Tap New Blank Automation, search “Add bank” and pick Add bank message (the Spending Tracker icon).",
+  "captureGuide5Title": "Fill the two fields",
+  "captureGuide5Body": "Add Message from Sender: tap the first field and choose the Message variable, then tap the second field to choose Sender.",
+  "captureGuide6Title": "Pick Sender",
+  "captureGuide6Body": "Choose the Message variable, then tick Sender in the list and tap Done.",
+  "captureGuide7Title": "All set",
+  "captureGuide7Body": "Your automation is in the list with the switch on. Messages that write the currency as ريال or SR need their own copy with that word instead of SAR.",
   "captureOpenShortcuts": "Open Shortcuts",
   "captureStatusHeader": "Status",
   "captureSendNow": "Send waiting messages now",

@@ -228,6 +228,36 @@
   "captureStep3": "أضف إجراء «Add bank message» (أيقونة التطبيق)",
   "captureStep4": "اجعل Message وSender المتغيرين المطابقين",
   "captureStep5": "تم. تُضاف رسائل البنك تلقائيًا.",
+  "captureGuideOpen": "اعرض لي الخطوات",
+  "captureGuideTitle": "إضافة الاختصار",
+  "captureGuideNext": "التالي",
+  "captureGuideBack": "السابق",
+  "captureGuideDone": "تم",
+  "captureGuideStepOf": "الخطوة {n} من {total}",
+  "@captureGuideStepOf": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "captureGuide1Title": "افتح الأتمتة",
+  "captureGuide1Body": "في تطبيق الاختصارات اضغط على «الأتمتة» ثم على زر +.",
+  "captureGuide2Title": "اختر «الرسالة»",
+  "captureGuide2Body": "اختر «الرسالة» (عند استلام رسالة من…).",
+  "captureGuide3Title": "اضبط الفلتر",
+  "captureGuide3Body": "غيّر الفلتر إلى «الرسالة تحتوي» واكتب SAR. فعّل «الأتمتة» (تشغيل فوري) وأوقف «تأكيد قبل التشغيل» ثم اضغط التالي.",
+  "captureGuide4Title": "أضف الإجراء",
+  "captureGuide4Body": "اضغط «أتمتة فارغة جديدة» ثم ابحث عن «Add bank» واختر «Add bank message» (أيقونة Spending Tracker).",
+  "captureGuide5Title": "املأ الحقلين",
+  "captureGuide5Body": "Add Message from Sender: اضغط الحقل الأول واختر متغير الرسالة (Message)، ثم اضغط الحقل الثاني لاختيار المُرسل (Sender).",
+  "captureGuide6Title": "اختر المُرسل",
+  "captureGuide6Body": "اختر متغير الرسالة ثم علّم على Sender في القائمة واضغط تم.",
+  "captureGuide7Title": "اكتمل الإعداد",
+  "captureGuide7Body": "ستجد الأتمتة في القائمة والمفتاح مفعّل. الرسائل التي تكتب العملة «ريال» أو SR تحتاج نسخة خاصة بتلك الكلمة بدل SAR.",
   "captureOpenShortcuts": "فتح الاختصارات",
   "captureStatusHeader": "الحالة",
   "captureSendNow": "إرسال الرسائل المنتظرة الآن",

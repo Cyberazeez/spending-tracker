@@ -1154,6 +1154,126 @@ abstract class AppLocalizations {
   /// **'Done. Bank SMS are added by themselves.'**
   String get captureStep5;
 
+  /// No description provided for @captureGuideOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Show me how, step by step'**
+  String get captureGuideOpen;
+
+  /// No description provided for @captureGuideTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add the shortcut'**
+  String get captureGuideTitle;
+
+  /// No description provided for @captureGuideNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get captureGuideNext;
+
+  /// No description provided for @captureGuideBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get captureGuideBack;
+
+  /// No description provided for @captureGuideDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get captureGuideDone;
+
+  /// No description provided for @captureGuideStepOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Step {n} of {total}'**
+  String captureGuideStepOf(int n, int total);
+
+  /// No description provided for @captureGuide1Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Automation'**
+  String get captureGuide1Title;
+
+  /// No description provided for @captureGuide1Body.
+  ///
+  /// In en, this message translates to:
+  /// **'In the Shortcuts app, tap Automation, then the + button.'**
+  String get captureGuide1Body;
+
+  /// No description provided for @captureGuide2Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose Message'**
+  String get captureGuide2Title;
+
+  /// No description provided for @captureGuide2Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick Message (“When I get a message from…”).'**
+  String get captureGuide2Body;
+
+  /// No description provided for @captureGuide3Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Set the filter'**
+  String get captureGuide3Title;
+
+  /// No description provided for @captureGuide3Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Change the filter to Message contains and type SAR. Turn Automation on (Run Immediately) and Confirm Before Run off, then tap Next.'**
+  String get captureGuide3Body;
+
+  /// No description provided for @captureGuide4Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Add the action'**
+  String get captureGuide4Title;
+
+  /// No description provided for @captureGuide4Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap New Blank Automation, search “Add bank” and pick Add bank message (the Spending Tracker icon).'**
+  String get captureGuide4Body;
+
+  /// No description provided for @captureGuide5Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill the two fields'**
+  String get captureGuide5Title;
+
+  /// No description provided for @captureGuide5Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Message from Sender: tap the first field and choose the Message variable, then tap the second field to choose Sender.'**
+  String get captureGuide5Body;
+
+  /// No description provided for @captureGuide6Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick Sender'**
+  String get captureGuide6Title;
+
+  /// No description provided for @captureGuide6Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the Message variable, then tick Sender in the list and tap Done.'**
+  String get captureGuide6Body;
+
+  /// No description provided for @captureGuide7Title.
+  ///
+  /// In en, this message translates to:
+  /// **'All set'**
+  String get captureGuide7Title;
+
+  /// No description provided for @captureGuide7Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Your automation is in the list with the switch on. Messages that write the currency as ريال or SR need their own copy with that word instead of SAR.'**
+  String get captureGuide7Body;
+
   /// No description provided for @captureOpenShortcuts.
   ///
   /// In en, this message translates to:

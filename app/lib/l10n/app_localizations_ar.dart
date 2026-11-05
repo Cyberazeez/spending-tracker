@@ -607,6 +607,74 @@ class AppLocalizationsAr extends AppLocalizations {
   String get captureStep5 => 'تم. تُضاف رسائل البنك تلقائيًا.';
 
   @override
+  String get captureGuideOpen => 'اعرض لي الخطوات';
+
+  @override
+  String get captureGuideTitle => 'إضافة الاختصار';
+
+  @override
+  String get captureGuideNext => 'التالي';
+
+  @override
+  String get captureGuideBack => 'السابق';
+
+  @override
+  String get captureGuideDone => 'تم';
+
+  @override
+  String captureGuideStepOf(int n, int total) {
+    return 'الخطوة $n من $total';
+  }
+
+  @override
+  String get captureGuide1Title => 'افتح الأتمتة';
+
+  @override
+  String get captureGuide1Body =>
+      'في تطبيق الاختصارات اضغط على «الأتمتة» ثم على زر +.';
+
+  @override
+  String get captureGuide2Title => 'اختر «الرسالة»';
+
+  @override
+  String get captureGuide2Body => 'اختر «الرسالة» (عند استلام رسالة من…).';
+
+  @override
+  String get captureGuide3Title => 'اضبط الفلتر';
+
+  @override
+  String get captureGuide3Body =>
+      'غيّر الفلتر إلى «الرسالة تحتوي» واكتب SAR. فعّل «الأتمتة» (تشغيل فوري) وأوقف «تأكيد قبل التشغيل» ثم اضغط التالي.';
+
+  @override
+  String get captureGuide4Title => 'أضف الإجراء';
+
+  @override
+  String get captureGuide4Body =>
+      'اضغط «أتمتة فارغة جديدة» ثم ابحث عن «Add bank» واختر «Add bank message» (أيقونة Spending Tracker).';
+
+  @override
+  String get captureGuide5Title => 'املأ الحقلين';
+
+  @override
+  String get captureGuide5Body =>
+      'Add Message from Sender: اضغط الحقل الأول واختر متغير الرسالة (Message)، ثم اضغط الحقل الثاني لاختيار المُرسل (Sender).';
+
+  @override
+  String get captureGuide6Title => 'اختر المُرسل';
+
+  @override
+  String get captureGuide6Body =>
+      'اختر متغير الرسالة ثم علّم على Sender في القائمة واضغط تم.';
+
+  @override
+  String get captureGuide7Title => 'اكتمل الإعداد';
+
+  @override
+  String get captureGuide7Body =>
+      'ستجد الأتمتة في القائمة والمفتاح مفعّل. الرسائل التي تكتب العملة «ريال» أو SR تحتاج نسخة خاصة بتلك الكلمة بدل SAR.';
+
+  @override
   String get captureOpenShortcuts => 'فتح الاختصارات';
 
   @override
