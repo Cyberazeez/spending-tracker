@@ -662,11 +662,6 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String homeWeekTotal(String amount) {
-    return 'المجموع $amount';
-  }
-
-  @override
   String homeBarLabel(String amount, String weekday) {
     return 'صُرف $amount يوم $weekday';
   }

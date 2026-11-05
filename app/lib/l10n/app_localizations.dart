@@ -1256,12 +1256,6 @@ abstract class AppLocalizations {
   /// **'{count} to review'**
   String homeToReview(int count);
 
-  /// No description provided for @homeWeekTotal.
-  ///
-  /// In en, this message translates to:
-  /// **'{amount} total'**
-  String homeWeekTotal(String amount);
-
   /// No description provided for @homeBarLabel.
   ///
   /// In en, this message translates to:

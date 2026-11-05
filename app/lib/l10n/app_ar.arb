@@ -231,7 +231,6 @@
   "homeLower": "أقل بنسبة {percent}%",
   "homeHigher": "أعلى بنسبة {percent}%",
   "homeToReview": "{count} للمراجعة",
-  "homeWeekTotal": "المجموع {amount}",
   "homeBarLabel": "صُرف {amount} يوم {weekday}",
   "homeDueIn": "مستحق خلال {days} أيام",
   "homeDueTomorrow": "مستحق غدًا",

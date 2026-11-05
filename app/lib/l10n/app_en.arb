@@ -454,14 +454,6 @@
       }
     }
   },
-  "homeWeekTotal": "{amount} total",
-  "@homeWeekTotal": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
   "homeBarLabel": "Spent {amount} on {weekday}",
   "@homeBarLabel": {
     "placeholders": {

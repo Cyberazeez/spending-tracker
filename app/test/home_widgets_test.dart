@@ -125,6 +125,31 @@ void main() {
     handle.dispose();
   });
 
+  testWidgets(
+    'week bars: no total, tap a bar for its amount, tap again to hide',
+    (t) async {
+      final days = [
+        for (var i = 0; i < 7; i++)
+          DaySpend(DateTime.utc(2026, 11, 9 + i), 10000 + i * 5000),
+      ];
+      await pump(t, WeekBars(days: days, arabic: false));
+      expect(find.textContaining('total'), findsNothing);
+      expect(find.byKey(const ValueKey('week-bar-callout')), findsNothing);
+      await t.tap(find.byKey(const ValueKey('week-bar-2')));
+      await t.pumpAndSettle();
+      expect(find.byKey(const ValueKey('week-bar-callout')), findsOneWidget);
+      expect(find.textContaining('200.00'), findsOneWidget); // 20,000 halalas
+      // tapping another bar moves the bubble, the same bar again hides it
+      await t.tap(find.byKey(const ValueKey('week-bar-5')));
+      await t.pumpAndSettle();
+      expect(find.textContaining('350.00'), findsOneWidget);
+      expect(find.textContaining('200.00'), findsNothing);
+      await t.tap(find.byKey(const ValueKey('week-bar-5')));
+      await t.pumpAndSettle();
+      expect(find.byKey(const ValueKey('week-bar-callout')), findsNothing);
+    },
+  );
+
   testWidgets('week bars with no spending still render seven bars', (t) async {
     final days = [
       for (var i = 0; i < 7; i++) DaySpend(DateTime.utc(2026, 11, 9 + i), 0),
