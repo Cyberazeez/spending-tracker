@@ -42,12 +42,12 @@ As the owner, every bank SMS I receive reaches the app without my touching it.
 - Declined/rejected transactions are recorded as `ignored` with reason, not as spend.
 - Foreign currency: keep original amount + currency + FX and store the SAR amount.
 - Parsers are built test-first from real redacted fixtures in `supabase/tests/fixtures/<bank>/`. No invented formats.
-- Fallback chain: rule parser, then Claude structured extraction (only if AI is on), then **Needs review** inbox.
+- Fallback chain: rule parser, then Claude structured extraction (only if AI is on), then **Needs review** inbox. The extraction step for unknown banks is designed in `docs/superpowers/specs/2026-11-05-ai-sms-parsing-design.md` (paid accounts only).
 - Done when: every fixture parses to its expected values and unknown formats land in Needs review.
 
 ### F3. Categorization
 - `merchant_rules` (Arabic-aware normalized merchant, then category) first.
-- Unknown merchants: batched to Claude (if AI on), result cached as a rule flagged "auto, unconfirmed".
+- Unknown merchants: batched to Claude (if AI on), result cached as a rule flagged "auto, unconfirmed". Planned: merchants other users already categorised are applied automatically for paying accounts (`docs/superpowers/specs/2026-11-05-shared-merchant-categories-design.md`).
 - Correcting a category creates/updates a rule and offers to recategorize past matches.
 - Seed categories (editable): Groceries, Dining, Fuel, Utilities, Rent/Housing, Horse (boarding, feed, farrier, vet, equipment), Transport, Shopping, Subscriptions, Health, Entertainment, Travel, Transfers, Fees, Income, Other. Plus House Card (wife's household spend, tag via card 8920).
 - Transfers and own-account moves excluded from spend totals.
