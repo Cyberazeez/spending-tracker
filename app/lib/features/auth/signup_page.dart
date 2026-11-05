@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -25,9 +27,46 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
   bool _busy = false;
   String? _error;
   bool _checkEmail = false;
+  String _sentTo = '';
+  int _wait = 0;
+  Timer? _timer;
+
+  void _startCooldown() {
+    setState(() => _wait = 60);
+    _timer?.cancel();
+    _timer = Timer.periodic(const Duration(seconds: 1), (t) {
+      if (!mounted) return t.cancel();
+      setState(() => _wait--);
+      if (_wait <= 0) t.cancel();
+    });
+  }
+
+  Future<void> _resend() async {
+    if (_busy || _wait > 0) return;
+    final t = AppLocalizations.of(context);
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+    try {
+      await ref.read(authRepositoryProvider).resendConfirmation(_sentTo);
+      _startCooldown();
+    } on ResetException catch (e) {
+      if (mounted) {
+        setState(
+          () => _error = e.failure == ResetFailure.tryLater
+              ? t.forgotTryLater
+              : t.networkError,
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
 
   @override
   void dispose() {
+    _timer?.cancel();
     _name.dispose();
     _email.dispose();
     _password.dispose();
@@ -68,7 +107,13 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
           .signUp(name: name, email: email, password: _password.text);
       if (result == SignUpResult.confirmEmail) {
         lock.lockNow();
-        if (mounted) setState(() => _checkEmail = true);
+        if (mounted) {
+          setState(() {
+            _checkEmail = true;
+            _sentTo = email;
+          });
+          _startCooldown();
+        }
       }
       // signedIn: the session change moves the app to Home by itself.
     } on SignUpException catch (e) {
@@ -105,7 +150,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
                 Padding(
                   padding: const EdgeInsets.only(top: 24, bottom: 24),
                   child: Text(
-                    t.signUpCheckEmail,
+                    t.signUpCheckEmailTo(_sentTo),
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: AppTokens.text.resolveFrom(context),
@@ -114,9 +159,15 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
                     ),
                   ),
                 ),
+                if (_error != null) FormError(_error!),
                 PrimaryButton(
-                  label: t.signUpBackToSignIn,
+                  label: _wait > 0 ? t.forgotWait(_wait) : t.signUpResend,
+                  busy: _busy,
+                  onPressed: _wait > 0 ? null : _resend,
+                ),
+                CupertinoButton(
                   onPressed: () => popOrHome(context),
+                  child: Text(t.signUpBackToSignIn),
                 ),
               ] else ...[
                 AppField(

@@ -1179,6 +1179,14 @@ class AppLocalizationsAr extends AppLocalizations {
   String get signUpTryLater => 'تعذر إنشاء الحساب الآن. حاول بعد دقائق.';
 
   @override
+  String get signUpResend => 'أرسل الرسالة مرة أخرى';
+
+  @override
+  String signUpCheckEmailTo(String email) {
+    return 'أرسلنا رابط التأكيد إلى $email. اضغط عليه وسيتم تسجيل دخولك.';
+  }
+
+  @override
   String get signUpBackToSignIn => 'العودة لتسجيل الدخول';
 
   @override

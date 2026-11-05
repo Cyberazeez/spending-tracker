@@ -419,6 +419,15 @@
   "signUpCheckEmail": "تحقق من بريدك واضغط رابط التأكيد، ثم عد وسجّل الدخول.",
   "signUpWeak": "كلمة المرور ضعيفة. استخدم 8 أحرف على الأقل مع حروف وأرقام.",
   "signUpTryLater": "تعذر إنشاء الحساب الآن. حاول بعد دقائق.",
+  "signUpResend": "أرسل الرسالة مرة أخرى",
+  "signUpCheckEmailTo": "أرسلنا رابط التأكيد إلى {email}. اضغط عليه وسيتم تسجيل دخولك.",
+  "@signUpCheckEmailTo": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
   "signUpBackToSignIn": "العودة لتسجيل الدخول",
   "accountBanks": "الحسابات البنكية",
   "accountBanksShort": "حساباتك وبطاقاتك",

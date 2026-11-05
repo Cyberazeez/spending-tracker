@@ -1186,6 +1186,14 @@ class AppLocalizationsEn extends AppLocalizations {
       'Could not create the account right now. Try again in a few minutes.';
 
   @override
+  String get signUpResend => 'Send the email again';
+
+  @override
+  String signUpCheckEmailTo(String email) {
+    return 'We sent a confirmation link to $email. Tap it, and you are signed in.';
+  }
+
+  @override
   String get signUpBackToSignIn => 'Back to sign in';
 
   @override

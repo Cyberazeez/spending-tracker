@@ -721,6 +721,15 @@
   "signUpCheckEmail": "Check your email and tap the confirmation link, then come back and sign in.",
   "signUpWeak": "That password is too weak. Use at least 8 characters and mix letters and numbers.",
   "signUpTryLater": "Could not create the account right now. Try again in a few minutes.",
+  "signUpResend": "Send the email again",
+  "signUpCheckEmailTo": "We sent a confirmation link to {email}. Tap it, and you are signed in.",
+  "@signUpCheckEmailTo": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
   "signUpBackToSignIn": "Back to sign in",
   "accountBanks": "Bank accounts",
   "accountBanksShort": "Your own accounts and cards",
