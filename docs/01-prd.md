@@ -101,7 +101,8 @@ As the owner, every bank SMS I receive reaches the app without my touching it.
 ### F10. Data tools
 - CSV import/export, manual backfill, possible-gaps view (days with no captured SMS per sender vs usual cadence).
 
-### F11. Apple Wallet capture (last on the roadmap, added 2026-11-02)
+### F11. Apple Wallet capture (DROPPED by the owner 2026-11-05; kept for the record)
+- **Not planned.** SMS capture already covers every purchase; the Shortcuts Wallet trigger adds steps and did not fire for the owner's Barq top-up. Do not build it unless the owner asks again.
 - iOS cannot read other apps' notifications, so the route is the Shortcuts **"Transaction"** automation (iOS 17+): it fires when a card in Wallet is used and passes the merchant, amount and card name. The automation sends them to the same ingest function as SMS, as a new source `wallet`.
 - Each purchase can arrive twice (the wallet event and the bank SMS). They are matched on amount, merchant and time (a few minutes) and stored once; the SMS stays the source of truth when both exist, the wallet event fills the gap when the SMS never comes.
 - Needs: a real sample of what the automation passes (merchant, amount, currency, card name) before any parser is written; fixtures follow the same privacy rules as SMS.
@@ -115,7 +116,7 @@ Goal: the Shortcut carries no secret and no web request. Public users should not
 - **Offline:** if the request fails (no connection, server error), the message is kept on the phone and retried the next time the intent runs and whenever the app comes to the foreground. Retrying is safe because `ingest` dedupes.
 - iOS 16+ (App Intents); the app's minimum moves from 15 to 16 (the widget already needs 16).
 - **Why no one-tap install (checked 2026-11-03):** a shared shortcut gets plain text or a file as Shortcut Input, with no Sender, and the "Type" list has no Message type, so it cannot know which bank sent the SMS. The automation is the only place with Sender, and Apple does not share automations ([Apple Shortcuts guide, iOS 26](https://support.apple.com/en-ca/guide/shortcuts/apd690170742/9.0/ios/26)). Describe-a-shortcut (Apple Intelligence) was tried and is slow and device-dependent. So the in-app screen (More > SMS capture) gives the steps, an Open Shortcuts button, queue status and last-send result.
-- Not in this item: reading messages without a Shortcut (iOS does not allow it), Apple Wallet capture (item 5).
+- Not in this item: reading messages without a Shortcut (iOS does not allow it), Apple Wallet capture (dropped 2026-11-05).
 
 ## Cost control
 - AI is an on/off switch in settings, default off until you flip it. Monthly cap 5 USD, enforced from an `ai_usage` ledger. At the cap, AI calls stop and the app degrades to rules-only.
