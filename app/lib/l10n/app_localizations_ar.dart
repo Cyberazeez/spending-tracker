@@ -1140,6 +1140,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get resetSave => 'حفظ كلمة المرور';
 
   @override
+  String get linkExpiredTitle => 'انتهت صلاحية هذا الرابط';
+
+  @override
+  String get linkExpiredBody =>
+      'الرابط في البريد استُخدم من قبل أو أصبح قديمًا. اطلب رابطًا جديدًا وافتح أحدث رسالة فقط.';
+
+  @override
+  String get linkExpiredOk => 'اطلب رابطًا جديدًا';
+
+  @override
   String get resetDone => 'تم تغيير كلمة المرور. أنت مسجّل الدخول.';
 
   @override

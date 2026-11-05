@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../config.dart';
@@ -96,7 +98,19 @@ abstract class AuthRepository {
 
   /// Sets a new password after a reset link, without asking for the old one. Throws [PasswordException].
   Future<void> setNewPassword(String next);
+
+  /// Fires when an emailed link was opened but is expired, already used, or otherwise refused by the server.
+  Stream<void> get linkFailed;
 }
+
+const _linkErrorCodes = {
+  'otp_expired',
+  'access_denied',
+  'flow_state_not_found',
+  'flow_state_expired',
+  'bad_code_verifier',
+  'validation_failed',
+};
 
 class SupabaseAuthRepository implements AuthRepository {
   SupabaseAuthRepository(this._client);
@@ -232,6 +246,19 @@ class SupabaseAuthRepository implements AuthRepository {
   Stream<void> get passwordRecovery => _client.auth.onAuthStateChange
       .where((e) => e.event == AuthChangeEvent.passwordRecovery)
       .map((_) {});
+
+  // The Supabase SDK reports a refused deep link (expired / used) as an error on this stream, not as an event.
+  @override
+  Stream<void> get linkFailed => _client.auth.onAuthStateChange.transform(
+    StreamTransformer<AuthState, void>.fromHandlers(
+      handleData: (_, _) {},
+      handleError: (error, _, sink) {
+        if (error is AuthException && _linkErrorCodes.contains(error.code)) {
+          sink.add(null);
+        }
+      },
+    ),
+  );
 
   @override
   Future<void> setNewPassword(String next) async {

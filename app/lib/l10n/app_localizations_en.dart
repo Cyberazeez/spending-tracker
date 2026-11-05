@@ -1145,6 +1145,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get resetSave => 'Save password';
 
   @override
+  String get linkExpiredTitle => 'This link has expired';
+
+  @override
+  String get linkExpiredBody =>
+      'The email link was already used or is too old. Request a new one and open only the newest email.';
+
+  @override
+  String get linkExpiredOk => 'Request a new link';
+
+  @override
   String get resetDone => 'Password changed. You are signed in.';
 
   @override

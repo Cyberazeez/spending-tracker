@@ -70,6 +70,14 @@ class FakeAuthRepository implements AuthRepository {
   final newPasswordCalls = <String>[];
   final _recovery = StreamController<void>.broadcast();
 
+  final _linkFailed = StreamController<void>.broadcast();
+
+  /// Simulates opening an expired or already used email link.
+  void emitLinkFailed() => _linkFailed.add(null);
+
+  @override
+  Stream<void> get linkFailed => _linkFailed.stream;
+
   /// Simulates the user opening the reset link from the email.
   void emitRecovery() => _recovery.add(null);
 

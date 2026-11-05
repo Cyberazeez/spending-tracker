@@ -2126,6 +2126,24 @@ abstract class AppLocalizations {
   /// **'Save password'**
   String get resetSave;
 
+  /// No description provided for @linkExpiredTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This link has expired'**
+  String get linkExpiredTitle;
+
+  /// No description provided for @linkExpiredBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The email link was already used or is too old. Request a new one and open only the newest email.'**
+  String get linkExpiredBody;
+
+  /// No description provided for @linkExpiredOk.
+  ///
+  /// In en, this message translates to:
+  /// **'Request a new link'**
+  String get linkExpiredOk;
+
   /// No description provided for @resetDone.
   ///
   /// In en, this message translates to:
