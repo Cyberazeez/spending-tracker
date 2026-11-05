@@ -24,7 +24,7 @@ begin
 
   -- a fresh sign-up starts clean: generic categories, no bank accounts, no obligations, none of the owner's rules
   select count(*) into n from public.categories where user_id = f;
-  if n <> 19 then raise exception 'signup: expected 19 generic categories, got %', n; end if;
+  if n <> 26 then raise exception 'signup: expected 26 generic categories, got %', n; end if;
   select count(*) into n from public.categories where user_id = f and name in ('Horse', 'House Card');
   if n <> 0 then raise exception 'signup: household categories leaked to a new user'; end if;
   select count(*) into n from public.own_accounts where user_id = f;
@@ -40,7 +40,7 @@ begin
 
   -- trigger seeded both users
   select count(*) into n from public.categories where user_id in (a, b);
-  if n <> 42 then raise exception 'seed: expected 42 categories, got %', n; end if;
+  if n <> 56 then raise exception 'seed: expected 56 categories, got %', n; end if;
   select count(*) into n from public.merchant_rules where user_id = a;
   if n < 50 then raise exception 'seed: expected the seed merchant rules, got %', n; end if;
   select count(*) into n from public.merchant_rules mr join public.categories c on c.id = mr.category_id where mr.user_id = a and c.user_id <> a;
@@ -66,7 +66,7 @@ begin
   set local role authenticated;
 
   select count(*) into n from public.categories;
-  if n <> 21 then raise exception 'A sees % categories, expected 21', n; end if;
+  if n <> 28 then raise exception 'A sees % categories, expected 28', n; end if;
   select count(*) into n from public.raw_messages;
   if n <> 1 then raise exception 'A sees % raw_messages, expected 1', n; end if;
   select count(*) into n from public.settings;
@@ -298,7 +298,7 @@ begin
   select count(*) into n from public.merchant_rules where pattern like 'acct:%' or pattern like 'card:%';
   if n <> 0 then raise exception 'F sees household rules'; end if;
   select count(*) into n from public.categories;
-  if n <> 19 then raise exception 'F sees % categories, expected only their own 19', n; end if;
+  if n <> 26 then raise exception 'F sees % categories, expected only their own 26', n; end if;
   select count(*) into n from public.settings;
   if n <> 1 then raise exception 'F sees % settings rows', n; end if;
   denied := false;

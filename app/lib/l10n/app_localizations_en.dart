@@ -692,6 +692,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get groupHomeBills => 'Home and bills';
 
   @override
+  String get groupFamily => 'Family';
+
+  @override
   String get groupHorse => 'Horse';
 
   @override
@@ -701,10 +704,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get groupSubscriptions => 'Subscriptions';
 
   @override
-  String get groupHealth => 'Health';
+  String get groupHealth => 'Health and care';
 
   @override
-  String get groupMoney => 'Money';
+  String get groupMoney => 'Money and fees';
 
   @override
   String get groupOther => 'Other';

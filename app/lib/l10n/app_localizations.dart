@@ -1304,6 +1304,12 @@ abstract class AppLocalizations {
   /// **'Home and bills'**
   String get groupHomeBills;
 
+  /// No description provided for @groupFamily.
+  ///
+  /// In en, this message translates to:
+  /// **'Family'**
+  String get groupFamily;
+
   /// No description provided for @groupHorse.
   ///
   /// In en, this message translates to:
@@ -1325,13 +1331,13 @@ abstract class AppLocalizations {
   /// No description provided for @groupHealth.
   ///
   /// In en, this message translates to:
-  /// **'Health'**
+  /// **'Health and care'**
   String get groupHealth;
 
   /// No description provided for @groupMoney.
   ///
   /// In en, this message translates to:
-  /// **'Money'**
+  /// **'Money and fees'**
   String get groupMoney;
 
   /// No description provided for @groupOther.
