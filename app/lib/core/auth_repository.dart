@@ -134,6 +134,14 @@ class SupabaseAuthRepository implements AuthRepository {
     return reactivateIfPending();
   }
 
+  /// "Your account is active again" mail. A courtesy and a warning if it was not the owner: never awaited, never
+  /// allowed to fail the sign-in.
+  void _mailReactivated() {
+    _client.functions
+        .invoke('send-account-email', body: {'kind': 'reactivated'})
+        .then<void>((_) {}, onError: (_) {});
+  }
+
   @override
   Future<bool> reactivateIfPending() async {
     // Only right after a password sign-in: an older session (another device, still valid for up to an hour after a
@@ -145,7 +153,9 @@ class SupabaseAuthRepository implements AuthRepository {
       return false;
     }
     try {
-      return await _client.rpc('reactivate_my_account') == true;
+      final was = await _client.rpc('reactivate_my_account') == true;
+      if (was) _mailReactivated();
+      return was;
     } catch (_) {
       return false;
     }

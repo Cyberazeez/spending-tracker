@@ -16,6 +16,8 @@ export interface DeleteDeps {
   requestDeletion(userId: string): Promise<void>;
   /** Counts this try; returns how many today. */
   bumpRateLimit(userId: string): Promise<number>;
+  /** Best-effort "your account will be deleted in 30 days" mail; a failure never blocks the deletion. */
+  notifyDeletion?(email: string): Promise<void>;
 }
 
 function json(status: number, body: Record<string, unknown>): Response {
@@ -50,5 +52,10 @@ export async function handleDeleteAccount(req: Request, deps: DeleteDeps): Promi
     return json(403, { error: "wrong_password" });
   }
   await deps.requestDeletion(user.id);
+  try {
+    await deps.notifyDeletion?.(user.email);
+  } catch {
+    // The mail is a courtesy; the deletion is already recorded.
+  }
   return json(200, { ok: true, grace_days: GRACE_DAYS });
 }

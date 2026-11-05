@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { FROM_DEFAULT, sendAccountEmail } from "../_shared/account_email.ts";
 import { type DeleteDeps, handleDeleteAccount } from "./handler.ts";
 
 const url = Deno.env.get("SUPABASE_URL")!;
@@ -26,6 +27,17 @@ const deps: DeleteDeps = {
   async requestDeletion(userId) {
     const { error } = await admin.rpc("request_account_deletion", { p_user: userId });
     if (error) throw new Error("delete_failed");
+  },
+  async notifyDeletion(email) {
+    await sendAccountEmail(
+      {
+        fetch,
+        apiKey: Deno.env.get("RESEND_API_KEY"),
+        from: Deno.env.get("EMAIL_FROM") ?? FROM_DEFAULT,
+      },
+      email,
+      "deletion_requested",
+    );
   },
   async bumpRateLimit(userId) {
     const { data, error } = await admin.rpc("bump_rate_limit", {
