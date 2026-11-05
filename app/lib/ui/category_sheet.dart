@@ -8,7 +8,10 @@ import '../l10n/app_localizations.dart';
 import 'theme.dart';
 import 'tokens.dart';
 
-IconData categoryIcon(Category c) => switch (c.name) {
+IconData categoryIcon(Category c) => categoryIconByName(c.name);
+
+/// A category's own icon by its name; names without one fall back to their group's icon.
+IconData categoryIconByName(String name) => switch (name) {
   'Groceries' => LucideIcons.shoppingCart,
   'Dining' => LucideIcons.utensils,
   'Coffee' => LucideIcons.coffee,
@@ -28,7 +31,7 @@ IconData categoryIcon(Category c) => switch (c.name) {
   'Fees' => LucideIcons.receipt,
   'Transfers' => LucideIcons.arrowLeftRight,
   'Income' => LucideIcons.banknote,
-  _ => groupIcon(groupOf(c.name)),
+  _ => groupIcon(groupOf(name)),
 };
 
 /// The category picker: a bottom sheet with search, an optional row of suggestions and the categories as tiles
