@@ -86,3 +86,29 @@ Deno.test("the response carries nothing but ok and the grace period", async () =
   const text = await (await call({ password: "right-password" })).text();
   assert.equal(text, '{"ok":true,"grace_days":30}');
 });
+
+Deno.test("the deletion mail goes to the caller, and a mail failure does not undo the deletion", async () => {
+  const mailed: string[] = [];
+  const ok = setup({
+    notifyDeletion: (e) => {
+      mailed.push(e);
+      return Promise.resolve();
+    },
+  });
+  assert.equal((await ok.call({ password: "right-password" })).status, 200);
+  assert.deepEqual(mailed, ["me@example.test"]);
+
+  const broken = setup({ notifyDeletion: () => Promise.reject(new Error("smtp down")) });
+  const res = await broken.call({ password: "right-password" });
+  assert.equal(res.status, 200);
+  assert.deepEqual(broken.deleted, ["u1"]);
+
+  const wrong = setup({
+    notifyDeletion: (e) => {
+      mailed.push(e);
+      return Promise.resolve();
+    },
+  });
+  await wrong.call({ password: "nope" });
+  assert.deepEqual(mailed, ["me@example.test"]); // unchanged: no mail without a deletion
+});

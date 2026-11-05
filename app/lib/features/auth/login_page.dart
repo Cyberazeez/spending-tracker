@@ -125,7 +125,23 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       ? t.invalidCredentials
                       : t.networkError,
                 ),
-              const SizedBox(height: 24),
+              Align(
+                alignment: AlignmentDirectional.centerEnd,
+                child: CupertinoButton(
+                  padding: EdgeInsets.zero,
+                  minimumSize: const Size(44, 44),
+                  onPressed: () => context.push(forgotPath),
+                  child: Text(
+                    t.forgotLink,
+                    style: TextStyle(
+                      color: accent,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
               PrimaryButton(label: t.signIn, busy: _busy, onPressed: _submit),
               const SizedBox(height: 8),
               CupertinoButton(

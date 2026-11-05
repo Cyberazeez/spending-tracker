@@ -6,6 +6,8 @@ import 'core/lock.dart';
 import 'core/providers.dart';
 import 'features/ai/ai_chat_page.dart';
 import 'features/auth/login_page.dart';
+import 'features/auth/forgot_password_page.dart';
+import 'features/auth/reset_password_page.dart';
 import 'features/auth/signup_page.dart';
 import 'features/auth/lock_page.dart';
 import 'features/more/capture_page.dart';
@@ -20,6 +22,8 @@ import 'features/shell/shell_page.dart';
 const loginPath = '/login';
 const lockPath = '/lock';
 const signUpPath = '/signup';
+const forgotPath = '/forgot';
+const resetPath = '/reset';
 const homePath = '/home';
 const accountPath = '/home/account';
 const profilePath = '/home/account/profile';
@@ -51,14 +55,23 @@ String? redirectFor({
   required bool hasSession,
   required bool locked,
   required String location,
+  bool recovery = false,
 }) {
   if (!hasSession) {
-    return location == loginPath || location == signUpPath ? null : loginPath;
+    return location == loginPath ||
+            location == signUpPath ||
+            location == forgotPath
+        ? null
+        : loginPath;
   }
+  // Opened from the reset-password email: only the new-password screen, until a password is set.
+  if (recovery) return location == resetPath ? null : resetPath;
   if (locked) return location == lockPath ? null : lockPath;
   if (location == loginPath ||
       location == lockPath ||
       location == signUpPath ||
+      location == forgotPath ||
+      location == resetPath ||
       location == '/') {
     return homePath;
   }
@@ -71,6 +84,14 @@ final routerProvider = Provider<GoRouter>((ref) {
   ref.listen(lockProvider, (prev, next) {
     if (prev?.locked != next.locked) refresh.value++;
   });
+  // The reset link proves the person owns the email address, so no Face ID prompt before choosing a new password.
+  ref.listen(passwordRecoveryProvider, (_, next) {
+    if (!next.hasValue) return;
+    ref.read(lockProvider.notifier).markUnlocked();
+    ref.read(recoveryPendingProvider.notifier).set(true);
+    refresh.value++;
+  });
+  ref.listen(recoveryPendingProvider, (_, _) => refresh.value++);
   ref.onDispose(refresh.dispose);
 
   final router = GoRouter(
@@ -80,6 +101,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       hasSession: ref.read(authRepositoryProvider).hasSession,
       locked: ref.read(lockProvider).locked,
       location: state.matchedLocation,
+      recovery: ref.read(recoveryPendingProvider),
     ),
     routes: [
       GoRoute(path: loginPath, builder: (_, _) => const LoginPage()),
@@ -88,6 +110,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: signUpPath,
         pageBuilder: (_, state) => _page(state, const SignUpPage()),
       ),
+      GoRoute(
+        path: forgotPath,
+        pageBuilder: (_, state) => _page(state, const ForgotPasswordPage()),
+      ),
+      GoRoute(path: resetPath, builder: (_, _) => const ResetPasswordPage()),
       GoRoute(
         path: homePath,
         builder: (_, _) => const ShellPage(),

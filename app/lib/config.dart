@@ -10,6 +10,10 @@ class AppConfig {
     defaultValue: 'sb_publishable_ZmF7b-XpcsFn54t2HQWMRw_URDNC8nF',
   );
 
+  /// Where the emailed links (confirm sign-up, reset password) send the person back to: the app's own URL scheme.
+  /// Must be in Supabase > Authentication > URL Configuration > Redirect URLs.
+  static const authRedirect = 'spendingtracker://auth';
+
   /// How long the app can stay in the background before it asks for Face ID again.
   static const lockAfter = Duration(seconds: 30);
 

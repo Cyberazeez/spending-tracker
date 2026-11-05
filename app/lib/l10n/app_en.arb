@@ -693,6 +693,23 @@
   "secNote": "This also resets SMS capture and the widget on this phone. They reconnect by themselves.",
   "privacyBody": "Your data is stored in your own account and only you can read it. More options will appear here soon.",
   "moreAccount": "Account",
+  "forgotLink": "Forgot password?",
+  "forgotTitle": "Reset your password",
+  "forgotIntro": "Enter the email you signed up with. We will send you a link to choose a new password.",
+  "forgotSend": "Send reset link",
+  "forgotSent": "If that email has an account, a reset link is on its way. Check your inbox and spam folder.",
+  "forgotWait": "Send again in {seconds} s",
+  "@forgotWait": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "forgotTryLater": "Too many requests right now. Try again in a few minutes.",
+  "resetTitle": "Choose a new password",
+  "resetSave": "Save password",
+  "resetDone": "Password changed. You are signed in.",
   "signUpTitle": "Create account",
   "signUpLink": "Create account",
   "signUpNameRequired": "Enter your name (up to 60 letters).",

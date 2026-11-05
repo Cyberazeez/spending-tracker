@@ -1109,6 +1109,40 @@ class AppLocalizationsAr extends AppLocalizations {
   String get moreAccount => 'الحساب';
 
   @override
+  String get forgotLink => 'نسيت كلمة المرور؟';
+
+  @override
+  String get forgotTitle => 'إعادة تعيين كلمة المرور';
+
+  @override
+  String get forgotIntro =>
+      'أدخل البريد الذي سجّلت به. سنرسل لك رابطًا لاختيار كلمة مرور جديدة.';
+
+  @override
+  String get forgotSend => 'إرسال رابط إعادة التعيين';
+
+  @override
+  String get forgotSent =>
+      'إذا كان لهذا البريد حساب، فرابط إعادة التعيين في الطريق إليك. تحقق من البريد الوارد ومجلد الرسائل غير المرغوب فيها.';
+
+  @override
+  String forgotWait(int seconds) {
+    return 'إعادة الإرسال بعد $seconds ث';
+  }
+
+  @override
+  String get forgotTryLater => 'طلبات كثيرة الآن. حاول مرة أخرى بعد بضع دقائق.';
+
+  @override
+  String get resetTitle => 'اختر كلمة مرور جديدة';
+
+  @override
+  String get resetSave => 'حفظ كلمة المرور';
+
+  @override
+  String get resetDone => 'تم تغيير كلمة المرور. أنت مسجّل الدخول.';
+
+  @override
   String get signUpTitle => 'إنشاء حساب';
 
   @override
