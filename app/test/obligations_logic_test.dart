@@ -154,15 +154,27 @@ void main() {
         d('2026-11-01'),
       );
       // issued on the 19th is still this month, the 20th moves on
-      expect(cycleOf(inst('a', '2026-11-28', period: '2026-11-01', issueDay: 19)), d('2026-11-01'));
-      expect(cycleOf(inst('b', '2026-11-28', period: '2026-11-01', issueDay: 20)), d('2026-12-01'));
+      expect(
+        cycleOf(inst('a', '2026-11-28', period: '2026-11-01', issueDay: 19)),
+        d('2026-11-01'),
+      );
+      expect(
+        cycleOf(inst('b', '2026-11-28', period: '2026-11-01', issueDay: 20)),
+        d('2026-12-01'),
+      );
       // December issue on the 27th rolls into January
-      expect(cycleOf(inst('c', '2027-01-02', period: '2026-12-01', issueDay: 27)), d('2027-01-01'));
+      expect(
+        cycleOf(inst('c', '2027-01-02', period: '2026-12-01', issueDay: 27)),
+        d('2027-01-01'),
+      );
     });
 
     test('no issue day: the month it is due', () {
       expect(cycleOf(inst('x', '2026-11-02')), d('2026-11-01'));
-      expect(cycleOf(inst('y', '2026-12-02', period: '2026-11-01')), d('2026-12-01'));
+      expect(
+        cycleOf(inst('y', '2026-12-02', period: '2026-11-01')),
+        d('2026-12-01'),
+      );
     });
 
     test('cycleRows: this cycle only, open items first, paid ones last, skipped never', () {
@@ -224,17 +236,34 @@ void main() {
       expect(s.count, 4);
     });
 
-    test('a credit card statement is not counted in the hero numbers, paid or not', () {
-      final rows = [
-        inst('sec', '2026-11-28', expected: 69200, period: '2026-11-01'),
-        inst('card', '2026-11-25', status: 'paid', expected: 1483450, actual: 1483450, period: '2026-11-01', kind: 'card_statement'),
-        inst('card2', '2026-11-26', expected: 500000, period: '2026-11-01', kind: 'card_statement'),
-      ];
-      final s = summarizeCycle(rows, today);
-      expect(s.stillHalalas, 69200);
-      expect(s.paidHalalas, 0);
-      expect(s.paidCount, 0);
-      expect(s.count, 1);
-    });
+    test(
+      'a credit card statement is not counted in the hero numbers, paid or not',
+      () {
+        final rows = [
+          inst('sec', '2026-11-28', expected: 69200, period: '2026-11-01'),
+          inst(
+            'card',
+            '2026-11-25',
+            status: 'paid',
+            expected: 1483450,
+            actual: 1483450,
+            period: '2026-11-01',
+            kind: 'card_statement',
+          ),
+          inst(
+            'card2',
+            '2026-11-26',
+            expected: 500000,
+            period: '2026-11-01',
+            kind: 'card_statement',
+          ),
+        ];
+        final s = summarizeCycle(rows, today);
+        expect(s.stillHalalas, 69200);
+        expect(s.paidHalalas, 0);
+        expect(s.paidCount, 0);
+        expect(s.count, 1);
+      },
+    );
   });
 }

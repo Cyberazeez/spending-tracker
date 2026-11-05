@@ -148,6 +148,16 @@ DateTime cycleOf(ObligationInstance i) {
   return DateTime.utc(i.dueDate.year, i.dueDate.month);
 }
 
+/// Groups rows by billing cycle, newest cycle first; inside a cycle the order of [rows] is kept.
+List<MonthGroup> groupByCycle(List<ObligationInstance> rows) {
+  final map = <DateTime, List<ObligationInstance>>{};
+  for (final i in rows) {
+    (map[cycleOf(i)] ??= []).add(i);
+  }
+  final keys = map.keys.toList()..sort((a, b) => b.compareTo(a));
+  return [for (final k in keys) MonthGroup(k, map[k]!)];
+}
+
 DateTime currentCycle(DateTime today) => DateTime.utc(today.year, today.month);
 
 DateTime nextCycle(DateTime today) => DateTime.utc(today.year, today.month + 1);

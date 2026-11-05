@@ -2,28 +2,59 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:spending_tracker/core/models.dart';
 import 'package:spending_tracker/features/home/category_groups.dart';
 import 'package:spending_tracker/features/insights/metrics.dart';
+import 'package:spending_tracker/ui/category_sheet.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 Category cat(String id, String name) => Category(id: id, name: name);
 
 void main() {
+  test('Coffee has its own cup icon, not the Food group one', () {
+    expect(categoryIcon(cat('c', 'Coffee')), LucideIcons.coffee);
+    expect(categoryIcon(cat('d', 'Dining')), isNot(LucideIcons.coffee));
+    expect(categoryIcon(cat('h', 'Hotel')), LucideIcons.hotel);
+    const icons = {
+      'Education': LucideIcons.graduationCap,
+      'Family & Kids': LucideIcons.baby,
+      'Gifts & Charity': LucideIcons.gift,
+      'Pets': LucideIcons.pawPrint,
+      'Personal care': LucideIcons.scissors,
+      'Insurance': LucideIcons.shieldCheck,
+      'Government & fees': LucideIcons.landmark,
+    };
+    icons.forEach((n, i) => expect(categoryIcon(cat('x', n)), i, reason: n));
+    expect(categoryIcon(cat('t', 'Transfers')), LucideIcons.arrowLeftRight);
+    expect(categoryIcon(cat('i', 'Income')), LucideIcons.banknote);
+  });
+
   test('every seeded category lands in the group from the spec', () {
     const expected = {
       'Groceries': CategoryGroup.food,
       'Dining': CategoryGroup.food,
+      'Coffee': CategoryGroup.food,
       'Fuel': CategoryGroup.transport,
       'Transport': CategoryGroup.transport,
       'Car': CategoryGroup.transport,
       'Utilities': CategoryGroup.homeBills,
       'Rent/Housing': CategoryGroup.homeBills,
       'House Card': CategoryGroup.homeBills,
+      'Education': CategoryGroup.family,
+      'Family & Kids': CategoryGroup.family,
       'Horse': CategoryGroup.horse,
       'Shopping': CategoryGroup.lifestyle,
       'Entertainment': CategoryGroup.lifestyle,
       'Travel': CategoryGroup.lifestyle,
+      'Hotel': CategoryGroup.lifestyle,
+      'Gifts & Charity': CategoryGroup.lifestyle,
+      'Pets': CategoryGroup.lifestyle,
       'Subscriptions': CategoryGroup.subscriptions,
       'Health': CategoryGroup.health,
+      'Personal care': CategoryGroup.health,
       'Loans': CategoryGroup.money,
       'Fees': CategoryGroup.money,
+      'Transfers': CategoryGroup.money,
+      'Income': CategoryGroup.money,
+      'Insurance': CategoryGroup.money,
+      'Government & fees': CategoryGroup.money,
       'Other': CategoryGroup.other,
     };
     expected.forEach(

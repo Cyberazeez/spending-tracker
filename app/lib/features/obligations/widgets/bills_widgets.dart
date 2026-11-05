@@ -199,7 +199,6 @@ class ObligationRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final s = kindStyle(kind);
     final text = AppTokens.text.resolveFrom(context);
-    final muted = AppTokens.muted.resolveFrom(context);
     final stacked = MediaQuery.textScalerOf(context).scale(10) > 13;
     return Semantics(
       button: true,
@@ -246,7 +245,11 @@ class ObligationRow extends StatelessWidget {
                       const SizedBox(height: 2),
                       Text(
                         detail,
-                        style: TextStyle(fontSize: 13, color: muted),
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: text,
+                        ),
                       ),
                     ],
                   ),
