@@ -246,6 +246,7 @@ class ObligationInstance {
     this.matchState = 'none',
     this.graceDays = 0,
     this.leadDays = 2,
+    this.issueDay,
     this.plan,
     this.usualMinHalalas,
     this.usualMaxHalalas,
@@ -264,6 +265,9 @@ class ObligationInstance {
   final String matchState; // auto | suggested | manual | none
   final int graceDays;
   final int leadDays;
+
+  /// The day of the month the bill is usually issued (not due). Decides its billing cycle, see `cycleOf`.
+  final int? issueDay;
 
   /// An instalment plan whose payments are already inside this statement's total (card statements only).
   final InstalmentPlan? plan;
@@ -294,6 +298,7 @@ class ObligationInstance {
       matchState: (r['match_state'] as String?) ?? 'none',
       graceDays: (rule['grace'] as num?)?.toInt() ?? 0,
       leadDays: (ob['lead_days'] as num?)?.toInt() ?? 2,
+      issueDay: (rule['issue_day'] as num?)?.toInt(),
       plan: InstalmentPlan.fromJson(
         ((ob['match'] as Map?)?['plan'] as Map?)?.cast<String, dynamic>(),
       ),
