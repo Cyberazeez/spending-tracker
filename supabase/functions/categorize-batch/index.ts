@@ -53,7 +53,7 @@ Deno.serve(async (req) => {
     const [settings, cats] = await Promise.all([
       db.from("settings").select("ai_enabled, ai_monthly_cap_halalas").eq("user_id", userId)
         .maybeSingle(),
-      db.from("categories").select("id, name").eq("user_id", userId),
+      db.from("categories").select("id, name").eq("user_id", userId).limit(200),
     ]);
     if (settings.error || cats.error || !settings.data) return json(500, { error: "server_error" });
 
@@ -127,7 +127,7 @@ Deno.serve(async (req) => {
           ).select("id");
           // No row back = a rule for this merchant already exists; keep it and leave its transactions alone.
           if (error || !rule?.length) continue;
-          const { data: rows } = await db.from("transactions")
+          const { data: rows, error: updErr } = await db.from("transactions")
             .update({
               category_id: g.categoryId,
               category_source: "ai",
@@ -135,6 +135,12 @@ Deno.serve(async (req) => {
             })
             .eq("user_id", userId).eq("merchant_norm", g.merchantNorm).is("category_id", null)
             .select("id");
+          if (updErr) {
+            // Without this the merchant would keep its rule, never be asked again, and stay uncategorised.
+            console.error("save_guess_update_failed", updErr.code);
+            await db.from("merchant_rules").delete().eq("id", rule[0].id).eq("user_id", userId);
+            continue;
+          }
           updated += rows?.length ?? 0;
         }
         return updated;

@@ -174,6 +174,10 @@ export async function handleIngest(req: Request, deps: IngestDeps): Promise<Resp
           console.error("obligation_match_failed", (e as Error).message)
         );
       } else if (r.kind === "notice") {
+        // The instance comes first and is not best effort: if it fails the raw row stays needs_review, the call
+        // fails and the retry runs this again (the upsert is safe to repeat). Marking the SMS parsed first would
+        // make the replay a plain duplicate and the bill or statement would never appear.
+        await applyNotice(deps.obligations, found.userId, id, receivedAt, r);
         await deps.saveParsed({
           userId: found.userId,
           rawId: id,
@@ -186,9 +190,6 @@ export async function handleIngest(req: Request, deps: IngestDeps): Promise<Resp
             : undefined,
           rows: [],
         });
-        await applyNotice(deps.obligations, found.userId, id, receivedAt, r).catch((e) =>
-          console.error("obligation_notice_failed", (e as Error).message)
-        );
       } else if (r.kind === "ignored") {
         await deps.saveParsed({
           userId: found.userId,

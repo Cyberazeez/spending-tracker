@@ -49,6 +49,9 @@ export type AiOutcome =
   | { ok: true; categories: Record<string, string>; costHalalas: number }
   | { ok: false; reason: "disabled" | "no_key" | "cap_reached" | "failed" };
 
+export const MAX_CATEGORY_NAMES = 50;
+export const MAX_CATEGORY_NAME_LENGTH = 40;
+
 /**
  * Asks Claude to pick a category for each merchant. Fails closed: any problem returns { ok:false } and the
  * caller leaves everything uncategorised. Nothing but masked merchant names and category names is sent.
@@ -56,8 +59,12 @@ export type AiOutcome =
 export async function categorizeMerchants(
   deps: AiDeps,
   merchants: string[],
-  categoryNames: string[],
+  allCategoryNames: string[],
 ): Promise<AiOutcome> {
+  // The names are the user's own and unbounded: only sane ones, and at most MAX_CATEGORY_NAMES, go into the prompt
+  // (a huge list would inflate the billed input tokens). Matching the reply still uses these exact names.
+  const categoryNames = allCategoryNames.filter((n) => n.length > 0 && n.length <= MAX_CATEGORY_NAME_LENGTH)
+    .slice(0, MAX_CATEGORY_NAMES);
   if (!deps.aiEnabled) return { ok: false, reason: "disabled" };
   if (!deps.apiKey) return { ok: false, reason: "no_key" };
   const masked = [...new Set(merchants.map(maskMerchant).filter(Boolean))].slice(
