@@ -1113,6 +1113,41 @@ class AppLocalizationsEn extends AppLocalizations {
   String get moreAccount => 'Account';
 
   @override
+  String get forgotLink => 'Forgot password?';
+
+  @override
+  String get forgotTitle => 'Reset your password';
+
+  @override
+  String get forgotIntro =>
+      'Enter the email you signed up with. We will send you a link to choose a new password.';
+
+  @override
+  String get forgotSend => 'Send reset link';
+
+  @override
+  String get forgotSent =>
+      'If that email has an account, a reset link is on its way. Check your inbox and spam folder.';
+
+  @override
+  String forgotWait(int seconds) {
+    return 'Send again in $seconds s';
+  }
+
+  @override
+  String get forgotTryLater =>
+      'Too many requests right now. Try again in a few minutes.';
+
+  @override
+  String get resetTitle => 'Choose a new password';
+
+  @override
+  String get resetSave => 'Save password';
+
+  @override
+  String get resetDone => 'Password changed. You are signed in.';
+
+  @override
   String get signUpTitle => 'Create account';
 
   @override

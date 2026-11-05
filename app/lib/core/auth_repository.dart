@@ -1,5 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../config.dart';
+
 enum SignInFailure { invalidCredentials, network }
 
 enum SignUpFailure {
@@ -28,6 +30,13 @@ class DeleteAccountException implements Exception {
 }
 
 enum PasswordFailure { wrongCurrent, tooShort, network }
+
+enum ResetFailure { tryLater, network }
+
+class ResetException implements Exception {
+  const ResetException(this.failure);
+  final ResetFailure failure;
+}
 
 class PasswordException implements Exception {
   const PasswordException(this.failure);
@@ -76,6 +85,17 @@ abstract class AuthRepository {
 
   /// Checks [current] first, then sets [next]. Throws [PasswordException].
   Future<void> changePassword({required String current, required String next});
+
+  /// Emails a reset link. Succeeds the same way whether or not the address has an account (no account lookup for
+  /// strangers). Throws [ResetException] for a rate limit or no connection.
+  Future<void> sendPasswordReset(String email);
+
+  /// Fires when the person opens the emailed reset link: the app now holds a short-lived session meant only for
+  /// choosing a new password.
+  Stream<void> get passwordRecovery;
+
+  /// Sets a new password after a reset link, without asking for the old one. Throws [PasswordException].
+  Future<void> setNewPassword(String next);
 }
 
 class SupabaseAuthRepository implements AuthRepository {
@@ -142,6 +162,7 @@ class SupabaseAuthRepository implements AuthRepository {
         email: email.trim(),
         password: password,
         data: {'name': name.trim()},
+        emailRedirectTo: AppConfig.authRedirect,
       );
       // With "confirm email" on, a registered address comes back as a user with no identities and no error.
       if (res.user != null && (res.user!.identities ?? const []).isEmpty) {
@@ -175,6 +196,46 @@ class SupabaseAuthRepository implements AuthRepository {
       rethrow;
     } catch (_) {
       throw const SignUpException(SignUpFailure.network);
+    }
+  }
+
+  @override
+  Future<void> sendPasswordReset(String email) async {
+    try {
+      await _client.auth.resetPasswordForEmail(
+        email.trim(),
+        redirectTo: AppConfig.authRedirect,
+      );
+    } on AuthApiException catch (e) {
+      if (e.code == 'over_email_send_rate_limit' ||
+          e.code == 'over_request_rate_limit' ||
+          e.statusCode == '429') {
+        throw const ResetException(ResetFailure.tryLater);
+      }
+      throw const ResetException(ResetFailure.tryLater);
+    } catch (_) {
+      throw const ResetException(ResetFailure.network);
+    }
+  }
+
+  @override
+  Stream<void> get passwordRecovery => _client.auth.onAuthStateChange
+      .where((e) => e.event == AuthChangeEvent.passwordRecovery)
+      .map((_) {});
+
+  @override
+  Future<void> setNewPassword(String next) async {
+    try {
+      await _client.auth.updateUser(UserAttributes(password: next));
+    } on AuthWeakPasswordException {
+      throw const PasswordException(PasswordFailure.tooShort);
+    } on AuthApiException catch (e) {
+      if (e.code == 'weak_password' || e.code == 'same_password') {
+        throw const PasswordException(PasswordFailure.tooShort);
+      }
+      throw const PasswordException(PasswordFailure.network);
+    } catch (_) {
+      throw const PasswordException(PasswordFailure.network);
     }
   }
 

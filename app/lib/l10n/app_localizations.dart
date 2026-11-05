@@ -2072,6 +2072,66 @@ abstract class AppLocalizations {
   /// **'Account'**
   String get moreAccount;
 
+  /// No description provided for @forgotLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot password?'**
+  String get forgotLink;
+
+  /// No description provided for @forgotTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset your password'**
+  String get forgotTitle;
+
+  /// No description provided for @forgotIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the email you signed up with. We will send you a link to choose a new password.'**
+  String get forgotIntro;
+
+  /// No description provided for @forgotSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send reset link'**
+  String get forgotSend;
+
+  /// No description provided for @forgotSent.
+  ///
+  /// In en, this message translates to:
+  /// **'If that email has an account, a reset link is on its way. Check your inbox and spam folder.'**
+  String get forgotSent;
+
+  /// No description provided for @forgotWait.
+  ///
+  /// In en, this message translates to:
+  /// **'Send again in {seconds} s'**
+  String forgotWait(int seconds);
+
+  /// No description provided for @forgotTryLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many requests right now. Try again in a few minutes.'**
+  String get forgotTryLater;
+
+  /// No description provided for @resetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a new password'**
+  String get resetTitle;
+
+  /// No description provided for @resetSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save password'**
+  String get resetSave;
+
+  /// No description provided for @resetDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Password changed. You are signed in.'**
+  String get resetDone;
+
   /// No description provided for @signUpTitle.
   ///
   /// In en, this message translates to:

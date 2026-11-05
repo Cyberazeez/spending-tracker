@@ -28,6 +28,23 @@ final signedInProvider = StreamProvider<bool>((ref) {
   return ref.watch(authRepositoryProvider).signedIn;
 });
 
+/// Fires when the person opens the emailed "reset password" link.
+final passwordRecoveryProvider = StreamProvider<void>((ref) {
+  return ref.watch(authRepositoryProvider).passwordRecovery;
+});
+
+/// True from opening the reset link until a new password is set: the router keeps the person on the new-password
+/// screen (they hold a session only so they can choose one).
+final recoveryPendingProvider = NotifierProvider<RecoveryPending, bool>(
+  RecoveryPending.new,
+);
+
+class RecoveryPending extends Notifier<bool> {
+  @override
+  bool build() => false;
+  void set(bool value) => state = value;
+}
+
 final sharedPrefsProvider = Provider<SharedPreferences>(
   (ref) => throw UnimplementedError('override sharedPrefsProvider in main()'),
 );
