@@ -92,7 +92,16 @@ void main() {
     h.auth.signUpResult = SignUpResult.confirmEmail;
     await fill(tester);
     expect(find.textContaining('confirmation link'), findsOneWidget);
+    expect(find.textContaining('sara@example.test'), findsOneWidget);
     expect(find.text('Home'), findsNothing);
+    // The email can be sent again, but only after the wait.
+    expect(find.textContaining('Send again in'), findsOneWidget);
+    await tester.pump(const Duration(seconds: 61));
+    await tester.tap(find.text('Send the email again'));
+    await tester.pumpAndSettle();
+    expect(h.auth.resendCalls, ['sara@example.test']);
+    expect(find.textContaining('Send again in'), findsOneWidget);
+    await tester.pump(const Duration(seconds: 61));
     await tester.tap(find.text('Back to sign in'));
     await tester.pumpAndSettle();
     expect(find.text('Back to sign in'), findsNothing);

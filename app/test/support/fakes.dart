@@ -84,6 +84,14 @@ class FakeAuthRepository implements AuthRepository {
   @override
   Stream<void> get passwordRecovery => _recovery.stream;
 
+  final resendCalls = <String>[];
+
+  @override
+  Future<void> resendConfirmation(String email) async {
+    if (resetFailWith != null) throw ResetException(resetFailWith!);
+    resendCalls.add(email.trim());
+  }
+
   @override
   Future<void> sendPasswordReset(String email) async {
     if (resetFailWith != null) throw ResetException(resetFailWith!);

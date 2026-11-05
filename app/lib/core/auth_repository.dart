@@ -99,6 +99,9 @@ abstract class AuthRepository {
   /// Sets a new password after a reset link, without asking for the old one. Throws [PasswordException].
   Future<void> setNewPassword(String next);
 
+  /// Sends the sign-up confirmation email again. Throws [ResetException].
+  Future<void> resendConfirmation(String email);
+
   /// Fires when an emailed link was opened but is expired, already used, or otherwise refused by the server.
   Stream<void> get linkFailed;
 }
@@ -236,6 +239,21 @@ class SupabaseAuthRepository implements AuthRepository {
           e.statusCode == '429') {
         throw const ResetException(ResetFailure.tryLater);
       }
+      throw const ResetException(ResetFailure.tryLater);
+    } catch (_) {
+      throw const ResetException(ResetFailure.network);
+    }
+  }
+
+  @override
+  Future<void> resendConfirmation(String email) async {
+    try {
+      await _client.auth.resend(
+        type: OtpType.signup,
+        email: email.trim(),
+        emailRedirectTo: AppConfig.authRedirect,
+      );
+    } on AuthApiException {
       throw const ResetException(ResetFailure.tryLater);
     } catch (_) {
       throw const ResetException(ResetFailure.network);

@@ -2198,6 +2198,18 @@ abstract class AppLocalizations {
   /// **'Could not create the account right now. Try again in a few minutes.'**
   String get signUpTryLater;
 
+  /// No description provided for @signUpResend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send the email again'**
+  String get signUpResend;
+
+  /// No description provided for @signUpCheckEmailTo.
+  ///
+  /// In en, this message translates to:
+  /// **'We sent a confirmation link to {email}. Tap it, and you are signed in.'**
+  String signUpCheckEmailTo(String email);
+
   /// No description provided for @signUpBackToSignIn.
   ///
   /// In en, this message translates to:
