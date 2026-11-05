@@ -135,10 +135,18 @@ List<MonthGroup> groupByMonth(List<ObligationInstance> rows, DateTime today) {
   return out;
 }
 
-/// The billing cycle an instance belongs to: the month it is due, as the first of that month.
-/// A phone bill due 2 December belongs to December even though it covers November.
-DateTime cycleOf(ObligationInstance i) =>
-    DateTime.utc(i.dueDate.year, i.dueDate.month);
+/// The billing cycle an instance belongs to.
+/// A bill with a known issue day goes by its issue date: issued on the 1st to the 19th it belongs to that month,
+/// issued on the 20th or later it moves to the next month (STC is issued on the 27th, so it is next month's bill).
+/// Anything else (loan, card, fixed payments) goes by the month it is due.
+DateTime cycleOf(ObligationInstance i) {
+  final issue = i.issueDay;
+  final p = i.periodStart;
+  if (issue != null && p != null) {
+    return DateTime.utc(p.year, p.month + (issue >= 20 ? 1 : 0));
+  }
+  return DateTime.utc(i.dueDate.year, i.dueDate.month);
+}
 
 DateTime currentCycle(DateTime today) => DateTime.utc(today.year, today.month);
 

@@ -11,6 +11,7 @@ ObligationInstance inst(
   int grace = 0,
   int lead = 2,
   String? period,
+  int? issueDay,
 }) => ObligationInstance(
   id: id,
   obligationId: 'o-$id',
@@ -23,6 +24,7 @@ ObligationInstance inst(
   actualHalalas: actual,
   graceDays: grace,
   leadDays: lead,
+  issueDay: issueDay,
 );
 
 DateTime d(String s) => DateTime.parse('${s}T00:00:00Z');
@@ -134,13 +136,32 @@ void main() {
   group('billing cycles', () {
     final today = d('2026-11-04');
 
-    test('a bill belongs to the month it is due, not the month it covers', () {
-      // STC: covers November, due 2 December
+    test('a bill with an issue day goes by its issue date: 1-19 this month, 20+ next month', () {
+      // STC: issued 27 Oct, due 2 Nov -> November
       expect(
-        cycleOf(inst('stc', '2026-12-02', period: '2026-11-01')),
+        cycleOf(inst('stc', '2026-11-02', period: '2026-10-01', issueDay: 27)),
+        d('2026-11-01'),
+      );
+      // STC: issued 27 Nov, due 2 Dec -> December
+      expect(
+        cycleOf(inst('stc', '2026-12-02', period: '2026-11-01', issueDay: 27)),
         d('2026-12-01'),
       );
+      // SEC: issued the 6th, placeholder due the 28th -> same month
+      expect(
+        cycleOf(inst('sec', '2026-11-28', period: '2026-11-01', issueDay: 6)),
+        d('2026-11-01'),
+      );
+      // issued on the 19th is still this month, the 20th moves on
+      expect(cycleOf(inst('a', '2026-11-28', period: '2026-11-01', issueDay: 19)), d('2026-11-01'));
+      expect(cycleOf(inst('b', '2026-11-28', period: '2026-11-01', issueDay: 20)), d('2026-12-01'));
+      // December issue on the 27th rolls into January
+      expect(cycleOf(inst('c', '2027-01-02', period: '2026-12-01', issueDay: 27)), d('2027-01-01'));
+    });
+
+    test('no issue day: the month it is due', () {
       expect(cycleOf(inst('x', '2026-11-02')), d('2026-11-01'));
+      expect(cycleOf(inst('y', '2026-12-02', period: '2026-11-01')), d('2026-12-01'));
     });
 
     test('cycleRows: this cycle only, open items first, paid ones last, skipped never', () {
