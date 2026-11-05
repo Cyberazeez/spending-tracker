@@ -3,7 +3,7 @@
 Personal finance app for iPhone. Bank SMS reach the app through an iOS Shortcuts automation (the in-app "Add bank message" action), get parsed and categorized, and feed spending, bills, budgets, insights and widgets. SAR, Asia/Riyadh, English and Arabic. Flutter (Cupertino, Riverpod) + Supabase (Postgres with RLS, Edge Functions in Deno). Planning docs are in `docs/` (start with `01-prd.md`); `CLAUDE.md` holds the working rules.
 
 ## Status
-Live on TestFlight for the owner and a small closed group of invited family testers. Built so far: SMS capture and parsing for Alinma, Barq, D360, STC, SNB and Al Rajhi; categories with AI suggestions (optional, capped); bills and instalments grouped by billing cycle; credit card statements; budgets and insights; home-screen widgets; bill reminders; account deletion with a 30-day grace period; a step-by-step Shortcuts guide inside the app. Not built yet (public release): Apple/Google sign-in, invite codes, forgot password, paid AI plans. After release: CSV import/export. See `docs/06-implementation-plan.md`.
+Live on TestFlight for the owner and a small closed group of invited family testers. Built so far: SMS capture and parsing for Alinma, Barq, D360, STC, SNB and Al Rajhi; categories with AI suggestions (optional, capped); bills and instalments grouped by billing cycle; credit card statements; budgets and insights; home-screen widgets; bill reminders; account deletion with a 30-day grace period; a step-by-step Shortcuts guide inside the app. Not built yet (public release): Apple/Google sign-in, forgot password, email confirmation, paid AI plans (AI only for paying customers; no invite codes). After release: CSV import/export. See `docs/06-implementation-plan.md`.
 
 ## Layout
 | Path | What |
