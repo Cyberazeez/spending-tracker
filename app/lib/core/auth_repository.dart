@@ -1,10 +1,24 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart'
+    show defaultTargetPlatform, TargetPlatform;
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../config.dart';
+import 'apple_nonce.dart';
 
 enum SignInFailure { invalidCredentials, network }
+
+/// How a Sign in with Apple attempt ended. Closing Apple's sheet is not an error.
+enum SocialResult { cancelled, signedIn, reactivated }
+
+enum SocialFailure { failed, network }
+
+class SocialSignInException implements Exception {
+  const SocialSignInException(this.failure);
+  final SocialFailure failure;
+}
 
 enum SignUpFailure {
   emailTaken,
@@ -101,6 +115,12 @@ abstract class AuthRepository {
 
   /// Sends the sign-up confirmation email again. Throws [ResetException].
   Future<void> resendConfirmation(String email);
+
+  /// True where the Sign in with Apple button is shown (iPhone and iPad builds).
+  bool get appleSignInSupported;
+
+  /// Signs in (or creates the account) with the person's Apple ID. Throws [SocialSignInException].
+  Future<SocialResult> signInWithApple();
 
   /// Fires when an emailed link was opened but is expired, already used, or otherwise refused by the server.
   Stream<void> get linkFailed;
@@ -258,6 +278,60 @@ class SupabaseAuthRepository implements AuthRepository {
     } catch (_) {
       throw const ResetException(ResetFailure.network);
     }
+  }
+
+  @override
+  bool get appleSignInSupported => defaultTargetPlatform == TargetPlatform.iOS;
+
+  @override
+  Future<SocialResult> signInWithApple() async {
+    final raw = newAppleNonce();
+    final AuthorizationCredentialAppleID credential;
+    try {
+      credential = await SignInWithApple.getAppleIDCredential(
+        scopes: const [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
+        nonce: sha256Hex(raw),
+      );
+    } on SignInWithAppleAuthorizationException catch (e) {
+      if (e.code == AuthorizationErrorCode.canceled) {
+        return SocialResult.cancelled;
+      }
+      throw const SocialSignInException(SocialFailure.failed);
+    } catch (_) {
+      throw const SocialSignInException(SocialFailure.failed);
+    }
+    final token = credential.identityToken;
+    if (token == null) {
+      throw const SocialSignInException(SocialFailure.failed);
+    }
+    try {
+      await _client.auth.signInWithIdToken(
+        provider: OAuthProvider.apple,
+        idToken: token,
+        nonce: raw,
+      );
+    } on AuthException {
+      throw const SocialSignInException(SocialFailure.failed);
+    } catch (_) {
+      throw const SocialSignInException(SocialFailure.network);
+    }
+    // Apple gives the name only on the very first sign-in, and not inside the token: keep it ourselves.
+    final name = [credential.givenName, credential.familyName]
+        .whereType<String>()
+        .map((s) => s.trim())
+        .where((s) => s.isNotEmpty)
+        .join(' ');
+    if (name.isNotEmpty && (displayName ?? '').isEmpty) {
+      try {
+        await updateName(name);
+      } catch (_) {}
+    }
+    return await reactivateIfPending()
+        ? SocialResult.reactivated
+        : SocialResult.signedIn;
   }
 
   @override

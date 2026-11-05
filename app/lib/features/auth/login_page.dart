@@ -13,6 +13,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../router.dart';
 import '../../ui/app_form.dart';
+import 'apple_button.dart';
 import '../../ui/confirm_sheet.dart';
 import '../../ui/tokens.dart';
 
@@ -168,6 +169,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               ),
               const SizedBox(height: 8),
               PrimaryButton(label: t.signIn, busy: _busy, onPressed: _submit),
+              const AppleSignInSection(),
               const SizedBox(height: 8),
               CupertinoButton(
                 padding: EdgeInsets.zero,

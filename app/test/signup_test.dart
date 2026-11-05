@@ -123,6 +123,9 @@ void main() {
       await tester.pumpWidget(await h.build(prefs: {'locale': lang}));
       await tester.pumpAndSettle();
       final link = find.text(lang == 'ar' ? 'إنشاء حساب' : 'Create account');
+      // The Apple button sits above the link, so at 2x text the link is below the fold: scroll to it.
+      await tester.drag(find.byType(ListView), const Offset(0, -600));
+      await tester.pumpAndSettle();
       await tester.ensureVisible(link);
       await tester.pumpAndSettle();
       await tester.tap(link);

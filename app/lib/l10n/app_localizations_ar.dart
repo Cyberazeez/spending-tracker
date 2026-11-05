@@ -1140,6 +1140,15 @@ class AppLocalizationsAr extends AppLocalizations {
   String get resetSave => 'حفظ كلمة المرور';
 
   @override
+  String get orDivider => 'أو';
+
+  @override
+  String get appleSignIn => 'تسجيل الدخول عبر Apple';
+
+  @override
+  String get appleFailed => 'تعذّر تسجيل الدخول عبر Apple. حاول مرة أخرى.';
+
+  @override
   String get linkExpiredTitle => 'انتهت صلاحية هذا الرابط';
 
   @override

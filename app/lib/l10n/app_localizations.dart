@@ -2126,6 +2126,24 @@ abstract class AppLocalizations {
   /// **'Save password'**
   String get resetSave;
 
+  /// No description provided for @orDivider.
+  ///
+  /// In en, this message translates to:
+  /// **'or'**
+  String get orDivider;
+
+  /// No description provided for @appleSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with Apple'**
+  String get appleSignIn;
+
+  /// No description provided for @appleFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not sign in with Apple. Try again.'**
+  String get appleFailed;
+
   /// No description provided for @linkExpiredTitle.
   ///
   /// In en, this message translates to:

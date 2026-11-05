@@ -1145,6 +1145,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get resetSave => 'Save password';
 
   @override
+  String get orDivider => 'or';
+
+  @override
+  String get appleSignIn => 'Sign in with Apple';
+
+  @override
+  String get appleFailed => 'Could not sign in with Apple. Try again.';
+
+  @override
   String get linkExpiredTitle => 'This link has expired';
 
   @override
