@@ -65,6 +65,25 @@ class FakeAuthRepository implements AuthRepository {
     _controller.add(true);
   }
 
+  bool appleSupported = true;
+  SocialFailure? appleFailWith;
+  SocialResult appleResult = SocialResult.signedIn;
+  int appleCalls = 0;
+
+  @override
+  bool get appleSignInSupported => appleSupported;
+
+  @override
+  Future<SocialResult> signInWithApple() async {
+    appleCalls++;
+    if (appleFailWith != null) throw SocialSignInException(appleFailWith!);
+    if (appleResult != SocialResult.cancelled) {
+      _signedIn = true;
+      _controller.add(true);
+    }
+    return appleResult;
+  }
+
   ResetFailure? resetFailWith;
   final resetCalls = <String>[];
   final newPasswordCalls = <String>[];

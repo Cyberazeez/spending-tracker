@@ -9,6 +9,7 @@ import '../../core/providers.dart';
 import '../../l10n/app_localizations.dart';
 import '../../router.dart';
 import '../../ui/app_form.dart';
+import 'apple_button.dart';
 import '../../ui/tokens.dart';
 
 /// Create an account (closed family test: open sign-up, no invite code).
@@ -219,6 +220,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
                   busy: _busy,
                   onPressed: _submit,
                 ),
+                const AppleSignInSection(),
               ],
             ],
           ),
