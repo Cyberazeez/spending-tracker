@@ -35,6 +35,22 @@
       }
     }
   },
+  "captureLastOk": "آخر إرسال {time}",
+  "@captureLastOk": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "captureLastFailed": "فشل آخر إرسال ({code})",
+  "@captureLastFailed": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
   "captureNone": "لا شيء بالانتظار",
   "copy": "نسخ",
   "cancel": "إلغاء",

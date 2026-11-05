@@ -35,6 +35,22 @@
       }
     }
   },
+  "captureLastOk": "Last sent {time}",
+  "@captureLastOk": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "captureLastFailed": "Last send failed ({code})",
+  "@captureLastFailed": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
   "captureNone": "Nothing waiting",
   "copy": "Copy",
   "cancel": "Cancel",

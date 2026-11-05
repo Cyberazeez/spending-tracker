@@ -1,4 +1,7 @@
 import 'package:flutter/cupertino.dart';
+
+import 'capture_label.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/capture_bridge.dart';
@@ -21,7 +24,7 @@ class CapturePage extends ConsumerWidget {
         : (status.pending == 0
               ? t.captureNone
               : t.captureWaiting(status.pending));
-    final last = status?.last ?? '';
+    final last = captureLastLabel(t, status?.last ?? '');
     final text = AppTokens.text.resolveFrom(context);
     final muted = AppTokens.muted.resolveFrom(context);
     final accent = AppTokens.accent.resolveFrom(context);

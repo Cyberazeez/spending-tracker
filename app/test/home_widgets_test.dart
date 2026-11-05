@@ -181,6 +181,30 @@ void main() {
     expect(find.text('⃁ 1,500.00'), findsOneWidget);
   });
 
+  testWidgets('share bar: the stacked bar is really drawn (not zero height)', (
+    t,
+  ) async {
+    await pump(
+      t,
+      const ShareBar(
+        top: [
+          GroupSpend(CategoryGroup.food, 150000),
+          GroupSpend(CategoryGroup.transport, 50000),
+        ],
+        totalHalalas: 200000,
+        arabic: false,
+      ),
+    );
+    final segments = find.descendant(
+      of: find.byType(ClipRRect),
+      matching: find.byType(ColoredBox),
+    );
+    expect(segments, findsNWidgets(2));
+    for (final e in segments.evaluate()) {
+      expect((e.renderObject! as RenderBox).size.height, 14);
+    }
+  });
+
   testWidgets('bill card: overdue, soon, estimate and unknown amount', (
     t,
   ) async {

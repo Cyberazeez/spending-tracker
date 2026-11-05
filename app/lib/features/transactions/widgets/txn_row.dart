@@ -6,6 +6,7 @@ import '../../../core/format.dart';
 import '../../../core/models.dart';
 import '../../../core/money.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../ui/category_sheet.dart' show categoryIconByName;
 import '../../../ui/tokens.dart';
 import '../../home/category_groups.dart';
 import '../../home/group_style.dart';
@@ -117,7 +118,11 @@ class TxnRow extends StatelessWidget {
               children: [
                 Opacity(
                   opacity: txn.isInternal ? 0.6 : 1,
-                  child: _Badge(group: group, uncategorised: uncategorised),
+                  child: _Badge(
+                    group: group,
+                    uncategorised: uncategorised,
+                    categoryName: category?.name,
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(child: titleBlock),
@@ -135,8 +140,13 @@ class TxnRow extends StatelessWidget {
 }
 
 class _Badge extends StatelessWidget {
-  const _Badge({required this.group, required this.uncategorised});
+  const _Badge({
+    required this.group,
+    required this.uncategorised,
+    this.categoryName,
+  });
   final CategoryGroup group;
+  final String? categoryName;
   final bool uncategorised;
 
   @override
@@ -169,7 +179,13 @@ class _Badge extends StatelessWidget {
         shape: BoxShape.circle,
         color: groupColor(group),
       ),
-      child: Icon(groupIcon(group), size: 22, color: const Color(0xFF0B0F14)),
+      child: Icon(
+        categoryName == null
+            ? groupIcon(group)
+            : categoryIconByName(categoryName!),
+        size: 22,
+        color: const Color(0xFF0B0F14),
+      ),
     );
   }
 }

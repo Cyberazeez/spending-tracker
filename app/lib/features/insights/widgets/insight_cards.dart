@@ -7,6 +7,7 @@ import '../../../core/format.dart';
 import '../../../core/money.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/app_card.dart';
+import '../../../ui/category_sheet.dart' show categoryIconByName;
 import '../../../ui/tokens.dart';
 import '../../home/category_groups.dart';
 import '../../home/group_style.dart';
@@ -213,6 +214,7 @@ class SummaryCard extends StatelessWidget {
                                 ),
                                 FractionallySizedBox(
                                   alignment: AlignmentDirectional.centerStart,
+                                  heightFactor: 1, // without it the fill has no height and is never drawn
                                   widthFactor: fraction,
                                   child: ColoredBox(
                                     color: over
@@ -318,7 +320,7 @@ class CategoryBudgetRow extends StatelessWidget {
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
-                    groupIcon(group),
+                    categoryIconByName(name),
                     size: 20,
                     color: const Color(0xFF0B0F14),
                   ),
@@ -368,6 +370,7 @@ class CategoryBudgetRow extends StatelessWidget {
                                 ),
                                 FractionallySizedBox(
                                   alignment: AlignmentDirectional.centerStart,
+                                  heightFactor: 1, // without it the fill has no height and is never drawn
                                   widthFactor: (spent / budget!).clamp(
                                     0.0,
                                     1.0,

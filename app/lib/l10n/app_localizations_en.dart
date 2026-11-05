@@ -98,6 +98,16 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String captureLastOk(String time) {
+    return 'Last sent $time';
+  }
+
+  @override
+  String captureLastFailed(String code) {
+    return 'Last send failed ($code)';
+  }
+
+  @override
   String get captureNone => 'Nothing waiting';
 
   @override

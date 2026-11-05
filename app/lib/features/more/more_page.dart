@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 
+import 'capture_label.dart';
+
 import '../../ui/confirm_sheet.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -248,7 +250,7 @@ class _CaptureStatusRow extends ConsumerWidget {
         : (status.pending == 0
               ? t.captureNone
               : t.captureWaiting(status.pending));
-    final last = status?.last ?? '';
+    final last = captureLastLabel(t, status?.last ?? '');
     return SettingsRow(
       icon: LucideIcons.messageSquare,
       color: const Color(0xFF3CC4A8),
