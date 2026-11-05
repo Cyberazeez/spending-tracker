@@ -1172,6 +1172,12 @@ abstract class AppLocalizations {
   /// **'Next'**
   String get captureGuideNext;
 
+  /// No description provided for @captureGuideSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get captureGuideSkip;
+
   /// No description provided for @captureGuideBack.
   ///
   /// In en, this message translates to:

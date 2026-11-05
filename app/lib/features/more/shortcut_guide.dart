@@ -15,15 +15,21 @@ const shortcutGuideImages = [
   'assets/guide/step7.webp',
 ];
 
+/// Where "the guide was already offered" is remembered, per account.
+String shortcutGuideSeenKey(String? userId) => 'guide.seen.${userId ?? ''}';
+
 /// Opens the step-by-step guide to adding the Shortcuts automation, as a swipeable bottom sheet.
-Future<void> showShortcutGuide(BuildContext context) =>
+/// [offer] is the automatic first-launch version: page one has a Skip button where Back would be.
+Future<void> showShortcutGuide(BuildContext context, {bool offer = false}) =>
     showCupertinoModalPopup<void>(
       context: context,
-      builder: (_) => const ShortcutGuideSheet(),
+      builder: (_) => ShortcutGuideSheet(offer: offer),
     );
 
 class ShortcutGuideSheet extends StatefulWidget {
-  const ShortcutGuideSheet({super.key});
+  const ShortcutGuideSheet({super.key, this.offer = false});
+
+  final bool offer;
 
   @override
   State<ShortcutGuideSheet> createState() => _ShortcutGuideSheetState();
@@ -199,15 +205,22 @@ class _ShortcutGuideSheetState extends State<ShortcutGuideSheet> {
                   children: [
                     SizedBox(
                       width: 84,
-                      child: _page == 0
+                      child: _page == 0 && !widget.offer
                           ? null
                           : CupertinoButton(
+                              key: _page == 0
+                                  ? const ValueKey('guide-skip')
+                                  : null,
                               padding: EdgeInsets.zero,
                               minimumSize: const Size(44, 44),
                               alignment: AlignmentDirectional.centerStart,
-                              onPressed: () => _go(_page - 1),
+                              onPressed: () => _page == 0
+                                  ? Navigator.of(context).pop()
+                                  : _go(_page - 1),
                               child: Text(
-                                t.captureGuideBack,
+                                _page == 0
+                                    ? t.captureGuideSkip
+                                    : t.captureGuideBack,
                                 style: TextStyle(
                                   color: muted,
                                   fontSize: 16,

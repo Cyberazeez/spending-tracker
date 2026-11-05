@@ -231,6 +231,7 @@
   "captureGuideOpen": "اعرض لي الخطوات",
   "captureGuideTitle": "إضافة الاختصار",
   "captureGuideNext": "التالي",
+  "captureGuideSkip": "تخطي",
   "captureGuideBack": "السابق",
   "captureGuideDone": "تم",
   "captureGuideStepOf": "الخطوة {n} من {total}",

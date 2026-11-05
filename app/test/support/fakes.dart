@@ -182,6 +182,9 @@ class FakeTokenRepository implements TokenRepository {
 }
 
 class FakeCaptureBridge implements CaptureBridge {
+  @override
+  bool get hasShortcuts => true;
+
   bool hasToken = false;
   String? tokenUser;
   int pending = 0;
@@ -665,8 +668,15 @@ class Harness {
   final FakeCaptureBridge capture;
   DateTime now = DateTime.utc(2026, 10, 30, 12);
 
-  Future<ProviderScope> build({Map<String, Object> prefs = const {}}) async {
-    SharedPreferences.setMockInitialValues(prefs);
+  Future<ProviderScope> build({
+    Map<String, Object> prefs = const {},
+    bool offerGuide = false,
+  }) async {
+    // The first-launch guide is marked as already offered so it does not cover the screen in other tests.
+    SharedPreferences.setMockInitialValues({
+      if (!offerGuide) 'guide.seen.user-1': true,
+      ...prefs,
+    });
     final sp = await SharedPreferences.getInstance();
     return ProviderScope(
       overrides: [

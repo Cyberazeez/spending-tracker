@@ -426,6 +426,7 @@
   "captureGuideOpen": "Show me how, step by step",
   "captureGuideTitle": "Add the shortcut",
   "captureGuideNext": "Next",
+  "captureGuideSkip": "Skip",
   "captureGuideBack": "Back",
   "captureGuideDone": "Done",
   "captureGuideStepOf": "Step {n} of {total}",

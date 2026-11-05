@@ -616,6 +616,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get captureGuideNext => 'التالي';
 
   @override
+  String get captureGuideSkip => 'تخطي';
+
+  @override
   String get captureGuideBack => 'السابق';
 
   @override

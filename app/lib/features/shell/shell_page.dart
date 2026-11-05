@@ -26,6 +26,7 @@ import '../insights/insights_page.dart';
 import '../insights/providers.dart';
 import '../obligations/providers.dart';
 import '../more/more_page.dart';
+import '../more/shortcut_guide.dart';
 import '../obligations/obligations_page.dart';
 import '../transactions/transactions_page.dart';
 
@@ -56,6 +57,23 @@ class _ShellPageState extends ConsumerState<ShellPage>
     if (!mounted) return;
     if (was) ref.read(accountReactivatedProvider.notifier).set(true);
     _syncCapture();
+    await _offerShortcutGuide();
+  }
+
+  /// A new account (nothing has ever been sent from this phone) is shown the step-by-step Shortcuts guide once, with a
+  /// Skip button. An account that already sends messages, and any account after the first time, is left alone.
+  Future<void> _offerShortcutGuide() async {
+    final bridge = ref.read(captureBridgeProvider);
+    if (!bridge.hasShortcuts) return;
+    final uid = ref.read(authRepositoryProvider).userId;
+    final prefs = ref.read(sharedPrefsProvider);
+    final key = shortcutGuideSeenKey(uid);
+    if (uid == null || prefs.getBool(key) == true) return;
+    final status = await bridge.status();
+    if (!mounted) return;
+    await prefs.setBool(key, true);
+    if (status.last.isNotEmpty || !mounted) return;
+    await showShortcutGuide(context, offer: true);
   }
 
   /// A sign-in that just cancelled a pending account deletion tells the person once.

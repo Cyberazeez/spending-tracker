@@ -616,6 +616,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get captureGuideNext => 'Next';
 
   @override
+  String get captureGuideSkip => 'Skip';
+
+  @override
   String get captureGuideBack => 'Back';
 
   @override
