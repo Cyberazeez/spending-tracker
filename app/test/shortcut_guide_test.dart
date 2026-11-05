@@ -102,4 +102,23 @@ void main() {
       expect(t.takeException(), isNull);
     });
   }
+
+  testWidgets(
+    'a short page is centred in the sheet, a tall one starts at the top',
+    (t) async {
+      await open(t);
+      final shortTop = t.getTopLeft(find.text('Step 1 of 7')).dy;
+      for (var i = 0; i < 5; i++) {
+        await t.tap(find.byKey(const ValueKey('guide-next')));
+        await t.pumpAndSettle();
+      }
+      expect(find.text('Step 6 of 7'), findsOneWidget);
+      final tallTop = t.getTopLeft(find.text('Step 6 of 7')).dy;
+      expect(
+        shortTop,
+        greaterThan(tallTop + 20),
+        reason: 'page 1 should sit lower than the tall page 6',
+      );
+    },
+  );
 }

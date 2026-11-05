@@ -139,57 +139,66 @@ class _ShortcutGuideSheetState extends State<ShortcutGuideSheet> {
                   controller: _controller,
                   itemCount: titles.length,
                   onPageChanged: (p) => setState(() => _page = p),
-                  itemBuilder: (_, i) => SingleChildScrollView(
-                    padding: const EdgeInsets.fromLTRB(20, 4, 20, 16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          t.captureGuideStepOf(i + 1, titles.length),
-                          style: TextStyle(
-                            color: accent,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
-                            decoration: TextDecoration.none,
-                          ),
+                  itemBuilder: (_, i) => LayoutBuilder(
+                    builder: (context, box) => SingleChildScrollView(
+                      padding: const EdgeInsets.fromLTRB(20, 4, 20, 16),
+                      // Short pages (a small snippet) are centred in the space instead of hugging the top.
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minHeight: box.maxHeight - 20,
                         ),
-                        const SizedBox(height: 6),
-                        Text(
-                          titles[i],
-                          style: TextStyle(
-                            color: text,
-                            fontSize: 26,
-                            fontWeight: FontWeight.w800,
-                            decoration: TextDecoration.none,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        DecoratedBox(
-                          decoration: BoxDecoration(
-                            color: card,
-                            borderRadius: BorderRadius.circular(18),
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(18),
-                            child: Image.asset(
-                              shortcutGuideImages[i],
-                              width: double.infinity,
-                              fit: BoxFit.fitWidth,
-                              semanticLabel: titles[i],
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              t.captureGuideStepOf(i + 1, titles.length),
+                              style: TextStyle(
+                                color: accent,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                                decoration: TextDecoration.none,
+                              ),
                             ),
-                          ),
+                            const SizedBox(height: 6),
+                            Text(
+                              titles[i],
+                              style: TextStyle(
+                                color: text,
+                                fontSize: 26,
+                                fontWeight: FontWeight.w800,
+                                decoration: TextDecoration.none,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            DecoratedBox(
+                              decoration: BoxDecoration(
+                                color: card,
+                                borderRadius: BorderRadius.circular(18),
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(18),
+                                child: Image.asset(
+                                  shortcutGuideImages[i],
+                                  width: double.infinity,
+                                  fit: BoxFit.fitWidth,
+                                  semanticLabel: titles[i],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              bodies[i],
+                              style: TextStyle(
+                                color: text,
+                                fontSize: 17,
+                                height: 1.35,
+                                decoration: TextDecoration.none,
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 16),
-                        Text(
-                          bodies[i],
-                          style: TextStyle(
-                            color: text,
-                            fontSize: 17,
-                            height: 1.35,
-                            decoration: TextDecoration.none,
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ),
                 ),
