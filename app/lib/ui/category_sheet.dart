@@ -11,12 +11,16 @@ import 'tokens.dart';
 IconData categoryIcon(Category c) => switch (c.name) {
   'Groceries' => LucideIcons.shoppingCart,
   'Dining' => LucideIcons.utensils,
+  'Coffee' => LucideIcons.coffee,
   'Fuel' => LucideIcons.fuel,
   'Utilities' => LucideIcons.zap,
   'House Card' => LucideIcons.creditCard,
   'Entertainment' => LucideIcons.film,
   'Travel' => LucideIcons.plane,
+  'Hotel' => LucideIcons.hotel,
   'Fees' => LucideIcons.receipt,
+  'Transfers' => LucideIcons.arrowLeftRight,
+  'Income' => LucideIcons.banknote,
   _ => groupIcon(groupOf(c.name)),
 };
 

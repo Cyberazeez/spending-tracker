@@ -17,6 +17,7 @@ enum CategoryGroup {
 const _groupByCategory = <String, CategoryGroup>{
   'Groceries': CategoryGroup.food,
   'Dining': CategoryGroup.food,
+  'Coffee': CategoryGroup.food,
   'Fuel': CategoryGroup.transport,
   'Transport': CategoryGroup.transport,
   'Car': CategoryGroup.transport,
@@ -27,10 +28,13 @@ const _groupByCategory = <String, CategoryGroup>{
   'Shopping': CategoryGroup.lifestyle,
   'Entertainment': CategoryGroup.lifestyle,
   'Travel': CategoryGroup.lifestyle,
+  'Hotel': CategoryGroup.lifestyle,
   'Subscriptions': CategoryGroup.subscriptions,
   'Health': CategoryGroup.health,
   'Loans': CategoryGroup.money,
   'Fees': CategoryGroup.money,
+  'Transfers': CategoryGroup.money,
+  'Income': CategoryGroup.money,
   'Other': CategoryGroup.other,
 };
 
