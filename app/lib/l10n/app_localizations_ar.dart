@@ -807,6 +807,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get insTrendTitle => 'هذا الشهر مقابل الشهر الماضي';
 
   @override
+  String get insTrendNoLast =>
+      'لا إنفاق في الشهر الماضي لنفس الأيام، لذلك يُرسم هذا الشهر فقط.';
+
+  @override
   String get insLegendThis => 'هذا الشهر';
 
   @override

@@ -298,6 +298,7 @@
   "txChipNoCategory": "بدون فئة",
   "txChipHideInternal": "إخفاء الداخلية",
   "insTrendTitle": "هذا الشهر مقابل الشهر الماضي",
+  "insTrendNoLast": "لا إنفاق في الشهر الماضي لنفس الأيام، لذلك يُرسم هذا الشهر فقط.",
   "insLegendThis": "هذا الشهر",
   "insLegendLast": "الشهر الماضي",
   "insMonthsTitle": "آخر 4 أشهر",

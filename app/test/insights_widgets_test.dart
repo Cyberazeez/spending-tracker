@@ -96,6 +96,22 @@ void main() {
     handle.dispose();
   });
 
+  testWidgets(
+    'trend chart: nothing spent last month on the same days draws only this month and says why',
+    (tester) async {
+      await pump(
+        tester,
+        const TrendChart(
+          thisMonth: [0, 1000, 5000],
+          lastMonth: [0, 0, 0, 4000, 9000],
+          arabic: false,
+        ),
+      );
+      expect(find.textContaining('only this month is drawn'), findsOneWidget);
+      expect(find.text('Last month'), findsNothing);
+    },
+  );
+
   testWidgets('trend chart with no data at all does not crash', (tester) async {
     await pump(
       tester,

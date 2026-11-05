@@ -1514,6 +1514,12 @@ abstract class AppLocalizations {
   /// **'This month vs last month'**
   String get insTrendTitle;
 
+  /// No description provided for @insTrendNoLast.
+  ///
+  /// In en, this message translates to:
+  /// **'No spending last month on these days, so only this month is drawn.'**
+  String get insTrendNoLast;
+
   /// No description provided for @insLegendThis.
   ///
   /// In en, this message translates to:

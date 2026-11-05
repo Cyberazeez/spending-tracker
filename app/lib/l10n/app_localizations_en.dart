@@ -808,6 +808,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get insTrendTitle => 'This month vs last month';
 
   @override
+  String get insTrendNoLast =>
+      'No spending last month on these days, so only this month is drawn.';
+
+  @override
   String get insLegendThis => 'This month';
 
   @override

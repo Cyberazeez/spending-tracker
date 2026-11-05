@@ -538,6 +538,7 @@
   "txChipNoCategory": "No category",
   "txChipHideInternal": "Hide internal",
   "insTrendTitle": "This month vs last month",
+  "insTrendNoLast": "No spending last month on these days, so only this month is drawn.",
   "insLegendThis": "This month",
   "insLegendLast": "Last month",
   "insMonthsTitle": "Last 4 months",
