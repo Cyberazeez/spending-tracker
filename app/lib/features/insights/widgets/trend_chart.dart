@@ -32,6 +32,11 @@ class TrendChart extends StatelessWidget {
         ? 0
         : lastMonth[math.min(thisMonth.length, lastMonth.length) - 1];
 
+    // Nothing spent last month on the same days: drawing last month would only squash this month's line, so only this
+    // month is drawn and a short note says why.
+    final compare = before > 0;
+    final drawnLast = compare ? lastMonth : const <int>[];
+
     Widget legend(String label, Color c) => Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -50,8 +55,9 @@ class TrendChart extends StatelessWidget {
     return AppCard(
       child: Semantics(
         container: true,
-        label:
-            '${t.insTrendTitle}: ${t.insTrendLabel(formatSar(now, arabic: arabic), formatSar(before, arabic: arabic))}',
+        label: compare
+            ? '${t.insTrendTitle}: ${t.insTrendLabel(formatSar(now, arabic: arabic), formatSar(before, arabic: arabic))}'
+            : '${t.insTrendTitle}: ${formatSar(now, arabic: arabic)}. ${t.insTrendNoLast}',
         child: ExcludeSemantics(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -73,7 +79,7 @@ class TrendChart extends StatelessWidget {
                   child: CustomPaint(
                     painter: _TrendPainter(
                       thisMonth: thisMonth,
-                      lastMonth: lastMonth,
+                      lastMonth: drawnLast,
                       thisColor: accent,
                       lastColor: muted,
                       gridColor: muted.withValues(alpha: 0.2),
@@ -87,9 +93,16 @@ class TrendChart extends StatelessWidget {
                 runSpacing: 6,
                 children: [
                   legend(t.insLegendThis, accent),
-                  legend(t.insLegendLast, muted),
+                  if (compare) legend(t.insLegendLast, muted),
                 ],
               ),
+              if (!compare) ...[
+                const SizedBox(height: 8),
+                Text(
+                  t.insTrendNoLast,
+                  style: TextStyle(color: muted, fontSize: 12),
+                ),
+              ],
             ],
           ),
         ),

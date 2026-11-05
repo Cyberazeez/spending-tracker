@@ -24,6 +24,9 @@ class CaptureStatus {
 /// The native side of the "Add bank message" Shortcuts action (see CaptureStore.swift). It keeps the app's own
 /// ingest token in the Keychain and a small offline queue; Dart only provisions and clears the credentials.
 abstract class CaptureBridge {
+  /// Whether this device has the Shortcuts app (iPhone only). Decides if the setup guide is offered on first launch.
+  bool get hasShortcuts => true;
+
   Future<CaptureStatus> status();
   Future<void> saveCredentials(String url, String token, String userId);
   Future<void> clearCredentials();
@@ -35,6 +38,9 @@ abstract class CaptureBridge {
 
 class MethodChannelCaptureBridge implements CaptureBridge {
   static const _channel = MethodChannel('spending_tracker/capture');
+
+  @override
+  bool get hasShortcuts => true;
 
   @override
   Future<CaptureStatus> status() async {
@@ -78,6 +84,9 @@ class MethodChannelCaptureBridge implements CaptureBridge {
 }
 
 class NoopCaptureBridge implements CaptureBridge {
+  @override
+  bool get hasShortcuts => false;
+
   // hasToken true so nothing tries to provision a token that can never be stored.
   @override
   Future<CaptureStatus> status() async =>

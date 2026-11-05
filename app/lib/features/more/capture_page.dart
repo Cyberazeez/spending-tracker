@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'capture_label.dart';
+import 'shortcut_guide.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -100,7 +102,30 @@ class CapturePage extends ConsumerWidget {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  CupertinoButton(
+                    padding: EdgeInsets.zero,
+                    minimumSize: const Size(44, 44),
+                    onPressed: () => showShortcutGuide(context),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(LucideIcons.images, size: 18, color: accent),
+                        const SizedBox(width: 8),
+                        Flexible(
+                          child: Text(
+                            t.captureGuideOpen,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: accent,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 4),
                   PrimaryButton(
                     label: t.captureOpenShortcuts,
                     onPressed: () =>

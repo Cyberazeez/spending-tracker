@@ -346,6 +346,8 @@ class _SearchBoxState extends ConsumerState<_SearchBox> {
       placeholder: AppLocalizations.of(context).searchHint,
       backgroundColor: AppTokens.card.resolveFrom(context),
       borderRadius: BorderRadius.circular(16),
+      // 44 pt tall (the default is 36): the smallest comfortable tap target on iOS
+      padding: const EdgeInsetsDirectional.fromSTEB(8, 14, 8, 14),
       onChanged: (v) {
         final ctl = ref.read(txFilterProvider.notifier);
         ctl.set(ref.read(txFilterProvider).copyWith(query: v.trim()));

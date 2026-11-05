@@ -607,6 +607,78 @@ class AppLocalizationsEn extends AppLocalizations {
   String get captureStep5 => 'Done. Bank SMS are added by themselves.';
 
   @override
+  String get captureGuideOpen => 'Show me how, step by step';
+
+  @override
+  String get captureGuideTitle => 'Add the shortcut';
+
+  @override
+  String get captureGuideNext => 'Next';
+
+  @override
+  String get captureGuideSkip => 'Skip';
+
+  @override
+  String get captureGuideBack => 'Back';
+
+  @override
+  String get captureGuideDone => 'Done';
+
+  @override
+  String captureGuideStepOf(int n, int total) {
+    return 'Step $n of $total';
+  }
+
+  @override
+  String get captureGuide1Title => 'Open Automation';
+
+  @override
+  String get captureGuide1Body =>
+      'In the Shortcuts app, tap Automation, then the + button.';
+
+  @override
+  String get captureGuide2Title => 'Choose Message';
+
+  @override
+  String get captureGuide2Body =>
+      'Pick Message (“When I get a message from…”).';
+
+  @override
+  String get captureGuide3Title => 'Set the filter';
+
+  @override
+  String get captureGuide3Body =>
+      'Change the filter to Message contains and type SAR. Turn Automation on (Run Immediately) and Confirm Before Run off, then tap Next.';
+
+  @override
+  String get captureGuide4Title => 'Add the action';
+
+  @override
+  String get captureGuide4Body =>
+      'Tap New Blank Automation, search “Add bank” and pick Add bank message (the Spending Tracker icon).';
+
+  @override
+  String get captureGuide5Title => 'Fill the two fields';
+
+  @override
+  String get captureGuide5Body =>
+      'Add Message from Sender: tap the first field and choose the Message variable, then tap the second field to choose Sender.';
+
+  @override
+  String get captureGuide6Title => 'Pick Sender';
+
+  @override
+  String get captureGuide6Body =>
+      'Choose the Message variable, then tick Sender in the list and tap Done.';
+
+  @override
+  String get captureGuide7Title => 'All set';
+
+  @override
+  String get captureGuide7Body =>
+      'Your automation is in the list with the switch on. Messages that write the currency as ريال or SR need their own copy with that word instead of SAR.';
+
+  @override
   String get captureOpenShortcuts => 'Open Shortcuts';
 
   @override
@@ -737,6 +809,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get insTrendTitle => 'This month vs last month';
+
+  @override
+  String get insTrendNoLast =>
+      'No spending last month on these days, so only this month is drawn.';
 
   @override
   String get insLegendThis => 'This month';
