@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { FROM_DEFAULT, sendAccountEmail } from "../_shared/account_email.ts";
+import { appleConfigFromEnv, revokeAppleAccess } from "../_shared/apple_auth.ts";
 import { type DeleteDeps, handleDeleteAccount } from "./handler.ts";
 
 const url = Deno.env.get("SUPABASE_URL")!;
@@ -15,14 +16,31 @@ const deps: DeleteDeps = {
       global: { headers: { Authorization: authorization } },
     });
     const { data, error } = await asUser.auth.getUser();
-    if (error || !data.user || !data.user.email) return null;
-    return { id: data.user.id, email: data.user.email };
+    if (error || !data.user) return null;
+    // An Apple account can hide its email, so it may be empty; the password path still needs one.
+    const providers = (data.user.app_metadata?.providers as string[] | undefined) ?? ["email"];
+    return { id: data.user.id, email: data.user.email ?? "", providers };
   },
   async verifyPassword(email, password) {
     // A throwaway client: the session this creates is never stored or used.
     const probe = createClient(url, anonKey, noSession);
     const { error } = await probe.auth.signInWithPassword({ email, password });
     return !error;
+  },
+  async verifyApple(idToken, nonce) {
+    // A throwaway client: a fresh Apple identity token is exchanged for a session that is never stored or used.
+    const probe = createClient(url, anonKey, noSession);
+    const { data, error } = await probe.auth.signInWithIdToken({
+      provider: "apple",
+      token: idToken,
+      nonce,
+    });
+    return error ? null : (data.user?.id ?? null);
+  },
+  async revokeApple(authorizationCode) {
+    const cfg = appleConfigFromEnv((k) => Deno.env.get(k));
+    if (!cfg) return false;
+    return await revokeAppleAccess({ fetch }, cfg, authorizationCode);
   },
   async requestDeletion(userId) {
     const { error } = await admin.rpc("request_account_deletion", { p_user: userId });

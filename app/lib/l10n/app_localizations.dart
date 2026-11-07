@@ -2426,6 +2426,24 @@ abstract class AppLocalizations {
   /// **'Delete my account'**
   String get deleteButton;
 
+  /// No description provided for @deleteApple.
+  ///
+  /// In en, this message translates to:
+  /// **'You signed in with Apple, so there is no password. After you confirm, Apple asks you to sign in once more to prove it is you.'**
+  String get deleteApple;
+
+  /// No description provided for @deleteWrongApple.
+  ///
+  /// In en, this message translates to:
+  /// **'That Apple ID is not the one for this account.'**
+  String get deleteWrongApple;
+
+  /// No description provided for @secNoPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'You sign in with Apple, so this account has no password to change.'**
+  String get secNoPassword;
+
   /// No description provided for @deleteWrongPassword.
   ///
   /// In en, this message translates to:
