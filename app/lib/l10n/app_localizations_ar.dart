@@ -1305,6 +1305,18 @@ class AppLocalizationsAr extends AppLocalizations {
   String get deleteButton => 'حذف حسابي';
 
   @override
+  String get deleteApple =>
+      'سجّلت الدخول عبر Apple، لذلك لا توجد كلمة مرور. بعد التأكيد سيطلب منك Apple تسجيل الدخول مرة أخرى للتحقق أنك أنت.';
+
+  @override
+  String get deleteWrongApple =>
+      'حساب Apple هذا ليس حساب Apple الخاص بهذا الحساب.';
+
+  @override
+  String get secNoPassword =>
+      'تسجّل الدخول عبر Apple، لذلك لا توجد كلمة مرور لهذا الحساب لتغييرها.';
+
+  @override
   String get deleteWrongPassword => 'كلمة المرور غير صحيحة.';
 
   @override

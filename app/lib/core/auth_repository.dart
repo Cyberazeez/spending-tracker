@@ -38,7 +38,19 @@ class SignUpException implements Exception {
 /// follow the confirmation link emailed to them (only when the project asks for email confirmation).
 enum SignUpResult { signedIn, confirmEmail }
 
-enum DeleteFailure { wrongPassword, tooMany, network }
+enum DeleteFailure { wrongPassword, wrongApple, tooMany, network }
+
+/// Fresh proof from Apple's sheet, sent to the server to delete an account that has no password.
+class AppleProof {
+  const AppleProof({
+    required this.idToken,
+    required this.nonce,
+    this.authorizationCode,
+  });
+  final String idToken;
+  final String nonce;
+  final String? authorizationCode;
+}
 
 class DeleteAccountException implements Exception {
   const DeleteAccountException(this.failure);
@@ -98,6 +110,15 @@ abstract class AuthRepository {
   /// 30 days unless the person signs in again before then. Signs out on success.
   /// Throws [DeleteAccountException].
   Future<void> deleteAccount(String password);
+
+  /// False for an account that only signs in with Apple: there is no password to re-enter or change.
+  bool get hasPassword;
+
+  /// Opens Apple's sheet and returns fresh proof, or null when the person closes it. Throws [SocialSignInException].
+  Future<AppleProof?> proveWithApple();
+
+  /// Like [deleteAccount] for an account without a password. Throws [DeleteAccountException].
+  Future<void> deleteAccountWithApple(AppleProof proof);
 
   /// Checks [current] first, then sets [next]. Throws [PasswordException].
   Future<void> changePassword({required String current, required String next});
@@ -283,26 +304,53 @@ class SupabaseAuthRepository implements AuthRepository {
   @override
   bool get appleSignInSupported => defaultTargetPlatform == TargetPlatform.iOS;
 
-  @override
-  Future<SocialResult> signInWithApple() async {
+  /// Opens Apple's sheet with a fresh one-time nonce. Null when the person closes it.
+  Future<(AuthorizationCredentialAppleID, String)?> _appleSheet() async {
     final raw = newAppleNonce();
-    final AuthorizationCredentialAppleID credential;
     try {
-      credential = await SignInWithApple.getAppleIDCredential(
+      final credential = await SignInWithApple.getAppleIDCredential(
         scopes: const [
           AppleIDAuthorizationScopes.email,
           AppleIDAuthorizationScopes.fullName,
         ],
         nonce: sha256Hex(raw),
       );
+      return (credential, raw);
     } on SignInWithAppleAuthorizationException catch (e) {
-      if (e.code == AuthorizationErrorCode.canceled) {
-        return SocialResult.cancelled;
-      }
+      if (e.code == AuthorizationErrorCode.canceled) return null;
       throw const SocialSignInException(SocialFailure.failed);
     } catch (_) {
       throw const SocialSignInException(SocialFailure.failed);
     }
+  }
+
+  @override
+  bool get hasPassword {
+    final providers = _client.auth.currentUser?.appMetadata['providers'];
+    return providers is! List || providers.contains('email');
+  }
+
+  @override
+  Future<AppleProof?> proveWithApple() async {
+    final sheet = await _appleSheet();
+    if (sheet == null) return null;
+    final token = sheet.$1.identityToken;
+    if (token == null) {
+      throw const SocialSignInException(SocialFailure.failed);
+    }
+    return AppleProof(
+      idToken: token,
+      nonce: sheet.$2,
+      authorizationCode: sheet.$1.authorizationCode,
+    );
+  }
+
+  @override
+  Future<SocialResult> signInWithApple() async {
+    final sheet = await _appleSheet();
+    if (sheet == null) return SocialResult.cancelled;
+    final credential = sheet.$1;
+    final raw = sheet.$2;
     final token = credential.identityToken;
     if (token == null) {
       throw const SocialSignInException(SocialFailure.failed);
@@ -386,12 +434,24 @@ class SupabaseAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<void> deleteAccount(String password) async {
+  Future<void> deleteAccount(String password) =>
+      _deleteWith({'password': password}, DeleteFailure.wrongPassword);
+
+  @override
+  Future<void> deleteAccountWithApple(AppleProof proof) => _deleteWith({
+    'apple': {
+      'id_token': proof.idToken,
+      'nonce': proof.nonce,
+      'authorization_code': ?proof.authorizationCode,
+    },
+  }, DeleteFailure.wrongApple);
+
+  Future<void> _deleteWith(
+    Map<String, Object> body,
+    DeleteFailure forbidden,
+  ) async {
     try {
-      await _client.functions.invoke(
-        'delete-account',
-        body: {'password': password},
-      );
+      await _client.functions.invoke('delete-account', body: body);
     } on FunctionException catch (e) {
       // 401: the account is already gone (an earlier try deleted it and its answer was lost) or the session is no
       // longer valid. Either way there is nothing left to delete, so carry on and clean this phone up.
@@ -402,7 +462,7 @@ class SupabaseAuthRepository implements AuthRepository {
         return;
       }
       if (e.status == 403) {
-        throw const DeleteAccountException(DeleteFailure.wrongPassword);
+        throw DeleteAccountException(forbidden);
       }
       if (e.status == 429) {
         throw const DeleteAccountException(DeleteFailure.tooMany);

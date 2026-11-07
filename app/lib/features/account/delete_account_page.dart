@@ -46,7 +46,8 @@ class _DeleteAccountPageState extends ConsumerState<DeleteAccountPage> {
       setState(() => _error = t.deleteWordMismatch(t.deleteWord));
       return;
     }
-    if (_password.text.isEmpty) {
+    final usesPassword = ref.read(authRepositoryProvider).hasPassword;
+    if (usesPassword && _password.text.isEmpty) {
       setState(() => _error = t.fieldRequired);
       return;
     }
@@ -71,13 +72,32 @@ class _DeleteAccountPageState extends ConsumerState<DeleteAccountPage> {
     final prefs = ref.read(sharedPrefsProvider);
     final uid = auth.userId;
     try {
-      await auth.deleteAccount(_password.text);
+      if (usesPassword) {
+        await auth.deleteAccount(_password.text);
+      } else {
+        // No password: Apple's sheet proves it is the owner, and the server checks the proof is for this account.
+        final proof = await auth.proveWithApple();
+        if (proof == null) {
+          if (mounted) setState(() => _busy = false);
+          return;
+        }
+        await auth.deleteAccountWithApple(proof);
+      }
+    } on SocialSignInException {
+      if (mounted) {
+        setState(() {
+          _busy = false;
+          _error = t.appleFailed;
+        });
+      }
+      return;
     } on DeleteAccountException catch (e) {
       if (mounted) {
         setState(() {
           _busy = false;
           _error = switch (e.failure) {
             DeleteFailure.wrongPassword => t.deleteWrongPassword,
+            DeleteFailure.wrongApple => t.deleteWrongApple,
             DeleteFailure.tooMany => t.deleteTooMany,
             DeleteFailure.network => t.deleteFailed,
           };
@@ -127,13 +147,23 @@ class _DeleteAccountPageState extends ConsumerState<DeleteAccountPage> {
               textInputAction: TextInputAction.next,
             ),
             const SizedBox(height: 16),
-            AppField(
-              controller: _password,
-              label: t.deletePassword,
-              obscure: true,
-              textInputAction: TextInputAction.done,
-              onSubmitted: (_) => _delete(),
-            ),
+            if (ref.watch(authRepositoryProvider).hasPassword)
+              AppField(
+                controller: _password,
+                label: t.deletePassword,
+                obscure: true,
+                textInputAction: TextInputAction.done,
+                onSubmitted: (_) => _delete(),
+              )
+            else
+              Text(
+                t.deleteApple,
+                style: TextStyle(
+                  color: AppTokens.muted.resolveFrom(context),
+                  fontSize: 14,
+                  height: 1.4,
+                ),
+              ),
             if (_error != null) FormError(_error!),
             const SizedBox(height: 24),
             Semantics(

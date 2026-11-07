@@ -286,6 +286,25 @@ class _SecurityPageState extends ConsumerState<SecurityPage> {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
+    if (!ref.watch(authRepositoryProvider).hasPassword) {
+      return CupertinoPageScaffold(
+        backgroundColor: AppTokens.bg.resolveFrom(context),
+        navigationBar: appNavBar(context, t.accountSecurity),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Text(
+              t.secNoPassword,
+              style: TextStyle(
+                color: AppTokens.muted.resolveFrom(context),
+                fontSize: 16,
+                height: 1.4,
+              ),
+            ),
+          ),
+        ),
+      );
+    }
     return CupertinoPageScaffold(
       backgroundColor: AppTokens.bg.resolveFrom(context),
       navigationBar: appNavBar(context, t.accountSecurity),

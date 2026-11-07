@@ -1312,6 +1312,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deleteButton => 'Delete my account';
 
   @override
+  String get deleteApple =>
+      'You signed in with Apple, so there is no password. After you confirm, Apple asks you to sign in once more to prove it is you.';
+
+  @override
+  String get deleteWrongApple =>
+      'That Apple ID is not the one for this account.';
+
+  @override
+  String get secNoPassword =>
+      'You sign in with Apple, so this account has no password to change.';
+
+  @override
   String get deleteWrongPassword => 'The password is wrong.';
 
   @override

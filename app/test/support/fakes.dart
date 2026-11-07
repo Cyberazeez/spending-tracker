@@ -65,6 +65,28 @@ class FakeAuthRepository implements AuthRepository {
     _controller.add(true);
   }
 
+  bool hasPasswordValue = true;
+  AppleProof? appleProof = const AppleProof(
+    idToken: 'apple-token',
+    nonce: 'nonce-1',
+    authorizationCode: 'code-1',
+  );
+  final deleteAppleCalls = <AppleProof>[];
+
+  @override
+  bool get hasPassword => hasPasswordValue;
+
+  @override
+  Future<AppleProof?> proveWithApple() async => appleProof;
+
+  @override
+  Future<void> deleteAccountWithApple(AppleProof proof) async {
+    if (deleteFailWith != null) throw DeleteAccountException(deleteFailWith!);
+    deleteAppleCalls.add(proof);
+    _signedIn = false;
+    _controller.add(false);
+  }
+
   bool appleSupported = true;
   SocialFailure? appleFailWith;
   SocialResult appleResult = SocialResult.signedIn;
