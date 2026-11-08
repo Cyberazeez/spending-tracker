@@ -1,4 +1,5 @@
 import Flutter
+import Security
 import UIKit
 import UserNotifications
 import WidgetKit
@@ -21,13 +22,6 @@ import WidgetKit
     NotificationCenter.default.addObserver(
       forName: UIApplication.didBecomeActiveNotification, object: nil, queue: .main
     ) { _ in Task { await CaptureStore.shared.flush() } }
-  }
-
-  /// Older builds kept the widget token in the App Group's UserDefaults; remove it wherever it is found.
-  private func removeLegacyWidgetCredentials(_ defaults: UserDefaults?) {
-    for key in ["widget.url", "widget.token", "widget.user"] {
-      defaults?.removeObject(forKey: key)
-    }
   }
 
   /// Dart saves the widget's numbers here ("spending_tracker/widget" / "save"): they go into the shared App Group
@@ -225,7 +219,7 @@ enum WidgetKeychain {
 
   private static func baseQuery() -> [String: Any]? {
     guard let group = Bundle.main.object(forInfoDictionaryKey: "SharedKeychainGroup") as? String,
-      !group.isEmpty, !group.contains("$(")
+      !group.isEmpty, !group.hasPrefix("."), !group.contains("$(")
     else { return nil }
     return [
       kSecClass as String: kSecClassGenericPassword,
@@ -260,5 +254,13 @@ enum WidgetKeychain {
 
   static func clear() {
     if let query = baseQuery() { SecItemDelete(query as CFDictionary) }
+  }
+}
+
+/// Older builds kept the widget token in the App Group's UserDefaults; remove it wherever it is found.
+/// (A file-level function, so the method-channel closure can call it without `self`.)
+private func removeLegacyWidgetCredentials(_ defaults: UserDefaults?) {
+  for key in ["widget.url", "widget.token", "widget.user"] {
+    defaults?.removeObject(forKey: key)
   }
 }

@@ -1,3 +1,4 @@
+import Security
 import SwiftUI
 import UIKit
 import WidgetKit
@@ -293,7 +294,7 @@ enum WidgetKeychain {
 
   private static func baseQuery() -> [String: Any]? {
     guard let group = Bundle.main.object(forInfoDictionaryKey: "SharedKeychainGroup") as? String,
-      !group.isEmpty, !group.contains("$(")
+      !group.isEmpty, !group.hasPrefix("."), !group.contains("$(")
     else { return nil }
     return [
       kSecClass as String: kSecClassGenericPassword,
