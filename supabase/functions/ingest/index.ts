@@ -2,7 +2,7 @@ import { createClient } from "@supabase/supabase-js";
 import { INGEST_TOKEN_KINDS } from "../_shared/token.ts";
 import { effectiveSpent, globalCapFromEnv, riyadhMonthStartIso } from "../_shared/ai_budget.ts";
 import { parseWithAi } from "../_shared/ai_parse.ts";
-import { handleIngest, type IngestDeps } from "./handler.ts";
+import { AI_TRUST_AFTER, handleIngest, type IngestDeps } from "./handler.ts";
 
 const AI_PARSE_LIMIT_PER_DAY = 100;
 
@@ -276,6 +276,18 @@ const deps: IngestDeps = {
       body,
       receivedAt,
     );
+  },
+  async aiTrusted(userId, sender) {
+    const { count, error } = await db.from("raw_messages").select("id", {
+      count: "exact",
+      head: true,
+    })
+      .eq("user_id", userId).eq("sender", sender).eq("parser", "ai/v1").eq(
+        "parse_status",
+        "parsed",
+      );
+    if (error) return false;
+    return (count ?? 0) >= AI_TRUST_AFTER;
   },
   async touchToken(tokenId) {
     const { error } = await db

@@ -60,7 +60,15 @@ export interface IngestDeps {
     body: string,
     receivedAt: Date,
   ): Promise<AiParseOutcome | null>;
+  /**
+   * True once this person has confirmed enough AI readings from this sender (AI_TRUST_AFTER): later readings are
+   * saved as plain `parsed` instead of waiting for a check. Optional; without it every AI reading is checked.
+   */
+  aiTrusted?(userId: string, sender: string): Promise<boolean>;
 }
+
+/** Confirmed AI readings from one sender after which that sender no longer needs checking. */
+export const AI_TRUST_AFTER = 5;
 
 /** Ids of the stored transactions by type (a transfer and its fee are two rows of one SMS). */
 export interface SaveResult {
@@ -144,6 +152,7 @@ export async function handleIngest(req: Request, deps: IngestDeps): Promise<Resp
     try {
       let r: ParseResult = parseSms(sender, body, receivedAt);
       let aiConfidence: number | undefined;
+      let aiTrusted = false;
       if (r.kind === "unparsed" && deps.aiParse) {
         // The AI reading never blocks ingest: any problem leaves the message in Needs review as before.
         const ai = await deps.aiParse(found.userId, sender, body, receivedAt).catch((e) => {
@@ -154,6 +163,10 @@ export async function handleIngest(req: Request, deps: IngestDeps): Promise<Resp
           const a = ai.result;
           if (a.kind === "transaction") {
             aiConfidence = a.confidence;
+            aiTrusted = await (deps.aiTrusted?.(found.userId, sender) ?? Promise.resolve(false))
+              .catch(
+                () => false,
+              );
             r = {
               kind: "transaction",
               parser: a.parser,
@@ -195,7 +208,7 @@ export async function handleIngest(req: Request, deps: IngestDeps): Promise<Resp
           userId: found.userId,
           rawId: id,
           parser: r.parser,
-          status: aiConfidence === undefined ? "parsed" : "ai_parsed",
+          status: aiConfidence === undefined || aiTrusted ? "parsed" : "ai_parsed",
           confidence: aiConfidence,
           rows,
         });

@@ -537,6 +537,48 @@ class FakeDataRepository implements DataRepository {
   /// The paid-plan flag. On by default so existing tests see the AI features.
   bool aiPaid = true;
 
+  bool aiParseOn = false;
+  bool failAiParseSave = false;
+  List<AiRead> aiRead = [];
+  final aiConfirmed = <String>[];
+  final aiRejected = <String>[];
+
+  @override
+  Future<bool> aiParseEnabled() async => aiParseOn;
+
+  @override
+  Future<void> setAiParseEnabled(bool on) async {
+    if (failAiParseSave) throw StateError('offline');
+    aiParseOn = on;
+  }
+
+  @override
+  Future<List<AiRead>> aiReadToCheck() async {
+    if (failLoad) throw StateError('offline');
+    return aiRead;
+  }
+
+  @override
+  Future<void> confirmAiRead(String rawId) async {
+    aiConfirmed.add(rawId);
+    aiRead = aiRead.where((a) => a.raw.id != rawId).toList();
+  }
+
+  @override
+  Future<void> rejectAiRead(String rawId, String txnId) async {
+    aiRejected.add(rawId);
+    aiRead = aiRead.where((a) => a.raw.id != rawId).toList();
+    review = [
+      ...review,
+      RawMessage(
+        id: rawId,
+        sender: 'x',
+        body: 'b',
+        receivedAt: DateTime.utc(2026, 11, 8),
+      ),
+    ];
+  }
+
   @override
   Future<bool> aiAllowed() async => aiPaid;
 

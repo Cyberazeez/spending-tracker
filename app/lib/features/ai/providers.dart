@@ -8,6 +8,12 @@ final aiAllowedProvider = FutureProvider.autoDispose<bool>(
   retry: (_, _) => null,
 );
 
+/// The person's consent to AI reading of messages from banks the app does not know yet.
+final aiParseEnabledProvider = FutureProvider.autoDispose<bool>(
+  (ref) => ref.watch(dataRepositoryProvider).aiParseEnabled(),
+  retry: (_, _) => null,
+);
+
 /// The AI switch from More. Off until the owner turns it on.
 final aiEnabledProvider = FutureProvider.autoDispose<bool>(
   (ref) => ref.watch(dataRepositoryProvider).aiEnabled(),

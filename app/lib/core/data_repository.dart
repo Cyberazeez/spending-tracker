@@ -4,6 +4,9 @@ import 'models.dart';
 import 'normalize.dart';
 
 /// Seam over the database for transactions, the review inbox and sender gaps.
+const _txnColumns =
+    'id, type, direction, amount_halalas, merchant_raw, merchant_norm, category_id, category_source, occurred_at, is_internal, excluded_from_spend';
+
 abstract class DataRepository {
   Future<List<Txn>> recentTransactions({
     TxFilter filter = const TxFilter(),
@@ -72,6 +75,19 @@ abstract class DataRepository {
   /// The person's own AI switch (`settings.ai_enabled`) AND the paid plan. Off by default.
   Future<bool> aiEnabled();
   Future<void> setAiEnabled(bool on);
+
+  /// The person's consent to have messages from banks the app does not know read by AI (`settings.ai_parse_enabled`).
+  Future<bool> aiParseEnabled();
+  Future<void> setAiParseEnabled(bool on);
+
+  /// Messages the AI read that still wait for "Looks right" (newest first).
+  Future<List<AiRead>> aiReadToCheck();
+
+  /// The reading is right: it stops waiting, and after a few of these the sender needs no more checks.
+  Future<void> confirmAiRead(String rawId);
+
+  /// The reading is wrong: the transaction is removed and the message goes back to Needs review to add by hand.
+  Future<void> rejectAiRead(String rawId, String txnId);
 
   /// Asks the server to categorise merchants that have no category yet.
   Future<AiOutcome> suggestCategories();
@@ -455,6 +471,69 @@ class SupabaseDataRepository implements DataRepository {
         .maybeSingle();
     return ((row?['ai_enabled'] as bool?) ?? false) &&
         ((row?['ai_allowed'] as bool?) ?? false);
+  }
+
+  @override
+  Future<bool> aiParseEnabled() async {
+    final row = await _db
+        .from('settings')
+        .select('ai_parse_enabled')
+        .maybeSingle();
+    return (row?['ai_parse_enabled'] as bool?) ?? false;
+  }
+
+  @override
+  Future<void> setAiParseEnabled(bool on) async {
+    final uid = _db.auth.currentUser?.id;
+    if (uid == null) throw StateError('not signed in');
+    await _db
+        .from('settings')
+        .update({'ai_parse_enabled': on})
+        .eq('user_id', uid);
+  }
+
+  @override
+  Future<List<AiRead>> aiReadToCheck() async {
+    final raws = await _db
+        .from('raw_messages')
+        .select('id, sender, body, received_at, transaction_id')
+        .eq('parse_status', 'ai_parsed')
+        .not('transaction_id', 'is', null)
+        .order('received_at', ascending: false)
+        .limit(50);
+    if (raws.isEmpty) return const [];
+    final ids = [for (final r in raws) r['transaction_id'] as String];
+    final txns = await _db
+        .from('transactions')
+        .select(_txnColumns)
+        .inFilter('id', ids)
+        .isFilter('deleted_at', null);
+    final byId = {for (final t in txns) t['id'] as String: Txn.fromRow(t)};
+    return [
+      for (final r in raws)
+        if (byId[r['transaction_id']] != null)
+          AiRead(raw: RawMessage.fromRow(r), txn: byId[r['transaction_id']]!),
+    ];
+  }
+
+  @override
+  Future<void> confirmAiRead(String rawId) async {
+    await _db
+        .from('raw_messages')
+        .update({'parse_status': 'parsed'})
+        .eq('id', rawId);
+  }
+
+  @override
+  Future<void> rejectAiRead(String rawId, String txnId) async {
+    await _db
+        .from('transactions')
+        .update({'deleted_at': DateTime.now().toUtc().toIso8601String()})
+        .eq('id', txnId);
+    await _db
+        .from('raw_messages')
+        .update({'parse_status': 'needs_review', 'transaction_id': null})
+        .eq('id', rawId);
   }
 
   @override

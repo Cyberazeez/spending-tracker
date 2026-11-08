@@ -225,6 +225,37 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String get aiParseTitle => 'قراءة البنوك غير المعروفة بالذكاء الاصطناعي';
+
+  @override
+  String get aiParseSubtitle =>
+      'للبنوك التي لا يعرفها التطبيق بعد. يُرسل نص تلك الرسالة وحدها إلى الذكاء الاصطناعي بعد إزالة الأرقام والأسماء. لا تُرسل الحوالات أبدًا.';
+
+  @override
+  String get aiParseAskTitle =>
+      'السماح للذكاء الاصطناعي بقراءة رسائل البنوك غير المعروفة؟';
+
+  @override
+  String get aiParseAskBody =>
+      'عندما تصل رسالة من بنك لا يعرفه التطبيق بعد، يُرسل نصها إلى الذكاء الاصطناعي من Anthropic لتتحول إلى معاملة. تُزال أولًا الأرصدة وأرقام الحسابات والجوال وأرقام IBAN والبريد والروابط. لا تُرسل الحوالات ولا رموز التحقق أبدًا. تراجع كل قراءة قبل أن يُوثق بها. يمكنك إيقافه في أي وقت.';
+
+  @override
+  String get aiParseAskConfirm => 'تشغيل';
+
+  @override
+  String get aiReadHeader => 'قرأها الذكاء الاصطناعي: يرجى التحقق';
+
+  @override
+  String get aiReadOk => 'صحيحة';
+
+  @override
+  String get aiReadWrong => 'خاطئة: احذفها';
+
+  @override
+  String get aiReadSheetBody =>
+      'أنشأ الذكاء الاصطناعي هذه المعاملة من الرسالة أدناه. هل هي صحيحة؟';
+
+  @override
   String get reviewConvert => 'إضافة كعملية';
 
   @override

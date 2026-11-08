@@ -500,6 +500,60 @@ abstract class AppLocalizations {
   /// **'From {sender}'**
   String reviewFrom(String sender);
 
+  /// No description provided for @aiParseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Read unknown banks with AI'**
+  String get aiParseTitle;
+
+  /// No description provided for @aiParseSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'For banks the app does not know yet. The text of that one message is sent to the AI with numbers and names removed. Transfers are never sent.'**
+  String get aiParseSubtitle;
+
+  /// No description provided for @aiParseAskTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Let AI read unknown bank messages?'**
+  String get aiParseAskTitle;
+
+  /// No description provided for @aiParseAskBody.
+  ///
+  /// In en, this message translates to:
+  /// **'When a message comes from a bank the app does not know yet, its text is sent to Anthropic\'s AI so it can become a transaction. Balances, account and phone numbers, IBANs, emails and links are removed first. Transfers and one-time codes are never sent. You check each reading before it is trusted. You can turn this off at any time.'**
+  String get aiParseAskBody;
+
+  /// No description provided for @aiParseAskConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on'**
+  String get aiParseAskConfirm;
+
+  /// No description provided for @aiReadHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Read by AI: please check'**
+  String get aiReadHeader;
+
+  /// No description provided for @aiReadOk.
+  ///
+  /// In en, this message translates to:
+  /// **'Looks right'**
+  String get aiReadOk;
+
+  /// No description provided for @aiReadWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong: remove it'**
+  String get aiReadWrong;
+
+  /// No description provided for @aiReadSheetBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The AI made this transaction from the message below. Is it right?'**
+  String get aiReadSheetBody;
+
   /// No description provided for @reviewConvert.
   ///
   /// In en, this message translates to:

@@ -43,7 +43,7 @@ class HomePage extends ConsumerWidget {
     final budgets = ref.watch(budgetsProvider).value ?? const <Budget>[];
     final today0 = ref.watch(todaySpendProvider).value;
     final monthlyBudget = ref.watch(monthlyBudgetProvider).value;
-    final review = ref.watch(needsReviewProvider).value ?? const <RawMessage>[];
+    final reviewCount = ref.watch(reviewCountProvider);
     final gaps = ref.watch(senderGapsProvider).value ?? const <SenderGap>[];
     final obligations =
         ref.watch(obligationsProvider).value ?? const <ObligationInstance>[];
@@ -81,6 +81,7 @@ class HomePage extends ConsumerWidget {
               ref.invalidate(categoriesProvider);
               ref.invalidate(obligationsProvider);
               ref.invalidate(needsReviewProvider);
+              ref.invalidate(aiReadProvider);
               ref.invalidate(senderGapsProvider);
               await ref
                   .read(insightsProvider.future)
@@ -248,14 +249,14 @@ class HomePage extends ConsumerWidget {
                             ),
                           ),
                         ),
-                      if (review.isNotEmpty || silent != null) ...[
+                      if (reviewCount > 0 || silent != null) ...[
                         const SizedBox(height: 12),
                         Wrap(
                           spacing: 10,
                           children: [
-                            if (review.isNotEmpty)
+                            if (reviewCount > 0)
                               AttentionChip(
-                                label: t.homeToReview(review.length),
+                                label: t.homeToReview(reviewCount),
                                 dot: const Color(0xFFFFB340),
                                 onTap: () => context.push(reviewPath),
                               ),

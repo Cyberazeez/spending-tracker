@@ -39,6 +39,19 @@ final needsReviewProvider = FutureProvider.autoDispose<List<RawMessage>>(
   retry: (_, _) => null,
 );
 
+/// Messages the AI read that wait for the person to say "looks right" (or "wrong").
+final aiReadProvider = FutureProvider.autoDispose<List<AiRead>>(
+  (ref) => ref.watch(dataRepositoryProvider).aiReadToCheck(),
+  retry: (_, _) => null,
+);
+
+/// Everything waiting for the person in the inbox: messages nobody could read plus AI readings to check.
+final reviewCountProvider = Provider.autoDispose<int>(
+  (ref) =>
+      (ref.watch(needsReviewProvider).value?.length ?? 0) +
+      (ref.watch(aiReadProvider).value?.length ?? 0),
+);
+
 final senderGapsProvider = FutureProvider.autoDispose<List<SenderGap>>(
   (ref) => ref.watch(dataRepositoryProvider).senderGaps(),
   retry: (_, _) => null,
