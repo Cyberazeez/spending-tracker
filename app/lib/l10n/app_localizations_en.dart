@@ -224,6 +224,36 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get aiParseTitle => 'Read unknown banks with AI';
+
+  @override
+  String get aiParseSubtitle =>
+      'For banks the app does not know yet. The text of that one message is sent to the AI with numbers and names removed. Transfers are never sent.';
+
+  @override
+  String get aiParseAskTitle => 'Let AI read unknown bank messages?';
+
+  @override
+  String get aiParseAskBody =>
+      'When a message comes from a bank the app does not know yet, its text is sent to Anthropic\'s AI so it can become a transaction. Balances, account and phone numbers, IBANs, emails and links are removed first. Transfers and one-time codes are never sent. You check each reading before it is trusted. You can turn this off at any time.';
+
+  @override
+  String get aiParseAskConfirm => 'Turn on';
+
+  @override
+  String get aiReadHeader => 'Read by AI: please check';
+
+  @override
+  String get aiReadOk => 'Looks right';
+
+  @override
+  String get aiReadWrong => 'Wrong: remove it';
+
+  @override
+  String get aiReadSheetBody =>
+      'The AI made this transaction from the message below. Is it right?';
+
+  @override
   String get reviewConvert => 'Add as transaction';
 
   @override

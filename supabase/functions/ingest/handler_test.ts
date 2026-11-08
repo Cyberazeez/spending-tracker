@@ -55,6 +55,7 @@ async function setup(
     obs?: Ob[];
     open?: Inst[];
     aiParse?: IngestDeps["aiParse"];
+    aiTrusted?: IngestDeps["aiTrusted"];
   } = {},
 ) {
   const token = generateToken();
@@ -76,6 +77,7 @@ async function setup(
   const marked: { ids: string[]; cat: string | null }[] = [];
   const deps: IngestDeps = {
     aiParse: opts.aiParse,
+    aiTrusted: opts.aiTrusted,
     findToken: (h) => Promise.resolve(h === hash ? { id: "tok1", userId: "user1" } : null),
     bumpRateLimit: (_user, window) =>
       Promise.resolve(window === "minute" ? (opts.minute ?? 1) : (opts.day ?? 1)),
@@ -799,4 +801,21 @@ Deno.test("ingest AI: a bill notice stays in Needs review for now (nothing is sa
   assert.equal(res.status, 200);
   assert.equal(s.saved.length, 0);
   assert.equal(s.rows[0].parse_status, "needs_review");
+});
+
+Deno.test("ingest AI: after enough confirmed readings from a sender, its readings are saved as parsed (no check needed)", async () => {
+  const trusted = await setup({
+    aiParse: () => Promise.resolve(AI_TXN),
+    aiTrusted: () => Promise.resolve(true),
+  });
+  await trusted.call(UNKNOWN_BANK);
+  assert.equal(trusted.saved[0].status, "parsed");
+  assert.equal(trusted.saved[0].parser, "ai/v1");
+
+  const failing = await setup({
+    aiParse: () => Promise.resolve(AI_TXN),
+    aiTrusted: () => Promise.reject(new Error("db")),
+  });
+  await failing.call(UNKNOWN_BANK);
+  assert.equal(failing.saved[0].status, "ai_parsed"); // a failed lookup never skips the check
 });

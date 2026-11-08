@@ -102,6 +102,15 @@
       }
     }
   },
+  "aiParseTitle": "Read unknown banks with AI",
+  "aiParseSubtitle": "For banks the app does not know yet. The text of that one message is sent to the AI with numbers and names removed. Transfers are never sent.",
+  "aiParseAskTitle": "Let AI read unknown bank messages?",
+  "aiParseAskBody": "When a message comes from a bank the app does not know yet, its text is sent to Anthropic's AI so it can become a transaction. Balances, account and phone numbers, IBANs, emails and links are removed first. Transfers and one-time codes are never sent. You check each reading before it is trusted. You can turn this off at any time.",
+  "aiParseAskConfirm": "Turn on",
+  "aiReadHeader": "Read by AI: please check",
+  "aiReadOk": "Looks right",
+  "aiReadWrong": "Wrong: remove it",
+  "aiReadSheetBody": "The AI made this transaction from the message below. Is it right?",
   "reviewConvert": "Add as transaction",
   "reviewDismiss": "Not a transaction",
   "reviewLoadFailed": "Could not load messages.",

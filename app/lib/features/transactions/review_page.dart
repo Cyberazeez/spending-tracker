@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/format.dart';
 import '../../core/models.dart';
+import '../../core/money.dart';
 import '../../core/providers.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ui/app_form.dart';
@@ -78,10 +79,47 @@ class ReviewPage extends ConsumerWidget {
     );
   }
 
+  Future<void> _checkAi(BuildContext context, WidgetRef ref, AiRead a) async {
+    final t = AppLocalizations.of(context);
+    final arabic = ref.read(localeProvider).languageCode == 'ar';
+    final choice = await showChoiceSheet<String>(
+      context,
+      title: a.txn.merchant ?? a.raw.sender,
+      message:
+          '${t.aiReadSheetBody}\n\n${formatSar(a.txn.amountHalalas, arabic: arabic)}\n${a.raw.body}',
+      options: [
+        ChoiceOption(
+          value: 'ok',
+          label: t.aiReadOk,
+          icon: LucideIcons.circleCheck,
+        ),
+        ChoiceOption(
+          value: 'wrong',
+          label: t.aiReadWrong,
+          icon: LucideIcons.trash2,
+          destructive: true,
+        ),
+      ],
+    );
+    final repo = ref.read(dataRepositoryProvider);
+    try {
+      if (choice == 'ok') {
+        await repo.confirmAiRead(a.raw.id);
+      } else if (choice == 'wrong') {
+        await repo.rejectAiRead(a.raw.id, a.txn.id);
+      }
+    } finally {
+      ref.invalidate(aiReadProvider);
+      ref.invalidate(needsReviewProvider);
+      ref.invalidate(transactionsProvider);
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = AppLocalizations.of(context);
     final items = ref.watch(needsReviewProvider);
+    final aiRead = ref.watch(aiReadProvider).value ?? const <AiRead>[];
     return CupertinoPageScaffold(
       backgroundColor: AppTokens.bg.resolveFrom(context),
       navigationBar: appNavBar(context, t.reviewTitle),
@@ -96,7 +134,7 @@ class ReviewPage extends ConsumerWidget {
               child: Text(t.tryAgain),
             ),
           ),
-          data: (list) => list.isEmpty
+          data: (list) => list.isEmpty && aiRead.isEmpty
               ? EmptyState(
                   icon: CupertinoIcons.checkmark_circle,
                   title: t.reviewEmpty,
@@ -105,6 +143,90 @@ class ReviewPage extends ConsumerWidget {
               : ListView(
                   padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
                   children: [
+                    if (aiRead.isNotEmpty) ...[
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(4, 0, 4, 8),
+                        child: Text(
+                          t.aiReadHeader,
+                          style: TextStyle(
+                            color: AppTokens.muted.resolveFrom(context),
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      RowsCard(
+                        children: [
+                          for (final a in aiRead)
+                            Semantics(
+                              button: true,
+                              child: GestureDetector(
+                                behavior: HitTestBehavior.opaque,
+                                onTap: () => _checkAi(context, ref, a),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 12,
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              a.txn.merchant ?? a.raw.sender,
+                                              style: TextStyle(
+                                                color: AppTokens.text
+                                                    .resolveFrom(context),
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 2),
+                                            Text(
+                                              formatDateTime(a.raw.receivedAt),
+                                              style: TextStyle(
+                                                color: AppTokens.muted
+                                                    .resolveFrom(context),
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Text(
+                                        formatSar(
+                                          a.txn.amountHalalas,
+                                          arabic:
+                                              ref
+                                                  .watch(localeProvider)
+                                                  .languageCode ==
+                                              'ar',
+                                        ),
+                                        style: TextStyle(
+                                          color: AppTokens.text.resolveFrom(
+                                            context,
+                                          ),
+                                          fontSize: 15,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      ForwardChevron(
+                                        size: 14,
+                                        color: AppTokens.muted.resolveFrom(
+                                          context,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                    ],
                     RowsCard(
                       children: [
                         for (final m in list)

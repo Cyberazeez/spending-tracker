@@ -38,7 +38,7 @@ class TransactionsPage extends ConsumerWidget {
     final filter = ref.watch(txFilterProvider);
     final txns = ref.watch(transactionsProvider);
     final cats = ref.watch(categoriesProvider).value ?? const <Category>[];
-    final review = ref.watch(needsReviewProvider).value ?? const <RawMessage>[];
+    final reviewCount = ref.watch(reviewCountProvider);
     final byId = {for (final c in cats) c.id: c};
     final today = riyadhToday(ref.watch(clockProvider)());
 
@@ -106,6 +106,7 @@ class TransactionsPage extends ConsumerWidget {
             onRefresh: () async {
               ref.invalidate(transactionsProvider);
               ref.invalidate(needsReviewProvider);
+              ref.invalidate(aiReadProvider);
               ref.invalidate(categoriesProvider);
               await Future.wait([
                 ref
@@ -126,7 +127,7 @@ class TransactionsPage extends ConsumerWidget {
                   const _SearchBox(),
                   const SizedBox(height: 8),
                   FilterChips(
-                    reviewCount: review.length,
+                    reviewCount: reviewCount,
                     onReview: () => context.push(reviewPath),
                   ),
                 ],

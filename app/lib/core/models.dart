@@ -65,6 +65,13 @@ class RawMessage {
   );
 }
 
+/// A message the AI read (a bank the app has no parser for): the person checks what it made of it.
+class AiRead {
+  const AiRead({required this.raw, required this.txn});
+  final RawMessage raw;
+  final Txn txn;
+}
+
 class SenderGap {
   const SenderGap({required this.sender, this.lastReceivedAt});
   final String sender;

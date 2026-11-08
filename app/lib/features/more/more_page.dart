@@ -119,7 +119,14 @@ class MorePage extends ConsumerWidget {
                   ],
                 ),
                 const SizedBox(height: 16),
-                SettingsGroup(children: [const _AiRow()]),
+                SettingsGroup(
+                  children: [
+                    const _AiRow(),
+                    // Only paying accounts: AI reading of unknown banks needs the paid plan.
+                    if (ref.watch(aiAllowedProvider).value == true)
+                      const _AiParseRow(),
+                  ],
+                ),
                 const SizedBox(height: 16),
                 SettingsGroup(
                   children: [
@@ -216,6 +223,63 @@ class _AiRowState extends ConsumerState<_AiRow> {
       color: const Color(0xFF3CC4A8),
       title: t.aiTitle,
       subtitle: t.aiSubtitle,
+      control: CupertinoSwitch(
+        value: _pending ?? stored,
+        activeTrackColor: AppTokens.accent.resolveFrom(context),
+        onChanged: _set,
+      ),
+    );
+  }
+}
+
+/// Consent for AI reading of messages from banks the app has no parser for. Off by default; turning it on asks first,
+/// because (unlike the assistant) it sends the text of one message, with numbers and names removed.
+class _AiParseRow extends ConsumerStatefulWidget {
+  const _AiParseRow();
+
+  @override
+  ConsumerState<_AiParseRow> createState() => _AiParseRowState();
+}
+
+class _AiParseRowState extends ConsumerState<_AiParseRow> {
+  bool? _pending;
+
+  Future<void> _set(bool on) async {
+    if (_pending != null) return;
+    final t = AppLocalizations.of(context);
+    if (on) {
+      final ok = await showConfirmSheet(
+        context,
+        title: t.aiParseAskTitle,
+        message: t.aiParseAskBody,
+        confirmLabel: t.aiParseAskConfirm,
+      );
+      if (ok != true || !mounted) return;
+    }
+    setState(() => _pending = on);
+    var failed = false;
+    try {
+      await ref.read(dataRepositoryProvider).setAiParseEnabled(on);
+    } catch (_) {
+      failed = true;
+    }
+    if (!mounted) return;
+    ref.invalidate(aiParseEnabledProvider);
+    await ref.read(aiParseEnabledProvider.future).catchError((_) => false);
+    if (!mounted) return;
+    setState(() => _pending = null);
+    if (failed) await showNoticeSheet(context, title: t.obSaveFailed);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final stored = ref.watch(aiParseEnabledProvider).value ?? false;
+    return SettingsRow(
+      icon: LucideIcons.scanText,
+      color: const Color(0xFF6C8CFF),
+      title: t.aiParseTitle,
+      subtitle: t.aiParseSubtitle,
       control: CupertinoSwitch(
         value: _pending ?? stored,
         activeTrackColor: AppTokens.accent.resolveFrom(context),
