@@ -28,13 +28,16 @@ Future<void> openAccountPage(WidgetTester tester) async {
 
 void main() {
   group('welcome card', () {
-    testWidgets('a brand new account sees the three steps on Home', (
+    testWidgets('a brand new account sees the two steps on Home', (
       tester,
     ) async {
       await start(tester, setup: (h) => h.data.accounts = []);
       expect(find.text('Get started'), findsOneWidget);
-      expect(find.text('0 of 3 done'), findsOneWidget);
-      expect(find.text('Add your bank accounts'), findsOneWidget);
+      expect(find.text('0 of 2 done'), findsOneWidget);
+      expect(
+        find.text('Add your bank accounts'),
+        findsNothing,
+      ); // learned from transfers instead
       expect(find.text('Set up SMS capture'), findsOneWidget);
       expect(find.text('Set a monthly budget'), findsOneWidget);
     });
@@ -42,17 +45,12 @@ void main() {
     testWidgets(
       'steps that are done are counted, the card opens the right screens',
       (tester) async {
-        await start(tester); // the fake owner already has one account
-        expect(find.text('1 of 3 done'), findsOneWidget);
+        await start(tester, setup: (h) => h.data.monthlyBudget = 900000);
+        expect(find.text('1 of 2 done'), findsOneWidget);
         await tester.tap(find.text('Set up SMS capture'));
         await tester.pumpAndSettle();
         expect(find.text('Set up SMS capture'), findsWidgets);
         expect(find.text('Open Shortcuts'), findsOneWidget);
-        await tester.tap(find.byType(CupertinoNavigationBarBackButton));
-        await tester.pumpAndSettle();
-        await tester.tap(find.text('Add your bank accounts'));
-        await tester.pumpAndSettle();
-        expect(find.text('Alinma 6000'), findsOneWidget);
       },
     );
 
@@ -73,14 +71,14 @@ void main() {
         await start(tester, setup: (h) => h.data.accounts = []);
         await tester.tap(find.text('Hide'));
         await tester.pumpAndSettle();
-        expect(find.text('Add your bank accounts'), findsNothing);
+        expect(find.text('Set up SMS capture'), findsNothing);
         expect(
-          find.textContaining('Get started · 0 of 3 done'),
+          find.textContaining('Get started · 0 of 2 done'),
           findsOneWidget,
         );
-        await tester.tap(find.textContaining('Get started · 0 of 3 done'));
+        await tester.tap(find.textContaining('Get started · 0 of 2 done'));
         await tester.pumpAndSettle();
-        expect(find.text('Add your bank accounts'), findsOneWidget);
+        expect(find.text('Set up SMS capture'), findsOneWidget);
       },
     );
 
@@ -107,7 +105,7 @@ void main() {
         );
         await tester.pumpAndSettle();
         expect(
-          find.textContaining('Get started · 0 of 3 done'),
+          find.textContaining('Get started · 0 of 2 done'),
           findsOneWidget,
         );
         // four days later the card is gone for good
@@ -154,7 +152,7 @@ void main() {
       await openAccountPage(tester);
       await tester.tap(find.text('Bank accounts'));
       await tester.pumpAndSettle();
-      expect(find.text('Alinma 6000'), findsOneWidget);
+      expect(find.text('Alinma Bank 6000'), findsOneWidget);
 
       await tester.tap(find.widgetWithText(CupertinoButton, 'Add account'));
       await tester.pumpAndSettle();
@@ -170,16 +168,65 @@ void main() {
       await tester.enterText(find.byType(CupertinoTextField).at(1), 'Wallet');
       await tester.tap(find.widgetWithText(CupertinoButton, 'Add'));
       await tester.pumpAndSettle();
-      expect(h.data.accountCalls, ['add:alrajhi:1224:account:Wallet']);
-      expect(find.text('Al Rajhi 1224'), findsOneWidget);
+      expect(h.data.accountCalls, ['add:snb:1224:account:Wallet']);
+      expect(find.text('Saudi National Bank (SNB) 1224'), findsOneWidget);
 
-      await tester.tap(find.text('Al Rajhi 1224'));
+      await tester.tap(find.text('Saudi National Bank (SNB) 1224'));
       await tester.pumpAndSettle();
-      expect(find.text('Remove Al Rajhi 1224?'), findsOneWidget);
+      await tester.tap(find.widgetWithText(CupertinoButton, 'Remove'));
+      await tester.pumpAndSettle();
+      expect(
+        find.text('Remove Saudi National Bank (SNB) 1224?'),
+        findsOneWidget,
+      );
       await tester.tap(find.text('Remove').last);
       await tester.pumpAndSettle();
       expect(h.data.accountCalls.last, startsWith('del:'));
-      expect(find.text('Al Rajhi 1224'), findsNothing);
+      expect(find.text('Saudi National Bank (SNB) 1224'), findsNothing);
+    });
+
+    testWidgets('edit changes the account; a wallet sets the type', (
+      tester,
+    ) async {
+      final h = await start(tester);
+      await openAccountPage(tester);
+      await tester.tap(find.text('Bank accounts'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Alinma Bank 6000'));
+      await tester.pumpAndSettle();
+      expect(find.text('Edit account'), findsOneWidget);
+      expect(
+        tester
+            .widget<CupertinoTextField>(find.byType(CupertinoTextField).at(0))
+            .controller!
+            .text,
+        '6000',
+      );
+      await tester.enterText(find.byType(CupertinoTextField).at(0), '7000');
+      await tester.tap(find.widgetWithText(CupertinoButton, 'Save'));
+      await tester.pumpAndSettle();
+      expect(h.data.accountCalls, ['upd:oa1:alinma:7000:account:Main']);
+      expect(find.text('Alinma Bank 7000'), findsOneWidget);
+    });
+
+    testWidgets('the bank list has the wallets and picking one sets Wallet', (
+      tester,
+    ) async {
+      final h = await start(tester);
+      await openAccountPage(tester);
+      await tester.tap(find.text('Bank accounts'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(CupertinoButton, 'Add account'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Saudi National Bank (SNB)'));
+      await tester.pumpAndSettle();
+      expect(find.text('Vision Bank'), findsOneWidget);
+      await tester.tap(find.text('Mobily Pay'));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(CupertinoTextField).at(0), '5555');
+      await tester.tap(find.widgetWithText(CupertinoButton, 'Add'));
+      await tester.pumpAndSettle();
+      expect(h.data.accountCalls, ['add:mobilypay:5555:wallet:']);
     });
 
     testWidgets('a duplicate is explained', (tester) async {

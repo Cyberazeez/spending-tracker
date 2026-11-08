@@ -12,17 +12,15 @@ void main() {
       [true, false, false],
     );
     final ai = quickFilter(noCat, QuickFilter.ai);
-    expect([ai.uncategorizedOnly, ai.aiOnly, ai.hideInternal], [
-      false,
-      true,
-      false,
-    ]);
+    expect(
+      [ai.uncategorizedOnly, ai.aiOnly, ai.hideInternal],
+      [false, true, false],
+    );
     final hide = quickFilter(ai, QuickFilter.hideInternal);
-    expect([hide.uncategorizedOnly, hide.aiOnly, hide.hideInternal], [
-      false,
-      false,
-      true,
-    ]);
+    expect(
+      [hide.uncategorizedOnly, hide.aiOnly, hide.hideInternal],
+      [false, false, true],
+    );
   });
 
   test('tapping the chosen one again goes back to everything', () {

@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
 
+import '../../core/banks.dart';
 import '../../core/models.dart';
 import '../../core/providers.dart';
 import '../../l10n/app_localizations.dart';
@@ -17,15 +18,10 @@ import '../../ui/choice_sheet.dart';
 import '../../ui/tokens.dart';
 import 'account_providers.dart';
 
-String bankName(String bank) => switch (bank) {
-  'alrajhi' => 'Al Rajhi',
-  'snb' => 'SNB',
-  'alinma' => 'Alinma',
-  'barq' => 'barq',
-  'd360' => 'D360',
-  'stc' => 'STC Bank',
-  _ => bank,
-};
+String bankName(BuildContext context, String bank) => bankDisplayName(
+  bank,
+  arabic: Localizations.localeOf(context).languageCode == 'ar',
+);
 
 String kindName(AppLocalizations t, String kind) => switch (kind) {
   'debit_card' => t.kindDebit,
@@ -39,33 +35,17 @@ String kindName(AppLocalizations t, String kind) => switch (kind) {
 class OwnAccountsPage extends ConsumerWidget {
   const OwnAccountsPage({super.key});
 
-  Future<void> _add(BuildContext context, WidgetRef ref) async {
+  /// Opens the form to add an account, or to edit [existing].
+  Future<void> _open(
+    BuildContext context,
+    WidgetRef ref, [
+    OwnAccount? existing,
+  ]) async {
     await showCupertinoModalPopup<void>(
       context: context,
-      builder: (_) => const _AddAccountSheet(),
+      builder: (_) => _AccountSheet(existing: existing),
     );
     ref.invalidate(ownAccountsProvider);
-  }
-
-  Future<void> _remove(
-    BuildContext context,
-    WidgetRef ref,
-    OwnAccount a,
-  ) async {
-    final t = AppLocalizations.of(context);
-    final name = '${bankName(a.bank)} ${a.last4}';
-    final sure = await showConfirmSheet(
-      context,
-      title: t.bankRemoveConfirm(name),
-      confirmLabel: t.bankRemove,
-      destructive: true,
-    );
-    if (sure != true) return;
-    try {
-      await ref.read(dataRepositoryProvider).deleteOwnAccount(a.id);
-    } finally {
-      ref.invalidate(ownAccountsProvider);
-    }
   }
 
   @override
@@ -125,7 +105,7 @@ class OwnAccountsPage extends ConsumerWidget {
                           button: true,
                           child: GestureDetector(
                             behavior: HitTestBehavior.opaque,
-                            onTap: () => _remove(context, ref, accounts[i]),
+                            onTap: () => _open(context, ref, accounts[i]),
                             child: ConstrainedBox(
                               constraints: const BoxConstraints(minHeight: 56),
                               child: Row(
@@ -144,7 +124,7 @@ class OwnAccountsPage extends ConsumerWidget {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          '${bankName(accounts[i].bank)} ${accounts[i].last4}',
+                                          '${bankName(context, accounts[i].bank)} ${accounts[i].last4}',
                                           style: TextStyle(
                                             color: AppTokens.text.resolveFrom(
                                               context,
@@ -180,7 +160,7 @@ class OwnAccountsPage extends ConsumerWidget {
               const SizedBox(height: 20),
               PrimaryButton(
                 label: t.bankAdd,
-                onPressed: () => _add(context, ref),
+                onPressed: () => _open(context, ref),
               ),
             ],
           ),
@@ -190,20 +170,24 @@ class OwnAccountsPage extends ConsumerWidget {
   }
 }
 
-class _AddAccountSheet extends ConsumerStatefulWidget {
-  const _AddAccountSheet();
+class _AccountSheet extends ConsumerStatefulWidget {
+  const _AccountSheet({this.existing});
+
+  final OwnAccount? existing;
 
   @override
-  ConsumerState<_AddAccountSheet> createState() => _AddAccountSheetState();
+  ConsumerState<_AccountSheet> createState() => _AccountSheetState();
 }
 
-class _AddAccountSheetState extends ConsumerState<_AddAccountSheet> {
-  final _last4 = TextEditingController();
-  final _label = TextEditingController();
-  String _bank = OwnAccount.banks.first;
-  String _kind = OwnAccount.kinds.first;
+class _AccountSheetState extends ConsumerState<_AccountSheet> {
+  late final _last4 = TextEditingController(text: widget.existing?.last4);
+  late final _label = TextEditingController(text: widget.existing?.label);
+  late String _bank = widget.existing?.bank ?? bankList.first.code;
+  late String _kind = widget.existing?.kind ?? OwnAccount.kinds.first;
   bool _busy = false;
   String? _error;
+
+  bool get _editing => widget.existing != null;
 
   @override
   void dispose() {
@@ -242,14 +226,23 @@ class _AddAccountSheetState extends ConsumerState<_AddAccountSheet> {
       _error = null;
     });
     try {
-      await ref
-          .read(dataRepositoryProvider)
-          .addOwnAccount(
-            bank: _bank,
-            last4: _last4.text.trim(),
-            kind: _kind,
-            label: _label.text,
-          );
+      final repo = ref.read(dataRepositoryProvider);
+      if (_editing) {
+        await repo.updateOwnAccount(
+          id: widget.existing!.id,
+          bank: _bank,
+          last4: _last4.text.trim(),
+          kind: _kind,
+          label: _label.text,
+        );
+      } else {
+        await repo.addOwnAccount(
+          bank: _bank,
+          last4: _last4.text.trim(),
+          kind: _kind,
+          label: _label.text,
+        );
+      }
       if (mounted) Navigator.pop(context);
     } on PostgrestException catch (e) {
       if (mounted) {
@@ -261,6 +254,31 @@ class _AddAccountSheetState extends ConsumerState<_AddAccountSheet> {
       if (mounted) setState(() => _error = t.obSaveFailed);
     } finally {
       if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _remove() async {
+    final a = widget.existing!;
+    final t = AppLocalizations.of(context);
+    final sure = await showConfirmSheet(
+      context,
+      title: t.bankRemoveConfirm('${bankName(context, a.bank)} ${a.last4}'),
+      message: t.bankRemoveNote,
+      confirmLabel: t.bankRemove,
+      destructive: true,
+    );
+    if (sure != true || !mounted) return;
+    setState(() => _busy = true);
+    try {
+      await ref.read(dataRepositoryProvider).deleteOwnAccount(a.id);
+      if (mounted) Navigator.pop(context);
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _busy = false;
+          _error = t.obSaveFailed;
+        });
+      }
     }
   }
 
@@ -284,18 +302,20 @@ class _AddAccountSheetState extends ConsumerState<_AddAccountSheet> {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Row(
                   children: [
+                    Text(label, style: TextStyle(color: muted, fontSize: 15)),
+                    const SizedBox(width: 12),
                     Expanded(
-                      child: Text(
-                        label,
-                        style: TextStyle(color: muted, fontSize: 15),
-                      ),
-                    ),
-                    Text(
-                      value,
-                      style: TextStyle(
-                        color: text,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        child: Text(
+                          value,
+                          textAlign: TextAlign.end,
+                          style: TextStyle(
+                            color: text,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
                     ),
                     const SizedBox(width: 6),
@@ -311,7 +331,7 @@ class _AddAccountSheetState extends ConsumerState<_AddAccountSheet> {
       navigationBar: CupertinoNavigationBar(
         backgroundColor: AppTokens.bg.resolveFrom(context),
         border: null,
-        middle: Text(t.bankAdd),
+        middle: Text(_editing ? t.bankEdit : t.bankAdd),
         leading: CupertinoButton(
           padding: EdgeInsets.zero,
           onPressed: () => Navigator.pop(context),
@@ -324,13 +344,16 @@ class _AddAccountSheetState extends ConsumerState<_AddAccountSheet> {
           children: [
             pickRow(
               t.bankPick,
-              bankName(_bank),
+              bankName(context, _bank),
               () => _pick(
                 t.bankPick,
-                OwnAccount.banks,
+                [for (final b in bankList) b.code],
                 _bank,
-                bankName,
-                (v) => _bank = v,
+                (c) => bankName(context, c),
+                (v) {
+                  _bank = v;
+                  if (bankInfo(v)?.wallet ?? false) _kind = 'wallet';
+                },
               ),
             ),
             const SizedBox(height: 12),
@@ -365,7 +388,21 @@ class _AddAccountSheetState extends ConsumerState<_AddAccountSheet> {
             ),
             if (_error != null) FormError(_error!),
             const SizedBox(height: 24),
-            PrimaryButton(label: t.bankSave, busy: _busy, onPressed: _save),
+            PrimaryButton(
+              label: _editing ? t.bankSaveEdit : t.bankSave,
+              busy: _busy,
+              onPressed: _save,
+            ),
+            if (_editing) ...[
+              const SizedBox(height: 12),
+              CupertinoButton(
+                onPressed: _busy ? null : _remove,
+                child: Text(
+                  t.bankRemove,
+                  style: const TextStyle(color: CupertinoColors.destructiveRed),
+                ),
+              ),
+            ],
           ],
         ),
       ),

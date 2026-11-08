@@ -61,31 +61,25 @@ class WelcomeController extends Notifier<WelcomeUi> {
   }
 }
 
-/// The three first steps of a new account and which are done. While an answer is still loading its step counts as
-/// done, so the card waits for real answers before it shows.
+/// The first steps of a new account and which are done. While an answer is still loading its step counts as done,
+/// so the card waits for real answers before it shows. Bank accounts are not a step: they are learned from the
+/// transfers the person answers in Needs review (and can be added by hand in Account > Bank accounts).
 class WelcomeState {
-  const WelcomeState({
-    required this.accounts,
-    required this.capture,
-    required this.budget,
-  });
+  const WelcomeState({required this.capture, required this.budget});
 
-  final bool accounts;
   final bool capture;
   final bool budget;
 
-  int get done => [accounts, capture, budget].where((x) => x).length;
-  bool get allDone => done == 3;
+  static const total = 2;
+
+  int get done => [capture, budget].where((x) => x).length;
+  bool get allDone => done == total;
 }
 
 final welcomeStateProvider = Provider.autoDispose<WelcomeState>((ref) {
-  final accounts = ref.watch(ownAccountsProvider);
   final budget = ref.watch(monthlyBudgetProvider);
   final capture = ref.watch(captureStatusProvider);
   return WelcomeState(
-    accounts: accounts.isLoading || accounts.hasError
-        ? true
-        : (accounts.value ?? const []).isNotEmpty,
     capture: capture.isLoading || capture.hasError
         ? true
         : capture.value!.last.isNotEmpty,

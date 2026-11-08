@@ -50,7 +50,7 @@ class _WelcomeCardState extends ConsumerState<WelcomeCard> {
         child: Semantics(
           button: true,
           label:
-              '${t.welcomeTitle}, ${t.welcomeProgress(w.done.toString(), '3')}',
+              '${t.welcomeTitle}, ${t.welcomeProgress(w.done.toString(), WelcomeState.total.toString())}',
           excludeSemantics: true,
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
@@ -65,7 +65,7 @@ class _WelcomeCardState extends ConsumerState<WelcomeCard> {
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        '${t.welcomeTitle} · ${t.welcomeProgress(w.done.toString(), '3')}',
+                        '${t.welcomeTitle} · ${t.welcomeProgress(w.done.toString(), WelcomeState.total.toString())}',
                         style: TextStyle(
                           color: text,
                           fontSize: 15,
@@ -150,11 +150,13 @@ class _WelcomeCardState extends ConsumerState<WelcomeCard> {
               ],
             ),
             Text(
-              t.welcomeProgress(w.done.toString(), '3'),
+              t.welcomeProgress(
+                w.done.toString(),
+                WelcomeState.total.toString(),
+              ),
               style: TextStyle(color: muted, fontSize: 13),
             ),
             const SizedBox(height: 8),
-            step(w.accounts, t.welcomeAccounts, () => context.push(banksPath)),
             step(w.capture, t.welcomeCapture, () => context.push(capturePath)),
             step(
               w.budget,

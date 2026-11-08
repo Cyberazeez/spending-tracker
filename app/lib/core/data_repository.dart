@@ -117,6 +117,15 @@ abstract class DataRepository {
     required String kind,
     String? label,
   });
+  Future<void> updateOwnAccount({
+    required String id,
+    required String bank,
+    required String last4,
+    required String kind,
+    String? label,
+  });
+
+  /// Removes the account only. Past transactions keep their own copy of the digits and are not touched.
   Future<void> deleteOwnAccount(String id);
 
   /// The base monthly salary from Settings (0 = not set).
@@ -318,9 +327,8 @@ class SupabaseDataRepository implements DataRepository {
         .map<SenderGap>(
           (r) => SenderGap(
             sender: r['sender'] as String,
-            lastReceivedAt: DateTime.parse(
-              r['last_received_at'] as String,
-            ).toUtc(),
+            lastReceivedAt: DateTime.parse(r['last_received_at'] as String)
+                .toUtc(),
           ),
         )
         .toList();
@@ -632,6 +640,27 @@ class SupabaseDataRepository implements DataRepository {
       'kind': kind,
       'label': (label == null || label.trim().isEmpty) ? null : label.trim(),
     });
+  }
+
+  @override
+  Future<void> updateOwnAccount({
+    required String id,
+    required String bank,
+    required String last4,
+    required String kind,
+    String? label,
+  }) async {
+    await _db
+        .from('own_accounts')
+        .update({
+          'bank': bank,
+          'last4': last4,
+          'kind': kind,
+          'label': (label == null || label.trim().isEmpty)
+              ? null
+              : label.trim(),
+        })
+        .eq('id', id);
   }
 
   @override

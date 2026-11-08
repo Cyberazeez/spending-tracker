@@ -3,7 +3,15 @@ import { isOtpLike, REDACTED_BODY } from "../_shared/otp.ts";
 import { stripBalances } from "../_shared/redact.ts";
 import { parseIngestPayload } from "../_shared/request.ts";
 import { isWellFormedToken, sha256Hex } from "../_shared/token.ts";
-import { applyCategories, buildRows, type OwnAccount, type TxRow } from "../_shared/enrich.ts";
+import {
+  accountsOfPair,
+  applyCategories,
+  buildRows,
+  type OwnAccount,
+  pairsWith,
+  type TransferCandidate,
+  type TxRow,
+} from "../_shared/enrich.ts";
 import type { CategoryIds, Rule } from "../_shared/categorize.ts";
 import { type ParseResult, parseSms } from "../_shared/parsers/index.ts";
 import type { AiParseOutcome } from "../_shared/ai_parse.ts";
@@ -21,6 +29,9 @@ export interface RawMessageRow {
   parse_status: "needs_review" | "ignored";
   ignore_reason: string | null;
 }
+
+/** The banks an own account can be saved for (the `own_accounts.bank` check); an AI-read message has no known bank. */
+const KNOWN_BANKS = ["alrajhi", "snb", "alinma", "barq", "d360", "stc"] as const;
 
 export interface IngestDeps {
   /** Returns the active (not revoked) token's owner, or null. */
@@ -40,13 +51,15 @@ export interface IngestDeps {
   /** Stores the transactions (if any) and updates the raw message's parse status in one go. */
   saveParsed(args: SaveParsedArgs): Promise<SaveResult>;
   /**
-   * Transfers of the opposite direction, same amount, from another bank, within 5 minutes of this one: a move
-   * between the owner's own accounts is reported once by each bank.
+   * Transfers of the opposite direction and the same amount within 5 minutes of this one (any bank, with the digits
+   * their SMS showed): a move between the owner's own accounts is reported once by each side.
    */
   findTransferCounterparts(
     userId: string,
     t: { type: string; bank: string; amountHalalas: number; occurredAt: string },
-  ): Promise<{ id: string; isInternal: boolean }[]>;
+  ): Promise<TransferCandidate[]>;
+  /** Saves accounts learned from a paired move as the user's own, skipping any last 4 that is already saved. */
+  saveOwnAccounts(userId: string, accounts: OwnAccount[]): Promise<void>;
   /** Flags stored transfers as internal (not spending) and files the uncategorised ones under Transfers. */
   markInternal(userId: string, ids: string[], transfersCategoryId: string | null): Promise<void>;
   obligations: ObligationDeps;
@@ -184,23 +197,32 @@ export async function handleIngest(req: Request, deps: IngestDeps): Promise<Resp
           rules: [] as Rule[],
         }));
         const built = buildRows(r.txn, await deps.loadOwnAccounts(found.userId));
-        // The other bank's message of the same move: tells an unmarked incoming transfer it is internal, or
-        // (below, once saved) an earlier incoming one. Best effort: a failed lookup leaves the rows as parsed.
+        // Every transfer is an expense (out) or income (in) until proven otherwise. It is proven internal when the
+        // other side is a saved account (buildRows) or when the other bank's message of the same move is already
+        // stored: an out and an in of the same amount a few minutes apart. Then both are internal, left out of the
+        // totals, and the accounts of the pair are saved. Best effort: a failed lookup leaves the rows as parsed.
         const head = built[0];
         let toMark: string[] = [];
+        let learned: OwnAccount[] = [];
         if (head.type === "transfer_in" || head.type === "transfer_out") {
           const others = await deps.findTransferCounterparts(found.userId, {
             type: head.type === "transfer_in" ? "transfer_out" : "transfer_in",
             bank: head.bank,
             amountHalalas: head.amount_halalas,
             occurredAt: head.occurred_at,
-          }).catch(() => []);
-          if (head.is_internal) {
-            toMark = others.filter((o) => !o.isInternal).map((o) => o.id);
-          } else if (others.some((o) => o.isInternal)) {
-            // Either direction: the other bank's message of the same move is already known to be internal.
+          }).catch(() => [] as TransferCandidate[]);
+          // The nearest candidate that is not already part of a pair wins (the lookup sorts by time gap).
+          // A partner that is already internal (it matched a saved account) still pairs, but only as a last resort.
+          const pair = others.find((o) => !o.isInternal && pairsWith(head, o)) ??
+            others.find((o) => o.isInternal && pairsWith(head, o));
+          if (pair) {
             head.is_internal = true;
             head.excluded_from_spend = true;
+            toMark = pair.isInternal ? [] : [pair.id];
+            learned = accountsOfPair(head, pair, KNOWN_BANKS);
+          } else if (head.is_internal) {
+            // Internal through a saved account: the other bank's message of the same move is internal too.
+            toMark = others.filter((o) => !o.isInternal && o.bank !== head.bank).map((o) => o.id);
           }
         }
         const rows = applyCategories(built, cat.rules, cat.ids);
@@ -212,9 +234,32 @@ export async function handleIngest(req: Request, deps: IngestDeps): Promise<Resp
           confidence: aiConfidence,
           rows,
         });
+        if (
+          !toMark.length && !head.is_internal &&
+          (head.type === "transfer_in" || head.type === "transfer_out")
+        ) {
+          // Two messages that arrive at the same moment both see no partner. Look again now that this one is stored.
+          const mine = new Set(Object.values(saved.ids));
+          const again = await deps.findTransferCounterparts(found.userId, {
+            type: head.type === "transfer_in" ? "transfer_out" : "transfer_in",
+            bank: head.bank,
+            amountHalalas: head.amount_halalas,
+            occurredAt: head.occurred_at,
+          }).catch(() => [] as TransferCandidate[]);
+          const late = again.find((o) => !mine.has(o.id) && !o.isInternal && pairsWith(head, o));
+          if (late) {
+            toMark = [late.id, ...mine];
+            learned = accountsOfPair(head, late, KNOWN_BANKS);
+          }
+        }
         if (toMark.length) {
           await deps.markInternal(found.userId, toMark, cat.ids["Transfers"] ?? null).catch((e) =>
             console.error("mark_internal_failed", (e as Error).message)
+          );
+        }
+        if (learned.length) {
+          await deps.saveOwnAccounts(found.userId, learned).catch((e) =>
+            console.error("save_own_accounts_failed", (e as Error).message)
           );
         }
         // The transaction is safe by now; tracking obligations is best effort and never fails the SMS.
