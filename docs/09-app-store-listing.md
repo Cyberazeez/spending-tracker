@@ -101,7 +101,7 @@ Tracking: **No** (no advertising, no analytics SDK, no data broker). All items b
 Data processors to keep in step with the policy: Supabase (Mumbai), Resend (email), Apple (sign-in), Anthropic (optional AI; only when the user turns it on). Age rating questionnaire: no objectionable content, no gambling, no unrestricted web access → **4+**. Export compliance: `ITSAppUsesNonExemptEncryption = false` is already set (HTTPS only). Account deletion: in the app (Account > Privacy > Delete my account), satisfies the review rule on deletion; Sign in with Apple is offered next to email + password.
 
 ## 6. Notes for App Review (paste into "Notes")
-> Spending Tracker records the user's spending from bank SMS. The SMS capture is optional: a user sets up an iOS Shortcut that forwards bank messages to the app; all features also work with purchases added by hand (Home > Add). To review without a bank, sign in with the demo account below and use Add to create a purchase.
+> Spending Tracker records the user's spending from bank SMS. The SMS capture is optional: a user sets up an iOS Shortcut that forwards bank messages to the app; all features also work with purchases added by hand (Quick add). To review without a bank, sign in with the demo account below and use Quick add to create a purchase.
 > Demo account: email <OWNER: create it> / password <OWNER: set it>. It has sample data.
 > Sign in with Apple is also offered. Account deletion is under Account > Privacy > Delete my account.
 > AI features are optional, off by default, and send only redacted text to Anthropic's API; they are not needed to review the app.
