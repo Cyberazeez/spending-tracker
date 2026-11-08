@@ -44,4 +44,27 @@ void main() {
     await running;
     expect(bridge.savedCredentials, isEmpty);
   });
+
+  test('a widget token the server revoked is replaced, a live one is kept', () async {
+    final tokens = FakeTokenRepository();
+    final bridge = FakeWidgetBridge()
+      ..hasToken = true
+      ..tokenUser = 'u1';
+    await ensureWidgetReady(bridge, tokens, () => 'u1');
+    expect(tokens.widgetRotateCalls, 0);
+    tokens.serverHasActive = false; // revoked on the server (password change, 90 days unused)
+    await ensureWidgetReady(bridge, tokens, () => 'u1');
+    expect(tokens.widgetRotateCalls, 1);
+    expect(bridge.savedCredentials, hasLength(1));
+  });
+
+  test('offline (the server cannot be asked) keeps the stored widget token', () async {
+    final tokens = FakeTokenRepository()..failHasActive = true;
+    final bridge = FakeWidgetBridge()
+      ..hasToken = true
+      ..tokenUser = 'u1';
+    await ensureWidgetReady(bridge, tokens, () => 'u1');
+    expect(tokens.widgetRotateCalls, 0);
+    expect(bridge.clears, 0);
+  });
 }

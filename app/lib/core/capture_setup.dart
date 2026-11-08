@@ -32,7 +32,8 @@ Future<void> _ensure(
       await bridge.clearCredentials();
       status = await bridge.status();
     }
-    if (!status.hasToken) {
+    // A token the server revoked (password change elsewhere, 90 days unused) is dead: replace it.
+    if (!status.hasToken || !await tokens.hasActive(kind: 'app')) {
       final token = await tokens.rotate(label: 'App', kind: 'app');
       if (currentUser() != userId) return; // signed out meanwhile
       await bridge.saveCredentials(AppConfig.supabaseUrl, token, userId);
@@ -44,7 +45,8 @@ Future<void> _ensure(
 }
 
 /// After a password change: a fresh app token replaces the old one. The offline queue is left alone, and if the phone
-/// is offline the old token simply stays (it is still valid), so there is never a moment without a token.
+/// is offline the change is picked up on the next resume: the server revoked the old token with the password change, and
+/// [ensureCaptureReady] notices that and fetches a new one. Anything queued on the phone is kept meanwhile.
 Future<void> renewCaptureToken(
   CaptureBridge bridge,
   TokenRepository tokens,
@@ -73,7 +75,7 @@ Future<void> _renew(
     await bridge.saveCredentials(AppConfig.supabaseUrl, token, userId);
     await bridge.flush();
   } catch (_) {
-    // Offline: the current token keeps working.
+    // Offline: the next resume finds the server-revoked token (hasActive) and replaces it.
   }
 }
 

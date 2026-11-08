@@ -14,7 +14,8 @@ create table auth.users (
   aud text,
   role text,
   email text,
-  last_sign_in_at timestamptz
+  last_sign_in_at timestamptz,
+  encrypted_password text
 );
 
 create table auth.sessions (

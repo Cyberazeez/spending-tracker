@@ -231,6 +231,16 @@ class FakeTokenRepository implements TokenRepository {
   int loadCalls = 0;
   bool failLoad = false;
 
+  /// What the server says about an active app/widget token (false = it was revoked there).
+  bool serverHasActive = true;
+  bool failHasActive = false;
+
+  @override
+  Future<bool> hasActive({required String kind}) async {
+    if (failHasActive) throw StateError('offline');
+    return serverHasActive;
+  }
+
   @override
   Future<IngestTokenInfo?> activeToken() async {
     loadCalls++;
