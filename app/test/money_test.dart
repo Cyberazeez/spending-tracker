@@ -53,4 +53,23 @@ void main() {
       expect(parseHalalas('0.29'), 29);
     });
   });
+
+  group('guessAmountFromSms', () {
+    test('finds the one amount written next to the riyal', () {
+      expect(guessAmountFromSms('حوالة صادرة داخلية ب384 SAR \nل0102* PERSON X'), '384');
+      expect(guessAmountFromSms('Purchase SAR 1,250.50 at Shop'), '1,250.50');
+      expect(guessAmountFromSms('مبلغ ٣٨٤٫٥٠ ريال'), '384.50');
+      expect(guessAmountFromSms('خصم 45 ر.س من حسابك'), '45');
+    });
+
+    test('gives nothing when there is no amount or two different ones', () {
+      expect(guessAmountFromSms('رمز التحقق 123456'), isNull);
+      expect(guessAmountFromSms('Paid SAR 100 balance SAR 2,500.00'), isNull);
+      expect(guessAmountFromSms(''), isNull);
+    });
+
+    test('the same amount written twice still counts as one', () {
+      expect(guessAmountFromSms('SAR 90 ... 90 SAR'), '90');
+    });
+  });
 }

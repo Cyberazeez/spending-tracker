@@ -36,3 +36,30 @@ int? parseHalalas(String input) {
       (parts.length > 1 ? int.parse(parts[1].padRight(2, '0')) : 0);
   return h > 0 ? h : null;
 }
+
+/// Best-effort amount in a bank SMS that no parser understood, to prefill "Add as transaction": the number written
+/// next to the riyal ("384 SAR", "SAR 384.50", "384 ر.س"). Null when there is none, or two different ones (for
+/// example a balance next to the amount), so the person types it instead of confirming a wrong guess.
+String? guessAmountFromSms(String body) {
+  final text = body
+      .replaceAll('٫', '.')
+      .replaceAll('٬', ',')
+      .replaceAllMapped(
+        RegExp('[٠-٩]'),
+        (m) => _arabicDigits.indexOf(m[0]!).toString(),
+      );
+  const number = r'(\d{1,3}(?:,\d{3})+(?:\.\d{1,2})?|\d+(?:\.\d{1,2})?)';
+  const unit = r'(?:SAR|SR|ر\.?\s?س|ريال)';
+  final found = <int, String>{};
+  for (final re in [
+    RegExp('$number\\s*$unit', caseSensitive: false),
+    RegExp('$unit\\s*:?\\s*$number', caseSensitive: false),
+  ]) {
+    for (final m in re.allMatches(text)) {
+      final raw = m.group(1)!;
+      final halalas = parseHalalas(raw);
+      if (halalas != null) found[halalas] = raw;
+    }
+  }
+  return found.length == 1 ? found.values.first : null;
+}

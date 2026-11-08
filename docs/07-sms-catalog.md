@@ -79,6 +79,7 @@ Source: the owner's screenshots (2026-10-30). Names, phone and account numbers a
 | حوالة محلية صادرة بـ SR (من 6331, لـ 6000;name, رسوم 0.58) | transfer_out (+fee) / internal | **`yy/M/d HH:mm`** |
 | حوالة محلية (مصرف:SAB/SNB, الرسوم, مرجع) | transfer_out | `HH:mm d-M-yy` |
 | حوالة داخلية صادرة / واردة / محلية واردة | transfer_out / transfer_in | `HH:mm d-M-yy` or **`yy-M-d HH:mm`** |
+| **Compact transfer layout (2026-11-08, from a tester):** `حوالة صادرة داخلية ب384 SAR` / `ل0102* <name>` / `08/11/26 17:49`: number before SAR, no label words, destination as `ل<last4>* <name>` | transfer_out | `dd/MM/yy HH:mm` |
 | OTP for Apple Pay, card added/removed, beneficiary added/activated, card approval/decline, card-expiry, tariff notices | ignored | |
 
 Two numeric orders appear for dates (`d-M-yy` and `yy-M-d`). Resolve with `received_at` proximity.

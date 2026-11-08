@@ -1,0 +1,14 @@
+{
+  "sender": "SNB-AlAhli",
+  "receivedAt": "2026-11-08T14:49:12.000Z",
+  "body": "حوالة صادرة داخلية ب384 SAR \nل0102* PERSON X \n08/11/26 17:49",
+  "expected": {
+    "kind": "transaction",
+    "type": "transfer_out",
+    "direction": "out",
+    "amountHalalas": 38400,
+    "counterpartyLast4": "0102",
+    "counterpartyName": "PERSON X",
+    "occurredAt": "2026-11-08T14:49:00.000Z"
+  }
+}
