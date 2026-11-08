@@ -42,6 +42,19 @@ const RULES = [
   },
 ];
 
+type Cand = import("../_shared/enrich.ts").TransferCandidate;
+/** A stored transfer that could be the other bank's message of the same move. */
+function cand(c: Partial<Cand> & { id: string }): Cand {
+  return {
+    isInternal: false,
+    type: "transfer_out",
+    bank: "barq",
+    accountLast4: null,
+    counterpartyLast4: null,
+    ...c,
+  };
+}
+
 async function setup(
   opts: {
     minute?: number;
@@ -51,7 +64,7 @@ async function setup(
     failObligations?: boolean;
     failNotice?: boolean;
     failPairLookup?: boolean;
-    counterparts?: { id: string; isInternal: boolean }[];
+    counterparts?: Cand[];
     obs?: Ob[];
     open?: Inst[];
     aiParse?: IngestDeps["aiParse"];
@@ -75,6 +88,7 @@ async function setup(
     occurredAt: string;
   }[] = [];
   const marked: { ids: string[]; cat: string | null }[] = [];
+  const learned: { bank: string; last4: string }[][] = [];
   const deps: IngestDeps = {
     aiParse: opts.aiParse,
     aiTrusted: opts.aiTrusted,
@@ -109,6 +123,10 @@ async function setup(
     },
     markInternal: (_u, ids, cat) => {
       marked.push({ ids, cat });
+      return Promise.resolve();
+    },
+    saveOwnAccounts: (_u, accounts) => {
+      learned.push(accounts);
       return Promise.resolve();
     },
     saveParsed: (a) => {
@@ -169,6 +187,7 @@ async function setup(
     refreshed: () => refreshed,
     transferLookups,
     marked,
+    learned,
   };
 }
 
@@ -558,7 +577,9 @@ Deno.test("ingest: a barq local transfer to an own account is internal, not spen
 });
 
 Deno.test("ingest: the other bank's incoming message of the same move is internal too", async () => {
-  const s = await setup({ counterparts: [{ id: "out1", isInternal: true }] });
+  const s = await setup({
+    counterparts: [cand({ id: "out1", isInternal: true, counterpartyLast4: "6000" })],
+  });
   await s.call(
     { sender: "alinma", body: ALINMA_IN, received_at: "2026-11-04T03:41:32Z" },
     { "x-ingest-token": s.token },
@@ -581,7 +602,9 @@ Deno.test("ingest: an incoming transfer with no matching own transfer stays real
 });
 
 Deno.test("ingest: an own-account transfer out finds the incoming row that arrived first and marks it", async () => {
-  const s = await setup({ counterparts: [{ id: "in1", isInternal: false }] });
+  const s = await setup({
+    counterparts: [cand({ id: "in1", type: "transfer_in", bank: "alinma", accountLast4: "6000" })],
+  });
   await s.call(
     { sender: "barq app", body: BARQ_LOCAL, received_at: "2026-11-04T03:40:58Z" },
     { "x-ingest-token": s.token },
@@ -591,7 +614,9 @@ Deno.test("ingest: an own-account transfer out finds the incoming row that arriv
 });
 
 Deno.test("ingest: an outgoing transfer is internal when the incoming one of the same move already is", async () => {
-  const s = await setup({ counterparts: [{ id: "in1", isInternal: true }] });
+  const s = await setup({
+    counterparts: [cand({ id: "in1", isInternal: true, type: "transfer_in", bank: "alinma" })],
+  });
   await s.call(
     {
       sender: "barq app",
@@ -604,6 +629,61 @@ Deno.test("ingest: an outgoing transfer is internal when the incoming one of the
   assert.equal(row.type, "transfer_out");
   assert.equal(row.is_internal, true);
   assert.equal(row.excluded_from_spend, true);
+});
+
+Deno.test("ingest: an out and an in of the same amount a minute apart are one internal move: both left out, accounts saved", async () => {
+  // Al Rajhi sends 50.00 from 1111 to 2222; SNB's message about the same move arrives second
+  const s = await setup({
+    counterparts: [
+      cand({
+        id: "out1",
+        bank: "alrajhi",
+        accountLast4: "1111",
+        counterpartyLast4: "2222",
+      }),
+    ],
+  });
+  await s.call(
+    {
+      sender: "SNB-AlAhli",
+      body: "حوالة واردة\nمبلغ:SAR 50\nمرسل:PERSON A\nمن:*1111\nإلى:*2222\nفي:06:41 04/11/26",
+      received_at: "2026-11-04T03:41:32Z",
+    },
+    { "x-ingest-token": s.token },
+  );
+  const row = s.saved[0].rows[0];
+  assert.equal(row.type, "transfer_in");
+  assert.equal(row.is_internal, true);
+  assert.equal(row.excluded_from_spend, true);
+  assert.deepEqual(s.marked, [{ ids: ["out1"], cat: "c-transfers" }]);
+  assert.deepEqual(s.learned, [[
+    { bank: "alrajhi", last4: "1111" },
+    { bank: "snb", last4: "2222" },
+  ]]);
+});
+
+Deno.test("ingest: a pair whose digits point at different accounts is two separate payments, not one internal move", async () => {
+  // the out went to 9999, but the in landed on 6000 from an unrelated account
+  const s = await setup({
+    counterparts: [cand({ id: "out1", bank: "barq", counterpartyLast4: "9999" })],
+  });
+  await s.call(
+    { sender: "alinma", body: ALINMA_IN, received_at: "2026-11-04T03:41:32Z" },
+    { "x-ingest-token": s.token },
+  );
+  assert.equal(s.saved[0].rows[0].is_internal, false, "stays income");
+  assert.deepEqual(s.marked, []);
+  assert.deepEqual(s.learned, []);
+});
+
+Deno.test("ingest: a transfer with no matching message stays an expense or income and learns nothing", async () => {
+  const s = await setup({ counterparts: [] });
+  await s.call(
+    { sender: "alinma", body: ALINMA_IN, received_at: "2026-11-04T03:41:32Z" },
+    { "x-ingest-token": s.token },
+  );
+  assert.equal(s.saved[0].rows[0].is_internal, false);
+  assert.deepEqual(s.learned, []);
 });
 
 Deno.test("ingest: a failed counterpart lookup never costs the transaction", async () => {

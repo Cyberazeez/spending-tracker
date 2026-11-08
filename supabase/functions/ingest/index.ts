@@ -81,10 +81,9 @@ const deps: IngestDeps = {
   },
   async findTransferCounterparts(userId, t) {
     const at = new Date(t.occurredAt).getTime();
-    const { data, error } = await db.from("transactions").select("id, is_internal").eq(
-      "user_id",
-      userId,
-    ).eq("type", t.type).eq("amount_halalas", t.amountHalalas).neq("bank", t.bank).is(
+    const { data, error } = await db.from("transactions").select(
+      "id, is_internal, type, bank, account_last4, counterparty_last4",
+    ).eq("user_id", userId).eq("type", t.type).eq("amount_halalas", t.amountHalalas).is(
       "deleted_at",
       null,
     ).gte("occurred_at", new Date(at - 5 * 60000).toISOString()).lte(
@@ -92,7 +91,30 @@ const deps: IngestDeps = {
       new Date(at + 5 * 60000).toISOString(),
     ).limit(5);
     if (error) throw new Error("counterpart_lookup_failed");
-    return (data ?? []).map((r) => ({ id: r.id as string, isInternal: !!r.is_internal }));
+    return (data ?? []).map((r) => ({
+      id: r.id as string,
+      isInternal: !!r.is_internal,
+      type: r.type as string,
+      bank: r.bank as string,
+      accountLast4: (r.account_last4 as string | null) ?? null,
+      counterpartyLast4: (r.counterparty_last4 as string | null) ?? null,
+    }));
+  },
+  async saveOwnAccounts(userId, accounts) {
+    const { data, error } = await db.from("own_accounts").select("last4").eq("user_id", userId);
+    if (error) throw new Error("own_accounts_failed");
+    const have = new Set((data ?? []).map((a) => a.last4 as string));
+    const fresh: { bank: string; last4: string }[] = [];
+    for (const a of accounts) {
+      if (have.has(a.last4)) continue; // already saved (under any bank): skip
+      have.add(a.last4);
+      fresh.push(a);
+    }
+    if (!fresh.length) return;
+    const { error: e } = await db.from("own_accounts").insert(
+      fresh.map((a) => ({ user_id: userId, bank: a.bank, last4: a.last4, kind: "account" })),
+    );
+    if (e) throw new Error("own_accounts_save_failed");
   },
   async markInternal(userId, ids, transfersCategoryId) {
     const { error } = await db.from("transactions").update({
