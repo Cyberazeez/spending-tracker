@@ -1982,6 +1982,30 @@ abstract class AppLocalizations {
   /// **'AI suggested'**
   String get txChipAi;
 
+  /// No description provided for @txDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get txDelete;
+
+  /// No description provided for @txDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this transaction?'**
+  String get txDeleteTitle;
+
+  /// No description provided for @txDeleteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It will no longer be counted in your budget, your insights or anywhere else in the app. This can\'t be undone.'**
+  String get txDeleteBody;
+
+  /// No description provided for @txDeleteFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not delete it. Check your connection and try again.'**
+  String get txDeleteFailed;
+
   /// No description provided for @accountTitle.
   ///
   /// In en, this message translates to:

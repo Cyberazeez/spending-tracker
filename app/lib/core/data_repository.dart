@@ -35,6 +35,9 @@ abstract class DataRepository {
   Future<List<RawMessage>> needsReview();
   Future<void> addManual(ManualTxn t);
 
+  /// Removes a transaction from every total (budgets, insights, widget): it is marked deleted and no query returns it.
+  Future<void> deleteTransaction(String id);
+
   /// Turns an unparsed SMS into a transaction typed in by hand and marks the SMS as handled.
   Future<void> convertRaw(String rawId, ManualTxn t);
   Future<void> dismissRaw(String rawId);
@@ -286,6 +289,14 @@ class SupabaseDataRepository implements DataRepository {
         .from('raw_messages')
         .update({'parse_status': 'parsed', 'transaction_id': inserted['id']})
         .eq('id', rawId);
+  }
+
+  @override
+  Future<void> deleteTransaction(String id) async {
+    await _db
+        .from('transactions')
+        .update({'deleted_at': DateTime.now().toUtc().toIso8601String()})
+        .eq('id', id);
   }
 
   @override

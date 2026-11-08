@@ -19,12 +19,14 @@ import '../../ui/app_form.dart';
 import '../../ui/bottom_inset.dart';
 import '../../ui/empty_state.dart';
 import '../../ui/skeleton.dart';
+import '../../ui/swipe_action.dart';
 import '../../ui/tokens.dart';
 import '../ai/widgets/suggest_categories_card.dart';
 import '../obligations/logic.dart' show riyadhToday;
 import 'category_actions.dart';
 import 'day_groups.dart';
 import 'providers.dart';
+import 'txn_delete.dart';
 import 'widgets/filter_chips.dart';
 import 'widgets/txn_row.dart';
 
@@ -203,6 +205,8 @@ class TransactionsPage extends ConsumerWidget {
                               byId: byId,
                               onPick: (txn) =>
                                   pickCategory(context, ref, txn, cats),
+                              onDelete: (txn) =>
+                                  confirmAndDeleteTxn(context, ref, txn),
                             ),
                           ),
                         );
@@ -224,6 +228,7 @@ class _DayBlock extends StatelessWidget {
     required this.arabic,
     required this.byId,
     required this.onPick,
+    required this.onDelete,
   });
 
   final String label;
@@ -231,6 +236,7 @@ class _DayBlock extends StatelessWidget {
   final bool arabic;
   final Map<String, Category> byId;
   final void Function(Txn) onPick;
+  final Future<void> Function(Txn) onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -251,21 +257,38 @@ class _DayBlock extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 4),
+          // The rows run edge to edge so a swiped row can slide its whole width; the 14 px side margin is inside them.
           AppCard(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
-            child: Column(
-              children: [
-                for (var i = 0; i < group.items.length; i++) ...[
-                  TxnRow(
-                    txn: group.items[i],
-                    arabic: arabic,
-                    category: byId[group.items[i].categoryId],
-                    onTap: () => onPick(group.items[i]),
-                  ),
-                  if (i < group.items.length - 1)
-                    SizedBox(height: 1, child: ColoredBox(color: line)),
+            padding: const EdgeInsets.symmetric(vertical: 2),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(AppTokens.radiusCard),
+              child: Column(
+                children: [
+                  for (var i = 0; i < group.items.length; i++) ...[
+                    SwipeAction(
+                      label: AppLocalizations.of(context).txDelete,
+                      onAction: () => onDelete(group.items[i]),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 14),
+                        child: TxnRow(
+                          txn: group.items[i],
+                          arabic: arabic,
+                          category: byId[group.items[i].categoryId],
+                          onTap: () => onPick(group.items[i]),
+                        ),
+                      ),
+                    ),
+                    if (i < group.items.length - 1)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 14),
+                        child: SizedBox(
+                          height: 1,
+                          child: ColoredBox(color: line),
+                        ),
+                      ),
+                  ],
                 ],
-              ],
+              ),
             ),
           ),
         ],
