@@ -258,6 +258,44 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
                   ),
                 ),
               );
+              // "Next month" can be opened and closed again: the heading is the button, with a chevron that shows the state.
+              Widget collapsibleHeading(String title) => SliverToBoxAdapter(
+                child: Semantics(
+                  button: true,
+                  expanded: _nextOpen,
+                  label: title,
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => setState(() => _nextOpen = !_nextOpen),
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 4, 20, 8),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: ExcludeSemantics(
+                              child: Text(
+                                title,
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: muted,
+                                ),
+                              ),
+                            ),
+                          ),
+                          Icon(
+                            _nextOpen
+                                ? LucideIcons.chevronUp
+                                : LucideIcons.chevronDown,
+                            size: 16,
+                            color: muted,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              );
               final suggestionCards = [
                 for (final s in suggestions)
                   pad(
@@ -482,7 +520,7 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
                     ),
                   ],
                   if (nextRows.isNotEmpty) ...[
-                    heading(
+                    collapsibleHeading(
                       t.obGroupNext(
                         monthName(nextCycle(today), arabic: arabic),
                       ),

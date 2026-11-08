@@ -83,6 +83,14 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Murabahah'), findsOneWidget);
       expect(find.text('Far one'), findsOneWidget);
+      // and it can be folded again by tapping its heading
+      await tester.tap(find.text('Next month · November'));
+      await tester.pumpAndSettle();
+      expect(find.text('Murabahah'), findsNothing);
+      expect(find.text('2 bills'), findsOneWidget);
+      await tester.tap(find.text('Next month · November'));
+      await tester.pumpAndSettle();
+      expect(find.text('Murabahah'), findsOneWidget);
     },
   );
 

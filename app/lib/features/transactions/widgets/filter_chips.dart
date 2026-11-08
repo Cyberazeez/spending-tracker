@@ -1,10 +1,29 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/models.dart';
 import '../../../core/providers.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/tokens.dart';
 import '../providers.dart';
+
+enum QuickFilter { noCategory, ai, hideInternal }
+
+/// The filter after tapping a quick chip: that chip on and the other two off, or all three off when it was already
+/// on. Picking "No category" also drops a chosen category (they contradict each other).
+TxFilter quickFilter(TxFilter f, QuickFilter chip) {
+  final wasOn = switch (chip) {
+    QuickFilter.noCategory => f.uncategorizedOnly,
+    QuickFilter.ai => f.aiOnly,
+    QuickFilter.hideInternal => f.hideInternal,
+  };
+  return f.copyWith(
+    uncategorizedOnly: !wasOn && chip == QuickFilter.noCategory,
+    aiOnly: !wasOn && chip == QuickFilter.ai,
+    hideInternal: !wasOn && chip == QuickFilter.hideInternal,
+    categoryId: !wasOn && chip == QuickFilter.noCategory ? null : f.categoryId,
+  );
+}
 
 /// Quick filters under the search box. They drive the same [txFilterProvider] as the filter sheet.
 /// [reviewCount] > 0 adds a chip that opens the inbox of messages that could not be read.
@@ -55,26 +74,23 @@ class FilterChips extends ConsumerWidget {
             selected: true,
             onTap: () => ctl.set(f.copyWith(categoryId: null)),
           ),
+        // The three quick filters are one choice: picking one clears the others (No category and AI suggested can
+        // never match together, and a stack of filters is hard to read). Tapping the chosen one goes back to All.
         _Chip(
           label: t.txChipNoCategory,
           dot: const Color(0xFFFFB340),
           selected: f.uncategorizedOnly,
-          onTap: () => ctl.set(
-            f.copyWith(
-              uncategorizedOnly: !f.uncategorizedOnly,
-              categoryId: null,
-            ),
-          ),
+          onTap: () => ctl.set(quickFilter(f, QuickFilter.noCategory)),
         ),
         _Chip(
           label: t.txChipAi,
           selected: f.aiOnly,
-          onTap: () => ctl.set(f.copyWith(aiOnly: !f.aiOnly)),
+          onTap: () => ctl.set(quickFilter(f, QuickFilter.ai)),
         ),
         _Chip(
           label: t.txChipHideInternal,
           selected: f.hideInternal,
-          onTap: () => ctl.set(f.copyWith(hideInternal: !f.hideInternal)),
+          onTap: () => ctl.set(quickFilter(f, QuickFilter.hideInternal)),
         ),
         if (reviewCount > 0 && onlyBase)
           _Chip(
