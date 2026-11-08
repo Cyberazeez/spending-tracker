@@ -16,6 +16,12 @@ export function effectiveSpent(
   return allSpentHalalas >= globalCapHalalas ? Number.MAX_SAFE_INTEGER : userSpentHalalas;
 }
 
+/** Start of the current Riyadh calendar month (UTC+3) as an ISO instant, the window the monthly AI cap counts over. */
+export function riyadhMonthStartIso(now: Date = new Date()): string {
+  const r = new Date(now.getTime() + 3 * 3600 * 1000);
+  return new Date(Date.UTC(r.getUTCFullYear(), r.getUTCMonth(), 1, -3)).toISOString();
+}
+
 export function globalCapFromEnv(raw: string | undefined): number {
   const n = Number(raw);
   return Number.isFinite(n) && n > 0 ? Math.floor(n) : DEFAULT_GLOBAL_CAP_HALALAS;

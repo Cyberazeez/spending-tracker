@@ -5,7 +5,8 @@ import { parseIngestPayload } from "../_shared/request.ts";
 import { isWellFormedToken, sha256Hex } from "../_shared/token.ts";
 import { applyCategories, buildRows, type OwnAccount, type TxRow } from "../_shared/enrich.ts";
 import type { CategoryIds, Rule } from "../_shared/categorize.ts";
-import { parseSms } from "../_shared/parsers/index.ts";
+import { type ParseResult, parseSms } from "../_shared/parsers/index.ts";
+import type { AiParseOutcome } from "../_shared/ai_parse.ts";
 import { applyNotice, applyTransactions, type ObligationDeps } from "./obligations_flow.ts";
 
 export const RATE_LIMIT_PER_MINUTE = 60;
@@ -49,6 +50,16 @@ export interface IngestDeps {
   /** Flags stored transfers as internal (not spending) and files the uncategorised ones under Transfers. */
   markInternal(userId: string, ids: string[], transfersCategoryId: string | null): Promise<void>;
   obligations: ObligationDeps;
+  /**
+   * Reads an SMS that no regex parser understood, with AI. Only for paying accounts that switched AI reading on; the
+   * implementation returns null otherwise. Optional: without it ingest behaves exactly as before.
+   */
+  aiParse?(
+    userId: string,
+    sender: string,
+    body: string,
+    receivedAt: Date,
+  ): Promise<AiParseOutcome | null>;
 }
 
 /** Ids of the stored transactions by type (a transfer and its fee are two rows of one SMS). */
@@ -60,7 +71,9 @@ export interface SaveParsedArgs {
   userId: string;
   rawId: string;
   parser: string;
-  status: "parsed" | "ignored";
+  status: "parsed" | "ignored" | "ai_parsed";
+  /** How sure the reader was (1 for regex parsers). */
+  confidence?: number;
   ignoreReason?: string;
   /** The parser recognised a one-time code the generic filter missed: blank the stored body. */
   redactBody?: boolean;
@@ -129,7 +142,28 @@ export async function handleIngest(req: Request, deps: IngestDeps): Promise<Resp
 
   if (id !== null && !otp) {
     try {
-      const r = parseSms(sender, body, receivedAt);
+      let r: ParseResult = parseSms(sender, body, receivedAt);
+      let aiConfidence: number | undefined;
+      if (r.kind === "unparsed" && deps.aiParse) {
+        // The AI reading never blocks ingest: any problem leaves the message in Needs review as before.
+        const ai = await deps.aiParse(found.userId, sender, body, receivedAt).catch((e) => {
+          console.error("ai_parse_failed", (e as Error).message);
+          return null;
+        });
+        if (ai?.ok) {
+          const a = ai.result;
+          if (a.kind === "transaction") {
+            aiConfidence = a.confidence;
+            r = {
+              kind: "transaction",
+              parser: a.parser,
+              txn: { bank: "other", ...a.txn },
+            };
+          } else if (a.kind === "ignored") {
+            r = { kind: "ignored", parser: a.parser, reason: a.reason };
+          }
+        }
+      }
       if (r.kind === "transaction") {
         // A failed rules load must not cost the transaction: save it uncategorised.
         const cat = await deps.loadCategorization(found.userId).catch(() => ({
@@ -161,7 +195,8 @@ export async function handleIngest(req: Request, deps: IngestDeps): Promise<Resp
           userId: found.userId,
           rawId: id,
           parser: r.parser,
-          status: "parsed",
+          status: aiConfidence === undefined ? "parsed" : "ai_parsed",
+          confidence: aiConfidence,
           rows,
         });
         if (toMark.length) {

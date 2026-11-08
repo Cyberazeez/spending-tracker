@@ -11,7 +11,8 @@ export type TxType =
   | "loan_installment"
   | "fee";
 
-export type Bank = "alrajhi" | "snb" | "alinma" | "barq" | "d360" | "stc";
+/** "other" is a bank without a parser, read by the AI fallback (see _shared/ai_parse.ts). */
+export type Bank = "alrajhi" | "snb" | "alinma" | "barq" | "d360" | "stc" | "other";
 
 export interface ParsedTxn {
   bank: Bank;

@@ -8,6 +8,7 @@ import {
   type SaveParsedArgs,
 } from "./handler.ts";
 import type { Inst, Ob } from "../_shared/obligations.ts";
+import type { AiParseOutcome } from "../_shared/ai_parse.ts";
 import { generateToken, sha256Hex } from "../_shared/token.ts";
 
 const OWN = [
@@ -53,6 +54,7 @@ async function setup(
     counterparts?: { id: string; isInternal: boolean }[];
     obs?: Ob[];
     open?: Inst[];
+    aiParse?: IngestDeps["aiParse"];
   } = {},
 ) {
   const token = generateToken();
@@ -73,6 +75,7 @@ async function setup(
   }[] = [];
   const marked: { ids: string[]; cat: string | null }[] = [];
   const deps: IngestDeps = {
+    aiParse: opts.aiParse,
     findToken: (h) => Promise.resolve(h === hash ? { id: "tok1", userId: "user1" } : null),
     bumpRateLimit: (_user, window) =>
       Promise.resolve(window === "minute" ? (opts.minute ?? 1) : (opts.day ?? 1)),
@@ -636,7 +639,9 @@ Deno.test("ingest: a bill SMS whose instance cannot be saved is retried, not los
   const opts = { obs: [NET_OB], failNotice: true };
   const s = await setup(opts);
   const f = JSON.parse(BILL_BODY);
-  const first = await s.call({ sender: f.sender, body: f.body, received_at: f.receivedAt }).catch(() => null);
+  const first = await s.call({ sender: f.sender, body: f.body, received_at: f.receivedAt }).catch(
+    () => null,
+  );
   assert.equal(first, null, "the call fails so the app sends it again");
   assert.equal(s.rows[0].parse_status, "needs_review");
   assert.equal(s.saved.length, 0, "not marked parsed");
@@ -646,4 +651,152 @@ Deno.test("ingest: a bill SMS whose instance cannot be saved is retried, not los
   assert.equal(s.noticeInstances.length, 1, "the instance is created on the retry");
   assert.equal(s.saved.length, 1);
   assert.equal(s.saved[0].status, "parsed");
+});
+
+// ---------------------------------------------------------------------------------------------------------------
+// AI fallback for messages no regex parser understands
+
+const UNKNOWN_BANK = {
+  sender: "NewBank",
+  body: "Purchase SAR 47.50 at MCDONALDS RIYADH card 8920 on 2026-10-26 17:19",
+  received_at: "2026-10-26T14:19:05Z",
+};
+const AI_TXN: AiParseOutcome = {
+  ok: true,
+  costHalalas: 1,
+  result: {
+    kind: "transaction",
+    parser: "ai/v1",
+    confidence: 0.93,
+    txn: {
+      type: "purchase",
+      direction: "out",
+      amountHalalas: 4750,
+      merchant: "MCDONALDS RIYADH",
+      cardLast4: "8920",
+      occurredAt: "2026-10-26T14:19:00.000Z",
+    },
+  },
+};
+
+Deno.test("ingest AI: an unknown bank is read by AI, saved as ai_parsed with its confidence, and categorised", async () => {
+  const calls: string[][] = [];
+  const s = await setup({
+    aiParse: (u, sender, body) => {
+      calls.push([u, sender, body]);
+      return Promise.resolve(AI_TXN);
+    },
+  });
+  const res = await s.call(UNKNOWN_BANK);
+  assert.equal(res.status, 200);
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0][0], "user1");
+  assert.equal(s.saved.length, 1);
+  const saved = s.saved[0];
+  assert.equal(saved.status, "ai_parsed");
+  assert.equal(saved.parser, "ai/v1");
+  assert.equal(saved.confidence, 0.93);
+  assert.equal(saved.rows[0].bank, "other");
+  assert.equal(saved.rows[0].amount_halalas, 4750);
+  assert.equal(saved.rows[0].type, "purchase");
+  assert.equal(saved.rows[0].merchant_norm, "mcdonalds riyadh");
+  assert.equal(saved.rows[0].is_internal, false);
+});
+
+Deno.test("ingest AI: a credit-card payoff read by AI is internal, not spending", async () => {
+  const s = await setup({
+    aiParse: () =>
+      Promise.resolve({
+        ok: true,
+        costHalalas: 1,
+        result: {
+          kind: "transaction",
+          parser: "ai/v1",
+          confidence: 0.9,
+          txn: {
+            type: "card_payment",
+            direction: "out",
+            amountHalalas: 1483450,
+            occurredAt: "2026-10-26T14:19:00.000Z",
+          },
+        },
+      }),
+  });
+  await s.call(UNKNOWN_BANK);
+  assert.equal(s.saved[0].rows[0].is_internal, true);
+  assert.equal(s.saved[0].rows[0].excluded_from_spend, true);
+});
+
+Deno.test("ingest AI: a rejected, failed or unavailable reading leaves the message in Needs review and still answers 200", async () => {
+  const cases: IngestDeps["aiParse"][] = [
+    () =>
+      Promise.resolve({
+        ok: true,
+        costHalalas: 1,
+        result: { kind: "rejected", reason: "amount_not_in_sms" },
+      }),
+    () => Promise.resolve({ ok: false, reason: "failed" }),
+    () => Promise.resolve(null),
+    () => Promise.reject(new Error("anthropic down")),
+    undefined,
+  ];
+  for (const aiParse of cases) {
+    const s = await setup({ aiParse });
+    const res = await s.call(UNKNOWN_BANK);
+    assert.equal(res.status, 200);
+    assert.equal(s.saved.length, 0);
+    assert.equal(s.rows[0].parse_status, "needs_review");
+  }
+});
+
+Deno.test("ingest AI: marketing or declined messages are ignored, a one-time code is also blanked", async () => {
+  for (const reason of ["marketing", "declined", "otp"] as const) {
+    const s = await setup({
+      aiParse: () =>
+        Promise.resolve({
+          ok: true,
+          costHalalas: 1,
+          result: { kind: "ignored", parser: "ai/v1", reason },
+        }),
+    });
+    await s.call({ ...UNKNOWN_BANK, body: "Special offer 20% off this week" });
+    assert.equal(s.saved[0].status, "ignored");
+    assert.equal(s.saved[0].ignoreReason, reason);
+    assert.equal(s.saved[0].redactBody, reason === "otp");
+  }
+});
+
+Deno.test("ingest AI: formats the regex parsers know never reach the model", async () => {
+  let called = 0;
+  const s = await setup({
+    aiParse: () => {
+      called++;
+      return Promise.resolve(AI_TXN);
+    },
+  });
+  await s.call(SMS); // a known barq purchase
+  assert.equal(called, 0);
+  assert.equal(s.saved[0].parser.startsWith("barq"), true);
+  assert.equal(s.saved[0].status, "parsed");
+});
+
+Deno.test("ingest AI: a bill notice stays in Needs review for now (nothing is saved from it)", async () => {
+  const s = await setup({
+    aiParse: () =>
+      Promise.resolve({
+        ok: true,
+        costHalalas: 1,
+        result: {
+          kind: "bill_notice",
+          parser: "ai/v1",
+          amountHalalas: 69200,
+          dueDate: "2026-11-28",
+          confidence: 0.9,
+        },
+      }),
+  });
+  const res = await s.call({ ...UNKNOWN_BANK, body: "Electricity bill SAR 692.00 due 2026-11-28" });
+  assert.equal(res.status, 200);
+  assert.equal(s.saved.length, 0);
+  assert.equal(s.rows[0].parse_status, "needs_review");
 });
