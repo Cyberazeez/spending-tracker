@@ -15,18 +15,24 @@ class ManualTxnForm extends StatefulWidget {
     required this.onSave,
     this.initialTime,
     this.initialMerchant,
+    this.initialAmount,
   });
 
   final Future<void> Function(ManualTxn txn) onSave;
   final DateTime? initialTime;
   final String? initialMerchant;
 
+  /// Amount text to start with (a guess read from an unparsed SMS); the person can change it.
+  final String? initialAmount;
+
   @override
   State<ManualTxnForm> createState() => _ManualTxnFormState();
 }
 
 class _ManualTxnFormState extends State<ManualTxnForm> {
-  final _amount = TextEditingController();
+  late final TextEditingController _amount = TextEditingController(
+    text: widget.initialAmount,
+  );
   late final TextEditingController _merchant = TextEditingController(
     text: widget.initialMerchant,
   );

@@ -66,6 +66,7 @@ class ReviewPage extends ConsumerWidget {
           child: SafeArea(
             child: ManualTxnForm(
               initialTime: m.receivedAt,
+              initialAmount: guessAmountFromSms(m.body),
               onSave: (txn) async {
                 await ref.read(dataRepositoryProvider).convertRaw(m.id, txn);
                 ref.invalidate(needsReviewProvider);

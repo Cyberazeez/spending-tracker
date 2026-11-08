@@ -11,7 +11,9 @@ export function parseSnb(rawBody: string, receivedAt: Date): ParseResult {
   const head = ls[0] ?? "";
   const one = (re: RegExp) => body.match(re)?.[1]?.trim();
   const at = pickDate(body, receivedAt);
-  const amount = one(new RegExp(`(?:مبلغ|بـ)\\s*:?\\s*SAR\\s*${NUM}`));
+  // "مبلغ:SAR 470" / "بـ SAR 470", and the newer transfer layout with the number first: "ب384 SAR"
+  const amount = one(new RegExp(`(?:مبلغ|بـ)\\s*:?\\s*SAR\\s*${NUM}`)) ??
+    one(new RegExp(`(?:مبلغ|ب\\u0640?)\\s*:?\\s*${NUM}\\s*SAR`));
   const fee = one(new RegExp(`رسوم\\s*:?\\s*SAR\\s*${NUM}`));
   const tx = (t: ParsedTxn): ParseResult => ({ kind: "transaction", parser: P, txn: strip(t) });
   const feeH = fee && toHalalas(fee) > 0 ? toHalalas(fee) : undefined;
@@ -73,7 +75,9 @@ export function parseSnb(rawBody: string, receivedAt: Date): ParseResult {
       });
     }
     // outgoing: "من *0102" is the source; destination account is "إلى *6000" or "آيبان *6000"
-    const name = one(/^(?:مستفيد|إلى)\s*:?\s*(?!\*)(.+)$/m);
+    // Newer layout: "ل0102* <name>" (last four of the destination account, then the name)
+    const dest = body.match(/^ل\u0640?\s*\*?\s*(\d{4})\s*\*?[ \t]*(.*)$/m);
+    const name = one(/^(?:مستفيد|إلى)\s*:?\s*(?!\*)(.+)$/m) ?? (dest?.[2]?.trim() || undefined);
     return tx({
       bank: "snb",
       type: "transfer_out",
@@ -81,7 +85,7 @@ export function parseSnb(rawBody: string, receivedAt: Date): ParseResult {
       amountHalalas: toHalalas(amount),
       feeHalalas: feeH,
       counterpartyName: name,
-      counterpartyLast4: last4(one(/^(?:إلى|آيبان)\s*:?\s*\*(\d{4})/m)),
+      counterpartyLast4: last4(one(/^(?:إلى|آيبان)\s*:?\s*\*(\d{4})/m) ?? dest?.[1]),
       accountLast4: last4(one(/^من\s*:?\s*\*(\d{4})/m)),
       occurredAt: at,
     });
