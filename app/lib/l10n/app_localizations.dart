@@ -2378,6 +2378,24 @@ abstract class AppLocalizations {
   /// **'Add'**
   String get bankSave;
 
+  /// No description provided for @bankEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit account'**
+  String get bankEdit;
+
+  /// No description provided for @bankSaveEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get bankSaveEdit;
+
+  /// No description provided for @bankRemoveNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Your past transactions are kept and keep counting.'**
+  String get bankRemoveNote;
+
   /// No description provided for @bankLast4Invalid.
   ///
   /// In en, this message translates to:

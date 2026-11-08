@@ -1277,6 +1277,15 @@ class AppLocalizationsAr extends AppLocalizations {
   String get bankSave => 'إضافة';
 
   @override
+  String get bankEdit => 'تعديل الحساب';
+
+  @override
+  String get bankSaveEdit => 'حفظ';
+
+  @override
+  String get bankRemoveNote => 'تبقى معاملاتك السابقة كما هي ولا تتأثر.';
+
+  @override
   String get bankLast4Invalid => 'أدخل 4 أرقام بالضبط.';
 
   @override

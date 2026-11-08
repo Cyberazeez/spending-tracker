@@ -150,7 +150,10 @@ class _WelcomeCardState extends ConsumerState<WelcomeCard> {
               ],
             ),
             Text(
-              t.welcomeProgress(w.done.toString(), WelcomeState.total.toString()),
+              t.welcomeProgress(
+                w.done.toString(),
+                WelcomeState.total.toString(),
+              ),
               style: TextStyle(color: muted, fontSize: 13),
             ),
             const SizedBox(height: 8),

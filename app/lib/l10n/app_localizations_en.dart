@@ -1284,6 +1284,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bankSave => 'Add';
 
   @override
+  String get bankEdit => 'Edit account';
+
+  @override
+  String get bankSaveEdit => 'Save';
+
+  @override
+  String get bankRemoveNote =>
+      'Your past transactions are kept and keep counting.';
+
+  @override
   String get bankLast4Invalid => 'Enter exactly 4 digits.';
 
   @override

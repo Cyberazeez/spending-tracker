@@ -56,7 +56,10 @@ void main() {
 
   group('guessAmountFromSms', () {
     test('finds the one amount written next to the riyal', () {
-      expect(guessAmountFromSms('حوالة صادرة داخلية ب384 SAR \nل0102* PERSON X'), '384');
+      expect(
+        guessAmountFromSms('حوالة صادرة داخلية ب384 SAR \nل0102* PERSON X'),
+        '384',
+      );
       expect(guessAmountFromSms('Purchase SAR 1,250.50 at Shop'), '1,250.50');
       expect(guessAmountFromSms('مبلغ ٣٨٤٫٥٠ ريال'), '384.50');
       expect(guessAmountFromSms('خصم 45 ر.س من حسابك'), '45');

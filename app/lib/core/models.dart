@@ -428,12 +428,11 @@ class OwnAccount {
   });
 
   final String id;
-  final String bank; // alrajhi | snb | alinma | barq | d360 | stc
+  final String bank; // a code from bankList (banks.dart)
   final String last4;
   final String kind; // account | debit_card | credit_card | wallet
   final String? label;
 
-  static const banks = ['alrajhi', 'snb', 'alinma', 'barq', 'd360', 'stc'];
   static const kinds = ['account', 'debit_card', 'credit_card', 'wallet'];
 
   factory OwnAccount.fromRow(Map<String, dynamic> r) => OwnAccount(

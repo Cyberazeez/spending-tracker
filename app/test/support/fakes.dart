@@ -543,6 +543,33 @@ class FakeDataRepository implements DataRepository {
   }
 
   @override
+  Future<void> updateOwnAccount({
+    required String id,
+    required String bank,
+    required String last4,
+    required String kind,
+    String? label,
+  }) async {
+    if (accountDuplicate) {
+      throw const PostgrestException(message: 'dup', code: '23505');
+    }
+    accountCalls.add('upd:$id:$bank:$last4:$kind:${label ?? ''}');
+    accounts = [
+      for (final a in accounts)
+        if (a.id == id)
+          OwnAccount(
+            id: id,
+            bank: bank,
+            last4: last4,
+            kind: kind,
+            label: (label == null || label.trim().isEmpty) ? null : label,
+          )
+        else
+          a,
+    ];
+  }
+
+  @override
   Future<void> deleteOwnAccount(String id) async {
     accountCalls.add('del:$id');
     accounts = [
