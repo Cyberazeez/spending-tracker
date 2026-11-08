@@ -107,6 +107,24 @@ void main() {
     expect(tester.widget<CupertinoSwitch>(sw).value, isTrue);
   });
 
+  testWidgets(
+    'an account that is not on the paid plan has no AI switch, only a note',
+    (tester) async {
+      final h = await open(tester, aiOn: true);
+      h.data.aiPaid =
+          false; // AI switch was on, but the server says the plan is not paid
+      await tester.tap(find.text('More').last);
+      await tester.pumpAndSettle();
+      expect(find.text('AI assistant'), findsOneWidget);
+      expect(find.textContaining('Part of the paid plan'), findsOneWidget);
+      expect(
+        find.byType(CupertinoSwitch).evaluate().length,
+        1,
+      ); // only the other switch on the page
+      expect(await h.data.aiEnabled(), isFalse);
+    },
+  );
+
   testWidgets('a failed save of the switch snaps back and says so', (
     tester,
   ) async {

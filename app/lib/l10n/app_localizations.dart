@@ -1814,6 +1814,12 @@ abstract class AppLocalizations {
   /// **'AI assistant'**
   String get aiTitle;
 
+  /// No description provided for @aiPaidOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Part of the paid plan. Coming soon.'**
+  String get aiPaidOnly;
+
   /// No description provided for @aiSubtitle.
   ///
   /// In en, this message translates to:

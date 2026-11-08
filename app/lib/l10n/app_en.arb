@@ -636,6 +636,7 @@
   },
   "obfNameTaken": "You already have an obligation with this name.",
   "aiTitle": "AI assistant",
+  "aiPaidOnly": "Part of the paid plan. Coming soon.",
   "aiSubtitle": "Sends only totals and merchant names. Never message text, names or account numbers.",
   "aiTipsTitle": "AI tips",
   "aiTipsGet": "Get tips",
