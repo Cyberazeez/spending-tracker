@@ -1068,6 +1068,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get txChipAi => 'AI suggested';
 
   @override
+  String get txDelete => 'Delete';
+
+  @override
+  String get txDeleteTitle => 'Delete this transaction?';
+
+  @override
+  String get txDeleteBody =>
+      'It will no longer be counted in your budget, your insights or anywhere else in the app. This can\'t be undone.';
+
+  @override
+  String get txDeleteFailed =>
+      'Could not delete it. Check your connection and try again.';
+
+  @override
   String get accountTitle => 'Account';
 
   @override

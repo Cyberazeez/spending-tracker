@@ -346,6 +346,8 @@ class FakeDataRepository implements DataRepository {
   final added = <ManualTxn>[];
   final converted = <String, ManualTxn>{};
   final dismissed = <String>[];
+  final deletedTxns = <String>[];
+  bool failDelete = false;
 
   @override
   Future<List<Txn>> recentTransactions({
@@ -365,6 +367,16 @@ class FakeDataRepository implements DataRepository {
       if (filter.aiOnly && t.categorySource != 'ai') return false;
       return true;
     }).toList();
+  }
+
+  @override
+  Future<void> deleteTransaction(String id) async {
+    if (failDelete) throw StateError('offline');
+    deletedTxns.add(id);
+    txns = [
+      for (final t in txns)
+        if (t.id != id) t,
+    ];
   }
 
   @override

@@ -213,6 +213,56 @@ void main() {
     expect(find.text('− 19.00 ⃁'), findsOneWidget);
     expect(find.textContaining('بدون فئة'), findsWidgets);
   });
+
+  testWidgets('swipe a row, Delete asks first, and only a confirm removes it', (
+    tester,
+  ) async {
+    final h = Harness(signedIn: true)
+      ..data.txns = [
+        tx('1', 'purchase', 'out', 1900, merchant: 'OTTEN'),
+        tx('2', 'purchase', 'out', 4500, merchant: 'Jarir'),
+      ];
+    await openTransactions(tester, h);
+
+    await tester.drag(find.text('OTTEN'), const Offset(-150, 0));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Delete').first);
+    await tester.pumpAndSettle();
+    expect(find.text('Delete this transaction?'), findsOneWidget);
+    expect(find.textContaining("This can't be undone."), findsOneWidget);
+
+    // Cancel leaves everything as it was
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+    expect(h.data.deletedTxns, isEmpty);
+    expect(find.text('OTTEN'), findsOneWidget);
+
+    // Confirm removes it from the list and tells the server
+    await tester.drag(find.text('OTTEN'), const Offset(-150, 0));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Delete').first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Delete').last);
+    await tester.pumpAndSettle();
+    expect(h.data.deletedTxns, ['1']);
+    expect(find.text('OTTEN'), findsNothing);
+    expect(find.text('Jarir'), findsOneWidget);
+  });
+
+  testWidgets('a failed delete says so and keeps the row', (tester) async {
+    final h = Harness(signedIn: true)
+      ..data.failDelete = true
+      ..data.txns = [tx('1', 'purchase', 'out', 1900, merchant: 'OTTEN')];
+    await openTransactions(tester, h);
+    await tester.drag(find.text('OTTEN'), const Offset(-150, 0));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Delete').first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Delete').last);
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Could not delete it'), findsOneWidget);
+    expect(find.text('OTTEN'), findsOneWidget);
+  });
 }
 
 DateTime h0() => DateTime.now().toUtc().subtract(const Duration(minutes: 5));

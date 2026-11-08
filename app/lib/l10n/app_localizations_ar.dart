@@ -1065,6 +1065,19 @@ class AppLocalizationsAr extends AppLocalizations {
   String get txChipAi => 'اقتراح الذكاء';
 
   @override
+  String get txDelete => 'حذف';
+
+  @override
+  String get txDeleteTitle => 'حذف هذه العملية؟';
+
+  @override
+  String get txDeleteBody =>
+      'لن تُحتسب بعد الآن في ميزانيتك أو تحليلاتك أو أي مكان آخر في التطبيق. لا يمكن التراجع عن الحذف.';
+
+  @override
+  String get txDeleteFailed => 'تعذّر الحذف. تحقق من اتصالك وحاول مرة أخرى.';
+
+  @override
   String get accountTitle => 'الحساب';
 
   @override
