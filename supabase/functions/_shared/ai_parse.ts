@@ -266,8 +266,10 @@ export interface AiParseDeps {
   fetch: typeof fetch;
   /** Server-side paid-plan flag (`ai_allowed`), never a client value. */
   aiAllowed: boolean;
-  capHalalas: number;
-  spentHalalas(): Promise<number>;
+  /** Reserve the worst-case cost before the call (atomic); false when a cap would be passed. */
+  reserve(estimateHalalas: number): Promise<boolean>;
+  /** Give the reservation back when the call failed before it was billed. */
+  release(): Promise<void>;
   recordUsage(u: { inputTokens: number; outputTokens: number; costHalalas: number }): Promise<void>;
 }
 
@@ -290,7 +292,10 @@ export async function parseWithAi(
   const el = eligibleForAi(body);
   if (!el.ok) return { ok: false, reason: "not_eligible", detail: el.reason };
   try {
-    if ((await deps.spentHalalas()) >= deps.capHalalas) return { ok: false, reason: "cap_reached" };
+    const prompt = buildPrompt(sender.slice(0, 40), redactForAi(body));
+    if (!(await deps.reserve(costHalalas(prompt.length, MAX_TOKENS_PARSE)))) {
+      return { ok: false, reason: "cap_reached" };
+    }
     const res = await deps.fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
@@ -301,7 +306,7 @@ export async function parseWithAi(
       body: JSON.stringify({
         model: MODEL,
         max_tokens: MAX_TOKENS_PARSE,
-        messages: [{ role: "user", content: buildPrompt(sender.slice(0, 40), redactForAi(body)) }],
+        messages: [{ role: "user", content: prompt }],
       }),
     });
     if (!res.ok) return { ok: false, reason: "failed" };
@@ -321,5 +326,7 @@ export async function parseWithAi(
     };
   } catch {
     return { ok: false, reason: "failed" };
+  } finally {
+    await deps.release();
   }
 }

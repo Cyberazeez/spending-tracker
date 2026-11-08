@@ -140,7 +140,10 @@ export async function generateTips(
   if (!deps.aiEnabled) return { ok: false, reason: "disabled" };
   if (!deps.apiKey) return { ok: false, reason: "no_key" };
   try {
-    if ((await deps.spentHalalas()) >= deps.capHalalas) return { ok: false, reason: "cap_reached" };
+    const prompt = buildPrompt(a, language);
+    if (!(await deps.reserve(costHalalas(prompt.length, MAX_TOKENS_TIPS)))) {
+      return { ok: false, reason: "cap_reached" };
+    }
     const res = await deps.fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
@@ -151,7 +154,7 @@ export async function generateTips(
       body: JSON.stringify({
         model: MODEL,
         max_tokens: MAX_TOKENS_TIPS,
-        messages: [{ role: "user", content: buildPrompt(a, language) }],
+        messages: [{ role: "user", content: prompt }],
       }),
     });
     if (!res.ok) return { ok: false, reason: "failed" };
@@ -171,5 +174,7 @@ export async function generateTips(
     return { ok: true, tips, costHalalas: cost };
   } catch {
     return { ok: false, reason: "failed" };
+  } finally {
+    await deps.release();
   }
 }

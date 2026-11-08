@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { INGEST_TOKEN_KINDS } from "../_shared/token.ts";
-import { effectiveSpent, globalCapFromEnv, riyadhMonthStartIso } from "../_shared/ai_budget.ts";
+import { riyadhMonthStartIso } from "../_shared/ai_budget.ts";
+import { createBudget } from "../_shared/ai_reserve.ts";
 import { parseWithAi } from "../_shared/ai_parse.ts";
 import { AI_TRUST_AFTER, handleIngest, type IngestDeps } from "./handler.ts";
 
@@ -241,36 +242,19 @@ const deps: IngestDeps = {
       p_window: "day",
     });
     if (rlErr || Number(n) > AI_PARSE_LIMIT_PER_DAY) return null;
+    const budget = createBudget(db, {
+      userId,
+      purpose: "parse",
+      userCapHalalas: Number(s.ai_monthly_cap_halalas),
+      monthStartIso: riyadhMonthStartIso(),
+      globalCapEnv: Deno.env.get("AI_GLOBAL_CAP_HALALAS"),
+    });
     return await parseWithAi(
       {
         apiKey: Deno.env.get("ANTHROPIC_API_KEY"),
         fetch,
         aiAllowed: true,
-        capHalalas: Number(s.ai_monthly_cap_halalas),
-        async spentHalalas() {
-          const { data, error: e } = await db.rpc("ai_spend_summary", {
-            p_user: userId,
-            p_since: riyadhMonthStartIso(),
-          });
-          const row = Array.isArray(data) ? data[0] : data;
-          if (e || !row) throw new Error("usage_read_failed");
-          return effectiveSpent(
-            Number(row.mine_halalas),
-            Number(row.total_halalas),
-            globalCapFromEnv(Deno.env.get("AI_GLOBAL_CAP_HALALAS")),
-          );
-        },
-        async recordUsage(u) {
-          const { error: e } = await db.from("ai_usage").insert({
-            user_id: userId,
-            day: new Date().toISOString().slice(0, 10),
-            purpose: "parse",
-            input_tokens: u.inputTokens,
-            output_tokens: u.outputTokens,
-            cost_halalas: u.costHalalas,
-          });
-          if (e) throw new Error("usage_write_failed");
-        },
+        ...budget,
       },
       sender,
       body,

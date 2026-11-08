@@ -1,6 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { aiActive } from "../_shared/ai.ts";
-import { effectiveSpent, globalCapFromEnv } from "../_shared/ai_budget.ts";
+import { createBudget } from "../_shared/ai_reserve.ts";
 import { generateChat, sanitizeMessages } from "../_shared/chat.ts";
 import { sanitizeAggregates } from "../_shared/tips.ts";
 
@@ -72,37 +72,19 @@ Deno.serve(async (req) => {
     if (rlErr) throw new Error("rate_limit_failed");
     if (Number(used) > CHAT_LIMIT_PER_DAY) return json(200, { ok: false, reason: "cap_reached" });
 
+    const budget = createBudget(db, {
+      userId,
+      purpose: "chat",
+      userCapHalalas: Number(settings.data.ai_monthly_cap_halalas),
+      monthStartIso: monthStartUtc(),
+      globalCapEnv: Deno.env.get("AI_GLOBAL_CAP_HALALAS"),
+    });
     const result = await generateChat(
       {
         apiKey: Deno.env.get("ANTHROPIC_API_KEY"),
         fetch,
         aiEnabled: aiActive(settings.data),
-        capHalalas: Number(settings.data.ai_monthly_cap_halalas),
-        async spentHalalas() {
-          // This user's spend against their own cap, plus one ceiling over all users (see _shared/ai_budget.ts).
-          const { data, error } = await db.rpc("ai_spend_summary", {
-            p_user: userId,
-            p_since: monthStartUtc(),
-          });
-          const row = Array.isArray(data) ? data[0] : data;
-          if (error || !row) throw new Error("usage_read_failed");
-          return effectiveSpent(
-            Number(row.mine_halalas),
-            Number(row.total_halalas),
-            globalCapFromEnv(Deno.env.get("AI_GLOBAL_CAP_HALALAS")),
-          );
-        },
-        async recordUsage(x) {
-          const { error } = await db.from("ai_usage").insert({
-            user_id: userId,
-            day: new Date().toISOString().slice(0, 10),
-            purpose: "chat",
-            input_tokens: x.inputTokens,
-            output_tokens: x.outputTokens,
-            cost_halalas: x.costHalalas,
-          });
-          if (error) throw new Error("usage_write_failed");
-        },
+        ...budget,
       },
       agg,
       messages,
