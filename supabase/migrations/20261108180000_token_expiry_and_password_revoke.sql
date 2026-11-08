@@ -1,5 +1,6 @@
 -- Device tokens no longer live forever.
--- 1. Idle expiry: a token (any kind) not used for 90 days is revoked by a daily job. The phone notices that it has no
+-- 1. Idle expiry: an app or widget token not used for 90 days is revoked by a daily job. The hand-pasted shortcut
+--    token is excluded: nothing in the app can replace it, so expiring it would silently stop SMS capture. The phone notices that it has no
 --    active token on the server and asks for a new one (see ensureCaptureReady / ensureWidgetReady in the app).
 -- 2. A password change (or reset) revokes the app and widget tokens at once, on the server, so a stolen phone's
 --    tokens stop working even when the phone that changed the password is offline. The shortcut token is kept: it is
@@ -15,7 +16,8 @@ declare
   n int;
 begin
   update public.ingest_tokens set revoked_at = now()
-   where revoked_at is null and coalesce(last_used_at, created_at) < now() - interval '90 days';
+   where revoked_at is null and kind in ('app', 'widget')
+     and coalesce(last_used_at, created_at) < now() - interval '90 days';
   get diagnostics n = row_count;
   return n;
 end;

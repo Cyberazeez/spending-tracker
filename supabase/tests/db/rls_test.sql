@@ -607,17 +607,20 @@ begin
     insert into auth.users (id, aud, role, email, encrypted_password) values (tu, 'authenticated', 'authenticated', 'rls-tokens@example.test', 'old-hash');
     insert into public.ingest_tokens (user_id, token_hash, kind, last_used_at) values
       (tu, 'tok-app', 'app', now()),
-      (tu, 'tok-widget', 'widget', now()),
+      (tu, 'tok-widget', 'widget', now() - interval '91 days'),
       (tu, 'tok-shortcut', 'shortcut', now() - interval '91 days');
-    -- a token unused for 90 days is revoked; used and never-used-but-new ones are not
-    if public.expire_idle_ingest_tokens() <> 1 then raise exception 'idle expiry did not revoke exactly the stale token'; end if;
-    select count(*) into n from public.ingest_tokens where user_id = tu and token_hash = 'tok-shortcut' and revoked_at is not null;
-    if n <> 1 then raise exception 'the idle shortcut token was not revoked'; end if;
-    select count(*) into n from public.ingest_tokens where user_id = tu and revoked_at is null;
-    if n <> 2 then raise exception 'idle expiry revoked a token in use'; end if;
-    insert into public.ingest_tokens (user_id, token_hash, kind, created_at) values (tu, 'tok-never-used-old', 'shortcut', now() - interval '100 days');
-    if public.expire_idle_ingest_tokens() <> 1 then raise exception 'a never-used token older than 90 days was not revoked'; end if;
-    -- a clients cannot run it
+    -- an app/widget token unused for 90 days is revoked; used ones are not; the hand-pasted shortcut token is never expired
+    if public.expire_idle_ingest_tokens() <> 1 then raise exception 'idle expiry did not revoke exactly the stale widget token'; end if;
+    select count(*) into n from public.ingest_tokens where user_id = tu and token_hash = 'tok-widget' and revoked_at is not null;
+    if n <> 1 then raise exception 'the idle widget token was not revoked'; end if;
+    select count(*) into n from public.ingest_tokens where user_id = tu and token_hash = 'tok-shortcut' and revoked_at is null;
+    if n <> 1 then raise exception 'idle expiry revoked the shortcut token'; end if;
+    update public.ingest_tokens set revoked_at = now() where user_id = tu and token_hash = 'tok-app';
+    insert into public.ingest_tokens (user_id, token_hash, kind, created_at) values (tu, 'tok-app-never-used-old', 'app', now() - interval '100 days');
+    if public.expire_idle_ingest_tokens() <> 1 then raise exception 'a never-used app token older than 90 days was not revoked'; end if;
+    update public.ingest_tokens set revoked_at = null where user_id = tu and token_hash = 'tok-app';
+    insert into public.ingest_tokens (user_id, token_hash, kind) values (tu, 'tok-widget-new', 'widget');
+    -- clients cannot run it
     denied := false;
     perform set_config('request.jwt.claims', json_build_object('sub', tu, 'role', 'authenticated')::text, true);
     set local role authenticated;
@@ -625,7 +628,6 @@ begin
     reset role;
     if not denied then raise exception 'a client can run expire_idle_ingest_tokens'; end if;
     -- a password change revokes the app and widget tokens, not the shortcut token, and only on a real change
-    insert into public.ingest_tokens (user_id, token_hash, kind) values (tu, 'tok-shortcut-live', 'shortcut');
     update auth.users set email = 'rls-tokens2@example.test' where id = tu;
     select count(*) into n from public.ingest_tokens where user_id = tu and revoked_at is null and kind in ('app', 'widget');
     if n <> 2 then raise exception 'a non-password update revoked device tokens'; end if;
@@ -654,6 +656,7 @@ begin
       (su, 'bank-b', 'x', now() - interval '9 days', 'sb1'),
       (so, 'bank-c', 'x', now(), 'sc1');
     select id into cat_ex from public.categories where user_id = su and excluded_from_spend limit 1;
+    if cat_ex is null then raise exception 'no excluded-from-spend category was seeded for the sums test'; end if;
     insert into public.transactions (user_id, direction, type, amount_halalas, occurred_at, is_internal, excluded_from_spend, category_id) values
       (su, 'out', 'purchase', 1000, now(), false, false, null),
       (su, 'out', 'purchase', 2500, now(), false, false, null),
@@ -663,9 +666,7 @@ begin
       (su, 'out', 'purchase', 5555, now(), false, true, null),
       (su, 'out', 'purchase', 6666, now() - interval '40 days', false, false, null),
       (so, 'out', 'purchase', 123456, now(), false, false, null);
-    if cat_ex is not null then
-      insert into public.transactions (user_id, direction, type, amount_halalas, occurred_at, category_id) values (su, 'out', 'purchase', 8888, now(), cat_ex);
-    end if;
+    insert into public.transactions (user_id, direction, type, amount_halalas, occurred_at, category_id) values (su, 'out', 'purchase', 8888, now(), cat_ex);
     perform set_config('request.jwt.claims', json_build_object('sub', su, 'role', 'authenticated')::text, true);
     set local role authenticated;
     select count(*) into gaps from public.my_sender_gaps();

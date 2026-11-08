@@ -42,7 +42,7 @@ Future<void> _ensure(
   }
 }
 
-/// After a password change: a fresh widget token replaces the old one (kept as is when the phone is offline).
+/// After a password change: a fresh widget token replaces the old one (when the phone is offline the next resume replaces the server-revoked one).
 Future<void> renewWidgetToken(
   WidgetBridge bridge,
   TokenRepository tokens,
