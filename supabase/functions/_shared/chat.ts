@@ -72,7 +72,11 @@ export async function generateChat(
   if (!deps.aiEnabled) return { ok: false, reason: "disabled" };
   if (!deps.apiKey) return { ok: false, reason: "no_key" };
   try {
-    if ((await deps.spentHalalas()) >= deps.capHalalas) return { ok: false, reason: "cap_reached" };
+    const system = buildSystem(a, language);
+    const inputChars = system.length + messages.reduce((n, m) => n + m.content.length, 0);
+    if (!(await deps.reserve(costHalalas(inputChars, MAX_TOKENS_CHAT)))) {
+      return { ok: false, reason: "cap_reached" };
+    }
     const res = await deps.fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
@@ -83,7 +87,7 @@ export async function generateChat(
       body: JSON.stringify({
         model: MODEL,
         max_tokens: MAX_TOKENS_CHAT,
-        system: buildSystem(a, language),
+        system,
         messages,
       }),
     });
@@ -99,5 +103,7 @@ export async function generateChat(
     return { ok: true, reply, costHalalas: cost };
   } catch {
     return { ok: false, reason: "failed" };
+  } finally {
+    await deps.release();
   }
 }

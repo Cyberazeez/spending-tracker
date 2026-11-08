@@ -47,9 +47,10 @@ export interface AiDeps {
   apiKey: string | undefined;
   fetch: typeof fetch;
   aiEnabled: boolean;
-  capHalalas: number;
-  /** Halalas already spent this Riyadh month. */
-  spentHalalas(): Promise<number>;
+  /** Reserve the worst-case cost before the call (atomic); false when a cap would be passed. */
+  reserve(estimateHalalas: number): Promise<boolean>;
+  /** Give the reservation back when the call failed before it was billed. */
+  release(): Promise<void>;
   recordUsage(u: { inputTokens: number; outputTokens: number; costHalalas: number }): Promise<void>;
 }
 
@@ -83,13 +84,15 @@ export async function categorizeMerchants(
   );
   if (!masked.length) return { ok: true, categories: {}, costHalalas: 0 };
   try {
-    if ((await deps.spentHalalas()) >= deps.capHalalas) return { ok: false, reason: "cap_reached" };
     const prompt = [
       "Assign each merchant name (from Saudi bank SMS, Arabic or English, often abbreviated) to exactly one category.",
       `Categories: ${categoryNames.join(", ")}.`,
       'Reply with only a JSON object mapping each merchant string to a category, or to "Other" if unsure. No explanation and no markdown.',
       `Merchants: ${JSON.stringify(masked)}`,
     ].join("\n");
+    if (!(await deps.reserve(costHalalas(prompt.length, MAX_TOKENS_CATEGORIZE)))) {
+      return { ok: false, reason: "cap_reached" };
+    }
     const res = await deps.fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
@@ -126,5 +129,7 @@ export async function categorizeMerchants(
     return { ok: true, categories, costHalalas: cost };
   } catch {
     return { ok: false, reason: "failed" };
+  } finally {
+    await deps.release();
   }
 }

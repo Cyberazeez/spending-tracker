@@ -17,8 +17,8 @@ function deps(over: Partial<AiDeps> & { reply?: unknown; status?: number } = {})
   const d: AiDeps = {
     apiKey: "sk-test",
     aiEnabled: true,
-    capHalalas: 1900,
-    spentHalalas: () => Promise.resolve(0),
+    reserve: () => Promise.resolve(true),
+    release: () => Promise.resolve(),
     recordUsage: (u) => {
       usage.push(u);
       return Promise.resolve();
@@ -77,7 +77,7 @@ Deno.test("disabled and keyless: no network call at all", async () => {
 });
 
 Deno.test("at or over the monthly cap: no network call", async () => {
-  const x = deps({ spentHalalas: () => Promise.resolve(1900) });
+  const x = deps({ reserve: () => Promise.resolve(false) });
   assert.deepEqual(await categorizeMerchants(x.d, ["x"], CATS), {
     ok: false,
     reason: "cap_reached",
@@ -262,4 +262,23 @@ Deno.test("AI runs only for paying accounts that also switched it on", async () 
   // a missing or odd value never counts as allowed
   assert.equal(aiActive({ ai_enabled: true } as never), false);
   assert.equal(aiActive({ ai_enabled: true, ai_allowed: "true" } as never), false);
+});
+
+Deno.test("the cost is reserved before the call, and given back when the call fails", async () => {
+  const events: string[] = [];
+  const x = deps({
+    status: 500,
+    reserve: (est) => {
+      assert.ok(est >= 1);
+      events.push("reserve");
+      return Promise.resolve(true);
+    },
+    release: () => {
+      events.push("release");
+      return Promise.resolve();
+    },
+  });
+  assert.deepEqual(await categorizeMerchants(x.d, ["x"], CATS), { ok: false, reason: "failed" });
+  assert.deepEqual(events, ["reserve", "release"]);
+  assert.equal(x.usage.length, 0);
 });

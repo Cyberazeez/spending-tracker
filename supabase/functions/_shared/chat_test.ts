@@ -37,8 +37,8 @@ function deps(
       );
     }) as typeof fetch,
     aiEnabled: true,
-    capHalalas: 500,
-    spentHalalas: () => Promise.resolve(0),
+    reserve: () => Promise.resolve(true),
+    release: () => Promise.resolve(),
     recordUsage: (u) => {
       calls.used.push(u.costHalalas);
       return Promise.resolve();
@@ -110,7 +110,7 @@ Deno.test("chat: disabled, no key and cap reached make no network call", async (
     const [over, reason] of [
       [{ aiEnabled: false }, "disabled"],
       [{ apiKey: undefined }, "no_key"],
-      [{ spentHalalas: () => Promise.resolve(1000) }, "cap_reached"],
+      [{ reserve: () => Promise.resolve(false) }, "cap_reached"],
     ] as const
   ) {
     const calls = { n: 0, body: "", used: [] as number[] };

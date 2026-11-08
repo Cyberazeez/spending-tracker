@@ -178,8 +178,8 @@ function deps(
   const d: AiParseDeps = {
     apiKey: "k",
     aiAllowed: true,
-    capHalalas: 1000,
-    spentHalalas: () => Promise.resolve(0),
+    reserve: () => Promise.resolve(true),
+    release: () => Promise.resolve(),
     recordUsage: (u) => {
       usage.push(u);
       return Promise.resolve();
@@ -220,7 +220,7 @@ Deno.test("free accounts, a missing key, the monthly cap, transfers and OTPs nev
     const [over, body, why] of [
       [{ aiAllowed: false }, PURCHASE, "not_allowed"],
       [{ apiKey: undefined }, PURCHASE, "no_key"],
-      [{ spentHalalas: () => Promise.resolve(1000) }, PURCHASE, "cap_reached"],
+      [{ reserve: () => Promise.resolve(false) }, PURCHASE, "cap_reached"],
       [{}, "تحويل صادر إلى سارة مبلغ 100 SAR", "not_eligible"],
       [{}, "Your OTP is 4821", "not_eligible"],
     ] as [Partial<AiParseDeps>, string, string][]
