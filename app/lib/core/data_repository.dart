@@ -301,22 +301,18 @@ class SupabaseDataRepository implements DataRepository {
 
   @override
   Future<List<SenderGap>> senderGaps() async {
-    final rows = await _db
-        .from('raw_messages')
-        .select('sender, received_at')
-        .order('received_at', ascending: false)
-        .limit(500);
-    final latest = <String, DateTime>{};
-    for (final r in rows) {
-      latest.putIfAbsent(
-        r['sender'] as String,
-        () => DateTime.parse(r['received_at'] as String).toUtc(),
-      );
-    }
-    return latest.entries
-        .map((e) => SenderGap(sender: e.key, lastReceivedAt: e.value))
-        .toList()
-      ..sort((a, b) => a.lastReceivedAt!.compareTo(b.lastReceivedAt!));
+    // Summed in the database (oldest first): reading the newest rows here would silently drop quiet senders.
+    final rows = await _db.rpc('my_sender_gaps') as List;
+    return rows
+        .map<SenderGap>(
+          (r) => SenderGap(
+            sender: r['sender'] as String,
+            lastReceivedAt: DateTime.parse(
+              r['last_received_at'] as String,
+            ).toUtc(),
+          ),
+        )
+        .toList();
   }
 
   @override
@@ -663,30 +659,12 @@ class SupabaseDataRepository implements DataRepository {
   /// Spending since [start], by the same rule as the Insights month total and the widget server:
   /// outgoing money that is not internal, flagged or in an excluded category (Transfers, Income), minus refunds.
   Future<int> _spendSince(DateTime start) async {
-    final rows = await _db
-        .from('transactions')
-        .select('amount_halalas, direction, type, category_id')
-        .eq('is_internal', false)
-        .eq('excluded_from_spend', false)
-        .isFilter('deleted_at', null)
-        .gte('occurred_at', start.toIso8601String())
-        .limit(1000);
-    final cats = await _db
-        .from('categories')
-        .select('id')
-        .eq('excluded_from_spend', true);
-    final excluded = {for (final c in cats) c['id'] as String};
-    var sum = 0;
-    for (final r in rows) {
-      if (excluded.contains(r['category_id'])) continue;
-      final amount = (r['amount_halalas'] as num).toInt();
-      if (r['direction'] == 'out') {
-        sum += amount;
-      } else if (r['type'] == 'refund') {
-        sum -= amount;
-      }
-    }
-    return sum;
+    // Summed in the database (an API read returns at most 1000 rows, the rest would be left out).
+    final v = await _db.rpc(
+      'my_spend_since',
+      params: {'p_start': start.toUtc().toIso8601String()},
+    );
+    return (v as num).toInt();
   }
 
   @override

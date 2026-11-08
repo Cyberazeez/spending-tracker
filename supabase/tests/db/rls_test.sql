@@ -636,5 +636,52 @@ begin
     if n <> 1 then raise exception 'a password change revoked the shortcut token'; end if;
   end;
 
+  -- Server-side sums (2026-11-08): sender gaps and spend, scoped to the caller by RLS
+  reset role;
+  declare
+    su uuid := '00000000-0000-0000-0000-0000000000f8';
+    so uuid := '00000000-0000-0000-0000-0000000000f9';
+    cat_ex uuid;
+    spend bigint;
+    gaps int;
+  begin
+    insert into auth.users (id, aud, role, email) values
+      (su, 'authenticated', 'authenticated', 'rls-sums@example.test'),
+      (so, 'authenticated', 'authenticated', 'rls-sums-other@example.test');
+    insert into public.raw_messages (user_id, sender, body, received_at, dedupe_hash) values
+      (su, 'bank-a', 'x', now() - interval '3 days', 'sa1'),
+      (su, 'bank-a', 'x', now() - interval '1 day', 'sa2'),
+      (su, 'bank-b', 'x', now() - interval '9 days', 'sb1'),
+      (so, 'bank-c', 'x', now(), 'sc1');
+    select id into cat_ex from public.categories where user_id = su and excluded_from_spend limit 1;
+    insert into public.transactions (user_id, direction, type, amount_halalas, occurred_at, is_internal, excluded_from_spend, category_id) values
+      (su, 'out', 'purchase', 1000, now(), false, false, null),
+      (su, 'out', 'purchase', 2500, now(), false, false, null),
+      (su, 'in',  'refund',   400,  now(), false, false, null),
+      (su, 'in',  'salary',   99999, now(), false, false, null),
+      (su, 'out', 'transfer_out', 7777, now(), true, true, null),
+      (su, 'out', 'purchase', 5555, now(), false, true, null),
+      (su, 'out', 'purchase', 6666, now() - interval '40 days', false, false, null),
+      (so, 'out', 'purchase', 123456, now(), false, false, null);
+    if cat_ex is not null then
+      insert into public.transactions (user_id, direction, type, amount_halalas, occurred_at, category_id) values (su, 'out', 'purchase', 8888, now(), cat_ex);
+    end if;
+    perform set_config('request.jwt.claims', json_build_object('sub', su, 'role', 'authenticated')::text, true);
+    set local role authenticated;
+    select count(*) into gaps from public.my_sender_gaps();
+    if gaps <> 2 then raise exception 'my_sender_gaps returned % senders for the caller, expected 2', gaps; end if;
+    if (select sender from public.my_sender_gaps() limit 1) <> 'bank-b' then raise exception 'my_sender_gaps is not oldest first'; end if;
+    -- 1000 + 2500 - 400 = 3100 (internal, excluded, income-direction non-refund, other user, old and excluded-category rows left out)
+    spend := public.my_spend_since(now() - interval '30 days');
+    if spend <> 3100 then raise exception 'my_spend_since returned %, expected 3100', spend; end if;
+    reset role;
+    denied := false;
+    perform set_config('request.jwt.claims', '{"role":"anon"}', true);
+    set local role anon;
+    begin perform public.my_spend_since(now() - interval '30 days'); exception when insufficient_privilege then denied := true; end;
+    reset role;
+    if not denied then raise exception 'anon can call my_spend_since'; end if;
+  end;
+
   raise exception 'RLS_TESTS_OK';
 end $$;
