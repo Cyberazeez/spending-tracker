@@ -1,3 +1,4 @@
+import Security
 import SwiftUI
 import UIKit
 import WidgetKit
@@ -88,17 +89,15 @@ private struct Remote {
 }
 
 private func fetchRemote(completion: @escaping (Remote?) -> Void) {
-    guard let defaults = UserDefaults(suiteName: appGroup),
-          let base = defaults.string(forKey: "widget.url"),
-          let token = defaults.string(forKey: "widget.token"),
-          let url = URL(string: base.trimmingCharacters(in: CharacterSet(charactersIn: "/")) + "/functions/v1/widget-summary")
+    guard let credentials = WidgetKeychain.load(),
+          let url = URL(string: credentials.url.trimmingCharacters(in: CharacterSet(charactersIn: "/")) + "/functions/v1/widget-summary")
     else {
         completion(nil)
         return
     }
     var request = URLRequest(url: url, timeoutInterval: 15)
     request.httpMethod = "GET"
-    request.setValue(token, forHTTPHeaderField: "x-widget-token")
+    request.setValue(credentials.token, forHTTPHeaderField: "x-widget-token")
     URLSession.shared.dataTask(with: request) { data, response, _ in
         guard let http = response as? HTTPURLResponse else {
             completion(nil)  // offline: keep showing the last numbers
@@ -109,7 +108,7 @@ private func fetchRemote(completion: @escaping (Remote?) -> Void) {
             // 401 must not wipe a good token. The app then provisions a new one the next time it opens.
             let error = data.flatMap { try? JSONSerialization.jsonObject(with: $0) as? [String: Any] }?["error"] as? String
             if error == "unauthorized" {
-                defaults.removeObject(forKey: "widget.token")
+                WidgetKeychain.clear()
             }
             completion(nil)
             return
@@ -276,4 +275,59 @@ struct SpendingTrackerWidget: Widget {
         .description("Spent today, spent this month and your monthly budget.")
         .supportedFamilies([.systemSmall, .systemMedium, .accessoryCircular, .accessoryRectangular, .accessoryInline])
     }
+}
+
+/// The widget's read-only token lives in the Keychain, in an access group shared by the app and the widget extension
+/// (not in the App Group's UserDefaults, which is a plain file any process with the group can read and which is
+/// included in unencrypted-backup tooling). The group name comes from Info.plist (`SharedKeychainGroup`, expanded
+/// from $(AppIdentifierPrefix) at build time). The same helper exists in the other target (they cannot share a file
+/// without a project change); keep both in step.
+enum WidgetKeychain {
+  struct Credentials: Codable {
+    let url: String
+    let token: String
+    let userId: String
+  }
+
+  private static let service = "spending_tracker.widget"
+  private static let account = "credentials"
+
+  private static func baseQuery() -> [String: Any]? {
+    guard let group = Bundle.main.object(forInfoDictionaryKey: "SharedKeychainGroup") as? String,
+      !group.isEmpty, !group.hasPrefix("."), !group.contains("$(")
+    else { return nil }
+    return [
+      kSecClass as String: kSecClassGenericPassword,
+      kSecAttrService as String: service,
+      kSecAttrAccount as String: account,
+      kSecAttrAccessGroup as String: group,
+    ]
+  }
+
+  @discardableResult
+  static func save(_ credentials: Credentials) -> Bool {
+    guard var query = baseQuery(), let data = try? JSONEncoder().encode(credentials) else { return false }
+    SecItemDelete(query as CFDictionary)
+    query[kSecValueData as String] = data
+    // Readable after the first unlock so a refresh can run while the phone is locked; never leaves this device.
+    query[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
+    if SecItemAdd(query as CFDictionary, nil) == errSecSuccess { return true }
+    SecItemDelete(baseQuery()! as CFDictionary)  // leave no half state
+    return false
+  }
+
+  static func load() -> Credentials? {
+    guard var query = baseQuery() else { return nil }
+    query[kSecReturnData as String] = true
+    query[kSecMatchLimit as String] = kSecMatchLimitOne
+    var item: CFTypeRef?
+    guard SecItemCopyMatching(query as CFDictionary, &item) == errSecSuccess, let data = item as? Data else {
+      return nil
+    }
+    return try? JSONDecoder().decode(Credentials.self, from: data)
+  }
+
+  static func clear() {
+    if let query = baseQuery() { SecItemDelete(query as CFDictionary) }
+  }
 }

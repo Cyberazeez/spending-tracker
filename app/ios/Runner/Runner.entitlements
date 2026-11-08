@@ -10,5 +10,10 @@
 	<array>
 		<string>group.com.cyberazeez.spendingtracker</string>
 	</array>
+	<key>keychain-access-groups</key>
+	<array>
+		<string>$(AppIdentifierPrefix)com.cyberazeez.spendingtracker</string>
+		<string>$(AppIdentifierPrefix)com.cyberazeez.spendingtracker.shared</string>
+	</array>
 </dict>
 </plist>

@@ -1,4 +1,5 @@
 import Flutter
+import Security
 import UIKit
 import UserNotifications
 import WidgetKit
@@ -60,21 +61,30 @@ import WidgetKit
           result(FlutterMethodNotImplemented)
           return
         }
-        defaults?.set(url, forKey: "widget.url")
-        defaults?.set(token, forKey: "widget.token")
-        defaults?.set(userId, forKey: "widget.user")
+        guard WidgetKeychain.save(WidgetKeychain.Credentials(url: url, token: token, userId: userId)) else {
+          // Not stored (for example before the first unlock): Dart retries on the next resume.
+          result(FlutterError(code: "keychain", message: "could not store the widget token", details: nil))
+          return
+        }
+        removeLegacyWidgetCredentials(defaults)
         WidgetCenter.shared.reloadAllTimelines()
         result(nil)
       case "clearCredentials":
-        for key in ["widget.url", "widget.token", "widget.user", "today", "month", "budget", "updated"] {
+        WidgetKeychain.clear()
+        removeLegacyWidgetCredentials(defaults)
+        for key in ["today", "month", "budget", "updated"] {
           defaults?.removeObject(forKey: key)
         }
         WidgetCenter.shared.reloadAllTimelines()
         result(nil)
       case "credentialsStatus":
+        // A token an older build left in the App Group's UserDefaults is deleted here (the app then fetches a new one
+        // into the Keychain), so no copy stays readable in the plain file.
+        removeLegacyWidgetCredentials(defaults)
+        let stored = WidgetKeychain.load()
         result([
-          "hasToken": defaults?.string(forKey: "widget.token") != nil,
-          "userId": defaults?.string(forKey: "widget.user") as Any,
+          "hasToken": stored != nil,
+          "userId": stored?.userId as Any,
         ])
       default:
         result(FlutterMethodNotImplemented)
@@ -189,5 +199,68 @@ import WidgetKit
         result(FlutterMethodNotImplemented)
       }
     }
+  }
+}
+
+/// The widget's read-only token lives in the Keychain, in an access group shared by the app and the widget extension
+/// (not in the App Group's UserDefaults, which is a plain file any process with the group can read and which is
+/// included in unencrypted-backup tooling). The group name comes from Info.plist (`SharedKeychainGroup`, expanded
+/// from $(AppIdentifierPrefix) at build time). The same helper exists in the other target (they cannot share a file
+/// without a project change); keep both in step.
+enum WidgetKeychain {
+  struct Credentials: Codable {
+    let url: String
+    let token: String
+    let userId: String
+  }
+
+  private static let service = "spending_tracker.widget"
+  private static let account = "credentials"
+
+  private static func baseQuery() -> [String: Any]? {
+    guard let group = Bundle.main.object(forInfoDictionaryKey: "SharedKeychainGroup") as? String,
+      !group.isEmpty, !group.hasPrefix("."), !group.contains("$(")
+    else { return nil }
+    return [
+      kSecClass as String: kSecClassGenericPassword,
+      kSecAttrService as String: service,
+      kSecAttrAccount as String: account,
+      kSecAttrAccessGroup as String: group,
+    ]
+  }
+
+  @discardableResult
+  static func save(_ credentials: Credentials) -> Bool {
+    guard var query = baseQuery(), let data = try? JSONEncoder().encode(credentials) else { return false }
+    SecItemDelete(query as CFDictionary)
+    query[kSecValueData as String] = data
+    // Readable after the first unlock so a refresh can run while the phone is locked; never leaves this device.
+    query[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
+    if SecItemAdd(query as CFDictionary, nil) == errSecSuccess { return true }
+    SecItemDelete(baseQuery()! as CFDictionary)  // leave no half state
+    return false
+  }
+
+  static func load() -> Credentials? {
+    guard var query = baseQuery() else { return nil }
+    query[kSecReturnData as String] = true
+    query[kSecMatchLimit as String] = kSecMatchLimitOne
+    var item: CFTypeRef?
+    guard SecItemCopyMatching(query as CFDictionary, &item) == errSecSuccess, let data = item as? Data else {
+      return nil
+    }
+    return try? JSONDecoder().decode(Credentials.self, from: data)
+  }
+
+  static func clear() {
+    if let query = baseQuery() { SecItemDelete(query as CFDictionary) }
+  }
+}
+
+/// Older builds kept the widget token in the App Group's UserDefaults; remove it wherever it is found.
+/// (A file-level function, so the method-channel closure can call it without `self`.)
+private func removeLegacyWidgetCredentials(_ defaults: UserDefaults?) {
+  for key in ["widget.url", "widget.token", "widget.user"] {
+    defaults?.removeObject(forKey: key)
   }
 }
