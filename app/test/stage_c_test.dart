@@ -28,13 +28,13 @@ Future<void> openAccountPage(WidgetTester tester) async {
 
 void main() {
   group('welcome card', () {
-    testWidgets('a brand new account sees the three steps on Home', (
+    testWidgets('a brand new account sees the two steps on Home', (
       tester,
     ) async {
       await start(tester, setup: (h) => h.data.accounts = []);
       expect(find.text('Get started'), findsOneWidget);
-      expect(find.text('0 of 3 done'), findsOneWidget);
-      expect(find.text('Add your bank accounts'), findsOneWidget);
+      expect(find.text('0 of 2 done'), findsOneWidget);
+      expect(find.text('Add your bank accounts'), findsNothing); // learned from transfers instead
       expect(find.text('Set up SMS capture'), findsOneWidget);
       expect(find.text('Set a monthly budget'), findsOneWidget);
     });
@@ -42,17 +42,12 @@ void main() {
     testWidgets(
       'steps that are done are counted, the card opens the right screens',
       (tester) async {
-        await start(tester); // the fake owner already has one account
-        expect(find.text('1 of 3 done'), findsOneWidget);
+        await start(tester, setup: (h) => h.data.monthlyBudget = 900000);
+        expect(find.text('1 of 2 done'), findsOneWidget);
         await tester.tap(find.text('Set up SMS capture'));
         await tester.pumpAndSettle();
         expect(find.text('Set up SMS capture'), findsWidgets);
         expect(find.text('Open Shortcuts'), findsOneWidget);
-        await tester.tap(find.byType(CupertinoNavigationBarBackButton));
-        await tester.pumpAndSettle();
-        await tester.tap(find.text('Add your bank accounts'));
-        await tester.pumpAndSettle();
-        expect(find.text('Alinma 6000'), findsOneWidget);
       },
     );
 
@@ -73,14 +68,14 @@ void main() {
         await start(tester, setup: (h) => h.data.accounts = []);
         await tester.tap(find.text('Hide'));
         await tester.pumpAndSettle();
-        expect(find.text('Add your bank accounts'), findsNothing);
+        expect(find.text('Set up SMS capture'), findsNothing);
         expect(
-          find.textContaining('Get started · 0 of 3 done'),
+          find.textContaining('Get started · 0 of 2 done'),
           findsOneWidget,
         );
-        await tester.tap(find.textContaining('Get started · 0 of 3 done'));
+        await tester.tap(find.textContaining('Get started · 0 of 2 done'));
         await tester.pumpAndSettle();
-        expect(find.text('Add your bank accounts'), findsOneWidget);
+        expect(find.text('Set up SMS capture'), findsOneWidget);
       },
     );
 
@@ -107,7 +102,7 @@ void main() {
         );
         await tester.pumpAndSettle();
         expect(
-          find.textContaining('Get started · 0 of 3 done'),
+          find.textContaining('Get started · 0 of 2 done'),
           findsOneWidget,
         );
         // four days later the card is gone for good
