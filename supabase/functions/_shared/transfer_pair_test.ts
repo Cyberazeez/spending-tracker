@@ -74,7 +74,7 @@ Deno.test("pairing: the same bank needs two known, different accounts", () => {
   );
 });
 
-Deno.test("accounts of a pair: sender at the sending bank, receiver at the receiving bank, digits from either SMS", () => {
+Deno.test("accounts of a pair: only the digits each bank showed for its own account are saved", () => {
   const incoming = me({ account_last4: "2222", counterparty_last4: "1111" });
   assert.deepEqual(
     accountsOfPair(incoming, cand({ accountLast4: "1111", counterpartyLast4: "2222" }), BANKS),
@@ -83,12 +83,11 @@ Deno.test("accounts of a pair: sender at the sending bank, receiver at the recei
       { bank: "snb", last4: "2222" },
     ],
   );
-  // the sender's SMS shows only where it went; the receiver's shows only its own account
+  // the other bank's message shows the sender only as a counterparty digit: not trusted, not saved
   assert.deepEqual(
-    accountsOfPair(me({ account_last4: "2222" }), cand({ counterpartyLast4: "2222" }), BANKS),
+    accountsOfPair(me({ account_last4: "2222" }), cand({ counterpartyLast4: "1111" }), BANKS),
     [{ bank: "snb", last4: "2222" }],
   );
-  // seen from the outgoing side
   assert.deepEqual(
     accountsOfPair(
       me({
@@ -100,7 +99,7 @@ Deno.test("accounts of a pair: sender at the sending bank, receiver at the recei
       cand({ type: "transfer_in", bank: "snb" }),
       BANKS,
     ),
-    [{ bank: "alrajhi", last4: "1111" }, { bank: "snb", last4: "2222" }],
+    [{ bank: "alrajhi", last4: "1111" }],
   );
 });
 

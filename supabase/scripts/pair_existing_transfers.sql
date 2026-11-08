@@ -48,9 +48,9 @@ select out_bank, in_bank, round(gap_s / 60.0, 1) as gap_min from _pairs order by
 --
 -- insert into public.own_accounts (user_id, bank, last4, kind)
 -- select distinct on (user_id, last4) user_id, bank, last4, 'account' from (
---   select user_id, out_bank as bank, coalesce(out_acct, in_other) as last4 from _pairs
+--   select user_id, out_bank as bank, out_acct as last4 from _pairs
 --   union all
---   select user_id, in_bank, coalesce(in_acct, out_other) from _pairs
+--   select user_id, in_bank, in_acct from _pairs
 -- ) a
 -- where last4 ~ '^[0-9]{4}$' and bank in ('alrajhi','snb','alinma','barq','d360','stc')
 --   and not exists (select 1 from public.own_accounts x where x.user_id = a.user_id and x.last4 = a.last4)

@@ -177,10 +177,10 @@ export function accountsOfPair(
   const meOut = me.type === "transfer_out";
   const outBank = meOut ? me.bank : other.bank;
   const inBank = meOut ? other.bank : me.bank;
-  const outAccount = (meOut ? me.account_last4 : other.accountLast4) ??
-    (meOut ? other.counterpartyLast4 : me.counterparty_last4);
-  const inAccount = (meOut ? other.accountLast4 : me.account_last4) ??
-    (meOut ? me.counterparty_last4 : other.counterpartyLast4);
+  // Only the digits a bank showed for its own account are trusted. A counterparty digit in the other bank's SMS is
+  // not saved: a forged or unrelated message could otherwise plant someone else's account as the user's own.
+  const outAccount = meOut ? me.account_last4 : other.accountLast4;
+  const inAccount = meOut ? other.accountLast4 : me.account_last4;
   const out: OwnAccount[] = [];
   for (const [bank, last4] of [[outBank, outAccount], [inBank, inAccount]] as const) {
     if (last4 && /^\d{4}$/.test(last4) && knownBanks.includes(bank)) out.push({ bank, last4 });

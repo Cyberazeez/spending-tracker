@@ -211,12 +211,18 @@ export async function handleIngest(req: Request, deps: IngestDeps): Promise<Resp
             amountHalalas: head.amount_halalas,
             occurredAt: head.occurred_at,
           }).catch(() => [] as TransferCandidate[]);
-          const pair = others.find((o) => pairsWith(head, o));
+          // The nearest candidate that is not already part of a pair wins (the lookup sorts by time gap).
+          // A partner that is already internal (it matched a saved account) still pairs, but only as a last resort.
+          const pair = others.find((o) => !o.isInternal && pairsWith(head, o)) ??
+            others.find((o) => o.isInternal && pairsWith(head, o));
           if (pair) {
             head.is_internal = true;
             head.excluded_from_spend = true;
-            if (!pair.isInternal) toMark = [pair.id];
+            toMark = pair.isInternal ? [] : [pair.id];
             learned = accountsOfPair(head, pair, KNOWN_BANKS);
+          } else if (head.is_internal) {
+            // Internal through a saved account: the other bank's message of the same move is internal too.
+            toMark = others.filter((o) => !o.isInternal && o.bank !== head.bank).map((o) => o.id);
           }
         }
         const rows = applyCategories(built, cat.rules, cat.ids);
@@ -228,6 +234,24 @@ export async function handleIngest(req: Request, deps: IngestDeps): Promise<Resp
           confidence: aiConfidence,
           rows,
         });
+        if (
+          !toMark.length && !head.is_internal &&
+          (head.type === "transfer_in" || head.type === "transfer_out")
+        ) {
+          // Two messages that arrive at the same moment both see no partner. Look again now that this one is stored.
+          const mine = new Set(Object.values(saved.ids));
+          const again = await deps.findTransferCounterparts(found.userId, {
+            type: head.type === "transfer_in" ? "transfer_out" : "transfer_in",
+            bank: head.bank,
+            amountHalalas: head.amount_halalas,
+            occurredAt: head.occurred_at,
+          }).catch(() => [] as TransferCandidate[]);
+          const late = again.find((o) => !mine.has(o.id) && !o.isInternal && pairsWith(head, o));
+          if (late) {
+            toMark = [late.id, ...mine];
+            learned = accountsOfPair(head, late, KNOWN_BANKS);
+          }
+        }
         if (toMark.length) {
           await deps.markInternal(found.userId, toMark, cat.ids["Transfers"] ?? null).catch((e) =>
             console.error("mark_internal_failed", (e as Error).message)

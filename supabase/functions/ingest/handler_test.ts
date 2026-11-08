@@ -65,6 +65,8 @@ async function setup(
     failNotice?: boolean;
     failPairLookup?: boolean;
     counterparts?: Cand[];
+    /** What a second lookup (after the row is stored) finds: the partner that arrived at the same moment. */
+    counterpartsLater?: Cand[];
     obs?: Ob[];
     open?: Inst[];
     aiParse?: IngestDeps["aiParse"];
@@ -119,7 +121,10 @@ async function setup(
     findTransferCounterparts: (_u, t) => {
       transferLookups.push(t);
       if (opts.failPairLookup) return Promise.reject(new Error("db down"));
-      return Promise.resolve(opts.counterparts ?? []);
+      const first = transferLookups.length === 1;
+      return Promise.resolve(
+        (first ? opts.counterparts : opts.counterpartsLater ?? opts.counterparts) ?? [],
+      );
     },
     markInternal: (_u, ids, cat) => {
       marked.push({ ids, cat });
@@ -674,6 +679,30 @@ Deno.test("ingest: a pair whose digits point at different accounts is two separa
   assert.equal(s.saved[0].rows[0].is_internal, false, "stays income");
   assert.deepEqual(s.marked, []);
   assert.deepEqual(s.learned, []);
+});
+
+Deno.test("ingest: a partner that arrived at the same moment is found by the second look and both are flipped", async () => {
+  const s = await setup({
+    counterparts: [],
+    counterpartsLater: [
+      cand({ id: "out1", bank: "alrajhi", accountLast4: "1111", counterpartyLast4: "2222" }),
+    ],
+  });
+  await s.call(
+    {
+      sender: "SNB-AlAhli",
+      body: "حوالة واردة\nمبلغ:SAR 50\nمرسل:PERSON A\nمن:*1111\nإلى:*2222\nفي:06:41 04/11/26",
+      received_at: "2026-11-04T03:41:32Z",
+    },
+    { "x-ingest-token": s.token },
+  );
+  assert.equal(s.transferLookups.length, 2);
+  assert.equal(s.marked.length, 1);
+  assert.ok(s.marked[0].ids.includes("out1"));
+  assert.deepEqual(s.learned, [[
+    { bank: "alrajhi", last4: "1111" },
+    { bank: "snb", last4: "2222" },
+  ]]);
 });
 
 Deno.test("ingest: a transfer with no matching message stays an expense or income and learns nothing", async () => {
