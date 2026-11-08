@@ -974,6 +974,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiTitle => 'AI assistant';
 
   @override
+  String get aiPaidOnly => 'Part of the paid plan. Coming soon.';
+
+  @override
   String get aiSubtitle =>
       'Sends only totals and merchant names. Never message text, names or account numbers.';
 

@@ -3,6 +3,14 @@ import { normalizeMerchant } from "./normalize.ts";
 export const MODEL = "claude-haiku-5-5";
 
 /**
+ * AI runs only for paying accounts (`ai_allowed`, written by the server) that also switched it on themselves
+ * (`ai_enabled`). Anything else behaves exactly like AI being off.
+ */
+export function aiActive(s: { ai_enabled: boolean; ai_allowed: boolean }): boolean {
+  return s.ai_enabled === true && s.ai_allowed === true;
+}
+
+/**
  * Output ceilings. A reply that hits the ceiling is cut off mid-JSON and cannot be parsed (seen on the first real
  * call: 1,500 tokens were all used and the answer was lost), so the ceilings are generous; the cost is billed on
  * what is actually produced.
@@ -63,7 +71,9 @@ export async function categorizeMerchants(
 ): Promise<AiOutcome> {
   // The names are the user's own and unbounded: only sane ones, and at most MAX_CATEGORY_NAMES, go into the prompt
   // (a huge list would inflate the billed input tokens). Matching the reply still uses these exact names.
-  const categoryNames = allCategoryNames.filter((n) => n.length > 0 && n.length <= MAX_CATEGORY_NAME_LENGTH)
+  const categoryNames = allCategoryNames.filter((n) =>
+    n.length > 0 && n.length <= MAX_CATEGORY_NAME_LENGTH
+  )
     .slice(0, MAX_CATEGORY_NAMES);
   if (!deps.aiEnabled) return { ok: false, reason: "disabled" };
   if (!deps.apiKey) return { ok: false, reason: "no_key" };

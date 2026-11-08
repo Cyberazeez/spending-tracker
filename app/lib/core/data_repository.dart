@@ -66,7 +66,10 @@ abstract class DataRepository {
   /// Outgoing, non-internal spend since midnight Riyadh time today.
   Future<int> todaySpendHalalas();
 
-  /// The AI switch (`settings.ai_enabled`). Off by default.
+  /// True when this account is on the paid plan (`settings.ai_allowed`, written only by the server).
+  Future<bool> aiAllowed();
+
+  /// The person's own AI switch (`settings.ai_enabled`) AND the paid plan. Off by default.
   Future<bool> aiEnabled();
   Future<void> setAiEnabled(bool on);
 
@@ -439,9 +442,19 @@ class SupabaseDataRepository implements DataRepository {
   }
 
   @override
+  Future<bool> aiAllowed() async {
+    final row = await _db.from('settings').select('ai_allowed').maybeSingle();
+    return (row?['ai_allowed'] as bool?) ?? false;
+  }
+
+  @override
   Future<bool> aiEnabled() async {
-    final row = await _db.from('settings').select('ai_enabled').maybeSingle();
-    return (row?['ai_enabled'] as bool?) ?? false;
+    final row = await _db
+        .from('settings')
+        .select('ai_enabled, ai_allowed')
+        .maybeSingle();
+    return ((row?['ai_enabled'] as bool?) ?? false) &&
+        ((row?['ai_allowed'] as bool?) ?? false);
   }
 
   @override

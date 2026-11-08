@@ -247,5 +247,19 @@ Deno.test("a huge or odd category list cannot inflate the prompt: only short nam
   const prompt = JSON.parse(String(calls[0].init.body)).messages[0].content as string;
   const listed = prompt.split("\n").find((l) => l.startsWith("Categories: "))!;
   assert.equal(listed.includes("x".repeat(MAX_CATEGORY_NAME_LENGTH + 1)), false);
-  assert.equal(listed.replace("Categories: ", "").replace(/\.$/, "").split(", ").length, MAX_CATEGORY_NAMES);
+  assert.equal(
+    listed.replace("Categories: ", "").replace(/\.$/, "").split(", ").length,
+    MAX_CATEGORY_NAMES,
+  );
+});
+
+Deno.test("AI runs only for paying accounts that also switched it on", async () => {
+  const { aiActive } = await import("./ai.ts");
+  assert.equal(aiActive({ ai_enabled: true, ai_allowed: true }), true);
+  assert.equal(aiActive({ ai_enabled: true, ai_allowed: false }), false); // not paid
+  assert.equal(aiActive({ ai_enabled: false, ai_allowed: true }), false); // paid but off
+  assert.equal(aiActive({ ai_enabled: false, ai_allowed: false }), false);
+  // a missing or odd value never counts as allowed
+  assert.equal(aiActive({ ai_enabled: true } as never), false);
+  assert.equal(aiActive({ ai_enabled: true, ai_allowed: "true" } as never), false);
 });

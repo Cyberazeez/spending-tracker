@@ -37,6 +37,8 @@ begin
   if n < 40 then raise exception 'signup: the generic merchant rules are missing (%)', n; end if;
   select count(*) into n from public.settings where user_id = f and ai_enabled = false;
   if n <> 1 then raise exception 'signup: settings missing or AI not off'; end if;
+  select count(*) into n from public.settings where user_id = f and ai_allowed = false and ai_monthly_cap_halalas = 0;
+  if n <> 1 then raise exception 'signup: a new user is allowed AI or has a budget'; end if;
 
   -- trigger seeded both users
   select count(*) into n from public.categories where user_id in (a, b);
@@ -263,6 +265,9 @@ begin
   denied := false;
   begin update public.settings set ai_monthly_cap_halalas = 999999999; exception when insufficient_privilege then denied := true; end;
   if not denied then raise exception 'A raised their own AI cap'; end if;
+  denied := false;
+  begin update public.settings set ai_allowed = true; exception when insufficient_privilege then denied := true; end;
+  if not denied then raise exception 'A switched on their own paid AI flag'; end if;
   denied := false;
   begin delete from public.settings; exception when insufficient_privilege then denied := true; end;
   if not denied then raise exception 'A deleted settings'; end if;

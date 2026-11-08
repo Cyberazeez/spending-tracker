@@ -202,6 +202,15 @@ class _AiRowState extends ConsumerState<_AiRow> {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final stored = ref.watch(aiEnabledProvider).value ?? false;
+    // Not on the paid plan: no switch, only a note. The server refuses AI for these accounts anyway.
+    if (ref.watch(aiAllowedProvider).value == false) {
+      return SettingsRow(
+        icon: LucideIcons.sparkles,
+        color: const Color(0xFF3CC4A8),
+        title: t.aiTitle,
+        subtitle: t.aiPaidOnly,
+      );
+    }
     return SettingsRow(
       icon: LucideIcons.sparkles,
       color: const Color(0xFF3CC4A8),

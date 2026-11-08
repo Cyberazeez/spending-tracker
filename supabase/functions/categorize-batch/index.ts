@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import { MODEL } from "../_shared/ai.ts";
+import { aiActive, MODEL } from "../_shared/ai.ts";
 import { effectiveSpent, globalCapFromEnv } from "../_shared/ai_budget.ts";
 import { runBatch } from "./handler.ts";
 
@@ -51,7 +51,10 @@ Deno.serve(async (req) => {
       return json(200, { ok: false, reason: "cap_reached" });
     }
     const [settings, cats] = await Promise.all([
-      db.from("settings").select("ai_enabled, ai_monthly_cap_halalas").eq("user_id", userId)
+      db.from("settings").select("ai_enabled, ai_allowed, ai_monthly_cap_halalas").eq(
+        "user_id",
+        userId,
+      )
         .maybeSingle(),
       db.from("categories").select("id, name").eq("user_id", userId).limit(200),
     ]);
@@ -62,7 +65,7 @@ Deno.serve(async (req) => {
       ai: {
         apiKey: Deno.env.get("ANTHROPIC_API_KEY"),
         fetch,
-        aiEnabled: settings.data.ai_enabled,
+        aiEnabled: aiActive(settings.data),
         capHalalas: Number(settings.data.ai_monthly_cap_halalas),
         async spentHalalas() {
           // This user's spend against their own cap, plus one ceiling over all users (see _shared/ai_budget.ts).

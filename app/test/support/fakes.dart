@@ -534,8 +534,14 @@ class FakeDataRepository implements DataRepository {
   @override
   Future<int> baseSalaryHalalas() async => baseSalary;
 
+  /// The paid-plan flag. On by default so existing tests see the AI features.
+  bool aiPaid = true;
+
   @override
-  Future<bool> aiEnabled() async => aiOn;
+  Future<bool> aiAllowed() async => aiPaid;
+
+  @override
+  Future<bool> aiEnabled() async => aiOn && aiPaid;
 
   @override
   Future<void> setAiEnabled(bool on) async {

@@ -971,6 +971,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get aiTitle => 'المساعد الذكي';
 
   @override
+  String get aiPaidOnly => 'ضمن الباقة المدفوعة. قريبًا.';
+
+  @override
   String get aiSubtitle =>
       'يرسل المجاميع وأسماء المتاجر فقط، وليس نص الرسائل أو الأسماء أو أرقام الحسابات.';
 
