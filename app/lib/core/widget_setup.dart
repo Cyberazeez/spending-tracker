@@ -31,7 +31,8 @@ Future<void> _ensure(
       await bridge.clearCredentials();
       status = await bridge.credentialStatus();
     }
-    if (!status.hasToken) {
+    // A token the server revoked (password change elsewhere, 90 days unused) is dead: replace it.
+    if (!status.hasToken || !await tokens.hasActive(kind: 'widget')) {
       final token = await tokens.rotate(label: 'Widget', kind: 'widget');
       if (currentUser() != userId) return; // signed out meanwhile
       await bridge.saveCredentials(AppConfig.supabaseUrl, token, userId);

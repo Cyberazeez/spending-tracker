@@ -599,5 +599,42 @@ begin
     insert into public.own_accounts (user_id, bank, last4, kind) values (q, 'alinma', '1234', 'account');
   end;
 
+  -- Round 2 (2026-11-08): idle expiry and revoke-on-password-change for device tokens
+  reset role;
+  declare
+    tu uuid := '00000000-0000-0000-0000-0000000000f7';
+  begin
+    insert into auth.users (id, aud, role, email, encrypted_password) values (tu, 'authenticated', 'authenticated', 'rls-tokens@example.test', 'old-hash');
+    insert into public.ingest_tokens (user_id, token_hash, kind, last_used_at) values
+      (tu, 'tok-app', 'app', now()),
+      (tu, 'tok-widget', 'widget', now()),
+      (tu, 'tok-shortcut', 'shortcut', now() - interval '91 days');
+    -- a token unused for 90 days is revoked; used and never-used-but-new ones are not
+    if public.expire_idle_ingest_tokens() <> 1 then raise exception 'idle expiry did not revoke exactly the stale token'; end if;
+    select count(*) into n from public.ingest_tokens where user_id = tu and token_hash = 'tok-shortcut' and revoked_at is not null;
+    if n <> 1 then raise exception 'the idle shortcut token was not revoked'; end if;
+    select count(*) into n from public.ingest_tokens where user_id = tu and revoked_at is null;
+    if n <> 2 then raise exception 'idle expiry revoked a token in use'; end if;
+    insert into public.ingest_tokens (user_id, token_hash, kind, created_at) values (tu, 'tok-never-used-old', 'shortcut', now() - interval '100 days');
+    if public.expire_idle_ingest_tokens() <> 1 then raise exception 'a never-used token older than 90 days was not revoked'; end if;
+    -- a clients cannot run it
+    denied := false;
+    perform set_config('request.jwt.claims', json_build_object('sub', tu, 'role', 'authenticated')::text, true);
+    set local role authenticated;
+    begin perform public.expire_idle_ingest_tokens(); exception when insufficient_privilege then denied := true; end;
+    reset role;
+    if not denied then raise exception 'a client can run expire_idle_ingest_tokens'; end if;
+    -- a password change revokes the app and widget tokens, not the shortcut token, and only on a real change
+    insert into public.ingest_tokens (user_id, token_hash, kind) values (tu, 'tok-shortcut-live', 'shortcut');
+    update auth.users set email = 'rls-tokens2@example.test' where id = tu;
+    select count(*) into n from public.ingest_tokens where user_id = tu and revoked_at is null and kind in ('app', 'widget');
+    if n <> 2 then raise exception 'a non-password update revoked device tokens'; end if;
+    update auth.users set encrypted_password = 'new-hash' where id = tu;
+    select count(*) into n from public.ingest_tokens where user_id = tu and revoked_at is null and kind in ('app', 'widget');
+    if n <> 0 then raise exception 'a password change left an app or widget token alive'; end if;
+    select count(*) into n from public.ingest_tokens where user_id = tu and revoked_at is null and kind = 'shortcut';
+    if n <> 1 then raise exception 'a password change revoked the shortcut token'; end if;
+  end;
+
   raise exception 'RLS_TESTS_OK';
 end $$;

@@ -20,6 +20,10 @@ abstract class TokenRepository {
 
   /// Revokes every active token of [kind] (used on sign-out for the app's own token).
   Future<void> revoke({String kind = 'app'});
+
+  /// Whether the server still has an active token of [kind]. False after the server revoked it (password change on
+  /// another device, 90 days unused): the phone's copy is dead and must be replaced.
+  Future<bool> hasActive({required String kind});
 }
 
 class SupabaseTokenRepository implements TokenRepository {
@@ -61,6 +65,17 @@ class SupabaseTokenRepository implements TokenRepository {
     final data = res.data;
     if (data is Map && data['token'] is String) return data['token'] as String;
     throw StateError('rotate-token returned no token');
+  }
+
+  @override
+  Future<bool> hasActive({required String kind}) async {
+    final rows = await _client
+        .from('ingest_tokens')
+        .select('id')
+        .eq('kind', kind)
+        .isFilter('revoked_at', null)
+        .limit(1);
+    return rows.isNotEmpty;
   }
 
   @override
