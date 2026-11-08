@@ -268,6 +268,9 @@ begin
   denied := false;
   begin update public.settings set ai_allowed = true; exception when insufficient_privilege then denied := true; end;
   if not denied then raise exception 'A switched on their own paid AI flag'; end if;
+  update public.settings set ai_parse_enabled = true;
+  select count(*) into n from public.settings where ai_parse_enabled = true;
+  if n <> 1 then raise exception 'A could not give their own consent for AI reading'; end if;
   denied := false;
   begin delete from public.settings; exception when insufficient_privilege then denied := true; end;
   if not denied then raise exception 'A deleted settings'; end if;

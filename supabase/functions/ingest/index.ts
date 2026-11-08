@@ -1,6 +1,10 @@
 import { createClient } from "@supabase/supabase-js";
 import { INGEST_TOKEN_KINDS } from "../_shared/token.ts";
+import { effectiveSpent, globalCapFromEnv, riyadhMonthStartIso } from "../_shared/ai_budget.ts";
+import { parseWithAi } from "../_shared/ai_parse.ts";
 import { handleIngest, type IngestDeps } from "./handler.ts";
+
+const AI_PARSE_LIMIT_PER_DAY = 100;
 
 const db = createClient(
   Deno.env.get("SUPABASE_URL")!,
@@ -102,7 +106,9 @@ const deps: IngestDeps = {
       }).eq("user_id", userId).in("id", ids).is("category_id", null);
     }
   },
-  async saveParsed({ userId, rawId, parser, status, ignoreReason, redactBody, replaceBody, rows }) {
+  async saveParsed(
+    { userId, rawId, parser, status, confidence, ignoreReason, redactBody, replaceBody, rows },
+  ) {
     const ids: Record<string, string> = {};
     if (rows.length) {
       // (raw_message_id, type) is unique, so a retry after a half-finished save cannot duplicate rows.
@@ -123,7 +129,7 @@ const deps: IngestDeps = {
       parser,
       ignore_reason: ignoreReason ?? null,
       transaction_id: rows.length ? ids[rows[0].type] ?? null : null,
-      confidence: 1,
+      confidence: confidence ?? 1,
     };
     if (redactBody) patch.body = "[redacted]";
     else if (replaceBody) patch.body = replaceBody;
@@ -222,6 +228,54 @@ const deps: IngestDeps = {
       ).eq("user_id", userId).in("status", ["pending", "overdue"]);
       if (error) throw new Error("instance_due_failed");
     },
+  },
+  async aiParse(userId, sender, body, receivedAt) {
+    // Needs the paid plan (server flag) AND the person's own consent to have message text read by AI.
+    const { data: s, error } = await db.from("settings").select(
+      "ai_allowed, ai_parse_enabled, ai_monthly_cap_halalas",
+    ).eq("user_id", userId).maybeSingle();
+    if (error || !s || s.ai_allowed !== true || s.ai_parse_enabled !== true) return null;
+    const { data: n, error: rlErr } = await db.rpc("bump_rate_limit", {
+      p_user: userId,
+      p_bucket: "ai_parse",
+      p_window: "day",
+    });
+    if (rlErr || Number(n) > AI_PARSE_LIMIT_PER_DAY) return null;
+    return await parseWithAi(
+      {
+        apiKey: Deno.env.get("ANTHROPIC_API_KEY"),
+        fetch,
+        aiAllowed: true,
+        capHalalas: Number(s.ai_monthly_cap_halalas),
+        async spentHalalas() {
+          const { data, error: e } = await db.rpc("ai_spend_summary", {
+            p_user: userId,
+            p_since: riyadhMonthStartIso(),
+          });
+          const row = Array.isArray(data) ? data[0] : data;
+          if (e || !row) throw new Error("usage_read_failed");
+          return effectiveSpent(
+            Number(row.mine_halalas),
+            Number(row.total_halalas),
+            globalCapFromEnv(Deno.env.get("AI_GLOBAL_CAP_HALALAS")),
+          );
+        },
+        async recordUsage(u) {
+          const { error: e } = await db.from("ai_usage").insert({
+            user_id: userId,
+            day: new Date().toISOString().slice(0, 10),
+            purpose: "parse",
+            input_tokens: u.inputTokens,
+            output_tokens: u.outputTokens,
+            cost_halalas: u.costHalalas,
+          });
+          if (e) throw new Error("usage_write_failed");
+        },
+      },
+      sender,
+      body,
+      receivedAt,
+    );
   },
   async touchToken(tokenId) {
     const { error } = await db
