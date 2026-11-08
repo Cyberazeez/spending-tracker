@@ -36,8 +36,8 @@ create trigger obligations_quota before insert on public.obligations
   for each row execute function public.enforce_row_quota(100);
 create trigger device_tokens_quota before insert on public.device_tokens
   for each row execute function public.enforce_row_quota(20);
-create trigger transactions_quota before insert on public.transactions
-  for each row execute function public.enforce_row_quota(100000);
+-- No quota on transactions: signed-in inserts are manual entries only (ingest and statement import run as service
+-- role), the count could not use the partial indexes, and the quota caps abuse nobody can reach through the app.
 
 -- Length caps. NOT VALID: they apply to every new or changed row without rescanning old ones.
 -- Only fields the user types are capped; text copied from a bank SMS (merchant_raw, counterparty) is not, so ingest
@@ -47,7 +47,7 @@ alter table public.categories
     char_length(name) between 1 and 60 and char_length(coalesce(name_ar, '')) <= 60
     and char_length(coalesce(icon, '')) <= 40 and char_length(coalesce(color, '')) <= 20) not valid;
 alter table public.merchant_rules
-  add constraint merchant_rules_pattern_len check (char_length(pattern) between 1 and 100) not valid;
+  add constraint merchant_rules_pattern_len check (char_length(pattern) between 1 and 200) not valid;
 alter table public.own_accounts
   add constraint own_accounts_label_len check (char_length(coalesce(label, '')) <= 60) not valid;
 alter table public.transactions

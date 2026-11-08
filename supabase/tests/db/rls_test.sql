@@ -444,7 +444,17 @@ begin
   if not denied then raise exception 'a client can call request_account_deletion'; end if;
   if public.reactivate_my_account() then raise exception 'reactivate reported a cancel for an account that was not pending'; end if;
   reset role;
+  -- a token issued before the deletion request (or one with no issue time) cannot cancel it
+  perform set_config('request.jwt.claims', json_build_object('sub', g, 'iat', floor(extract(epoch from now())) - 60)::text, true);
+  set local role authenticated;
+  if public.reactivate_my_account() then raise exception 'a token issued before the request cancelled the deletion'; end if;
+  reset role;
   perform set_config('request.jwt.claims', json_build_object('sub', g)::text, true);
+  set local role authenticated;
+  if public.reactivate_my_account() then raise exception 'a token with no iat cancelled the deletion'; end if;
+  reset role;
+  -- a token issued after the request (a new sign-in) cancels it
+  perform set_config('request.jwt.claims', json_build_object('sub', g, 'iat', ceil(extract(epoch from now())) + 5)::text, true);
   set local role authenticated;
   if not public.reactivate_my_account() then raise exception 'reactivate did not cancel a pending deletion'; end if;
   if public.reactivate_my_account() then raise exception 'reactivate cancelled twice'; end if;
@@ -523,6 +533,70 @@ begin
       total := total + 1;
     end loop;
     if total < 11 then raise exception 'cascade check looked at only % tables', total; end if;
+  end;
+
+  -- Round 1 pre-publish fixes (2026-11-08): AI reserve-before-call, obligations still saved through their functions,
+  -- row quotas.
+  reset role;
+  declare
+    r1 uuid; r2 uuid; r3 uuid; oid uuid;
+    q uuid := '00000000-0000-0000-0000-0000000000f5';
+    rz uuid := '00000000-0000-0000-0000-0000000000f6';
+    since timestamptz := now() - interval '1 day';
+  begin
+    insert into auth.users (id, aud, role, email) values (rz, 'authenticated', 'authenticated', 'rls-ai@example.test');
+    -- ai_reserve: cap 5, estimate 2 -> two fit, the third is refused; a release frees room; a settled row stays
+    r1 := public.ai_reserve(rz, 'parse', 2, 5, 1000000, since);
+    r2 := public.ai_reserve(rz, 'parse', 2, 5, 1000000, since);
+    r3 := public.ai_reserve(rz, 'parse', 2, 5, 1000000, since);
+    if r1 is null or r2 is null then raise exception 'ai_reserve refused a reservation that fits'; end if;
+    if r3 is not null then raise exception 'ai_reserve passed the user cap'; end if;
+    perform public.ai_release(r1, rz);
+    r3 := public.ai_reserve(rz, 'parse', 2, 5, 1000000, since);
+    if r3 is null then raise exception 'ai_release did not free room'; end if;
+    perform public.ai_settle(r2, rz, 100, 20, 1);
+    perform public.ai_release(r2, rz);
+    select count(*) into n from public.ai_usage where id = r2 and cost_halalas = 1 and input_tokens = 100;
+    if n <> 1 then raise exception 'a settled reservation was released'; end if;
+    if public.ai_reserve(rz, 'parse', 2, 100000, 1, since) is not null then raise exception 'ai_reserve passed the global ceiling'; end if;
+    -- another user's reservation cannot be settled or released by id
+    perform public.ai_release(r3, b);
+    select count(*) into n from public.ai_usage where id = r3;
+    if n <> 1 then raise exception 'ai_release deleted another user''s reservation'; end if;
+    denied := false;
+    perform set_config('request.jwt.claims', json_build_object('sub', rz, 'role', 'authenticated')::text, true);
+    set local role authenticated;
+    begin perform public.ai_reserve(rz, 'parse', 1, 1000000, 1000000, since); exception when insufficient_privilege then denied := true; end;
+    reset role;
+    if not denied then raise exception 'a client can call ai_reserve'; end if;
+
+    -- obligations: the app saves and stops them through the two functions, which run with the caller's rights
+    perform set_config('request.jwt.claims', json_build_object('sub', a, 'role', 'authenticated')::text, true);
+    set local role authenticated;
+    oid := public.save_my_obligation(null, '{"name":"Test gym","kind":"fixed","amount_halalas":10000,"day":5}'::jsonb);
+    select count(*) into n from public.obligations where id = oid and user_id = a and active;
+    if n <> 1 then raise exception 'save_my_obligation did not create the obligation'; end if;
+    perform public.stop_my_obligation(oid);
+    select count(*) into n from public.obligations where id = oid and not active;
+    if n <> 1 then raise exception 'stop_my_obligation did not stop the obligation'; end if;
+    reset role;
+
+    -- row quota: a signed-in user can hold 50 own accounts, the 51st is refused (service-role inserts are exempt)
+    insert into auth.users (id, aud, role, email) values (q, 'authenticated', 'authenticated', 'rls-quota@example.test');
+    perform set_config('request.jwt.claims', json_build_object('sub', q, 'role', 'authenticated')::text, true);
+    set local role authenticated;
+    for i in 1..50 loop
+      insert into public.own_accounts (bank, last4, kind) values ('snb', lpad(i::text, 4, '0'), 'account');
+    end loop;
+    denied := false;
+    begin
+      insert into public.own_accounts (bank, last4, kind) values ('snb', '9999', 'account');
+    exception when sqlstate '54000' then denied := true;
+    end;
+    reset role;
+    if not denied then raise exception 'the own_accounts quota was not enforced'; end if;
+    perform set_config('request.jwt.claims', '{"role":"service_role"}', true);  -- service role: no sub, so no quota
+    insert into public.own_accounts (user_id, bank, last4, kind) values (q, 'alinma', '1234', 'account');
   end;
 
   raise exception 'RLS_TESTS_OK';
