@@ -5,7 +5,7 @@
  */
 export type AccountEmailKind = "reactivated" | "deletion_requested";
 
-export const FROM_DEFAULT = "Spending Tracker <noreply@stracker.rawafiddata.com>";
+export const FROM_DEFAULT = "Halala <halala-noreply@rawafiddata.com>";
 const RESEND_URL = "https://api.resend.com/emails";
 
 interface Copy {
