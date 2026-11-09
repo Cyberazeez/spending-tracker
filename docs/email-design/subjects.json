@@ -1,0 +1,34 @@
+{
+  "reset_password": {
+    "subject": "Reset your Halala password · إعادة تعيين كلمة مرور هللة",
+    "where": "Supabase > Authentication > Emails > Templates > Reset password"
+  },
+  "confirm_signup": {
+    "subject": "Confirm your email · تأكيد بريدك الإلكتروني",
+    "where": "Supabase > Authentication > Emails > Templates > Confirm sign up (only used if email confirmation is turned on)"
+  },
+  "change_email": {
+    "subject": "Confirm your new email · تأكيد بريدك الجديد",
+    "where": "Supabase > Authentication > Emails > Templates > Change email address"
+  },
+  "reauthentication": {
+    "subject": "Your Halala confirmation code · رمز التأكيد في هللة",
+    "where": "Supabase > Authentication > Emails > Templates > Reauthentication"
+  },
+  "password_changed": {
+    "subject": "Your Halala password was changed · تم تغيير كلمة مرور هللة",
+    "where": "Supabase > Authentication > Emails > Templates > Password changed (security notification)"
+  },
+  "email_changed": {
+    "subject": "Your Halala email was changed · تم تغيير بريد هللة",
+    "where": "Supabase > Authentication > Emails > Templates > Email address changed (security notification, sent to the old address)"
+  },
+  "account_deletion": {
+    "subject": "Your account will be deleted in 30 days · سيُحذف حسابك بعد 30 يومًا",
+    "where": "Edge Function delete-account (supabase/functions/_shared/account_email.ts)"
+  },
+  "account_reactivated": {
+    "subject": "Your account is active again · حسابك نشط مرة أخرى",
+    "where": "Edge Function send-account-email (supabase/functions/_shared/account_email.ts)"
+  }
+}
