@@ -1,0 +1,18 @@
+/* One stylesheet for every page of the Halala site. */
+:root { color-scheme: light dark; --accent: #1f6f5c; }
+@media (prefers-color-scheme: dark) { :root { --accent: #4fc3a1; } }
+body { font: 16px/1.6 -apple-system, system-ui, "Segoe UI", Tahoma, sans-serif; max-width: 720px; margin: 0 auto; padding: 32px 16px 64px; }
+[lang="ar"] { line-height: 1.8; font-family: -apple-system, system-ui, "Segoe UI", "Geeza Pro", Tahoma, sans-serif; }
+h1 { font-size: 32px; margin: 0 0 4px; }
+h2 { font-size: 20px; margin-top: 28px; }
+li { margin: 6px 0; }
+a { color: var(--accent); }
+[lang="ar"] a { unicode-bidi: plaintext; }
+nav { display: flex; gap: 16px; margin: 0 0 16px; flex-wrap: wrap; }
+nav a:first-child { font-weight: 700; }
+.tag { font-size: 18px; opacity: .8; margin: 0 0 20px; }
+.soon { display: inline-block; padding: 8px 14px; border: 1px solid var(--accent); border-radius: 999px; color: var(--accent); font-weight: 600; }
+.muted { opacity: .7; font-size: 14px; }
+section + section { margin-top: 48px; padding-top: 32px; border-top: 1px solid rgba(128,128,128,.3); }
+
+a[href^="mailto:"] { white-space: nowrap; }
