@@ -8,7 +8,7 @@ Source: `build.mjs` (one layout, all texts). Run `node docs/email-design/build.m
 | File | Sent when | Sent by | Where it goes live |
 |---|---|---|---|
 | `reset_password` | Forgot password | Supabase Auth | Authentication > Emails > Templates |
-| `confirm_signup` | New account (only if email confirmation is switched on; today it is off) | Supabase Auth | same |
+| `confirm_signup` | New account (email confirmation is on) | Supabase Auth | same |
 | `change_email` | Email change requested (goes to the new address) | Supabase Auth | same |
 | `reauthentication` | A sensitive change asks for a code | Supabase Auth | same |
 | `password_changed` | Password changed (security notice) | Supabase Auth | same (Security notifications) |

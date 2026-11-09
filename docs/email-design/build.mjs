@@ -67,7 +67,7 @@ const E = {
     ar: { h: "إعادة تعيين كلمة المرور", p: ["وصلنا طلب لإعادة تعيين كلمة مرور حسابك في هللة.", "اضغط الزر أدناه لاختيار كلمة مرور جديدة."], button: "اختيار كلمة مرور جديدة", href: URL_, note: "إذا لم تطلب ذلك، تجاهل هذه الرسالة. لن تتغير كلمة مرورك." },
   },
   confirm_signup: {
-    where: "Supabase > Authentication > Emails > Templates > Confirm sign up (only used if email confirmation is turned on)",
+    where: "Supabase > Authentication > Emails > Templates > Confirm sign up (email confirmation is on)",
     subject: "Confirm your email · تأكيد بريدك الإلكتروني",
     en: { h: "Confirm your email", p: ["Welcome to Halala. Confirm your email address to finish creating your account."], button: "Confirm email", href: URL_, note: "If you didn't create an account, ignore this email." },
     ar: { h: "تأكيد بريدك الإلكتروني", p: ["أهلًا بك في هللة. أكّد بريدك الإلكتروني لإكمال إنشاء حسابك."], button: "تأكيد البريد", href: URL_, note: "إذا لم تنشئ حسابًا، تجاهل هذه الرسالة." },

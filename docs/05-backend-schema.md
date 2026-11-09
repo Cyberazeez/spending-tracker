@@ -7,7 +7,7 @@ Status: APPROVED by owner (2026-10-30). Postgres on Supabase, migrations in `sup
 - Times: `timestamptz` in UTC. SMS timestamps are Riyadh local time; parsers convert (UTC+3). UI renders in Asia/Riyadh, 24h.
 - Every table has `user_id uuid not null references auth.users`, default `auth.uid()`, plus `created_at timestamptz default now()`.
 - Text search columns store a normalized form: lowercase, Arabic diacritics (tashkeel) and tatweel removed, alef/hamza variants folded, Arabic-Indic digits to ASCII, punctuation collapsed.
-- Sign-up is open for the closed family test (2026-11-04): `enable_signup = true`, email confirmation off. The person's name is stored in the auth user's `user_metadata.name` (display only, never used for authorization). Risk accepted for the test: anyone who extracts the anon key could register directly; the AI ceiling (`AI_GLOBAL_CAP_HALALAS`) limits the cost.
+- Sign-up is open for the closed family test (2026-11-04): `enable_signup = true`. Email confirmation is **on** (live setting checked 2026-11-09; the config file said off until then): a new account must open the link in the email before it can sign in. A reviewer or test account on an address with no mailbox is confirmed by hand in the database. The person's name is stored in the auth user's `user_metadata.name` (display only, never used for authorization). Risk accepted for the test: anyone who extracts the anon key could register directly; the AI ceiling (`AI_GLOBAL_CAP_HALALAS`) limits the cost.
 
 ## Access model (RLS)
 - RLS enabled on every table. Default policy: `user_id = auth.uid()` for select, insert, update, delete, unless noted.

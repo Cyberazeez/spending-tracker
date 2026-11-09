@@ -182,6 +182,12 @@ abstract class AppLocalizations {
   /// **'Wrong email or password.'**
   String get invalidCredentials;
 
+  /// No description provided for @emailNotConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm your email first. Open the link we sent to your inbox.'**
+  String get emailNotConfirmed;
+
   /// No description provided for @networkError.
   ///
   /// In en, this message translates to:

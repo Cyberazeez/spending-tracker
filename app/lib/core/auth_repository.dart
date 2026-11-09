@@ -8,7 +8,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../config.dart';
 import 'apple_nonce.dart';
 
-enum SignInFailure { invalidCredentials, network }
+enum SignInFailure { invalidCredentials, emailNotConfirmed, network }
 
 /// How a Sign in with Apple attempt ended. Closing Apple's sheet is not an error.
 enum SocialResult { cancelled, signedIn, reactivated }
@@ -178,6 +178,10 @@ class SupabaseAuthRepository implements AuthRepository {
         password: password,
       );
     } on AuthApiException catch (e) {
+      // Confirm email is on: the account exists but its link was not opened yet. Say so, not "wrong password".
+      if (e.code == 'email_not_confirmed') {
+        throw const SignInException(SignInFailure.emailNotConfirmed);
+      }
       if (e.statusCode == '400' || e.code == 'invalid_credentials') {
         throw const SignInException(SignInFailure.invalidCredentials);
       }
