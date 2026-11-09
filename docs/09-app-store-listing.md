@@ -7,8 +7,8 @@ Status: DRAFT for the owner (2026-11-08). Nothing here is submitted. Items marke
 |---|---|---|---|
 | 1 | **App name** (30 max) | Decided and saved in App Store Connect on 2026-11-09 | **Halala** (هللة). Fallback if ever needed: Masroof |
 | 2 | ~~iPad or iPhone only~~ **DECIDED 2026-11-08: iPhone only** (`TARGETED_DEVICE_FAMILY = 1`, iPad orientations removed; no iPad screenshots needed) | The Runner target is built for iPhone **and** iPad (`TARGETED_DEVICE_FAMILY = "1,2"`), so Apple requires iPad screenshots (13-inch, 2064x2752) and the layout must look right on iPad | iPhone only: set `TARGETED_DEVICE_FAMILY = 1` for Runner and drop the iPad orientations from `Info.plist`. Much less work for a phone-first app |
-| 3 | **Privacy policy URL** | Required field. The English page is `docs/privacy/index.html`, the Arabic page is `docs/privacy/ar/index.html` (both served from GitHub Pages) | Send me the exact public URL of the English page, I will put it here and in the app |
-| 4 | **Support URL and contact** | Required field | A page or mailto on your own domain, for example `https://rawafiddata.com/` plus `privacy@rawafiddata.com` (alias still to create) |
+| 3 | **Privacy policy URL** | Required field. The English page is `site/privacy/index.html`, the Arabic page is `site/privacy/ar/index.html`, served by Cloudflare Pages | `https://halala.rawafiddata.com/privacy/` once the site is live |
+| 4 | **Support URL and contact** | Required field | A page or mailto on your own domain, for example `https://halala.rawafiddata.com/support/` plus `support@halala.rawafiddata.com` and `privacy@halala.rawafiddata.com` (mailboxes to create in Cloudflare Email Routing). Privacy policy URL: `https://halala.rawafiddata.com/privacy/` (Arabic: `/privacy/ar/`) |
 | 5 | **Reviewer account** | App Review needs to sign in | Create a dedicated email + password account with some sample data (Quick add a few purchases). Put it in section 6 |
 | 6 | **Paid plan text** | The paid plan (AI) is not built yet. If the first release has no purchase, leave all price text out | Ship v1 without in-app purchase, add it in 1.1 with the subscription text from section 7 |
 | 7 | **Copyright line** | Required field | "2026 <your name or company>" |
@@ -54,7 +54,7 @@ Status: DRAFT for the owner (2026-11-08). Nothing here is submitted. Items marke
 (Do not claim "all Saudi banks" or "bank-grade security": neither is true or provable. Keep the supported-bank list in step with `docs/07-sms-catalog.md`.)
 
 ## 4. Arabic listing
-- **الاسم** [15]: متتبع المصروفات
+- **الاسم** [4]: هللة
 - **العنوان الفرعي** [18]: اعرف أين يذهب مالك
 - **النص الترويجي** [158]: رسائل البنك تتحول إلى مصروفات وفواتير وميزانيات واضحة. بالعربية والإنجليزية، مصمم للبنوك السعودية، مع ودجت للشاشة الرئيسية ومساعدة اختيارية بالذكاء الاصطناعي.
 - **الكلمات المفتاحية** [71]: ميزانية,مصروفات,فواتير,ريال,السعودية,رسائل,توفير,مال,راتب,تتبع,ودجت,بنك
