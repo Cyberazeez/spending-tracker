@@ -7,7 +7,7 @@ import Foundation
 struct AddBankMessageIntent: AppIntent {
   static let title: LocalizedStringResource = "Add bank message"
   static let description = IntentDescription(
-    "Sends a bank SMS to your Spending Tracker so the purchase is recorded.")
+    "Sends a bank SMS to your Halala so the purchase is recorded.")
   static var openAppWhenRun: Bool = false
 
   @Parameter(title: "Sender")
@@ -37,7 +37,7 @@ enum CaptureError: Error, CustomLocalizedStringResourceConvertible {
   var localizedStringResource: LocalizedStringResource {
     switch self {
     case .notSetUp:
-      return "Open Spending Tracker once and sign in. The message is saved and will be sent then."
+      return "Open Halala once and sign in. The message is saved and will be sent then."
     }
   }
 }

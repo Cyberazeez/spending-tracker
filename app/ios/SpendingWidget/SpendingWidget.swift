@@ -271,7 +271,7 @@ struct SpendingTrackerWidget: Widget {
             SpendingWidgetView(entry: entry)
                 .widgetBackground()
         }
-        .configurationDisplayName("Spending")
+        .configurationDisplayName("Halala")
         .description("Spent today, spent this month and your monthly budget.")
         .supportedFamilies([.systemSmall, .systemMedium, .accessoryCircular, .accessoryRectangular, .accessoryInline])
     }
