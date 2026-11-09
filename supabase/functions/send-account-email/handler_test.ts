@@ -104,3 +104,14 @@ Deno.test("no API key means no send", async () => {
   );
   assert.equal(ok, false);
 });
+
+Deno.test("the deletion mail uses the Halala layout: both languages, support address, privacy link", () => {
+  const mail = renderAccountEmail("deletion_requested");
+  assert.match(mail.subject, /30 days/);
+  assert.match(mail.subject, /30 يومًا/);
+  assert.match(mail.html, /halala-support@rawafiddata\.com/);
+  assert.match(mail.html, /halala\.rawafiddata\.com\/privacy\//);
+  assert.match(mail.html, /dir="ltr"/);
+  assert.match(mail.html, /dir="rtl"/);
+  assert.match(mail.text, /sign in again/);
+});
