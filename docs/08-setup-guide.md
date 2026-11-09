@@ -55,8 +55,8 @@ Supabase takes daily backups on paid plans; on the free plan export the tables y
 Done in the Cloudflare and Resend dashboards by the owner. The site content lives in `site/` in this repo.
 1. **Cloudflare Pages:** Workers & Pages > Create > Pages > Connect to Git > this repo, branch `main`. Build command: none. Build output directory: `site`. Merging to `main` publishes the site.
 2. **Custom domain:** in the Pages project, Custom domains > add `halala.rawafiddata.com` (Cloudflare adds the DNS record because the domain is in the same account).
-3. **Email Routing** (receive): Email > Email Routing > enable for `rawafiddata.com`, add the subdomain `halala.rawafiddata.com`, then create `support@` and `privacy@` forwarding to the owner's inbox (verify the destination address from the email Cloudflare sends).
-4. **Resend** (send): Domains > Add domain `halala.rawafiddata.com` (region closest to users), use "Sign in to Cloudflare" to add the DNS records automatically, wait for **Verified**.
-5. **Switch the sender:** only after step 4 shows Verified, set the Supabase function secret `EMAIL_FROM` to `Halala <noreply@halala.rawafiddata.com>` and update `FROM_DEFAULT` in `supabase/functions/_shared/account_email.ts`.
-6. **Check:** open the three URLs (`/`, `/support/`, `/privacy/`), send a test mail to `support@`, trigger an account email and confirm it arrives from `noreply@halala.rawafiddata.com`.
+3. **Email Routing** (receive): all Halala mail uses one format, `halala-<role>@rawafiddata.com` (a website name such as `halala.rawafiddata.com` cannot also receive mail). Email > Email Routing on `rawafiddata.com`: create custom addresses `halala-support@` and `halala-privacy@` forwarding to the owner's inbox.
+4. **Resend** (send): Domains > Add domain `rawafiddata.com` (region closest to users), use "Sign in to Cloudflare" to add the DNS records automatically, wait for **Verified**. Resend puts its records on `send.` and `resend._domainkey`, so they do not clash with Email Routing.
+5. **Switch the sender:** only after step 4 shows Verified, set the Supabase function secret `EMAIL_FROM` to `Halala <halala-noreply@rawafiddata.com>` and update `FROM_DEFAULT` in `supabase/functions/_shared/account_email.ts`.
+6. **Check:** open the three URLs (`/`, `/support/`, `/privacy/`), send a test mail to `halala-support@rawafiddata.com`, trigger an account email and confirm it arrives from `halala-noreply@rawafiddata.com`.
 
