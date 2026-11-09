@@ -5,7 +5,7 @@ Status: DRAFT for the owner (2026-11-08). Nothing here is submitted. Items marke
 ## 1. Decisions and values needed (OWNER)
 | # | Item | Why | Suggestion |
 |---|---|---|---|
-| 1 | **App name** (30 max) | Must be unique on the App Store; "Spending Tracker" is generic and likely taken | Try "Spending Tracker", then "Spending Tracker: SAR" or a brand name. Arabic name below is separate and can differ |
+| 1 | **App name** (30 max) | Decided and saved in App Store Connect on 2026-11-09 | **Halala** (هللة). Fallback if ever needed: Masroof |
 | 2 | ~~iPad or iPhone only~~ **DECIDED 2026-11-08: iPhone only** (`TARGETED_DEVICE_FAMILY = 1`, iPad orientations removed; no iPad screenshots needed) | The Runner target is built for iPhone **and** iPad (`TARGETED_DEVICE_FAMILY = "1,2"`), so Apple requires iPad screenshots (13-inch, 2064x2752) and the layout must look right on iPad | iPhone only: set `TARGETED_DEVICE_FAMILY = 1` for Runner and drop the iPad orientations from `Info.plist`. Much less work for a phone-first app |
 | 3 | **Privacy policy URL** | Required field. The English page is `docs/privacy/index.html`, the Arabic page is `docs/privacy/ar/index.html` (both served from GitHub Pages) | Send me the exact public URL of the English page, I will put it here and in the app |
 | 4 | **Support URL and contact** | Required field | A page or mailto on your own domain, for example `https://rawafiddata.com/` plus `privacy@rawafiddata.com` (alias still to create) |
@@ -18,14 +18,14 @@ Status: DRAFT for the owner (2026-11-08). Nothing here is submitted. Items marke
 `Account > Privacy` is still a placeholder ("More options will appear here soon.") and has **no link to the privacy policy**. Apple expects the policy to be reachable inside the app as well as in the listing. Fix once the URL (item 3) is known: add a "Privacy policy" row that opens it, in English and Arabic, plus a link on the sign-up screen. Not done yet because the exact URL is not decided.
 
 ## 3. English listing
-- **Name** [16]: Spending Tracker  (see item 1)
+- **Name** [16]: Halala  (see item 1)
 - **Subtitle** [25]: See where your money goes
 - **Promotional text** (can be changed without a new build) [155]: Bank SMS turned into clear spending, bills and budgets. Works in English and Arabic, built for Saudi banks, with a home screen widget and optional AI help.
 - **Keywords** [95]: budget,expenses,spending,bills,SAR,Saudi,SMS,savings,money,finance,widget,Arabic,salary,tracker
 - **Category**: Finance · **Age rating**: 4+ (see section 5)
 - **Description** (4000 max):
 
-> Spending Tracker shows where your money goes, using the bank messages you already receive.
+> Halala shows where your money goes, using the bank messages you already receive.
 >
 > CAPTURE WITHOUT TYPING
 > Set up a small iOS Shortcut once, and every bank SMS from a supported bank becomes a transaction: merchant, amount, card ending, date and time. Supported today: Al Rajhi, SNB, Alinma, barq, D360 and STC Bank. You can always add a purchase by hand too.
@@ -101,7 +101,7 @@ Tracking: **No** (no advertising, no analytics SDK, no data broker). All items b
 Data processors to keep in step with the policy: Supabase (Mumbai), Resend (email), Apple (sign-in), Anthropic (optional AI; only when the user turns it on). Age rating questionnaire: no objectionable content, no gambling, no unrestricted web access → **4+**. Export compliance: `ITSAppUsesNonExemptEncryption = false` is already set (HTTPS only). Account deletion: in the app (Account > Privacy > Delete my account), satisfies the review rule on deletion; Sign in with Apple is offered next to email + password.
 
 ## 6. Notes for App Review (paste into "Notes")
-> Spending Tracker records the user's spending from bank SMS. The SMS capture is optional: a user sets up an iOS Shortcut that forwards bank messages to the app; all features also work with purchases added by hand (Quick add). To review without a bank, sign in with the demo account below and use Quick add to create a purchase.
+> Halala records the user's spending from bank SMS. The SMS capture is optional: a user sets up an iOS Shortcut that forwards bank messages to the app; all features also work with purchases added by hand (Quick add). To review without a bank, sign in with the demo account below and use Quick add to create a purchase.
 > Demo account: email <OWNER: create it> / password <OWNER: set it>. It has sample data.
 > Sign in with Apple is also offered. Account deletion is under Account > Privacy > Delete my account.
 > AI features are optional, off by default, and send only redacted text to Anthropic's API; they are not needed to review the app.
