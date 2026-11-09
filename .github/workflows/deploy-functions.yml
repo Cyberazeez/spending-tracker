@@ -1,0 +1,48 @@
+name: Deploy Edge Functions
+
+# Deploys the Edge Functions to Supabase when a change to them is merged to main (rule 5: deploys only happen by
+# merging). Tests and lint run first; if they fail nothing is deployed. Functions only: database migrations are
+# still applied by hand. The run can also be started by hand from the Actions tab (Run workflow).
+# Needs the repository secret SUPABASE_ACCESS_TOKEN (a Supabase token scoped to this project, Edge functions only).
+on:
+  push:
+    branches: [main]
+    paths:
+      - "supabase/functions/**"
+      - "supabase/config.toml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-functions
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      PROJECT_REF: evepfssanoffnwtqjmyq
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Lint and test the functions
+        working-directory: supabase/functions
+        run: |
+          deno lint
+          deno test --allow-read
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      # --use-api bundles on Supabase's side, so no Docker is needed. verify_jwt per function comes from
+      # supabase/config.toml, so the Shortcut and widget functions stay open to their own tokens.
+      - name: Deploy all functions
+        run: supabase functions deploy --use-api --project-ref "$PROJECT_REF"
