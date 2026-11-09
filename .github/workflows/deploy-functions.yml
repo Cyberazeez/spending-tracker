@@ -45,4 +45,4 @@ jobs:
       # --use-api bundles on Supabase's side, so no Docker is needed. verify_jwt per function comes from
       # supabase/config.toml, so the Shortcut and widget functions stay open to their own tokens.
       - name: Deploy all functions
-        run: supabase functions deploy --use-api --project-ref "$PROJECT_REF"
+        run: supabase functions deploy --use-api --yes --project-ref "$PROJECT_REF"
