@@ -456,7 +456,7 @@
   "captureGuide3Title": "Set the filter",
   "captureGuide3Body": "Change the filter to Message contains and type SAR. Turn Automation on (Run Immediately) and Confirm Before Run off, then tap Next.",
   "captureGuide4Title": "Add the action",
-  "captureGuide4Body": "Tap New Blank Automation, search “Add bank” and pick Add bank message (the Spending Tracker icon).",
+  "captureGuide4Body": "Tap New Blank Automation, search “Add bank” and pick Add bank message (the Halala icon).",
   "captureGuide5Title": "Fill the two fields",
   "captureGuide5Body": "Add Message from Sender: tap the first field and choose the Message variable, then tap the second field to choose Sender.",
   "captureGuide6Title": "Pick Sender",

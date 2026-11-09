@@ -685,7 +685,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get captureGuide4Body =>
-      'Tap New Blank Automation, search “Add bank” and pick Add bank message (the Spending Tracker icon).';
+      'Tap New Blank Automation, search “Add bank” and pick Add bank message (the Halala icon).';
 
   @override
   String get captureGuide5Title => 'Fill the two fields';

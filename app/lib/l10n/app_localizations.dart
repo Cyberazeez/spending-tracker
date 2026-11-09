@@ -1295,7 +1295,7 @@ abstract class AppLocalizations {
   /// No description provided for @captureGuide4Body.
   ///
   /// In en, this message translates to:
-  /// **'Tap New Blank Automation, search “Add bank” and pick Add bank message (the Spending Tracker icon).'**
+  /// **'Tap New Blank Automation, search “Add bank” and pick Add bank message (the Halala icon).'**
   String get captureGuide4Body;
 
   /// No description provided for @captureGuide5Title.

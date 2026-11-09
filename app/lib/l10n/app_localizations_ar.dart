@@ -685,7 +685,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get captureGuide4Body =>
-      'اضغط «أتمتة فارغة جديدة» ثم ابحث عن «Add bank» واختر «Add bank message» (أيقونة Spending Tracker).';
+      'اضغط «أتمتة فارغة جديدة» ثم ابحث عن «Add bank» واختر «Add bank message» (أيقونة Halala).';
 
   @override
   String get captureGuide5Title => 'املأ الحقلين';
