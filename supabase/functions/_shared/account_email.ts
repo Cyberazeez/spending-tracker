@@ -8,42 +8,45 @@ export type AccountEmailKind = "reactivated" | "deletion_requested";
 export const FROM_DEFAULT = "Halala <halala-noreply@rawafiddata.com>";
 const RESEND_URL = "https://api.resend.com/emails";
 
-interface Copy {
+import { type EmailBlock, emailHtml } from "./email_layout.ts";
+
+interface Copy extends EmailBlock {
   subject: string;
-  lines: string[];
 }
 
 const COPY: Record<AccountEmailKind, { en: Copy; ar: Copy }> = {
   reactivated: {
     en: {
       subject: "Your account is active again",
-      lines: [
-        "You signed in, so the deletion of your account is cancelled and your data is kept.",
-        "If this was not you, change your password now (Sign in > Forgot password?).",
-      ],
+      h: "Your account is active again",
+      p: ["You signed in, so the deletion of your account is cancelled and your data is kept."],
+      note: "If this wasn't you, change your password now (Sign in > Forgot password).",
     },
     ar: {
       subject: "حسابك نشط مرة أخرى",
-      lines: [
-        "لقد سجّلت الدخول، لذلك أُلغي حذف حسابك وبقيت بياناتك محفوظة.",
-        "إذا لم تكن أنت، غيّر كلمة المرور الآن (تسجيل الدخول > نسيت كلمة المرور؟).",
-      ],
+      h: "حسابك نشط مرة أخرى",
+      p: ["لقد سجّلت الدخول، لذلك أُلغي حذف حسابك وبقيت بياناتك محفوظة."],
+      note: "إذا لم تكن أنت، غيّر كلمة المرور الآن (تسجيل الدخول > نسيت كلمة المرور).",
     },
   },
   deletion_requested: {
     en: {
       subject: "Your account will be deleted in 30 days",
-      lines: [
-        "Someone asked to delete your account. It will be deleted for good in 30 days.",
-        "To cancel, just sign in again before then. If this was not you, sign in now and change your password.",
+      h: "Your account will be deleted in 30 days",
+      p: [
+        "Someone asked to delete your Halala account. It will be deleted for good in 30 days, together with your data.",
+        "To cancel, just sign in again before then.",
       ],
+      note: "If this wasn't you, sign in now and change your password.",
     },
     ar: {
       subject: "سيُحذف حسابك بعد 30 يومًا",
-      lines: [
-        "طُلب حذف حسابك، وسيُحذف نهائيًا بعد 30 يومًا.",
-        "للإلغاء، سجّل الدخول مرة أخرى قبل ذلك. إذا لم تكن أنت، سجّل الدخول الآن وغيّر كلمة المرور.",
+      h: "سيُحذف حسابك بعد 30 يومًا",
+      p: [
+        "طُلب حذف حسابك في هللة، وسيُحذف نهائيًا مع بياناتك بعد 30 يومًا.",
+        "للإلغاء، سجّل الدخول مرة أخرى قبل ذلك.",
       ],
+      note: "إذا لم تكن أنت، سجّل الدخول الآن وغيّر كلمة المرور.",
     },
   },
 };
@@ -52,15 +55,26 @@ export function renderAccountEmail(
   kind: AccountEmailKind,
 ): { subject: string; text: string; html: string } {
   const { en, ar } = COPY[kind];
-  const text = [en.subject, "", ...en.lines, "", "---", "", ar.subject, "", ...ar.lines].join("\n");
-  const block = (c: Copy, dir: "ltr" | "rtl") =>
-    `<div dir="${dir}" style="text-align:${
-      dir === "rtl" ? "right" : "left"
-    }"><h2>${c.subject}</h2>${c.lines.map((l) => `<p>${l}</p>`).join("")}</div>`;
+  const text = [
+    en.h,
+    "",
+    ...en.p,
+    "",
+    en.note ?? "",
+    "",
+    "---",
+    "",
+    ar.h,
+    "",
+    ...ar.p,
+    "",
+    ar.note ?? "",
+  ]
+    .join("\n");
   return {
-    subject: `${en.subject} / ${ar.subject}`,
+    subject: `${en.subject} · ${ar.subject}`,
     text,
-    html: `${block(en, "ltr")}<hr>${block(ar, "rtl")}`,
+    html: emailHtml(en, ar),
   };
 }
 

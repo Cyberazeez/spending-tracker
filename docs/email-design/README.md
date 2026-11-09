@@ -20,7 +20,7 @@ Not used by the app, so left alone: Invite user, Magic link.
 
 ## To go live (needs the owner's go)
 1. Auth emails: in Supabase paste each file's HTML into its template and the subject from `subjects.json`. The placeholders (`{{ .ConfirmationURL }}`, `{{ .Token }}`, `{{ .NewEmail }}`, `{{ .Email }}`, `{{ .OldEmail }}`) are Supabase's; check the exact names against the hint under each template box when pasting.
-2. Function emails: change `renderAccountEmail` to use the same layout (a small PR, deployed by the merge).
+2. Function emails: done 2026-11-09, `_shared/email_layout.ts` holds the same layout (keep it in step with `build.mjs`); deployed by the merge.
 3. Send one of each to a test inbox and look at it in Gmail and Apple Mail, light and dark.
 
 ## Support replies (manual, not automatic)
