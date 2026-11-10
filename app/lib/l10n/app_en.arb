@@ -14,6 +14,7 @@
   "signOut": "Sign out",
   "fieldRequired": "Required",
   "invalidCredentials": "Wrong email or password.",
+  "emailNotConfirmed": "Confirm your email first. Open the link we sent to your inbox.",
   "networkError": "Could not reach the server. Check your connection and try again.",
   "lockTitle": "Locked",
   "lockBody": "Unlock to see your spending.",

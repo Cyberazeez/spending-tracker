@@ -146,11 +146,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               ),
               if (missingPassword) FormError(t.fieldRequired),
               if (_failure != null)
-                FormError(
-                  _failure == SignInFailure.invalidCredentials
-                      ? t.invalidCredentials
-                      : t.networkError,
-                ),
+                FormError(switch (_failure!) {
+                  SignInFailure.invalidCredentials => t.invalidCredentials,
+                  SignInFailure.emailNotConfirmed => t.emailNotConfirmed,
+                  SignInFailure.network => t.networkError,
+                }),
               Align(
                 alignment: AlignmentDirectional.centerEnd,
                 child: CupertinoButton(

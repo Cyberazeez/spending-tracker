@@ -3,7 +3,7 @@
 project_id = "evepfssanoffnwtqjmyq"
 
 [auth]
-# Closed family test (2026-11-04): open sign-up, no email confirmation, so testers invited on TestFlight can start at once.
+# Open sign-up. Email confirmation is ON (checked in the dashboard 2026-11-09; this file said off and was out of date).
 # Must match the dashboard (Authentication > Sign In / Providers), or a CLI deploy would switch it back.
 # Before the public release: invite codes (see docs/superpowers/specs/2026-11-04-signup-stage-b-design.md).
 enable_signup = true
@@ -14,7 +14,7 @@ enable_anonymous_sign_ins = false
 minimum_password_length = 8
 
 [auth.email]
-enable_confirmations = false
+enable_confirmations = true
 secure_password_change = true
 
 [functions.ingest]

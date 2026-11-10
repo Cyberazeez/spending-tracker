@@ -5,7 +5,7 @@
   },
   "confirm_signup": {
     "subject": "Confirm your email · تأكيد بريدك الإلكتروني",
-    "where": "Supabase > Authentication > Emails > Templates > Confirm sign up (only used if email confirmation is turned on)"
+    "where": "Supabase > Authentication > Emails > Templates > Confirm sign up (email confirmation is on)"
   },
   "change_email": {
     "subject": "Confirm your new email · تأكيد بريدك الجديد",

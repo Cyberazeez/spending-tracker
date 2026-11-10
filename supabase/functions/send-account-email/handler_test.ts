@@ -115,3 +115,9 @@ Deno.test("the deletion mail uses the Halala layout: both languages, support add
   assert.match(mail.html, /dir="rtl"/);
   assert.match(mail.text, /sign in again/);
 });
+
+Deno.test("the layout stops Apple Mail from turning '30 days' into a date link", () => {
+  const mail = renderAccountEmail("deletion_requested");
+  assert.match(mail.html, /format-detection" content="[^"]*date=no/);
+  assert.match(mail.html, /a\[x-apple-data-detectors\]/);
+});

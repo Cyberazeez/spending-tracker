@@ -52,6 +52,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get invalidCredentials => 'Wrong email or password.';
 
   @override
+  String get emailNotConfirmed =>
+      'Confirm your email first. Open the link we sent to your inbox.';
+
+  @override
   String get networkError =>
       'Could not reach the server. Check your connection and try again.';
 

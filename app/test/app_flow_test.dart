@@ -40,6 +40,25 @@ void main() {
     expect(find.text('Home'), findsNothing);
   });
 
+  testWidgets('an unconfirmed email is told to confirm, not "wrong password"', (
+    tester,
+  ) async {
+    final h = Harness()..auth.failWith = SignInFailure.emailNotConfirmed;
+    await tester.pumpWidget(await h.build());
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+      find.byType(CupertinoTextField).first,
+      'me@example.com',
+    );
+    await tester.enterText(find.byType(CupertinoTextField).last, 'pw');
+    await tester.tap(find.widgetWithText(CupertinoButton, 'Sign in'));
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('Confirm your email first'), findsOneWidget);
+    expect(find.text('Wrong email or password.'), findsNothing);
+  });
+
   testWidgets('network failure shows a different message', (tester) async {
     final h = Harness()..auth.failWith = SignInFailure.network;
     await tester.pumpWidget(await h.build());

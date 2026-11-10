@@ -7,6 +7,7 @@ const PRIVACY_URL = "https://halala.rawafiddata.com/privacy/";
 
 const css = `
   body{margin:0;padding:0;background:#f4f1ea}
+  a[x-apple-data-detectors]{color:inherit!important;text-decoration:none!important;font-size:inherit!important;font-family:inherit!important;font-weight:inherit!important;line-height:inherit!important}
   .card{background:#ffffff;border-radius:16px}
   .t{color:#1d1d1b}.m{color:#66665f}
   @media (prefers-color-scheme:dark){
@@ -40,7 +41,7 @@ function html(en, ar, { automated = true } = {}) {
   const font = "-apple-system,'Segoe UI',Tahoma,'Geeza Pro',Arial,sans-serif";
   return `<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="color-scheme" content="light dark"><meta name="supported-color-schemes" content="light dark">
+<meta name="format-detection" content="telephone=no,date=no,address=no,email=no"><meta name="color-scheme" content="light dark"><meta name="supported-color-schemes" content="light dark">
 <title>${en.h}</title><style>${css}</style></head>
 <body><table role="presentation" class="bg" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f1ea"><tr><td align="center" style="padding:24px 12px">
 <table role="presentation" class="card" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:16px">
@@ -67,7 +68,7 @@ const E = {
     ar: { h: "إعادة تعيين كلمة المرور", p: ["وصلنا طلب لإعادة تعيين كلمة مرور حسابك في هللة.", "اضغط الزر أدناه لاختيار كلمة مرور جديدة."], button: "اختيار كلمة مرور جديدة", href: URL_, note: "إذا لم تطلب ذلك، تجاهل هذه الرسالة. لن تتغير كلمة مرورك." },
   },
   confirm_signup: {
-    where: "Supabase > Authentication > Emails > Templates > Confirm sign up (only used if email confirmation is turned on)",
+    where: "Supabase > Authentication > Emails > Templates > Confirm sign up (email confirmation is on)",
     subject: "Confirm your email · تأكيد بريدك الإلكتروني",
     en: { h: "Confirm your email", p: ["Welcome to Halala. Confirm your email address to finish creating your account."], button: "Confirm email", href: URL_, note: "If you didn't create an account, ignore this email." },
     ar: { h: "تأكيد بريدك الإلكتروني", p: ["أهلًا بك في هللة. أكّد بريدك الإلكتروني لإكمال إنشاء حسابك."], button: "تأكيد البريد", href: URL_, note: "إذا لم تنشئ حسابًا، تجاهل هذه الرسالة." },

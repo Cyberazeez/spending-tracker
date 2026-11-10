@@ -53,6 +53,10 @@ class AppLocalizationsAr extends AppLocalizations {
       'البريد الإلكتروني أو كلمة المرور غير صحيحة.';
 
   @override
+  String get emailNotConfirmed =>
+      'أكّد بريدك الإلكتروني أولًا. افتح الرابط الذي أرسلناه إلى بريدك.';
+
+  @override
   String get networkError =>
       'تعذّر الاتصال بالخادم. تحقق من الاتصال وحاول مرة أخرى.';
 
