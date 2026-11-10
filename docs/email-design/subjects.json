@@ -24,7 +24,7 @@
     "where": "Supabase > Authentication > Emails > Templates > Email address changed (security notification, sent to the old address)"
   },
   "account_deletion": {
-    "subject": "Your account will be deleted in 30 days · سيُحذف حسابك بعد 30 يومًا",
+    "subject": "Your account is scheduled for deletion · سيُحذف حسابك بعد 30 يومًا",
     "where": "Edge Function delete-account (supabase/functions/_shared/account_email.ts)"
   },
   "account_reactivated": {
