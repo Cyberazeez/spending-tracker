@@ -15,6 +15,7 @@ const FONT = "-apple-system,'Segoe UI',Tahoma,'Geeza Pro',Arial,sans-serif";
 
 const CSS = `
   body{margin:0;padding:0;background:#f4f1ea}
+  a[x-apple-data-detectors]{color:inherit!important;text-decoration:none!important;font-size:inherit!important;font-family:inherit!important;font-weight:inherit!important;line-height:inherit!important}
   .card{background:#ffffff;border-radius:16px}
   .t{color:#1d1d1b}.m{color:#66665f}
   @media (prefers-color-scheme:dark){
@@ -41,7 +42,7 @@ function block(c: EmailBlock, dir: "ltr" | "rtl"): string {
 export function emailHtml(en: EmailBlock, ar: EmailBlock): string {
   return `<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="color-scheme" content="light dark"><meta name="supported-color-schemes" content="light dark">
+<meta name="format-detection" content="telephone=no,date=no,address=no,email=no"><meta name="color-scheme" content="light dark"><meta name="supported-color-schemes" content="light dark">
 <title>${en.h}</title><style>${CSS}</style></head>
 <body><table role="presentation" class="bg" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f1ea"><tr><td align="center" style="padding:24px 12px">
 <table role="presentation" class="card" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:16px">
