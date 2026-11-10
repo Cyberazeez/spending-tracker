@@ -31,10 +31,11 @@ const COPY: Record<AccountEmailKind, { en: Copy; ar: Copy }> = {
   },
   deletion_requested: {
     en: {
-      subject: "Your account will be deleted in 30 days",
-      h: "Your account will be deleted in 30 days",
+      // No "in 30 days" here: Apple Mail turns that phrase into a blue date link. "30-day" is left alone.
+      subject: "Your account is scheduled for deletion",
+      h: "Your account is scheduled for deletion",
       p: [
-        "Someone asked to delete your Halala account. It will be deleted for good in 30 days, together with your data.",
+        "Someone asked to delete your Halala account. It will be deleted for good after a 30-day grace period, together with your data.",
         "To cancel, just sign in again before then.",
       ],
       note: "If this wasn't you, sign in now and change your password.",

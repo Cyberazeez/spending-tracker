@@ -99,8 +99,8 @@ const E = {
   },
   account_deletion: {
     where: "Edge Function delete-account (supabase/functions/_shared/account_email.ts)",
-    subject: "Your account will be deleted in 30 days · سيُحذف حسابك بعد 30 يومًا",
-    en: { h: "Your account will be deleted in 30 days", p: ["Someone asked to delete your Halala account. It will be deleted for good in 30 days, together with your data.", "To cancel, just sign in again before then."], note: "If this wasn't you, sign in now and change your password." },
+    subject: "Your account is scheduled for deletion · سيُحذف حسابك بعد 30 يومًا",
+    en: { h: "Your account is scheduled for deletion", p: ["Someone asked to delete your Halala account. It will be deleted for good after a 30-day grace period, together with your data.", "To cancel, just sign in again before then."], note: "If this wasn't you, sign in now and change your password." },
     ar: { h: "سيُحذف حسابك بعد 30 يومًا", p: ["طُلب حذف حسابك في هللة، وسيُحذف نهائيًا مع بياناتك بعد 30 يومًا.", "للإلغاء، سجّل الدخول مرة أخرى قبل ذلك."], note: "إذا لم تكن أنت، سجّل الدخول الآن وغيّر كلمة المرور." },
   },
   account_reactivated: {
