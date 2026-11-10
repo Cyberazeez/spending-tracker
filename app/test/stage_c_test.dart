@@ -144,6 +144,24 @@ void main() {
     expect(field.controller!.text, '1234');
   });
 
+  testWidgets('Account > Privacy links to the policy, terms and support', (
+    tester,
+  ) async {
+    final h = await start(tester);
+    await openAccountPage(tester);
+    await tester.tap(find.text('Privacy'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Privacy policy'));
+    await tester.tap(find.text('Terms of Use'));
+    await tester.tap(find.text('Support'));
+    await tester.pumpAndSettle();
+    expect(h.urls.opened.map((u) => u.toString()), [
+      'https://halala.rawafiddata.com/privacy/',
+      'https://halala.rawafiddata.com/terms/',
+      'https://halala.rawafiddata.com/support/',
+    ]);
+  });
+
   group('bank accounts', () {
     testWidgets('list, add with validation, duplicate, and remove', (
       tester,

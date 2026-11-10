@@ -11,6 +11,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../core/auth_repository.dart';
 import '../../core/capture_bridge.dart';
 import '../../core/capture_setup.dart';
+import '../../core/legal.dart';
 import '../../core/providers.dart';
 import '../../core/widget_bridge.dart';
 import '../../core/widget_setup.dart';
@@ -371,12 +372,15 @@ class _SecurityPageState extends ConsumerState<SecurityPage> {
 }
 
 /// Placeholder until the privacy options exist.
-class PrivacyPage extends StatelessWidget {
+class PrivacyPage extends ConsumerWidget {
   const PrivacyPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final t = AppLocalizations.of(context);
+    final locale = Localizations.localeOf(context);
+    void open(LegalPage page) =>
+        ref.read(urlOpenerProvider).open(legalUri(page, locale));
     return CupertinoPageScaffold(
       backgroundColor: AppTokens.bg.resolveFrom(context),
       navigationBar: appNavBar(context, t.accountPrivacy),
@@ -393,6 +397,29 @@ class PrivacyPage extends StatelessWidget {
                   height: 1.4,
                 ),
               ),
+            ),
+            const SizedBox(height: 16),
+            SettingsGroup(
+              children: [
+                SettingsRow(
+                  icon: LucideIcons.shieldCheck,
+                  color: AppTokens.accent.resolveFrom(context),
+                  title: t.legalPrivacyPolicy,
+                  onTap: () => open(LegalPage.privacy),
+                ),
+                SettingsRow(
+                  icon: LucideIcons.fileText,
+                  color: AppTokens.accent.resolveFrom(context),
+                  title: t.legalTermsOfUse,
+                  onTap: () => open(LegalPage.terms),
+                ),
+                SettingsRow(
+                  icon: LucideIcons.lifeBuoy,
+                  color: AppTokens.accent.resolveFrom(context),
+                  title: t.legalSupport,
+                  onTap: () => open(LegalPage.support),
+                ),
+              ],
             ),
             const SizedBox(height: 16),
             SettingsGroup(

@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/auth_repository.dart';
+import '../../core/legal.dart';
 import '../../core/lock.dart';
 import '../../core/providers.dart';
 import '../../l10n/app_localizations.dart';
@@ -26,6 +27,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
   final _password = TextEditingController();
   final _again = TextEditingController();
   bool _busy = false;
+  bool _agreed = false;
   String? _error;
   bool _checkEmail = false;
   String _sentTo = '';
@@ -76,7 +78,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
   }
 
   Future<void> _submit() async {
-    if (_busy) return;
+    if (_busy || !_agreed) return;
     final t = AppLocalizations.of(context);
     final name = _name.text.trim();
     final email = _email.text.trim();
@@ -105,7 +107,12 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
     try {
       final result = await ref
           .read(authRepositoryProvider)
-          .signUp(name: name, email: email, password: _password.text);
+          .signUp(
+            name: name,
+            email: email,
+            password: _password.text,
+            termsVersion: legalVersion,
+          );
       if (result == SignUpResult.confirmEmail) {
         lock.lockNow();
         if (mounted) {
@@ -213,19 +220,88 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
                   autofillHints: const [AutofillHints.newPassword],
                   onSubmitted: (_) => _submit(),
                 ),
+                const SizedBox(height: 20),
+                _AgreeRow(
+                  agreed: _agreed,
+                  onChanged: (v) => setState(() => _agreed = v),
+                ),
                 if (_error != null) FormError(_error!),
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
                 PrimaryButton(
                   label: t.signUpTitle,
                   busy: _busy,
-                  onPressed: _submit,
+                  onPressed: _agreed ? _submit : null,
                 ),
-                const AppleSignInSection(),
+                if (!_agreed)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Text(
+                      t.signUpAgreeRequired,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: AppTokens.muted.resolveFrom(context),
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                AppleSignInSection(enabled: _agreed),
               ],
             ],
           ),
         ),
       ),
+    );
+  }
+}
+
+/// The box a person ticks to agree to the Terms of Use and the Privacy Policy before an account is created.
+class _AgreeRow extends ConsumerWidget {
+  const _AgreeRow({required this.agreed, required this.onChanged});
+
+  final bool agreed;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = AppLocalizations.of(context);
+    final locale = Localizations.localeOf(context);
+    final text = TextStyle(
+      color: AppTokens.text.resolveFrom(context),
+      fontSize: 14,
+    );
+    Widget link(String label, LegalPage page) => CupertinoButton(
+      padding: EdgeInsets.zero,
+      minimumSize: const Size(0, 28),
+      onPressed: () => ref.read(urlOpenerProvider).open(legalUri(page, locale)),
+      child: Text(label, style: const TextStyle(fontSize: 14)),
+    );
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Semantics(
+          label: t.signUpAgreePrefix,
+          child: CupertinoCheckbox(
+            value: agreed,
+            onChanged: (v) => onChanged(v ?? false),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.only(top: 1),
+            child: Wrap(
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: 4,
+              children: [
+                Text(t.signUpAgreePrefix, style: text),
+                link(t.legalTermsOfUse, LegalPage.terms),
+                Text(t.signUpAgreeAnd, style: text),
+                link(t.legalPrivacyPolicy, LegalPage.privacy),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

@@ -13,7 +13,10 @@ import '../account/account_providers.dart';
 /// "or" divider and the Sign in with Apple button, shown on Sign in and Sign up. Hidden where Apple sign-in is not
 /// available. Closing Apple's sheet is not an error.
 class AppleSignInSection extends ConsumerStatefulWidget {
-  const AppleSignInSection({super.key});
+  const AppleSignInSection({super.key, this.enabled = true});
+
+  /// False on Sign up until the Terms box is ticked (Apple's button creates an account too).
+  final bool enabled;
 
   @override
   ConsumerState<AppleSignInSection> createState() => _AppleSignInSectionState();
@@ -81,9 +84,9 @@ class _AppleSignInSectionState extends ConsumerState<AppleSignInSection> {
         ),
         const SizedBox(height: 16),
         Opacity(
-          opacity: _busy ? 0.5 : 1,
+          opacity: _busy || !widget.enabled ? 0.5 : 1,
           child: SignInWithAppleButton(
-            onPressed: _busy ? null : _run,
+            onPressed: _busy || !widget.enabled ? null : _run,
             text: t.appleSignIn,
             height: 52,
             borderRadius: BorderRadius.circular(26),

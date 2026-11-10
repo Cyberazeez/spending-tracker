@@ -1097,6 +1097,25 @@ class AppLocalizationsAr extends AppLocalizations {
   String get accountPrivacy => 'الخصوصية';
 
   @override
+  String get legalTermsOfUse => 'شروط الاستخدام';
+
+  @override
+  String get legalPrivacyPolicy => 'سياسة الخصوصية';
+
+  @override
+  String get legalSupport => 'الدعم';
+
+  @override
+  String get signUpAgreePrefix => 'أوافق على';
+
+  @override
+  String get signUpAgreeAnd => 'و';
+
+  @override
+  String get signUpAgreeRequired =>
+      'ضع علامة في المربع للموافقة قبل إنشاء الحساب.';
+
+  @override
   String get accountName => 'الاسم';
 
   @override

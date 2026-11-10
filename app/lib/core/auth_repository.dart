@@ -90,10 +90,13 @@ abstract class AuthRepository {
   Future<bool> reactivateIfPending();
 
   /// Creates an account (family testing: open sign-up). Throws [SignUpException].
+  /// [termsVersion] is the version of the Terms of Use and Privacy Policy the person ticked; it is stored with the
+  /// account together with the time, as the record of the agreement.
   Future<SignUpResult> signUp({
     required String name,
     required String email,
     required String password,
+    required String termsVersion,
   });
   Future<void> signOut();
 
@@ -228,12 +231,17 @@ class SupabaseAuthRepository implements AuthRepository {
     required String name,
     required String email,
     required String password,
+    required String termsVersion,
   }) async {
     try {
       final res = await _client.auth.signUp(
         email: email.trim(),
         password: password,
-        data: {'name': name.trim()},
+        data: {
+          'name': name.trim(),
+          'terms_version': termsVersion,
+          'terms_accepted_at': DateTime.now().toUtc().toIso8601String(),
+        },
         emailRedirectTo: AppConfig.authRedirect,
       );
       // With "confirm email" on, a registered address comes back as a user with no identities and no error.
