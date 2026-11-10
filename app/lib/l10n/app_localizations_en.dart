@@ -1101,6 +1101,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get accountPrivacy => 'Privacy';
 
   @override
+  String get legalTermsOfUse => 'Terms of Use';
+
+  @override
+  String get legalPrivacyPolicy => 'Privacy policy';
+
+  @override
+  String get legalSupport => 'Support';
+
+  @override
+  String get signUpAgreePrefix => 'I agree to the';
+
+  @override
+  String get signUpAgreeAnd => 'and the';
+
+  @override
+  String get signUpAgreeRequired =>
+      'Tick the box to agree before creating an account.';
+
+  @override
   String get accountName => 'Name';
 
   @override

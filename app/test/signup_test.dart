@@ -22,16 +22,71 @@ Future<void> fill(
   String email = 'sara@example.test',
   String pass = 'password123',
   String again = 'password123',
+  bool agree = true,
 }) async {
   await t.enterText(find.byType(CupertinoTextField).at(0), name);
   await t.enterText(find.byType(CupertinoTextField).at(1), email);
   await t.enterText(find.byType(CupertinoTextField).at(2), pass);
   await t.enterText(find.byType(CupertinoTextField).at(3), again);
+  // The box stays ticked between calls in one test; tick it only when it is not.
+  if (agree &&
+      !t.widget<CupertinoCheckbox>(find.byType(CupertinoCheckbox)).value!) {
+    await t.tap(find.byType(CupertinoCheckbox));
+    await t.pumpAndSettle();
+  }
   await t.tap(find.widgetWithText(CupertinoButton, 'Create account').last);
   await t.pumpAndSettle();
 }
 
 void main() {
+  testWidgets('Create account stays off until the terms box is ticked', (
+    tester,
+  ) async {
+    final h = await openSignUp(tester);
+    await fill(tester, agree: false);
+    expect(h.auth.signUpCalls, isEmpty);
+    expect(
+      find.text('Tick the box to agree before creating an account.'),
+      findsOneWidget,
+    );
+    await tester.tap(find.byType(CupertinoCheckbox));
+    await tester.pumpAndSettle();
+    expect(
+      find.text('Tick the box to agree before creating an account.'),
+      findsNothing,
+    );
+    await tester.tap(
+      find.widgetWithText(CupertinoButton, 'Create account').last,
+    );
+    await tester.pumpAndSettle();
+    expect(h.auth.signUpCalls.length, 1);
+    expect(h.auth.signUpTerms, ['2026-11-10']);
+  });
+
+  testWidgets('the terms and privacy links open the public pages', (
+    tester,
+  ) async {
+    final h = await openSignUp(tester);
+    await tester.tap(find.text('Terms of Use'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Privacy policy'));
+    await tester.pumpAndSettle();
+    expect(h.urls.opened.map((u) => u.toString()), [
+      'https://halala.rawafiddata.com/terms/',
+      'https://halala.rawafiddata.com/privacy/',
+    ]);
+  });
+
+  testWidgets('in Arabic the links open the Arabic pages', (tester) async {
+    final h = await openSignUp(tester, lang: 'ar');
+    await tester.tap(find.text('شروط الاستخدام'));
+    await tester.pumpAndSettle();
+    expect(
+      h.urls.opened.single.toString(),
+      'https://halala.rawafiddata.com/terms/ar/',
+    );
+  });
+
   testWidgets('the login screen links to Create account and swipe goes back', (
     tester,
   ) async {

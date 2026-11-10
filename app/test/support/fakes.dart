@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
 import 'package:spending_tracker/app.dart';
 import 'package:spending_tracker/core/auth_repository.dart';
+import 'package:spending_tracker/core/legal.dart';
 import 'package:spending_tracker/core/capture_bridge.dart';
 import 'package:spending_tracker/core/data_repository.dart';
 import 'package:spending_tracker/core/lock.dart';
@@ -41,15 +42,18 @@ class FakeAuthRepository implements AuthRepository {
   SignUpFailure? signUpFailWith;
   SignUpResult signUpResult = SignUpResult.signedIn;
   final signUpCalls = <(String, String, String)>[];
+  final signUpTerms = <String>[];
 
   @override
   Future<SignUpResult> signUp({
     required String name,
     required String email,
     required String password,
+    required String termsVersion,
   }) async {
     if (signUpFailWith != null) throw SignUpException(signUpFailWith!);
     signUpCalls.add((name, email, password));
+    signUpTerms.add(termsVersion);
     if (signUpResult == SignUpResult.signedIn) {
       _signedIn = true;
       fakeName = name;
@@ -835,6 +839,13 @@ class FakeReminderBridge implements ReminderBridge {
   }
 }
 
+class FakeUrlOpener implements UrlOpener {
+  final opened = <Uri>[];
+
+  @override
+  Future<void> open(Uri uri) async => opened.add(uri);
+}
+
 class Harness {
   Harness({bool signedIn = false})
     : auth = FakeAuthRepository(signedIn: signedIn),
@@ -843,7 +854,8 @@ class Harness {
       data = FakeDataRepository(),
       widget = FakeWidgetBridge(),
       reminders = FakeReminderBridge(),
-      capture = FakeCaptureBridge();
+      capture = FakeCaptureBridge(),
+      urls = FakeUrlOpener();
 
   final FakeAuthRepository auth;
   final FakeAuthenticator authenticator;
@@ -852,6 +864,7 @@ class Harness {
   final FakeWidgetBridge widget;
   final FakeReminderBridge reminders;
   final FakeCaptureBridge capture;
+  final FakeUrlOpener urls;
   DateTime now = DateTime.utc(2026, 10, 30, 12);
 
   Future<ProviderScope> build({
@@ -873,6 +886,7 @@ class Harness {
         widgetBridgeProvider.overrideWithValue(widget),
         reminderBridgeProvider.overrideWithValue(reminders),
         captureBridgeProvider.overrideWithValue(capture),
+        urlOpenerProvider.overrideWithValue(urls),
         sharedPrefsProvider.overrideWithValue(sp),
         clockProvider.overrideWithValue(() => now),
       ],

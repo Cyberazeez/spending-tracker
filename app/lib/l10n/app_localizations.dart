@@ -2042,6 +2042,42 @@ abstract class AppLocalizations {
   /// **'Privacy'**
   String get accountPrivacy;
 
+  /// No description provided for @legalTermsOfUse.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms of Use'**
+  String get legalTermsOfUse;
+
+  /// No description provided for @legalPrivacyPolicy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy policy'**
+  String get legalPrivacyPolicy;
+
+  /// No description provided for @legalSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Support'**
+  String get legalSupport;
+
+  /// No description provided for @signUpAgreePrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'I agree to the'**
+  String get signUpAgreePrefix;
+
+  /// No description provided for @signUpAgreeAnd.
+  ///
+  /// In en, this message translates to:
+  /// **'and the'**
+  String get signUpAgreeAnd;
+
+  /// No description provided for @signUpAgreeRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Tick the box to agree before creating an account.'**
+  String get signUpAgreeRequired;
+
   /// No description provided for @accountName.
   ///
   /// In en, this message translates to:
