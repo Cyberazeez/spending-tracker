@@ -35,26 +35,43 @@ void main() {
         ),
       );
       Color r(CupertinoDynamicColor c) => Color(c.resolveFrom(ctx).toARGB32());
-      expect(
-        r(AppTokens.card),
-        dark ? const Color(0xFF141A22) : const Color(0xFFFFFFFF),
-      );
-      expect(
-        r(AppTokens.accent),
-        dark ? const Color(0xFF3CC4A8) : const Color(0xFF0A7E6B),
-      );
-      expect(
-        contrast(r(AppTokens.text), r(AppTokens.card)),
-        greaterThanOrEqualTo(4.5),
-      );
-      expect(
-        contrast(r(AppTokens.muted), r(AppTokens.card)),
-        greaterThanOrEqualTo(4.5),
-      );
-      expect(
-        contrast(r(AppTokens.muted), r(AppTokens.bg)),
-        greaterThanOrEqualTo(4.5),
-      );
+      Color hex(int light, int darkV) => Color(dark ? darkV : light);
+      expect(r(AppTokens.bg), hex(0xFFF0F5E6, 0xFF0D1F17));
+      expect(r(AppTokens.card), hex(0xFFFFFFFF, 0xFF173326));
+      expect(r(AppTokens.text), hex(0xFF0D1F17, 0xFFF0F5E6));
+      expect(r(AppTokens.accent), hex(0xFF00A86B, 0xFF3FD79B));
+      expect(r(AppTokens.accentText), hex(0xFF00704A, 0xFF3FD79B));
+      expect(r(AppTokens.line), hex(0xFF0D1F17, 0xFFF0F5E6));
+      expect(r(AppTokens.gold), hex(0xFFFFC93C, 0xFFFFC93C));
+      expect(r(AppTokens.danger), hex(0xFFD11A3F, 0xFFFF9DB0));
+      final pairs = {
+        'text on card': (AppTokens.text, AppTokens.card),
+        'text on bg': (AppTokens.text, AppTokens.bg),
+        'muted on card': (AppTokens.muted, AppTokens.card),
+        'muted on bg': (AppTokens.muted, AppTokens.bg),
+        'accentText on card': (AppTokens.accentText, AppTokens.card),
+        'accentText on bg': (AppTokens.accentText, AppTokens.bg),
+        'onAccent on accent': (AppTokens.onAccent, AppTokens.accent),
+        'danger on card': (AppTokens.danger, AppTokens.card),
+        'danger on bg': (AppTokens.danger, AppTokens.bg),
+        'warnText on card': (AppTokens.warnText, AppTokens.card),
+        'warnText on bg': (AppTokens.warnText, AppTokens.bg),
+        'onTint on warnBg': (AppTokens.onTint, AppTokens.warnBg),
+        'okText on okBg': (AppTokens.okText, AppTokens.okBg),
+      };
+      for (final e in pairs.entries) {
+        expect(
+          contrast(r(e.value.$1), r(e.value.$2)),
+          greaterThanOrEqualTo(4.5),
+          reason: e.key,
+        );
+      }
+      final shadow = hardShadowOf(ctx);
+      expect(shadow, hasLength(1));
+      expect(shadow.single.blurRadius, 0);
+      expect(shadow.single.offset, const Offset(4, 5));
+      expect(shadow.single.color.toARGB32(), r(AppTokens.line).toARGB32());
+      expect(outlineOf(ctx).top.width, 2.5);
     });
   }
 }

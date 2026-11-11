@@ -459,7 +459,7 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
                               Icon(
                                 LucideIcons.triangleAlert,
                                 size: 20,
-                                color: AppTokens.warnText.resolveFrom(context),
+                                color: AppTokens.onTint.resolveFrom(context),
                               ),
                               const SizedBox(width: 12),
                               Expanded(
@@ -471,7 +471,7 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
                                       style: TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w700,
-                                        color: AppTokens.warnText.resolveFrom(
+                                        color: AppTokens.onTint.resolveFrom(
                                           context,
                                         ),
                                       ),
@@ -482,7 +482,7 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
                                       overflow: TextOverflow.ellipsis,
                                       style: TextStyle(
                                         fontSize: 13,
-                                        color: AppTokens.warnText.resolveFrom(
+                                        color: AppTokens.onTint.resolveFrom(
                                           context,
                                         ),
                                       ),
@@ -492,7 +492,7 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
                               ),
                               ForwardChevron(
                                 size: 16,
-                                color: AppTokens.warnText.resolveFrom(context),
+                                color: AppTokens.onTint.resolveFrom(context),
                               ),
                             ],
                           ),

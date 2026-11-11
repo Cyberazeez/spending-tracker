@@ -145,7 +145,7 @@ class StatusPill extends StatelessWidget {
       ),
       PillTone.warn => (
         AppTokens.warnBg.resolveFrom(context),
-        AppTokens.warnText.resolveFrom(context),
+        AppTokens.onTint.resolveFrom(context),
       ),
       PillTone.danger => (
         AppTokens.danger.resolveFrom(context).withValues(alpha: 0.16),

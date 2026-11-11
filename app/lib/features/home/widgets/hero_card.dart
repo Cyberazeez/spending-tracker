@@ -122,18 +122,7 @@ class HeroCard extends StatelessWidget {
         child: DecoratedBox(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(AppTokens.radiusHero),
-            gradient: LinearGradient(
-              begin: AlignmentDirectional.topStart.resolve(
-                Directionality.of(context),
-              ),
-              end: AlignmentDirectional.bottomEnd.resolve(
-                Directionality.of(context),
-              ),
-              colors: [
-                AppTokens.heroFrom.resolveFrom(context),
-                AppTokens.heroTo.resolveFrom(context),
-              ],
-            ),
+            color: AppTokens.accent.resolveFrom(context),
           ),
           child: Padding(
             padding: const EdgeInsets.all(22),

@@ -39,7 +39,7 @@ class BillCard extends StatelessWidget {
     final fg = overdue
         ? AppTokens.danger.resolveFrom(context)
         : soon
-        ? AppTokens.warnText.resolveFrom(context)
+        ? AppTokens.onTint.resolveFrom(context)
         : AppTokens.okText.resolveFrom(context);
     final pill = overdue
         ? t.obStatusOverdue
