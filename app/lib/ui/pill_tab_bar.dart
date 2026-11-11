@@ -2,7 +2,8 @@ import 'package:flutter/cupertino.dart';
 
 import 'tokens.dart';
 
-/// The floating, fully rounded tab bar of the design: inset 12 from the sides, a 64 high pill with a soft shadow.
+/// The floating, fully rounded tab bar of the design: inset 12 from the sides, a 64 high outlined pill with the
+/// hard shadow; the selected tab is an emerald pill.
 /// Drop-in for [CupertinoTabBar] inside a [CupertinoTabScaffold] (the scaffold clones it with the current index).
 class PillTabBar extends CupertinoTabBar {
   const PillTabBar({
@@ -40,67 +41,84 @@ class PillTabBar extends CupertinoTabBar {
   @override
   Widget build(BuildContext context) {
     final safe = MediaQuery.paddingOf(context).bottom;
-    final accent = AppTokens.accent.resolveFrom(context);
-    final muted = AppTokens.muted.resolveFrom(context);
+    final onAccent = AppTokens.onAccent.resolveFrom(context);
+    final text = AppTokens.text.resolveFrom(context);
     return Padding(
-      padding: EdgeInsets.fromLTRB(12, 0, 12, safe > 24 ? safe - 6 : 24),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: AppTokens.tab.resolveFrom(context),
-          borderRadius: BorderRadius.circular(32),
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x66000000),
-              blurRadius: 30,
-              spreadRadius: -10,
-              offset: Offset(0, 10),
-            ),
-          ],
-        ),
-        child: SizedBox(
-          height: 64,
-          child: Row(
-            children: [
-              for (var i = 0; i < items.length; i++)
-                Expanded(
-                  child: Semantics(
-                    button: true,
-                    selected: i == currentIndex,
-                    label: items[i].label,
-                    excludeSemantics: true,
-                    onTap: () => onTap?.call(i),
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.opaque,
+      padding: EdgeInsets.fromLTRB(12, 0, 12 - 4, safe > 24 ? safe - 6 : 24),
+      child: Padding(
+        padding: const EdgeInsets.only(right: 4, bottom: 5),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: AppTokens.tab.resolveFrom(context),
+            borderRadius: BorderRadius.circular(32),
+            border: outlineOf(context),
+            boxShadow: hardShadowOf(context),
+          ),
+          child: SizedBox(
+            height: 64,
+            child: Row(
+              children: [
+                for (var i = 0; i < items.length; i++)
+                  Expanded(
+                    child: Semantics(
+                      button: true,
+                      selected: i == currentIndex,
+                      label: items[i].label,
+                      excludeSemantics: true,
                       onTap: () => onTap?.call(i),
-                      child: IconTheme(
-                        data: IconThemeData(
-                          size: 24,
-                          color: i == currentIndex ? accent : muted,
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            items[i].icon,
-                            const SizedBox(height: 3),
-                            Text(
-                              items[i].label ?? '',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: i == currentIndex
-                                    ? FontWeight.w600
-                                    : FontWeight.w400,
-                                color: i == currentIndex ? accent : muted,
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () => onTap?.call(i),
+                        child: Padding(
+                          padding: const EdgeInsets.all(5),
+                          child: DecoratedBox(
+                            // The selected tab is an emerald pill; the others have no background.
+                            decoration: i == currentIndex
+                                ? BoxDecoration(
+                                    color: AppTokens.accent.resolveFrom(
+                                      context,
+                                    ),
+                                    borderRadius: BorderRadius.circular(24),
+                                    border: outlineOf(
+                                      context,
+                                      width: AppTokens.outlineThin,
+                                    ),
+                                  )
+                                : const BoxDecoration(),
+                            child: IconTheme(
+                              data: IconThemeData(
+                                size: 22,
+                                color: i == currentIndex ? onAccent : text,
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  items[i].icon,
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    items[i].label ?? '',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: i == currentIndex
+                                          ? FontWeight.w700
+                                          : FontWeight.w500,
+                                      color: i == currentIndex
+                                          ? onAccent
+                                          : text,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                          ],
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:ui' show Brightness, Size;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';

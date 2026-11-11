@@ -36,7 +36,10 @@ class SheetFrame extends StatelessWidget {
           constraints: BoxConstraints(maxHeight: media.size.height * 0.9),
           decoration: BoxDecoration(
             color: bg,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+            borderRadius: const BorderRadius.vertical(
+              top: Radius.circular(AppTokens.radiusSheet),
+            ),
+            border: outlineOf(context),
           ),
           child: SingleChildScrollView(
             child: DefaultTextStyle(
