@@ -59,7 +59,10 @@ class _SpendingTrackerAppState extends ConsumerState<SpendingTrackerApp> {
       onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
       // Hide content in the app switcher snapshot.
       builder: (context, child) => DefaultTextStyle.merge(
-        style: const TextStyle(fontFamilyFallback: [riyalFont]),
+        style: const TextStyle(
+          fontFamily: appFont,
+          fontFamilyFallback: [riyalFont],
+        ),
         child: Stack(
           children: [
             ?child,
