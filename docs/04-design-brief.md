@@ -2,6 +2,24 @@
 
 A calm, native-feeling iPhone app. Numbers first. Since 2026-11-03 (Home stage 1) the look is bold fintech: a gradient hero card, rounded cards on a dark or light background, round colored category badges, simple charts. Spec: `docs/superpowers/specs/2026-11-03-home-redesign-design.md`; tokens in `app/lib/ui/tokens.dart`; icons are Lucide (`lucide_icons_flutter`); the other tabs are redesigned in later stages.
 
+## Brand (2026-11-11, owner decision)
+- **Logo:** the Arabic word هللة only, no Latin companion. Flared letters with an ink outline and a hard offset shadow, tilted 8 degrees; the two dots of the ة are two gold coins. "Halala" in Latin is plain text wherever it is needed (App Store name, English UI, emails), never a drawn logo.
+- **Files:** `docs/brand/` (`logo.svg`, `app-icon.svg`, `app-icon-small.svg`; see its README). The iOS icon set in `app/ios/Runner/Assets.xcassets/AppIcon.appiconset/` is exported from them.
+- **Palette "Emerald":**
+
+| Name | Hex | Role |
+|---|---|---|
+| Emerald | `#00A86B` | Brand, buttons, fills |
+| Deep emerald | `#00704A` | Links and income amounts on light backgrounds |
+| Gold | `#FFC93C` | Coins, highlights, warnings |
+| Tomato | `#D11A3F` | Over budget, overdue |
+| Ink | `#0D1F17` | Outlines, hard shadows, text |
+| Paper | `#F0F5E6` | Page background (light) |
+| Mint | `#3FD79B` | Brand colour on dark |
+| Moss | `#173326` | Cards on dark |
+
+- **Not migrated yet:** only the app icon uses the new brand. The app screens, emails and website still use the colours and shapes described below; they are replaced in the rebrand (outlined cards, hard shadows, motion), which is designed first and built later. Until then the sections below describe what is live.
+
 ## Principles
 - Looks like it shipped with iOS: Cupertino widgets, large titles, grouped lists, bottom sheets, swipe actions, haptics (light on confirm, medium on warning).
 - Light and dark mode both first class. Respect Dynamic Type up to accessibility sizes without clipping.
