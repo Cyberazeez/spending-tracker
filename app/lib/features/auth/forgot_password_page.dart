@@ -105,7 +105,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
                   t.forgotSent,
                   key: const ValueKey('forgot-sent'),
                   style: TextStyle(
-                    color: AppTokens.accent.resolveFrom(context),
+                    color: AppTokens.accentText.resolveFrom(context),
                     fontSize: 15,
                   ),
                 ),

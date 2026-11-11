@@ -114,7 +114,6 @@ class _InsightsPageState extends ConsumerState<InsightsPage> {
         ? t.categoryNone
         : (byId[id]?.label(arabic: arabic) ?? t.categoryNone);
     String sar(int h) => formatSar(h, arabic: arabic);
-    final accent = AppTokens.accent.resolveFrom(context);
 
     return CupertinoPageScaffold(
       backgroundColor: AppTokens.bg.resolveFrom(context),
@@ -321,14 +320,17 @@ class _InsightsPageState extends ConsumerState<InsightsPage> {
                                     Icon(
                                       LucideIcons.plus,
                                       size: 20,
-                                      color: accent,
+                                      color: AppTokens.accentText.resolveFrom(
+                                        context,
+                                      ),
                                     ),
                                     const SizedBox(width: 10),
                                     Expanded(
                                       child: Text(
                                         t.insBudgetSet,
                                         style: TextStyle(
-                                          color: accent,
+                                          color: AppTokens.accentText
+                                              .resolveFrom(context),
                                           fontSize: 15,
                                           fontWeight: FontWeight.w500,
                                         ),

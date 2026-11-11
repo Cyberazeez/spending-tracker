@@ -113,7 +113,7 @@ class OwnAccountsPage extends ConsumerWidget {
                                   Icon(
                                     LucideIcons.landmark,
                                     size: 20,
-                                    color: AppTokens.accent.resolveFrom(
+                                    color: AppTokens.accentText.resolveFrom(
                                       context,
                                     ),
                                   ),

@@ -29,7 +29,6 @@ class ShareBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final text = AppTokens.text.resolveFrom(context);
-    final accent = AppTokens.accent.resolveFrom(context);
 
     return AppCard(
       child: Column(
@@ -55,7 +54,7 @@ class ShareBar extends StatelessWidget {
                   child: Text(
                     t.homeSeeAll,
                     style: TextStyle(
-                      color: accent,
+                      color: AppTokens.accentText.resolveFrom(context),
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                     ),

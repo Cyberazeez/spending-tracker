@@ -325,7 +325,7 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
                                   t.obConfirm,
                                   style: TextStyle(
                                     fontWeight: FontWeight.w700,
-                                    color: AppTokens.accent.resolveFrom(
+                                    color: AppTokens.accentText.resolveFrom(
                                       context,
                                     ),
                                   ),

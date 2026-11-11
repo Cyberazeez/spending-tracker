@@ -100,7 +100,6 @@ class _Row<T> extends StatelessWidget {
     final color = option.destructive
         ? AppColors.danger.resolveFrom(context)
         : AppTokens.text.resolveFrom(context);
-    final accent = AppTokens.accent.resolveFrom(context);
     return Semantics(
       button: true,
       selected: option.selected,
@@ -134,7 +133,11 @@ class _Row<T> extends StatelessWidget {
                   ),
                 ),
                 if (option.selected)
-                  Icon(LucideIcons.check, size: 20, color: accent),
+                  Icon(
+                    LucideIcons.check,
+                    size: 20,
+                    color: AppTokens.accentText.resolveFrom(context),
+                  ),
               ],
             ),
           ),

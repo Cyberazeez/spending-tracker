@@ -61,7 +61,11 @@ class _WelcomeCardState extends ConsumerState<WelcomeCard> {
                 constraints: const BoxConstraints(minHeight: 44),
                 child: Row(
                   children: [
-                    Icon(LucideIcons.listChecks, size: 20, color: accent),
+                    Icon(
+                      LucideIcons.listChecks,
+                      size: 20,
+                      color: AppTokens.accentText.resolveFrom(context),
+                    ),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
