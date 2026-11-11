@@ -18,7 +18,9 @@ A calm, native-feeling iPhone app. Numbers first. Since 2026-11-03 (Home stage 1
 | Mint | `#3FD79B` | Brand colour on dark |
 | Moss | `#173326` | Cards on dark |
 
-- **Not migrated yet:** only the app icon uses the new brand. The app screens, emails and website still use the colours and shapes described below; they are replaced in the rebrand (outlined cards, hard shadows, motion), which is designed first and built later. Until then the sections below describe what is live.
+- **In the app since rebrand stage 1 (2026-11-11):** the shared design layer and Home. Tokens in `app/lib/ui/tokens.dart` (`outlineOf`, `hardShadowOf`), outlined `AppCard`, pill `PrimaryButton`, outlined fields, chips, segmented control and tab bar (every tab keeps its label; the selected one sits on an emerald pill), pastel category tiles, the emerald Home hero with a gold budget ring. Typeface: bundled **Rubik** (Latin and Arabic); the riyal sign still comes from `SaudiRiyal`. Later stages (Activity, Bills and Insights, Start and More, motion, widget, emails, website): `docs/superpowers/specs/2026-11-11-rebrand-design.md`.
+- **Still in the old shapes:** screens whose own widgets were not restyled yet pick up the new colours, cards and buttons but keep their old layout details. The colour table, typography and radius notes below are the pre-rebrand description and are replaced stage by stage.
+- **Screenshots:** `flutter test test/screens_snapshot_test.dart` writes every tab (light, dark, English, Arabic) to `app/build/snapshots/`.
 
 ## Principles
 - Looks like it shipped with iOS: Cupertino widgets, large titles, grouped lists, bottom sheets, swipe actions, haptics (light on confirm, medium on warning).

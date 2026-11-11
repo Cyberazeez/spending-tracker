@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:spending_tracker/core/models.dart';
 
 import 'support/fakes.dart';
 
@@ -15,6 +16,52 @@ Future<void> _font(String family, List<String> paths) async {
     loader.addFont(rootBundle.load(p));
   }
   await loader.load();
+}
+
+// The harness clock is 2026-10-30 12:00 UTC.
+Txn _tx(String id, String when, int h, String cat, String merchant) => Txn(
+  id: id,
+  type: 'purchase',
+  direction: 'out',
+  amountHalalas: h,
+  occurredAt: DateTime.parse('${when}Z'),
+  merchant: merchant,
+  merchantNorm: merchant.toLowerCase(),
+  categoryId: cat,
+);
+
+ObligationInstance _bill(String id, String name, String due, int amount) =>
+    ObligationInstance(
+      id: id,
+      obligationId: 'o-$id',
+      name: name,
+      kind: 'fixed',
+      dueDate: DateTime.parse('${due}T00:00:00Z'),
+      status: 'pending',
+      expectedHalalas: amount,
+    );
+
+void _sample(Harness h) {
+  final txns = [
+    _tx('1', '2026-10-30T09:10:00', 1800, 'c-din', 'Coffee'),
+    _tx('2', '2026-10-30T08:00:00', 16450, 'c-gro', 'Supermarket'),
+    _tx('3', '2026-10-29T18:30:00', 8600, 'c-din', 'Restaurant'),
+    _tx('4', '2026-10-27T12:00:00', 23000, 'c-gro', 'Supermarket'),
+    _tx('5', '2026-10-25T20:15:00', 31000, 'c-din', 'Grill house'),
+    _tx('6', '2026-10-12T10:00:00', 120000, 'c-gro', 'Wholesale'),
+  ];
+  h.data
+    ..txns = txns
+    ..history = txns
+    ..monthlyBudget = 600000
+    ..budgetList = [
+      const Budget(id: 'b', categoryId: 'c-din', limitHalalas: 50000),
+    ]
+    ..instances = [
+      _bill('1', 'Mobile bill', '2026-11-02', 23000),
+      _bill('2', 'Horse stable', '2026-11-05', 120000),
+      _bill('3', 'Car loan', '2026-11-20', 50000),
+    ];
 }
 
 void main() {
@@ -48,6 +95,7 @@ void main() {
           addTearDown(t.view.reset);
           addTearDown(t.platformDispatcher.clearAllTestValues);
           final h = Harness(signedIn: true);
+          _sample(h);
           await t.pumpWidget(await h.build(prefs: {'locale': lang}));
           await t.pumpAndSettle();
           if (i != 0) {

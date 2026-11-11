@@ -167,8 +167,9 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
               onPressed: () => context.push(obligationFormPath),
               child: DecoratedBox(
                 decoration: BoxDecoration(
-                  color: AppTokens.accent.resolveFrom(context),
+                  color: AppTokens.gold.resolveFrom(context),
                   shape: BoxShape.circle,
+                  border: outlineOf(context, width: AppTokens.outlineThin),
                 ),
                 child: SizedBox(
                   width: 36,

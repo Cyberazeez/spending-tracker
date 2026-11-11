@@ -129,7 +129,8 @@ class _GroupRow extends StatelessWidget {
               height: 40,
               decoration: BoxDecoration(
                 color: groupColor(spend.group),
-                shape: BoxShape.circle,
+                borderRadius: BorderRadius.circular(AppTokens.radiusTile),
+                border: outlineOf(context, width: AppTokens.outlineThin),
               ),
               child: Icon(
                 groupIcon(spend.group),

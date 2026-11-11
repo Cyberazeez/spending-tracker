@@ -137,6 +137,7 @@ class _Chip extends StatelessWidget {
                   ? AppTokens.accent.resolveFrom(context)
                   : AppTokens.card.resolveFrom(context),
               borderRadius: BorderRadius.circular(20),
+              border: outlineOf(context, width: AppTokens.outlineThin),
             ),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),

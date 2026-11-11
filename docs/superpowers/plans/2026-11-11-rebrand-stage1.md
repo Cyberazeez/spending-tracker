@@ -137,3 +137,10 @@
 - [ ] **Step 4:** Update the docs. Run `flutter analyze && flutter test` again. Expected: clean, all pass.
 - [ ] **Step 5:** Commit `fix: whole-app pass after the token change` and `docs: Emerald look is live in the design brief`.
 - [ ] **Step 6:** Run the `ship-review` skill, fix anything high or critical, push, open the pull request with the snapshots described in "How it was tested" and the untested items (real iPhone, widget, VoiceOver) listed.
+
+## What was built differently (2026-11-11)
+- **Tab bar:** every tab keeps its icon and label; the selected one sits on an emerald outlined pill. The mockup hides the labels of unselected tabs, but always-visible labels are easier to use and dozens of existing tests navigate by tab label.
+- **Home hero:** the budget ring stays (now gold on white with ink edges) instead of the mockup's bar, so the three facts (Today, vs last month, Left to spend) and their tests are unchanged.
+- **Warning colours:** `warnText` stays a readable amber for text on cards; pills on gold use the new `onTint` (ink). The plan had `warnText` as ink, which would have been invisible on dark cards.
+- **Sheets** keep the page colour (paper) as their fill so the white cards inside them stand out; the outline and 28 pt corners are as planned.
+- **Not built in this stage:** separate `SecondaryButton`, `IconTile` and `AppChip` widgets. The existing chips, tiles and buttons were restyled in place; shared widgets are extracted when stage 2 needs them. The Bills hero, Insights tip card details, auth screens and More tiles keep their layout until their stages.

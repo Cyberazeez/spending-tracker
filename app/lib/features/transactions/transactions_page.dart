@@ -86,8 +86,9 @@ class TransactionsPage extends ConsumerWidget {
                   onPressed: () => context.push(quickAddPath),
                   child: DecoratedBox(
                     decoration: BoxDecoration(
-                      color: AppTokens.accent.resolveFrom(context),
+                      color: AppTokens.gold.resolveFrom(context),
                       shape: BoxShape.circle,
+                      border: outlineOf(context, width: AppTokens.outlineThin),
                     ),
                     child: SizedBox(
                       width: 36,
@@ -368,8 +369,11 @@ class _SearchBoxState extends ConsumerState<_SearchBox> {
     return CupertinoSearchTextField(
       controller: _controller,
       placeholder: AppLocalizations.of(context).searchHint,
-      backgroundColor: AppTokens.card.resolveFrom(context),
-      borderRadius: BorderRadius.circular(16),
+      decoration: BoxDecoration(
+        color: AppTokens.card.resolveFrom(context),
+        borderRadius: BorderRadius.circular(24),
+        border: outlineOf(context),
+      ),
       // 44 pt tall (the default is 36): the smallest comfortable tap target on iOS
       padding: const EdgeInsetsDirectional.fromSTEB(8, 14, 8, 14),
       onChanged: (v) {

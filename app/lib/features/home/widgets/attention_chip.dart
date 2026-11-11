@@ -25,6 +25,7 @@ class AttentionChip extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppTokens.card.resolveFrom(context),
           borderRadius: BorderRadius.circular(22),
+          border: outlineOf(context, width: AppTokens.outlineThin),
         ),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -43,7 +44,7 @@ class AttentionChip extends StatelessWidget {
                   style: TextStyle(
                     color: AppTokens.text.resolveFrom(context),
                     fontSize: 14,
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),

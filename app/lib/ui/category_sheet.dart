@@ -242,7 +242,11 @@ class _CategorySheetState extends State<_CategorySheet> {
                 child: CupertinoSearchTextField(
                   controller: _search,
                   placeholder: t.categorySearch,
-                  backgroundColor: card,
+                  decoration: BoxDecoration(
+                    color: card,
+                    borderRadius: BorderRadius.circular(24),
+                    border: outlineOf(context),
+                  ),
                   style: TextStyle(color: text),
                   onChanged: (_) => setState(() {}),
                 ),

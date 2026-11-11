@@ -25,7 +25,8 @@ class PillSegments<T> extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         color: AppTokens.card.resolveFrom(context),
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(26),
+        border: outlineOf(context),
       ),
       child: Padding(
         padding: const EdgeInsets.all(4),
@@ -49,7 +50,10 @@ class PillSegments<T> extends StatelessWidget {
                           color: e.key == value
                               ? AppTokens.accent.resolveFrom(context)
                               : null,
-                          borderRadius: BorderRadius.circular(18),
+                          borderRadius: BorderRadius.circular(22),
+                          border: e.key == value
+                              ? outlineOf(context, width: AppTokens.outlineThin)
+                              : null,
                         ),
                         child: Center(
                           child: Padding(
@@ -125,7 +129,7 @@ class PillSegments<T> extends StatelessWidget {
     color: const Color(0xFFFF8A3D),
   ),
   'loan' => (icon: LucideIcons.landmark, color: const Color(0xFF6B8CFF)),
-  _ => (icon: LucideIcons.repeat, color: const Color(0xFF3CC4A8)),
+  _ => (icon: LucideIcons.repeat, color: const Color(0xFF3FD79B)),
 };
 
 enum PillTone { ok, warn, danger, muted }
