@@ -7,13 +7,14 @@ import '../../../core/models.dart';
 import '../../../core/money.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/category_sheet.dart' show categoryIconByName;
+import '../../../ui/icon_tile.dart';
 import '../../../ui/tokens.dart';
 import '../../home/category_groups.dart';
 import '../../home/group_style.dart';
 import '../labels.dart';
 
-/// One transaction: a round category badge, merchant, "category · time" and the signed amount.
-/// Uncategorised rows get an orange "?" badge and say "Choose category"; internal moves are dimmed.
+/// One transaction: a category tile, merchant, "category · time" and the signed amount.
+/// Uncategorised rows get a gold "?" tile and say "Choose category"; internal moves are dimmed.
 class TxnRow extends StatelessWidget {
   const TxnRow({
     super.key,
@@ -64,8 +65,8 @@ class TxnRow extends StatelessWidget {
           '$sign $amount',
           style: TextStyle(
             fontFeatures: const [FontFeature.tabularFigures()],
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
+            fontSize: 15,
+            fontWeight: FontWeight.w700,
             color: amountColor,
           ),
         ),
@@ -80,8 +81,8 @@ class TxnRow extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
             color: titleColor,
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
+            fontSize: 15,
+            fontWeight: FontWeight.w700,
           ),
         ),
         const SizedBox(height: 2),
@@ -94,6 +95,7 @@ class TxnRow extends StatelessWidget {
                 ? AppTokens.warnText.resolveFrom(context)
                 : muted,
             fontSize: 13,
+            fontWeight: FontWeight.w500,
           ),
         ),
         if (stacked) ...[const SizedBox(height: 4), amountText],
@@ -152,41 +154,21 @@ class _Badge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (uncategorised) {
-      final orange = AppTokens.warnText.resolveFrom(context);
-      return Container(
-        width: 44,
-        height: 44,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: orange.withValues(alpha: 0.18),
-          border: Border.all(color: orange, width: 1.5),
-        ),
-        child: Text(
+      // Gold with an ink "?": the subline also says "Choose category", so colour is never the only sign.
+      return IconTile(
+        color: AppTokens.gold.resolveFrom(context),
+        child: const Text(
           '?',
-          style: TextStyle(
-            color: orange,
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-          ),
+          style: TextStyle(fontSize: 19, fontWeight: FontWeight.w800),
         ),
       );
     }
-    return Container(
-      width: 44,
-      height: 44,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(AppTokens.radiusTile),
-        color: groupColor(group),
-        border: outlineOf(context, width: AppTokens.outlineThin),
-      ),
-      child: Icon(
-        categoryName == null
-            ? groupIcon(group)
-            : categoryIconByName(categoryName!),
-        size: 22,
-        color: const Color(0xFF0B0F14),
-      ),
+    return IconTile(
+      color: groupColor(group),
+      iconSize: 21,
+      icon: categoryName == null
+          ? groupIcon(group)
+          : categoryIconByName(categoryName!),
     );
   }
 }

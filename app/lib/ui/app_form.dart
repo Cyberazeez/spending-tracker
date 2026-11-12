@@ -81,6 +81,137 @@ class PrimaryButton extends StatelessWidget {
   }
 }
 
+/// A second action next to or under a [PrimaryButton]: a card-coloured pill with the outline and the hard shadow.
+/// [danger] draws the label in the danger colour (remove, delete).
+class SecondaryButton extends StatelessWidget {
+  const SecondaryButton({
+    super.key,
+    required this.label,
+    required this.onPressed,
+    this.danger = false,
+  });
+
+  final String label;
+  final VoidCallback? onPressed;
+  final bool danger;
+
+  @override
+  Widget build(BuildContext context) {
+    final enabled = onPressed != null;
+    final color = !enabled
+        ? AppTokens.muted.resolveFrom(context)
+        : danger
+        ? AppTokens.danger.resolveFrom(context)
+        : AppTokens.text.resolveFrom(context);
+    return Semantics(
+      button: true,
+      enabled: enabled,
+      label: label,
+      excludeSemantics: true,
+      onTap: onPressed,
+      child: CupertinoButton(
+        padding: EdgeInsets.zero,
+        minimumSize: const Size(44, 48),
+        onPressed: onPressed,
+        child: Padding(
+          padding: const EdgeInsets.only(right: 3, bottom: 4),
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: AppTokens.card.resolveFrom(context),
+              borderRadius: BorderRadius.circular(26),
+              border: outlineOf(context),
+              boxShadow: enabled
+                  ? hardShadowOf(context, offset: const Offset(3, 4))
+                  : null,
+            ),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                minWidth: double.infinity,
+                minHeight: 48,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                child: Center(
+                  child: Text(
+                    label,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: color,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      decoration: TextDecoration.none,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A tappable row drawn like a text field (card fill, outline, 14 pt corners, 50 pt tall) for values chosen from a
+/// picker, such as a date.
+class FieldButton extends StatelessWidget {
+  const FieldButton({
+    super.key,
+    required this.label,
+    required this.onPressed,
+    this.icon,
+  });
+
+  final String label;
+  final VoidCallback onPressed;
+  final IconData? icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final muted = AppTokens.muted.resolveFrom(context);
+    return Semantics(
+      button: true,
+      label: label,
+      excludeSemantics: true,
+      onTap: onPressed,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onPressed,
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 50),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          decoration: BoxDecoration(
+            color: AppTokens.card.resolveFrom(context),
+            borderRadius: BorderRadius.circular(14),
+            border: outlineOf(context),
+          ),
+          child: Row(
+            children: [
+              if (icon != null) ...[
+                Icon(icon, size: 18, color: muted),
+                const SizedBox(width: 10),
+              ],
+              Expanded(
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    color: AppTokens.text.resolveFrom(context),
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 /// A text field in the card style with an optional label above it.
 class AppField extends StatelessWidget {
   const AppField({
@@ -95,9 +226,13 @@ class AppField extends StatelessWidget {
     this.onSubmitted,
     this.autofocus = false,
     this.inputFormatters,
+    this.large = false,
   });
 
   final List<TextInputFormatter>? inputFormatters;
+
+  /// A big, heavy value (the amount of a new transaction).
+  final bool large;
   final TextEditingController controller;
   final String? label;
   final String? placeholder;
@@ -124,11 +259,14 @@ class AppField extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
       style: TextStyle(
         color: AppTokens.text.resolveFrom(context),
-        fontSize: 16,
+        fontSize: large ? 24 : 16,
+        fontWeight: large ? FontWeight.w800 : FontWeight.w500,
+        fontFeatures: large ? const [FontFeature.tabularFigures()] : null,
       ),
       placeholderStyle: TextStyle(
         color: AppTokens.muted.resolveFrom(context),
-        fontSize: 16,
+        fontSize: large ? 24 : 16,
+        fontWeight: large ? FontWeight.w800 : FontWeight.w500,
       ),
       decoration: BoxDecoration(
         color: AppTokens.card.resolveFrom(context),

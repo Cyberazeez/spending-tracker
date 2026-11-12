@@ -78,7 +78,7 @@ class FilterChips extends ConsumerWidget {
         // never match together, and a stack of filters is hard to read). Tapping the chosen one goes back to All.
         _Chip(
           label: t.txChipNoCategory,
-          dot: const Color(0xFFFFB340),
+          warn: true,
           selected: f.uncategorizedOnly,
           onTap: () => ctl.set(quickFilter(f, QuickFilter.noCategory)),
         ),
@@ -95,7 +95,7 @@ class FilterChips extends ConsumerWidget {
         if (reviewCount > 0 && onlyBase)
           _Chip(
             label: t.homeToReview(reviewCount),
-            dot: const Color(0xFFFFB340),
+            warn: true,
             selected: false,
             onTap: onReview,
           ),
@@ -109,17 +109,26 @@ class _Chip extends StatelessWidget {
     required this.label,
     required this.selected,
     required this.onTap,
-    this.dot,
+    this.warn = false,
   });
   final String label;
   final bool selected;
   final VoidCallback onTap;
-  final Color? dot;
+
+  /// Something waits for the owner (uncategorised rows, messages to review): gold until it is selected.
+  final bool warn;
 
   @override
   Widget build(BuildContext context) {
+    final fill = selected
+        ? AppTokens.accent.resolveFrom(context)
+        : warn
+        ? AppTokens.gold.resolveFrom(context)
+        : AppTokens.card.resolveFrom(context);
     final fg = selected
         ? AppTokens.onAccent.resolveFrom(context)
+        : warn
+        ? AppTokens.onTint.resolveFrom(context)
         : AppTokens.text.resolveFrom(context);
     return Semantics(
       button: true,
@@ -133,39 +142,19 @@ class _Chip extends StatelessWidget {
           onPressed: onTap,
           child: DecoratedBox(
             decoration: BoxDecoration(
-              color: selected
-                  ? AppTokens.accent.resolveFrom(context)
-                  : AppTokens.card.resolveFrom(context),
+              color: fill,
               borderRadius: BorderRadius.circular(20),
               border: outlineOf(context, width: AppTokens.outlineThin),
             ),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (dot != null && !selected) ...[
-                    Container(
-                      width: 7,
-                      height: 7,
-                      decoration: BoxDecoration(
-                        color: dot,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                  ],
-                  Flexible(
-                    child: Text(
-                      label,
-                      style: TextStyle(
-                        color: fg,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ],
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              child: Text(
+                label,
+                style: TextStyle(
+                  color: fg,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
           ),

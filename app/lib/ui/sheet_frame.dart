@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../core/money.dart';
 import '../l10n/app_localizations.dart';
+import 'theme.dart';
 import 'tokens.dart';
 
 /// The frame of the app's bottom sheets: rounded top, grabber, a title with an optional subtitle and a close button.
@@ -43,7 +45,13 @@ class SheetFrame extends StatelessWidget {
           ),
           child: SingleChildScrollView(
             child: DefaultTextStyle(
-              style: TextStyle(color: text, fontSize: 15, inherit: false),
+              style: TextStyle(
+                color: text,
+                fontSize: 15,
+                inherit: false,
+                fontFamily: appFont,
+                fontFamilyFallback: const [riyalFont],
+              ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,

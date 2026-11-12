@@ -14,7 +14,8 @@ import '../../ui/app_form.dart';
 import '../../ui/empty_state.dart';
 import '../../ui/choice_sheet.dart';
 import '../../ui/tokens.dart';
-import '../obligations/widgets/bills_widgets.dart';
+import '../../ui/app_card.dart';
+import '../../ui/icon_tile.dart';
 import 'manual_form.dart';
 import 'providers.dart';
 
@@ -150,13 +151,13 @@ class ReviewPage extends ConsumerWidget {
                         child: Text(
                           t.aiReadHeader,
                           style: TextStyle(
-                            color: AppTokens.muted.resolveFrom(context),
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
+                            color: AppTokens.text.resolveFrom(context),
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
                           ),
                         ),
                       ),
-                      RowsCard(
+                      _RowsCard(
                         children: [
                           for (final a in aiRead)
                             Semantics(
@@ -170,6 +171,14 @@ class ReviewPage extends ConsumerWidget {
                                   ),
                                   child: Row(
                                     children: [
+                                      IconTile(
+                                        color: AppTokens.gold.resolveFrom(
+                                          context,
+                                        ),
+                                        icon: LucideIcons.sparkles,
+                                        iconSize: 21,
+                                      ),
+                                      const SizedBox(width: 12),
                                       Expanded(
                                         child: Column(
                                           crossAxisAlignment:
@@ -180,8 +189,8 @@ class ReviewPage extends ConsumerWidget {
                                               style: TextStyle(
                                                 color: AppTokens.text
                                                     .resolveFrom(context),
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.w600,
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.w700,
                                               ),
                                             ),
                                             const SizedBox(height: 2),
@@ -228,7 +237,7 @@ class ReviewPage extends ConsumerWidget {
                       ),
                       const SizedBox(height: 16),
                     ],
-                    RowsCard(
+                    _RowsCard(
                       children: [
                         for (final m in list)
                           Semantics(
@@ -243,6 +252,12 @@ class ReviewPage extends ConsumerWidget {
                                 child: Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
+                                    const IconTile(
+                                      color: Color(0xFFDDE3CC),
+                                      icon: LucideIcons.messageSquare,
+                                      iconSize: 21,
+                                    ),
+                                    const SizedBox(width: 12),
                                     Expanded(
                                       child: Column(
                                         crossAxisAlignment:
@@ -254,8 +269,8 @@ class ReviewPage extends ConsumerWidget {
                                               color: AppTokens.text.resolveFrom(
                                                 context,
                                               ),
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w600,
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.w700,
                                             ),
                                           ),
                                           const SizedBox(height: 2),
@@ -300,6 +315,29 @@ class ReviewPage extends ConsumerWidget {
                   ],
                 ),
         ),
+      ),
+    );
+  }
+}
+
+/// The rows of one section in an outlined card, split by 2 pt lines.
+class _RowsCard extends StatelessWidget {
+  const _RowsCard({required this.children});
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    final line = AppTokens.bar.resolveFrom(context);
+    return AppCard(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
+      child: Column(
+        children: [
+          for (var i = 0; i < children.length; i++) ...[
+            if (i > 0) Container(height: 2, color: line),
+            children[i],
+          ],
+        ],
       ),
     );
   }

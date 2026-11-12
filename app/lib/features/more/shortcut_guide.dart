@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../core/money.dart';
 import '../../l10n/app_localizations.dart';
+import '../../ui/theme.dart';
 import '../../ui/tokens.dart';
 
 /// The snippets (cropped from real screenshots, the tap target outlined) shown on each page of the guide.
@@ -97,6 +99,8 @@ class _ShortcutGuideSheetState extends State<ShortcutGuideSheet> {
             fontSize: 15,
             decoration: TextDecoration.none,
             inherit: false,
+            fontFamily: appFont,
+            fontFamilyFallback: const [riyalFont],
           ),
           child: Column(
             children: [

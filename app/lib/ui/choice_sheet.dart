@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import 'app_card.dart';
 import 'sheet_frame.dart';
 import 'theme.dart';
 import 'tokens.dart';
@@ -47,8 +48,9 @@ Future<T?> showChoiceSheet<T>(
                 margin: const EdgeInsets.only(bottom: 12),
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: AppTokens.card.resolveFrom(ctx),
-                  borderRadius: BorderRadius.circular(18),
+                  color: AppTokens.bg.resolveFrom(ctx),
+                  borderRadius: BorderRadius.circular(12),
+                  border: outlineOf(ctx, width: AppTokens.outlineThin),
                 ),
                 child: Directionality(
                   textDirection: TextDirection.ltr,
@@ -63,22 +65,17 @@ Future<T?> showChoiceSheet<T>(
                   ),
                 ),
               ),
-            DecoratedBox(
-              decoration: BoxDecoration(
-                color: AppTokens.card.resolveFrom(ctx),
-                borderRadius: BorderRadius.circular(18),
-              ),
+            AppCard(
+              padding: EdgeInsets.zero,
               child: Column(
                 children: [
                   for (var i = 0; i < options.length; i++) ...[
                     _Row<T>(option: options[i]),
                     if (i < options.length - 1)
                       Container(
-                        height: 1,
+                        height: 2,
                         margin: const EdgeInsets.symmetric(horizontal: 14),
-                        color: AppTokens.bar
-                            .resolveFrom(ctx)
-                            .withValues(alpha: 0.6),
+                        color: AppTokens.bar.resolveFrom(ctx),
                       ),
                   ],
                 ],
