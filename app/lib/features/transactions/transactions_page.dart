@@ -18,6 +18,7 @@ import '../../ui/app_card.dart';
 import '../../ui/app_form.dart';
 import '../../ui/bottom_inset.dart';
 import '../../ui/empty_state.dart';
+import '../../ui/header_button.dart';
 import '../../ui/skeleton.dart';
 import '../../ui/swipe_action.dart';
 import '../../ui/tokens.dart';
@@ -65,7 +66,7 @@ class TransactionsPage extends ConsumerWidget {
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                _HeaderButton(
+                HeaderIconButton(
                   onPressed: () => showFilterSheet(context, ref),
                   fill:
                       filter.categoryId != null ||
@@ -84,7 +85,7 @@ class TransactionsPage extends ConsumerWidget {
                   semanticLabel: t.filterTitle,
                 ),
                 const SizedBox(width: 8),
-                _HeaderButton(
+                HeaderIconButton(
                   onPressed: () => context.push(quickAddPath),
                   fill: AppTokens.gold.resolveFrom(context),
                   radius: 22,
@@ -288,53 +289,6 @@ class _DayBlock extends StatelessWidget {
       ),
     );
   }
-}
-
-/// A 40 pt outlined button with the hard shadow in the title bar, inside a 44 x 44 tap area.
-class _HeaderButton extends StatelessWidget {
-  const _HeaderButton({
-    required this.onPressed,
-    required this.fill,
-    required this.radius,
-    required this.icon,
-    required this.iconColor,
-    required this.semanticLabel,
-  });
-
-  final VoidCallback onPressed;
-  final Color fill;
-  final double radius;
-  final IconData icon;
-  final Color iconColor;
-  final String semanticLabel;
-
-  @override
-  Widget build(BuildContext context) => CupertinoButton(
-    padding: EdgeInsets.zero,
-    minimumSize: const Size(44, 44),
-    onPressed: onPressed,
-    child: Padding(
-      padding: const EdgeInsets.only(right: 3, bottom: 4),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: fill,
-          borderRadius: BorderRadius.circular(radius),
-          border: outlineOf(context),
-          boxShadow: hardShadowOf(context, offset: const Offset(3, 4)),
-        ),
-        child: SizedBox(
-          width: 40,
-          height: 40,
-          child: Icon(
-            icon,
-            size: 20,
-            color: iconColor,
-            semanticLabel: semanticLabel,
-          ),
-        ),
-      ),
-    ),
-  );
 }
 
 /// "Today" and the day's spend; the spend drops under the label at large text sizes.

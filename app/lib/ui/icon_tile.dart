@@ -13,6 +13,7 @@ class IconTile extends StatelessWidget {
     this.size = 42,
     this.radius = AppTokens.radiusTile,
     this.iconSize,
+    this.outline,
   }) : assert(icon != null || child != null);
 
   final Color color;
@@ -24,6 +25,10 @@ class IconTile extends StatelessWidget {
   final double radius;
   final double? iconSize;
 
+  /// Outline colour; [AppTokens.line] when null. Pass ink for a tile on a gold card, where the line colour of
+  /// dark mode (paper) would vanish against the white tile.
+  final Color? outline;
+
   @override
   Widget build(BuildContext context) {
     final ink = AppTokens.onTint.resolveFrom(context);
@@ -34,7 +39,10 @@ class IconTile extends StatelessWidget {
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(radius),
-        border: outlineOf(context, width: AppTokens.outlineThin),
+        border: Border.all(
+          color: outline ?? AppTokens.line.resolveFrom(context),
+          width: AppTokens.outlineThin,
+        ),
       ),
       child: IconTheme.merge(
         data: IconThemeData(color: ink, size: iconSize ?? size / 2),

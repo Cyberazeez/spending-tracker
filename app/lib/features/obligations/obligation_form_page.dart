@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import '../../ui/chevron.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
 
 import '../../core/format.dart';
@@ -223,8 +224,8 @@ class _ObligationFormPageState extends ConsumerState<ObligationFormPage> {
         s,
         style: TextStyle(
           fontSize: 13,
-          fontWeight: FontWeight.w600,
-          color: muted,
+          fontWeight: FontWeight.w700,
+          color: text,
         ),
       ),
     );
@@ -241,10 +242,12 @@ class _ObligationFormPageState extends ConsumerState<ObligationFormPage> {
       keyboardType: type,
       placeholder: hint,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-      style: TextStyle(color: text, fontSize: 16),
+      style: TextStyle(color: text, fontSize: 16, fontWeight: FontWeight.w500),
+      placeholderStyle: TextStyle(color: muted, fontSize: 16),
       decoration: BoxDecoration(
         color: AppTokens.bg.resolveFrom(context),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(14),
+        border: outlineOf(context, width: AppTokens.outlineThin),
       ),
     );
     Widget gap() => const SizedBox(height: 16);
@@ -440,17 +443,28 @@ class _Stepper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final text = AppTokens.text.resolveFrom(context);
-    final accent = AppTokens.accent.resolveFrom(context);
+    // Outlined round buttons; at the limit the button is flat on the track colour with a muted sign.
     Widget btn(IconData icon, String label, bool on, VoidCallback f) =>
         CupertinoButton(
           padding: EdgeInsets.zero,
           minimumSize: const Size(44, 44),
           onPressed: on ? f : null,
-          child: Icon(
-            icon,
-            size: 22,
-            color: on ? accent : AppTokens.muted.resolveFrom(context),
-            semanticLabel: label,
+          child: Container(
+            width: 34,
+            height: 34,
+            decoration: BoxDecoration(
+              color: on
+                  ? AppTokens.card.resolveFrom(context)
+                  : AppTokens.bar.resolveFrom(context),
+              shape: BoxShape.circle,
+              border: outlineOf(context, width: AppTokens.outlineThin),
+            ),
+            child: Icon(
+              icon,
+              size: 18,
+              color: on ? text : AppTokens.muted.resolveFrom(context),
+              semanticLabel: label,
+            ),
           ),
         );
     return Row(
@@ -459,13 +473,13 @@ class _Stepper extends StatelessWidget {
           child: Text(
             title,
             style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
               color: text,
             ),
           ),
         ),
-        btn(CupertinoIcons.minus_circle, '− $title', value > min, () {
+        btn(LucideIcons.minus, '− $title', value > min, () {
           onChanged((value - step).clamp(min, max));
         }),
         Semantics(
@@ -484,7 +498,7 @@ class _Stepper extends StatelessWidget {
             ),
           ),
         ),
-        btn(CupertinoIcons.plus_circle, '+ $title', value < max, () {
+        btn(LucideIcons.plus, '+ $title', value < max, () {
           onChanged((value + step).clamp(min, max));
         }),
       ],

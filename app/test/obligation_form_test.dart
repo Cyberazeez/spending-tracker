@@ -47,6 +47,8 @@ void main() {
     expect(find.text('New obligation'), findsOneWidget);
     await tester.enterText(find.byType(CupertinoTextField).at(0), 'Gym');
     await tester.enterText(find.byType(CupertinoTextField).at(1), '150');
+    await tester.ensureVisible(find.text('Save'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();
     expect(h.data.savedObligations, hasLength(1));
@@ -67,10 +69,14 @@ void main() {
     final handle = tester.ensureSemantics();
     final h = await openBills(tester);
     await openForm(tester);
+    await tester.ensureVisible(find.text('Save'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();
     expect(find.textContaining('Enter a name'), findsOneWidget);
     await tester.enterText(find.byType(CupertinoTextField).at(0), 'Gym');
+    await tester.ensureVisible(find.text('Save'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();
     expect(find.textContaining('Enter an amount'), findsOneWidget);
@@ -84,6 +90,8 @@ void main() {
     await openForm(tester);
     await tester.enterText(find.byType(CupertinoTextField).at(0), 'Water');
     await tester.tap(find.text('Bill'));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Save'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();
@@ -102,6 +110,8 @@ void main() {
     expect(find.text('First due month'), findsOneWidget);
     await tester.enterText(find.byType(CupertinoTextField).at(0), 'Insurance');
     await tester.enterText(find.byType(CupertinoTextField).at(1), '900');
+    await tester.ensureVisible(find.text('Save'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();
     final d = h.data.savedObligations.single.$2;
@@ -120,6 +130,8 @@ void main() {
       find.byType(CupertinoTextField).at(2),
       'a,b,c,d,e,f',
     );
+    await tester.ensureVisible(find.text('Save'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();
     expect(find.textContaining('Up to 5 words'), findsOneWidget);
@@ -136,6 +148,8 @@ void main() {
     await openForm(tester);
     await tester.enterText(find.byType(CupertinoTextField).at(0), 'Gym');
     await tester.enterText(find.byType(CupertinoTextField).at(1), '150');
+    await tester.ensureVisible(find.text('Save'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();
     expect(find.text('New obligation'), findsOneWidget);
@@ -152,6 +166,8 @@ void main() {
     await openForm(tester);
     await tester.enterText(find.byType(CupertinoTextField).at(0), 'Gym');
     await tester.enterText(find.byType(CupertinoTextField).at(1), '150');
+    await tester.ensureVisible(find.text('Save'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();
     expect(find.textContaining('already have an obligation'), findsOneWidget);
@@ -177,6 +193,8 @@ void main() {
     expect(find.text('Gym'), findsOneWidget);
     expect(find.text('gym club'), findsOneWidget);
     await tester.enterText(find.byType(CupertinoTextField).at(1), '200');
+    await tester.ensureVisible(find.text('Save'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();
     final (id, d) = h.data.savedObligations.single;

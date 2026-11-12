@@ -1,6 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../ui/app_card.dart';
+import '../../../ui/icon_tile.dart';
+import '../../../ui/swipe_action.dart';
 import '../../../ui/tokens.dart';
 
 /// Pill-style segmented control (Upcoming / Overdue / History).
@@ -22,11 +25,12 @@ class PillSegments<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
+    final box = DecoratedBox(
       decoration: BoxDecoration(
         color: AppTokens.card.resolveFrom(context),
         borderRadius: BorderRadius.circular(26),
         border: outlineOf(context),
+        boxShadow: hardShadowOf(context, offset: const Offset(3, 4)),
       ),
       child: Padding(
         padding: const EdgeInsets.all(4),
@@ -86,8 +90,14 @@ class PillSegments<T> extends StatelessWidget {
                                   const SizedBox(width: 6),
                                   DecoratedBox(
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFFC5221F),
+                                      color: AppTokens.danger.resolveFrom(
+                                        context,
+                                      ),
                                       borderRadius: BorderRadius.circular(9),
+                                      border: outlineOf(
+                                        context,
+                                        width: AppTokens.outlineThin,
+                                      ),
                                     ),
                                     child: Padding(
                                       padding: const EdgeInsets.symmetric(
@@ -96,10 +106,10 @@ class PillSegments<T> extends StatelessWidget {
                                       ),
                                       child: Text(
                                         '${badges[e.key]}',
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           fontSize: 11,
                                           fontWeight: FontWeight.w700,
-                                          color: Color(0xFFFFFFFF),
+                                          color: onDanger(context),
                                         ),
                                       ),
                                     ),
@@ -118,19 +128,28 @@ class PillSegments<T> extends StatelessWidget {
         ),
       ),
     );
+    // The shadow stays inside the widget's own box (like AppCard).
+    return Padding(
+      padding: const EdgeInsets.only(right: 3, bottom: 4),
+      child: box,
+    );
   }
 }
 
 /// Icon, colour and tile for each obligation kind.
 ({IconData icon, Color color}) kindStyle(String kind) => switch (kind) {
-  'bill' => (icon: LucideIcons.receipt, color: const Color(0xFFFFB340)),
+  'bill' => (icon: LucideIcons.receipt, color: const Color(0xFFFFA574)),
   'card_statement' => (
     icon: LucideIcons.creditCard,
-    color: const Color(0xFFFF8A3D),
+    color: const Color(0xFFFFC93C),
   ),
-  'loan' => (icon: LucideIcons.landmark, color: const Color(0xFF6B8CFF)),
-  _ => (icon: LucideIcons.repeat, color: const Color(0xFF3FD79B)),
+  'loan' => (icon: LucideIcons.landmark, color: const Color(0xFF9CC4FF)),
+  _ => (icon: LucideIcons.repeat, color: const Color(0xFFCDB4FF)),
 };
+
+/// Text on a [AppTokens.danger] fill: white on the deep light-mode red, ink on the light dark-mode pink.
+Color onDanger(BuildContext context) =>
+    swipeLabelColor(AppTokens.danger.resolveFrom(context));
 
 enum PillTone { ok, warn, danger, muted }
 
@@ -152,25 +171,27 @@ class StatusPill extends StatelessWidget {
         AppTokens.onTint.resolveFrom(context),
       ),
       PillTone.danger => (
-        AppTokens.danger.resolveFrom(context).withValues(alpha: 0.16),
         AppTokens.danger.resolveFrom(context),
+        onDanger(context),
       ),
       PillTone.muted => (
-        AppTokens.bar.resolveFrom(context),
+        AppTokens.card.resolveFrom(context),
         AppTokens.muted.resolveFrom(context),
       ),
     };
+    // A word in an outlined pill: the status is never told by colour alone.
     return DecoratedBox(
       decoration: BoxDecoration(
         color: bg,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(20),
+        border: outlineOf(context, width: AppTokens.outlineThin),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
         child: Text(
           label,
           style: TextStyle(
-            fontSize: 12,
+            fontSize: 13,
             fontWeight: FontWeight.w700,
             color: fg,
           ),
@@ -216,17 +237,7 @@ class ObligationRow extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: s.color.withValues(alpha: 0.18),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: SizedBox(
-                    width: 40,
-                    height: 40,
-                    child: Icon(s.icon, size: 20, color: s.color),
-                  ),
-                ),
+                IconTile(color: s.color, icon: s.icon, iconSize: 21),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -237,8 +248,8 @@ class ObligationRow extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
                           color: text,
                         ),
                       ),
@@ -251,8 +262,9 @@ class ObligationRow extends StatelessWidget {
                         detail,
                         style: TextStyle(
                           fontSize: 15,
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w800,
                           color: text,
+                          fontFeatures: const [FontFeature.tabularFigures()],
                         ),
                       ),
                     ],
@@ -260,7 +272,10 @@ class ObligationRow extends StatelessWidget {
                 ),
                 if (!stacked) ...[
                   const SizedBox(width: 8),
-                  StatusPill(label: statusLabel, tone: tone),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 9),
+                    child: StatusPill(label: statusLabel, tone: tone),
+                  ),
                 ],
               ],
             ),
@@ -271,7 +286,7 @@ class ObligationRow extends StatelessWidget {
   }
 }
 
-/// Section of rows inside one card, hairline dividers between rows.
+/// Section of rows inside one outlined card, 2 pt lines between rows.
 class RowsCard extends StatelessWidget {
   const RowsCard({super.key, required this.children});
 
@@ -280,21 +295,15 @@ class RowsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final line = AppTokens.bar.resolveFrom(context);
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: AppTokens.card.resolveFrom(context),
-        borderRadius: BorderRadius.circular(AppTokens.radiusCard),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-        child: Column(
-          children: [
-            for (var i = 0; i < children.length; i++) ...[
-              if (i > 0) Container(height: 1, color: line),
-              children[i],
-            ],
+    return AppCard(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
+      child: Column(
+        children: [
+          for (var i = 0; i < children.length; i++) ...[
+            if (i > 0) Container(height: 2, color: line),
+            children[i],
           ],
-        ),
+        ],
       ),
     );
   }

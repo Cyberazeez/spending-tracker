@@ -13,6 +13,7 @@ class AppCard extends StatelessWidget {
     this.color,
     this.flat = false,
     this.radius = AppTokens.radiusCard,
+    this.shadow = const Offset(4, 5),
   });
 
   final Widget child;
@@ -21,6 +22,9 @@ class AppCard extends StatelessWidget {
   final bool flat;
   final double radius;
 
+  /// Offset of the hard shadow: (4, 5) on cards, (5, 6) on the big gold and emerald heroes.
+  final Offset shadow;
+
   @override
   Widget build(BuildContext context) {
     final box = DecoratedBox(
@@ -28,13 +32,13 @@ class AppCard extends StatelessWidget {
         color: color ?? AppTokens.card.resolveFrom(context),
         borderRadius: BorderRadius.circular(radius),
         border: outlineOf(context),
-        boxShadow: flat ? null : hardShadowOf(context),
+        boxShadow: flat ? null : hardShadowOf(context, offset: shadow),
       ),
       child: Padding(padding: padding, child: child),
     );
     if (flat) return box;
     return Padding(
-      padding: const EdgeInsets.only(right: 4, bottom: 5),
+      padding: EdgeInsets.only(right: shadow.dx, bottom: shadow.dy),
       child: box,
     );
   }

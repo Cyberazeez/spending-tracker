@@ -350,7 +350,7 @@ class _InsightsPageState extends ConsumerState<InsightsPage> {
                           children: [
                             for (var i = 0; i < ins.topMerchants.length; i++)
                               InsightLine(
-                                leading: _Rank(i + 1),
+                                leading: RankCircle(i + 1),
                                 title: ins.topMerchants[i].label,
                                 subtitle: ins.topMerchants[i].count == 1
                                     ? t.insVisit
@@ -412,28 +412,4 @@ class _InsightsPageState extends ConsumerState<InsightsPage> {
       ),
     );
   }
-}
-
-class _Rank extends StatelessWidget {
-  const _Rank(this.n);
-  final int n;
-
-  @override
-  Widget build(BuildContext context) => Container(
-    width: 32,
-    height: 32,
-    alignment: Alignment.center,
-    decoration: BoxDecoration(
-      color: AppTokens.bar.resolveFrom(context),
-      shape: BoxShape.circle,
-    ),
-    child: Text(
-      '$n',
-      style: TextStyle(
-        color: AppTokens.text.resolveFrom(context),
-        fontSize: 13,
-        fontWeight: FontWeight.w700,
-      ),
-    ),
-  );
 }
