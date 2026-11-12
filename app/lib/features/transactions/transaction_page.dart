@@ -15,6 +15,7 @@ import '../../ui/app_sheet.dart';
 import '../../ui/chevron.dart';
 import '../../ui/confirm_sheet.dart';
 import '../../ui/icon_tile.dart';
+import '../../ui/note_limit.dart';
 import '../../ui/sheet_frame.dart';
 import '../../ui/tokens.dart';
 import '../home/category_groups.dart';
@@ -42,6 +43,10 @@ class _TransactionPageState extends ConsumerState<TransactionPage> {
   final _noteFocus = FocusNode();
   String _savedNote = '';
 
+  /// The category chosen on this page, until the list catches up (the row can leave a filtered list).
+  String? _category;
+  bool _categoryChanged = false;
+
   @override
   void initState() {
     super.initState();
@@ -61,12 +66,18 @@ class _TransactionPageState extends ConsumerState<TransactionPage> {
   Future<void> _saveNote() async {
     final text = _note.text.trim();
     if (text == _savedNote.trim()) return;
+    // Read everything before the save: it can finish after the page is gone (leaving the page saves the note).
     final t = AppLocalizations.of(context);
+    final repo = ref.read(dataRepositoryProvider);
+    final container = ProviderScope.containerOf(context, listen: false);
+    final before = _savedNote;
+    _savedNote =
+        text; // one save per change, even if the field loses focus twice
     try {
-      await ref.read(dataRepositoryProvider).setNote(widget.txn.id, text);
-      _savedNote = text;
-      ref.invalidate(transactionsProvider);
+      await repo.setNote(widget.txn.id, text);
+      container.invalidate(transactionsProvider);
     } catch (_) {
+      _savedNote = before;
       if (mounted) await showNoticeSheet(context, title: t.txnNoteFailed);
     }
   }
@@ -116,8 +127,10 @@ class _TransactionPageState extends ConsumerState<TransactionPage> {
     final t = AppLocalizations.of(context);
     final arabic = ref.watch(localeProvider).languageCode == 'ar';
     final list = ref.watch(transactionsProvider).value ?? const <Txn>[];
-    final txn =
+    var txn =
         list.where((x) => x.id == widget.txn.id).firstOrNull ?? widget.txn;
+    // A category changed here shows at once, even when the row has left a filtered list.
+    if (_categoryChanged) txn = txn.withCategory(_category);
     final cats = ref.watch(categoriesProvider).value ?? const <Category>[];
     final cat = cats.where((c) => c.id == txn.categoryId).firstOrNull;
     final bill = (ref.watch(obligationsProvider).value ?? const [])
@@ -142,20 +155,22 @@ class _TransactionPageState extends ConsumerState<TransactionPage> {
       'csv' => t.txnSourceCsv,
       _ => t.txnSourceManual,
     };
-    final card = txn.accountLast4 == null
+    final card = txn.paidWithLast4 == null
         ? '—'
-        : '${txn.bank == null ? '' : '${bankDisplayName(txn.bank!, arabic: arabic)} '}•••• ${txn.accountLast4}';
+        : '${txn.bank == null ? '' : '${bankDisplayName(txn.bank!, arabic: arabic)} '}•••• ${txn.paidWithLast4}';
 
     Widget infoRow(String label, String value) => ConstrainedBox(
       constraints: const BoxConstraints(minHeight: 48),
       child: Row(
         children: [
-          Text(
-            label,
-            style: TextStyle(
-              color: muted,
-              fontSize: 15,
-              fontWeight: FontWeight.w500,
+          Flexible(
+            child: Text(
+              label,
+              style: TextStyle(
+                color: muted,
+                fontSize: 15,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
           const SizedBox(width: 12),
@@ -287,7 +302,19 @@ class _TransactionPageState extends ConsumerState<TransactionPage> {
                       CupertinoButton(
                         padding: EdgeInsets.zero,
                         minimumSize: const Size(44, 44),
-                        onPressed: () => pickCategory(context, ref, txn, cats),
+                        onPressed: () async {
+                          final saved = await pickCategory(
+                            context,
+                            ref,
+                            txn,
+                            cats,
+                          );
+                          if (saved == null || !mounted) return;
+                          setState(() {
+                            _categoryChanged = true;
+                            _category = saved.isEmpty ? null : saved;
+                          });
+                        },
                         child: Text(
                           t.txnChangeCategory,
                           style: TextStyle(
@@ -337,7 +364,7 @@ class _TransactionPageState extends ConsumerState<TransactionPage> {
               controller: _note,
               focusNode: _noteFocus,
               placeholder: t.txnAddNote,
-              maxLength: 500,
+              inputFormatters: const [NoteLimit()],
               maxLines: 3,
               minLines: 1,
               textInputAction: TextInputAction.done,
@@ -401,7 +428,9 @@ class _TransactionPageState extends ConsumerState<TransactionPage> {
               ),
             ],
             const SizedBox(height: 12),
-            Row(
+            Wrap(
+              alignment: WrapAlignment.spaceBetween,
+              spacing: 12,
               children: [
                 if (txn.source == 'sms' || txn.source == 'ai')
                   CupertinoButton(
@@ -424,7 +453,6 @@ class _TransactionPageState extends ConsumerState<TransactionPage> {
                       ),
                     ),
                   ),
-                const Spacer(),
                 CupertinoButton(
                   key: const ValueKey('txn-delete'),
                   padding: EdgeInsets.zero,
@@ -445,6 +473,28 @@ class _TransactionPageState extends ConsumerState<TransactionPage> {
               ],
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// `/home/txn` opened without a transaction (from a link): a page with a back button instead of a blank screen.
+class MissingTransactionPage extends StatelessWidget {
+  const MissingTransactionPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    return CupertinoPageScaffold(
+      backgroundColor: AppTokens.bg.resolveFrom(context),
+      navigationBar: appNavBar(context, t.txnTitle),
+      child: SafeArea(
+        child: Center(
+          child: Text(
+            t.noMatches,
+            style: TextStyle(color: AppTokens.muted.resolveFrom(context)),
+          ),
         ),
       ),
     );

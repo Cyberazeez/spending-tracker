@@ -135,7 +135,26 @@ class TransactionsPage extends ConsumerWidget {
                     ? [
                         SliverFillRemaining(
                           hasScrollBody: false,
-                          child: filter.isActive
+                          child:
+                              !filter.isActive &&
+                                  (ref.watch(anyTransactionsProvider).value ??
+                                      false)
+                              // An empty month for an account that has older rows: offer last month.
+                              ? EmptyState(
+                                  icon: CupertinoIcons.calendar,
+                                  title: t.txEmptyMonth,
+                                  action: SecondaryButton(
+                                    label: t.filterLastMonth,
+                                    onPressed: () => ref
+                                        .read(txFilterProvider.notifier)
+                                        .set(
+                                          filter.copyWith(
+                                            period: TxPeriod.lastMonth,
+                                          ),
+                                        ),
+                                  ),
+                                )
+                              : filter.isActive
                               ? EmptyState(
                                   icon: CupertinoIcons.search,
                                   title: t.noMatches,

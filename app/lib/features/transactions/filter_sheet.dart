@@ -67,7 +67,11 @@ class _FilterSheetState extends ConsumerState<_FilterSheet> {
   ];
 
   void _change(TxFilter f) {
-    setState(() => _f = f);
+    _ask++; // a count still running for the old filter is no longer shown
+    setState(() {
+      _f = f;
+      _count = null;
+    });
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 250), _recount);
   }

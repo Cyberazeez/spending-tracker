@@ -161,9 +161,10 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: 'txn',
             pageBuilder: (_, state) => _page(
               state,
+              // Opened without its transaction (a link): back to the list.
               state.extra is Txn
                   ? TransactionPage(txn: state.extra! as Txn)
-                  : const SizedBox.shrink(),
+                  : const MissingTransactionPage(),
             ),
           ),
           GoRoute(

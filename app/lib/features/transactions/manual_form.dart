@@ -15,6 +15,7 @@ import '../../ui/category_sheet.dart';
 import '../../ui/chevron.dart';
 import '../../ui/choice_sheet.dart';
 import '../../ui/icon_tile.dart';
+import '../../ui/note_limit.dart';
 import '../../ui/sheet_frame.dart';
 import '../../ui/tokens.dart';
 import '../account/account_providers.dart';
@@ -91,7 +92,8 @@ class _ManualTxnFormState extends ConsumerState<ManualTxnForm> {
           merchant: m.isEmpty ? null : m,
           categoryId: _categoryId,
           bank: _account?.bank,
-          accountLast4: _account?.last4,
+          accountLast4: _isCard(_account) ? null : _account?.last4,
+          cardLast4: _isCard(_account) ? _account?.last4 : null,
           note: _note.text.trim().isEmpty ? null : _note.text.trim(),
         ),
       );
@@ -135,7 +137,25 @@ class _ManualTxnFormState extends ConsumerState<ManualTxnForm> {
         ),
       ),
     );
-    if (result != null && mounted) setState(() => _when = result);
+    if (result == null || !mounted) return;
+    // A date picker returns midnight and a time picker today's date: keep the part that was not being picked.
+    setState(
+      () => _when = mode == CupertinoDatePickerMode.date
+          ? DateTime(
+              result.year,
+              result.month,
+              result.day,
+              _when.hour,
+              _when.minute,
+            )
+          : DateTime(
+              _when.year,
+              _when.month,
+              _when.day,
+              result.hour,
+              result.minute,
+            ),
+    );
   }
 
   Future<void> _pickCategory(List<Category> cats, bool arabic) async {
@@ -173,6 +193,9 @@ class _ManualTxnFormState extends ConsumerState<ManualTxnForm> {
       () => _account = accounts.where((a) => a.id == choice).firstOrNull,
     );
   }
+
+  static bool _isCard(OwnAccount? a) =>
+      a != null && (a.kind == 'credit_card' || a.kind == 'debit_card');
 
   String _accountLabel(OwnAccount a, bool arabic) =>
       '${bankDisplayName(a.bank, arabic: arabic)} •••• ${a.last4}';
@@ -394,7 +417,11 @@ class _ManualTxnFormState extends ConsumerState<ManualTxnForm> {
           onTap: () => _pickAccount(accounts, arabic),
         ),
         label(t.qaNote),
-        AppField(controller: _note, placeholder: t.qaOptional),
+        AppField(
+          controller: _note,
+          placeholder: t.qaOptional,
+          inputFormatters: const [NoteLimit()],
+        ),
         if (_failed) FormError(t.qaSaveFailed),
         const SizedBox(height: 20),
         PrimaryButton(label: t.qaSave, busy: _busy, onPressed: _save),

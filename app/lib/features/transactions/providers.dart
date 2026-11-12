@@ -56,3 +56,12 @@ final senderGapsProvider = FutureProvider.autoDispose<List<SenderGap>>(
   (ref) => ref.watch(dataRepositoryProvider).senderGaps(),
   retry: (_, _) => null,
 );
+
+/// Whether the account has any transaction at all (every month): tells an empty month apart from a new account.
+final anyTransactionsProvider = FutureProvider.autoDispose<bool>((ref) async {
+  ref.watch(transactionsProvider);
+  final n = await ref
+      .watch(dataRepositoryProvider)
+      .countTransactions(const TxFilter(period: TxPeriod.all));
+  return n > 0;
+}, retry: (_, _) => null);

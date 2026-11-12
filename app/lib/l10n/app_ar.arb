@@ -623,5 +623,6 @@
   "qaNote": "ملاحظة",
   "qaOptional": "اختياري",
   "qaChoose": "اختر",
-  "qaNotSet": "غير محدد"
+  "qaNotSet": "غير محدد",
+  "txEmptyMonth": "لا شيء بعد هذا الشهر"
 }

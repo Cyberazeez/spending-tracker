@@ -376,7 +376,8 @@ class FakeDataRepository implements DataRepository {
         return false;
       }
       if (filter.accountLast4 != null &&
-          t.accountLast4 != filter.accountLast4) {
+          t.accountLast4 != filter.accountLast4 &&
+          t.cardLast4 != filter.accountLast4) {
         return false;
       }
       return true;
@@ -393,6 +394,28 @@ class FakeDataRepository implements DataRepository {
   @override
   Future<void> setNote(String txnId, String note) async {
     notes[txnId] = note;
+    txns = [
+      for (final t in txns)
+        t.id == txnId
+            ? Txn(
+                id: t.id,
+                type: t.type,
+                direction: t.direction,
+                amountHalalas: t.amountHalalas,
+                occurredAt: t.occurredAt,
+                merchant: t.merchant,
+                merchantNorm: t.merchantNorm,
+                categoryId: t.categoryId,
+                categorySource: t.categorySource,
+                bank: t.bank,
+                accountLast4: t.accountLast4,
+                cardLast4: t.cardLast4,
+                note: note,
+                source: t.source,
+                rawMessageId: t.rawMessageId,
+              )
+            : t,
+    ];
   }
 
   @override

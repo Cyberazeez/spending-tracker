@@ -16,3 +16,13 @@ The app now reads `bank`, `account_last4`, `note`, `source` and `raw_message_id`
 ## Changed by the redesign (owner's rule)
 - **Spent / Received** is gone from Add a transaction (the mockup has none): money received is added through Needs review ("Add as transaction" keeps the switch). Flag for the owner.
 - "Hide internal" chip moved into the sheet as "Include transfers between my accounts".
+
+## Review fixes (2026-11-12)
+- The bank or card filter matches the card's digits too (`card_last4`, where the SMS reader keeps them) as well as the account's; the Transaction page shows the card when known; a card picked on Add a transaction is saved as `card_last4`.
+- A category changed on the Transaction page shows at once, even when the row leaves a filtered list.
+- The note is saved once per change and also when the save finishes after the page is closed; it is capped at 500 characters counted like the database (code points), on both screens.
+- Picking a date on Add a transaction keeps the time (and the other way round).
+- The Transaction page wraps its labels and bottom links at 2x text.
+- A search looks through every month; an empty current month for an account with older rows says "Nothing yet this month" and offers Last month (not the new-account screen).
+- "Show N" never shows the count of the previous filter, and the count is head-only (no rows downloaded).
+- `/home/txn` opened without its transaction shows a page with a back button instead of a blank one.

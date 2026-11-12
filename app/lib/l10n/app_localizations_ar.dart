@@ -1681,4 +1681,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get qaNotSet => 'غير محدد';
+
+  @override
+  String get txEmptyMonth => 'لا شيء بعد هذا الشهر';
 }

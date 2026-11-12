@@ -971,5 +971,6 @@
   "qaNote": "Note",
   "qaOptional": "Optional",
   "qaChoose": "Choose",
-  "qaNotSet": "Not set"
+  "qaNotSet": "Not set",
+  "txEmptyMonth": "Nothing yet this month"
 }

@@ -181,6 +181,7 @@ class SupabaseDataRepository implements DataRepository {
     },
     'bank': ?t.bank,
     'account_last4': ?t.accountLast4,
+    'card_last4': ?t.cardLast4,
     if ((t.note ?? '').trim().isNotEmpty) 'note': t.note!.trim(),
   };
 
@@ -192,7 +193,7 @@ class SupabaseDataRepository implements DataRepository {
     var q = _db
         .from('transactions')
         .select(
-          'id, type, direction, amount_halalas, merchant_raw, merchant_norm, category_id, category_source, occurred_at, is_internal, excluded_from_spend, bank, account_last4, note, source, raw_message_id',
+          'id, type, direction, amount_halalas, merchant_raw, merchant_norm, category_id, category_source, occurred_at, is_internal, excluded_from_spend, bank, account_last4, card_last4, note, source, raw_message_id',
         )
         .isFilter('deleted_at', null);
     q = _narrow(q, filter);
@@ -218,10 +219,15 @@ class SupabaseDataRepository implements DataRepository {
     if (ids != null && !filter.uncategorizedOnly) {
       q = q.inFilter('category_id', ids);
     }
-    if (filter.accountLast4 != null) {
-      q = q.eq('account_last4', filter.accountLast4!);
+    final last4 = filter.accountLast4;
+    if (last4 != null && RegExp(r'^\d{4}$').hasMatch(last4)) {
+      // The SMS reader keeps a card's digits apart from the account's: match either.
+      q = q.or('account_last4.eq.$last4,card_last4.eq.$last4');
     }
-    final range = filter.range(DateTime.now());
+    // A search looks through every month; the period only narrows the plain list.
+    final range = filter.query.trim().isEmpty
+        ? filter.range(DateTime.now())
+        : null;
     if (range != null) {
       q = q
           .gte('occurred_at', range.$1.toIso8601String())
@@ -232,11 +238,14 @@ class SupabaseDataRepository implements DataRepository {
 
   @override
   Future<int> countTransactions(TxFilter filter) async {
-    final res = await _narrow(
-      _db.from('transactions').select('id').isFilter('deleted_at', null),
+    // Head-only count: no rows are downloaded.
+    return await _narrow(
+      _db
+          .from('transactions')
+          .count(CountOption.exact)
+          .isFilter('deleted_at', null),
       filter,
-    ).count(CountOption.exact);
-    return res.count;
+    );
   }
 
   @override

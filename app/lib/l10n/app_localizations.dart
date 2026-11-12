@@ -3079,6 +3079,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not set'**
   String get qaNotSet;
+
+  /// No description provided for @txEmptyMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing yet this month'**
+  String get txEmptyMonth;
 }
 
 class _AppLocalizationsDelegate

@@ -1690,4 +1690,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get qaNotSet => 'Not set';
+
+  @override
+  String get txEmptyMonth => 'Nothing yet this month';
 }

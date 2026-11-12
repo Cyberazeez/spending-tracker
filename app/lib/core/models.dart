@@ -13,6 +13,7 @@ class Txn {
     this.categorySource,
     this.bank,
     this.accountLast4,
+    this.cardLast4,
     this.note,
     this.source,
     this.rawMessageId,
@@ -35,6 +36,33 @@ class Txn {
   /// The bank code and the last four digits of the account or card it was paid with, when known.
   final String? bank;
   final String? accountLast4;
+
+  /// The card's last four digits when the bank SMS names the card (it is kept apart from the account's).
+  final String? cardLast4;
+
+  /// The card or account to show: the card when known, else the account.
+  String? get paidWithLast4 => cardLast4 ?? accountLast4;
+
+  /// A copy with another category (after it was changed on the transaction page).
+  Txn withCategory(String? id) => Txn(
+    id: this.id,
+    type: type,
+    direction: direction,
+    amountHalalas: amountHalalas,
+    occurredAt: occurredAt,
+    merchant: merchant,
+    merchantNorm: merchantNorm,
+    categoryId: id,
+    isInternal: isInternal,
+    excludedFromSpend: excludedFromSpend,
+    categorySource: id == null ? null : 'manual',
+    bank: bank,
+    accountLast4: accountLast4,
+    cardLast4: cardLast4,
+    note: note,
+    source: source,
+    rawMessageId: rawMessageId,
+  );
 
   /// The owner's own note.
   final String? note;
@@ -61,6 +89,7 @@ class Txn {
     categorySource: r['category_source'] as String?,
     bank: r['bank'] as String?,
     accountLast4: r['account_last4'] as String?,
+    cardLast4: r['card_last4'] as String?,
     note: r['note'] as String?,
     source: r['source'] as String?,
     rawMessageId: r['raw_message_id'] as String?,
@@ -113,6 +142,7 @@ class ManualTxn {
     this.categoryId,
     this.bank,
     this.accountLast4,
+    this.cardLast4,
     this.note,
   });
 
@@ -124,9 +154,11 @@ class ManualTxn {
   /// Chosen on the Add a transaction screen; null leaves it to the merchant rules.
   final String? categoryId;
 
-  /// "Paid with": one of the owner's accounts.
+  /// "Paid with": one of the owner's accounts; a card's digits go in [cardLast4], an account's in [accountLast4]
+  /// (as the bank SMS reader stores them).
   final String? bank;
   final String? accountLast4;
+  final String? cardLast4;
   final String? note;
 }
 
