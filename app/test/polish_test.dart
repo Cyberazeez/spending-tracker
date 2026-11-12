@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:spending_tracker/ui/launch_skeleton.dart';
+import 'package:spending_tracker/ui/halala_logo.dart';
+import 'package:spending_tracker/ui/skeleton.dart';
 
 import 'support/fakes.dart';
 
@@ -20,16 +21,17 @@ void main() {
     },
   );
 
-  testWidgets(
-    'the lock screen shows the app skeleton and Unlock, not a blank page',
-    (tester) async {
-      final h = Harness(signedIn: true)..authenticator.result = false;
-      await tester.pumpWidget(await h.build());
-      await tester.pumpAndSettle();
-      expect(find.byType(LaunchSkeleton), findsOneWidget);
-      expect(find.widgetWithText(CupertinoButton, 'Unlock'), findsOneWidget);
-    },
-  );
+  testWidgets('the lock screen shows the logo and Unlock, not a blank page', (
+    tester,
+  ) async {
+    final h = Harness(signedIn: true)..authenticator.result = false;
+    await tester.pumpWidget(await h.build());
+    await tester.pumpAndSettle();
+    expect(find.byType(HalalaLogo), findsOneWidget);
+    // Only the logo, the title and Unlock: no placeholder cards behind them.
+    expect(find.byType(SkeletonSliver), findsNothing);
+    expect(find.widgetWithText(CupertinoButton, 'Unlock'), findsOneWidget);
+  });
 
   testWidgets('Quick add is in the Activity tab only', (tester) async {
     tester.view.physicalSize = const Size(800, 2400);

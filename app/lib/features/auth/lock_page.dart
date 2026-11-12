@@ -4,10 +4,9 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../core/lock.dart';
 import '../../l10n/app_localizations.dart';
-import '../../ui/app_card.dart';
 import '../../ui/app_form.dart';
 import '../../ui/icon_tile.dart';
-import '../../ui/launch_skeleton.dart';
+import '../../ui/halala_logo.dart';
 import '../../ui/tokens.dart';
 
 class LockPage extends ConsumerStatefulWidget {
@@ -36,74 +35,62 @@ class _LockPageState extends ConsumerState<LockPage> {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final state = ref.watch(lockProvider);
+    final text = AppTokens.text.resolveFrom(context);
+    // Only the logo, the lock title and Unlock on the page colour (the same colour and logo as the iOS launch
+    // screen, so opening the app goes straight from one to the other).
     return CupertinoPageScaffold(
       backgroundColor: AppTokens.bg.resolveFrom(context),
-      child: LaunchSkeleton(
-        child: Stack(
-          children: [
-            // A scrim over the grey blocks so the text and button are read against a calm background.
-            Positioned.fill(
-              child: ColoredBox(
-                color: AppTokens.bg
-                    .resolveFrom(context)
-                    .withValues(alpha: 0.82),
-              ),
-            ),
-            Align(
-              alignment: const Alignment(0, 0.45),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: AppCard(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 14),
-                        child: Row(
-                          children: [
-                            IconTile(
-                              color: AppTokens.gold.resolveFrom(context),
-                              icon: LucideIcons.lock,
-                              iconSize: 21,
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                t.lockTitle,
-                                style: TextStyle(
-                                  color: AppTokens.text.resolveFrom(context),
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w800,
-                                ),
-                              ),
-                            ),
-                          ],
+      child: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const HalalaLogo(width: 220),
+                const SizedBox(height: 48),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    IconTile(
+                      color: AppTokens.gold.resolveFrom(context),
+                      icon: LucideIcons.lock,
+                      iconSize: 21,
+                    ),
+                    const SizedBox(width: 12),
+                    Flexible(
+                      child: Text(
+                        t.lockTitle,
+                        style: TextStyle(
+                          color: text,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w800,
                         ),
                       ),
-                      if (state.failed)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: Text(
-                            t.unlockFailed,
-                            style: TextStyle(
-                              color: AppTokens.muted.resolveFrom(context),
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      const SizedBox(height: 4),
-                      PrimaryButton(
-                        label: t.unlock,
-                        onPressed: state.busy ? null : _unlock,
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ),
+                if (state.failed)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 12),
+                    child: Text(
+                      t.unlockFailed,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: AppTokens.muted.resolveFrom(context),
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                const SizedBox(height: 24),
+                PrimaryButton(
+                  label: t.unlock,
+                  onPressed: state.busy ? null : _unlock,
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
