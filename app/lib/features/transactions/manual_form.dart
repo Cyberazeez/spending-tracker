@@ -144,7 +144,9 @@ class _ManualTxnFormState extends State<ManualTxnForm> {
               textDirection: TextDirection.ltr,
               child: Text(
                 '${t.qaWhen}: ${_fmt(_when)}',
-                style: TextStyle(color: AppTokens.accent.resolveFrom(context)),
+                style: TextStyle(
+                  color: AppTokens.accentText.resolveFrom(context),
+                ),
               ),
             ),
           ),

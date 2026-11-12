@@ -37,7 +37,11 @@ class LaunchSkeleton extends StatelessWidget {
                 child: SizedBox(
                   width: 64,
                   height: 64,
-                  child: Icon(LucideIcons.wallet, size: 30, color: accent),
+                  child: Icon(
+                    LucideIcons.wallet,
+                    size: 30,
+                    color: AppTokens.accentText.resolveFrom(context),
+                  ),
                 ),
               ),
             ),

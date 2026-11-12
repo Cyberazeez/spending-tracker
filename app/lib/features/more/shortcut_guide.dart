@@ -154,7 +154,9 @@ class _ShortcutGuideSheetState extends State<ShortcutGuideSheet> {
                             Text(
                               t.captureGuideStepOf(i + 1, titles.length),
                               style: TextStyle(
-                                color: accent,
+                                color: AppTokens.accentText.resolveFrom(
+                                  context,
+                                ),
                                 fontSize: 13,
                                 fontWeight: FontWeight.w700,
                                 decoration: TextDecoration.none,
@@ -267,7 +269,7 @@ class _ShortcutGuideSheetState extends State<ShortcutGuideSheet> {
                         child: Text(
                           last ? t.captureGuideDone : t.captureGuideNext,
                           style: TextStyle(
-                            color: accent,
+                            color: AppTokens.accentText.resolveFrom(context),
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
                           ),

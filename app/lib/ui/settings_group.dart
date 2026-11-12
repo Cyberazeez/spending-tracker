@@ -93,7 +93,8 @@ class SettingsRow extends StatelessWidget {
                           .resolveFrom(context)
                           .withValues(alpha: 0.16)
                     : color,
-                borderRadius: BorderRadius.circular(11),
+                borderRadius: BorderRadius.circular(AppTokens.radiusTile),
+                border: outlineOf(context, width: AppTokens.outlineThin),
               ),
               child: Icon(
                 icon,

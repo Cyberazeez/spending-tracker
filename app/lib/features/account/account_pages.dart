@@ -69,7 +69,7 @@ class AccountPage extends ConsumerWidget {
                 ),
                 SettingsRow(
                   icon: LucideIcons.shieldCheck,
-                  color: const Color(0xFF3CC4A8),
+                  color: const Color(0xFF3FD79B),
                   title: t.accountSecurity,
                   subtitle: t.accountSecurityHint,
                   onTap: () => context.push(securityPath),

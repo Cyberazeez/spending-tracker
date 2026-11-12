@@ -77,6 +77,10 @@ class _WeekBarsState extends State<WeekBars> {
                         decoration: BoxDecoration(
                           color: accent,
                           borderRadius: BorderRadius.circular(10),
+                          border: outlineOf(
+                            context,
+                            width: AppTokens.outlineThin,
+                          ),
                         ),
                         child: Padding(
                           padding: const EdgeInsets.symmetric(
@@ -174,6 +178,10 @@ class _WeekBarsState extends State<WeekBars> {
                                           color: lit ? accent : idle,
                                           borderRadius: BorderRadius.circular(
                                             8,
+                                          ),
+                                          border: outlineOf(
+                                            context,
+                                            width: AppTokens.outlineThin,
                                           ),
                                         ),
                                       ),

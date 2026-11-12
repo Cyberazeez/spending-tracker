@@ -75,7 +75,8 @@ class CapturePage extends ConsumerWidget {
                                       child: Text(
                                         '${i + 1}',
                                         style: TextStyle(
-                                          color: accent,
+                                          color: AppTokens.accentText
+                                              .resolveFrom(context),
                                           fontWeight: FontWeight.w700,
                                           fontSize: 14,
                                         ),
@@ -109,14 +110,18 @@ class CapturePage extends ConsumerWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(LucideIcons.images, size: 18, color: accent),
+                        Icon(
+                          LucideIcons.images,
+                          size: 18,
+                          color: AppTokens.accentText.resolveFrom(context),
+                        ),
                         const SizedBox(width: 8),
                         Flexible(
                           child: Text(
                             t.captureGuideOpen,
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              color: accent,
+                              color: AppTokens.accentText.resolveFrom(context),
                               fontSize: 16,
                               fontWeight: FontWeight.w700,
                             ),
@@ -160,7 +165,7 @@ class CapturePage extends ConsumerWidget {
                           child: Text(
                             t.captureSendNow,
                             style: TextStyle(
-                              color: accent,
+                              color: AppTokens.accentText.resolveFrom(context),
                               fontWeight: FontWeight.w700,
                             ),
                           ),

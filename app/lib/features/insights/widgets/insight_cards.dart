@@ -126,7 +126,7 @@ class SummaryCard extends StatelessWidget {
                               (insights.savingsRate! * 100).round().toString(),
                             ),
                             style: TextStyle(
-                              color: accent,
+                              color: AppTokens.accentText.resolveFrom(context),
                               fontSize: 20,
                               fontWeight: FontWeight.w700,
                             ),

@@ -81,7 +81,6 @@ class _AmountSheetState extends State<_AmountSheet> {
     final card = AppTokens.card.resolveFrom(context);
     final text = AppTokens.text.resolveFrom(context);
     final muted = AppTokens.muted.resolveFrom(context);
-    final accent = AppTokens.accent.resolveFrom(context);
     return SheetFrame(
       title: widget.title,
       subtitle: widget.subtitle,
@@ -189,7 +188,7 @@ class _AmountSheetState extends State<_AmountSheet> {
                                   (m) => ',',
                                 ),
                             style: TextStyle(
-                              color: accent,
+                              color: AppTokens.accentText.resolveFrom(context),
                               fontSize: 15,
                               fontWeight: FontWeight.w600,
                               decoration: TextDecoration.none,

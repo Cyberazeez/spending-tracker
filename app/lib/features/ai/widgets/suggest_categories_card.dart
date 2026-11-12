@@ -61,7 +61,6 @@ class _SuggestCategoriesCardState extends ConsumerState<SuggestCategoriesCard> {
       return const SizedBox.shrink();
     }
     final t = AppLocalizations.of(context);
-    final accent = AppTokens.accent.resolveFrom(context);
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
       child: AppCard(
@@ -71,7 +70,11 @@ class _SuggestCategoriesCardState extends ConsumerState<SuggestCategoriesCard> {
           children: [
             Row(
               children: [
-                Icon(LucideIcons.sparkles, size: 20, color: accent),
+                Icon(
+                  LucideIcons.sparkles,
+                  size: 20,
+                  color: AppTokens.accentText.resolveFrom(context),
+                ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -110,7 +113,7 @@ class _SuggestCategoriesCardState extends ConsumerState<SuggestCategoriesCard> {
                     : Text(
                         t.aiSuggestAction,
                         style: TextStyle(
-                          color: accent,
+                          color: AppTokens.accentText.resolveFrom(context),
                           fontWeight: FontWeight.w700,
                         ),
                       ),

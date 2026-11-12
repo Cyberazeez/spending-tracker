@@ -218,7 +218,12 @@ class _AiChatPageState extends ConsumerState<AiChatPage> {
                                 ),
                                 child: Text(
                                   p,
-                                  style: TextStyle(color: accent, fontSize: 14),
+                                  style: TextStyle(
+                                    color: AppTokens.accentText.resolveFrom(
+                                      context,
+                                    ),
+                                    fontSize: 14,
+                                  ),
                                 ),
                               ),
                             ),
@@ -259,7 +264,9 @@ class _AiChatPageState extends ConsumerState<AiChatPage> {
                                 child: Text(
                                   t.aiChatRetry,
                                   style: TextStyle(
-                                    color: accent,
+                                    color: AppTokens.accentText.resolveFrom(
+                                      context,
+                                    ),
                                     fontWeight: FontWeight.w700,
                                   ),
                                 ),

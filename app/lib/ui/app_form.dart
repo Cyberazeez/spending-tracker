@@ -43,27 +43,36 @@ class PrimaryButton extends StatelessWidget {
         padding: EdgeInsets.zero,
         minimumSize: const Size(44, 52),
         onPressed: enabled ? onPressed : null,
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: enabled ? accent : accent.withValues(alpha: 0.4),
-            borderRadius: BorderRadius.circular(26),
-          ),
-          child: SizedBox(
-            width: double.infinity,
-            height: 52,
-            child: Center(
-              child: busy
-                  ? CupertinoActivityIndicator(
-                      color: AppTokens.onAccent.resolveFrom(context),
-                    )
-                  : Text(
-                      label,
-                      style: TextStyle(
+        child: Padding(
+          padding: const EdgeInsets.only(right: 3, bottom: 4),
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: enabled ? accent : AppTokens.bar.resolveFrom(context),
+              borderRadius: BorderRadius.circular(26),
+              border: outlineOf(context),
+              boxShadow: enabled
+                  ? hardShadowOf(context, offset: const Offset(3, 4))
+                  : null,
+            ),
+            child: SizedBox(
+              width: double.infinity,
+              height: 52,
+              child: Center(
+                child: busy
+                    ? CupertinoActivityIndicator(
                         color: AppTokens.onAccent.resolveFrom(context),
-                        fontSize: 17,
-                        fontWeight: FontWeight.w700,
+                      )
+                    : Text(
+                        label,
+                        style: TextStyle(
+                          color: enabled
+                              ? AppTokens.onAccent.resolveFrom(context)
+                              : AppTokens.muted.resolveFrom(context),
+                          fontSize: 17,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
-                    ),
+              ),
             ),
           ),
         ),
@@ -123,7 +132,8 @@ class AppField extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         color: AppTokens.card.resolveFrom(context),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(14),
+        border: outlineOf(context),
       ),
     );
     if (label == null) {

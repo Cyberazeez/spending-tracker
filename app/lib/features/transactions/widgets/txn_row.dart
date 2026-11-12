@@ -176,8 +176,9 @@ class _Badge extends StatelessWidget {
       width: 44,
       height: 44,
       decoration: BoxDecoration(
-        shape: BoxShape.circle,
+        borderRadius: BorderRadius.circular(AppTokens.radiusTile),
         color: groupColor(group),
+        border: outlineOf(context, width: AppTokens.outlineThin),
       ),
       child: Icon(
         categoryName == null

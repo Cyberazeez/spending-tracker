@@ -110,7 +110,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   child: SizedBox(
                     width: 72,
                     height: 72,
-                    child: Icon(LucideIcons.wallet, size: 34, color: accent),
+                    child: Icon(
+                      LucideIcons.wallet,
+                      size: 34,
+                      color: AppTokens.accentText.resolveFrom(context),
+                    ),
                   ),
                 ),
               ),
@@ -160,7 +164,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   child: Text(
                     t.forgotLink,
                     style: TextStyle(
-                      color: accent,
+                      color: AppTokens.accentText.resolveFrom(context),
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                     ),
@@ -177,7 +181,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 onPressed: () => context.push(signUpPath),
                 child: Text(
                   t.signUpLink,
-                  style: TextStyle(color: accent, fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                    color: AppTokens.accentText.resolveFrom(context),
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ],

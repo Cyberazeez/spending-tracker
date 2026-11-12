@@ -213,14 +213,14 @@ class _AiRowState extends ConsumerState<_AiRow> {
     if (ref.watch(aiAllowedProvider).value == false) {
       return SettingsRow(
         icon: LucideIcons.sparkles,
-        color: const Color(0xFF3CC4A8),
+        color: const Color(0xFF3FD79B),
         title: t.aiTitle,
         subtitle: t.aiPaidOnly,
       );
     }
     return SettingsRow(
       icon: LucideIcons.sparkles,
-      color: const Color(0xFF3CC4A8),
+      color: const Color(0xFF3FD79B),
       title: t.aiTitle,
       subtitle: t.aiSubtitle,
       control: CupertinoSwitch(
@@ -326,7 +326,7 @@ class _CaptureStatusRow extends ConsumerWidget {
     final last = captureLastLabel(t, status?.last ?? '');
     return SettingsRow(
       icon: LucideIcons.messageSquare,
-      color: const Color(0xFF3CC4A8),
+      color: const Color(0xFF3FD79B),
       title: t.captureStatus,
       subtitle: last.isEmpty ? waiting : '$waiting · $last',
       onTap: () => context.push(capturePath),

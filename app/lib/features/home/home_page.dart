@@ -315,7 +315,7 @@ class _SectionHeader extends StatelessWidget {
         child: Text(
           action,
           style: TextStyle(
-            color: AppTokens.accent.resolveFrom(context),
+            color: AppTokens.accentText.resolveFrom(context),
             fontSize: 14,
             fontWeight: FontWeight.w500,
           ),
