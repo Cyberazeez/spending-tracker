@@ -76,6 +76,8 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.bySemanticsLabel('Add an obligation'));
     await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('add-bill-scratch')));
+    await tester.pumpAndSettle();
     expect(find.text('New obligation'), findsOneWidget);
     await tester.dragFrom(const Offset(3, 300), const Offset(700, 0));
     await tester.pumpAndSettle();

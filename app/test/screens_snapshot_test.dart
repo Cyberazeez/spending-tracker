@@ -200,7 +200,16 @@ void main() {
   }
 
   // Rebrand stage 3: Bills and Insights sub-screens and sheets.
-  const stage3 = ['form', 'actions', 'amount', 'confirm', 'ai_tips', 'chat'];
+  const stage3 = [
+    'form',
+    'actions',
+    'amount',
+    'confirm',
+    'ai_tips',
+    'chat',
+    'add_bill',
+    'mark_paid',
+  ];
   for (final lang in ['en', 'ar']) {
     final en = lang == 'en';
     for (final mode in Brightness.values) {
@@ -240,12 +249,21 @@ void main() {
               await tab(bills);
               await t.tap(find.text('Electricity bill').first);
               await t.pumpAndSettle();
-              await t.tap(find.text(en ? 'Edit amount' : 'تعديل المبلغ'));
+              await t.tap(find.byKey(const ValueKey('bill-amount')));
             case 'confirm':
               await tab(bills);
               await t.tap(find.text('Electricity bill').first);
               await t.pumpAndSettle();
-              await t.tap(find.text(en ? 'Stop tracking' : 'إيقاف المتابعة'));
+              await t.tap(find.byKey(const ValueKey('bill-stop')));
+            case 'add_bill':
+              await tab(bills);
+              GoRouter.of(t.element(find.byType(CupertinoPageScaffold).last))
+                  .push(addBillPath);
+            case 'mark_paid':
+              await tab(bills);
+              await t.tap(find.text('Electricity bill').first);
+              await t.pumpAndSettle();
+              await t.tap(find.byKey(const ValueKey('bill-paid')));
             case 'ai_tips':
               await tab(en ? 'Insights' : 'التحليلات');
             case 'chat':

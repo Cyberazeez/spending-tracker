@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 
 import '../../ui/confirm_sheet.dart';
-import '../../ui/amount_sheet.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -21,9 +20,8 @@ import '../../ui/grow_in.dart';
 import '../../ui/header_button.dart';
 import '../../ui/skeleton.dart';
 import '../../ui/chevron.dart';
-import '../../ui/choice_sheet.dart';
 import '../../ui/tokens.dart';
-import '../insights/metrics.dart';
+import 'bill_sheet.dart';
 import 'logic.dart';
 import 'providers.dart';
 import 'widgets/bills_widgets.dart';
@@ -54,92 +52,6 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
     }
   }
 
-  Future<void> _rowActions(ObligationInstance i, String status) async {
-    final t = AppLocalizations.of(context);
-    final repo = ref.read(dataRepositoryProvider);
-    final choice = await showChoiceSheet<String>(
-      context,
-      title: i.name,
-      options: [
-        ChoiceOption(
-          value: 'amount',
-          label: t.obEditAmount,
-          icon: LucideIcons.banknote,
-        ),
-        if (i.kind != 'card_statement')
-          ChoiceOption(
-            value: 'edit',
-            label: t.obEditDetails,
-            icon: LucideIcons.pencil,
-          ),
-        if (status == 'pending' || status == 'overdue') ...[
-          ChoiceOption(
-            value: 'paid',
-            label: t.obMarkPaid,
-            icon: LucideIcons.circleCheck,
-          ),
-          ChoiceOption(
-            value: 'skipped',
-            label: t.obSkip,
-            icon: LucideIcons.skipForward,
-          ),
-        ] else
-          ChoiceOption(
-            value: 'pending',
-            label: t.obReopen,
-            icon: LucideIcons.rotateCcw,
-          ),
-        if (i.kind != 'card_statement')
-          ChoiceOption(
-            value: 'stop',
-            label: t.obStop,
-            icon: LucideIcons.circleStop,
-            destructive: true,
-          ),
-      ],
-    );
-    if (choice == null) return;
-    if (choice == 'edit') {
-      if (mounted) context.push('$obligationFormPath?id=${i.obligationId}');
-      return;
-    }
-    if (choice == 'stop') {
-      if (!mounted) return;
-      final sure = await showConfirmSheet(
-        context,
-        title: t.obStopConfirm(i.name),
-        confirmLabel: t.obStop,
-        destructive: true,
-      );
-      if (sure == true) {
-        await _run(() => repo.stopObligation(i.obligationId));
-      }
-      return;
-    }
-    if (choice == 'amount') {
-      final paid = status == 'paid';
-      final current = paid
-          ? (i.actualHalalas ?? i.expectedHalalas)
-          : i.expectedHalalas;
-      final v = await _askAmount(current);
-      if (v == null) return;
-      await _run(() => repo.setInstanceAmount(i.id, v, paid: paid));
-      return;
-    }
-    await _run(() => repo.setInstanceStatus(i.id, choice));
-  }
-
-  Future<int?> _askAmount(int? current) {
-    final t = AppLocalizations.of(context);
-    return showAmountSheet(
-      context,
-      title: t.obEditAmountPrompt,
-      initialHalalas: current,
-      maxHalalas: maxBudgetHalalas,
-      invalidText: t.obAmountInvalid,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
@@ -166,7 +78,7 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
             backgroundColor: AppTokens.bg.resolveFrom(context),
             border: null,
             trailing: HeaderIconButton(
-              onPressed: () => context.push(obligationFormPath),
+              onPressed: () => context.push(addBillPath),
               fill: AppTokens.gold.resolveFrom(context),
               icon: LucideIcons.plus,
               iconColor: AppTokens.onTint.resolveFrom(context),
@@ -303,8 +215,19 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
                               CupertinoButton(
                                 padding: EdgeInsets.zero,
                                 minimumSize: const Size(44, 44),
-                                onPressed: () =>
-                                    _run(() => repo.confirmMatch(s.id)),
+                                onPressed: () async {
+                                  final ok = await confirmMarkPaid(
+                                    context,
+                                    ref,
+                                    s,
+                                    arabic: arabic,
+                                  );
+                                  if (ok == true) {
+                                    await _run(() => repo.confirmMatch(s.id));
+                                  } else if (ok == false) {
+                                    await _run(() => repo.rejectMatch(s.id));
+                                  }
+                                },
                                 child: Text(
                                   t.obConfirm,
                                   style: TextStyle(
@@ -620,7 +543,14 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
         ? ltrIsolate(formatSar(shown, arabic: arabic))
         : (i.kind == 'card_statement' ? t.obAmountPending : '');
     return ObligationRow(
-      onTap: () => _rowActions(i, status),
+      onTap: () => showBillSheet(
+        context,
+        instance: i,
+        status: status,
+        statusLabel: label,
+        tone: tone,
+        today: today,
+      ),
       name: i.name,
       kind: i.kind,
       statusLabel: label,

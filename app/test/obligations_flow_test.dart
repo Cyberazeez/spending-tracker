@@ -137,7 +137,7 @@ void main() {
     final h = await open(tester, [inst('1', 'Electricity', '2026-10-31')]);
     await tester.tap(find.text('Electricity'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Edit amount'));
+    await tester.tap(find.byKey(const ValueKey('bill-amount')));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(CupertinoTextField), '700.50');
     await tester.tap(find.text('Save'));
@@ -200,7 +200,7 @@ void main() {
     final h = await open(tester, [inst('1', 'Electricity', '2026-10-31')]);
     await tester.tap(find.text('Electricity'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Edit amount'));
+    await tester.tap(find.byKey(const ValueKey('bill-amount')));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(CupertinoTextField), '12,50');
     await tester.tap(find.text('Save'));
@@ -229,7 +229,10 @@ void main() {
     final h = await open(tester, [inst('1', 'Horse and foal', '2026-10-31')]);
     await tester.tap(find.text('Horse and foal'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Mark as paid'));
+    await tester.tap(find.byKey(const ValueKey('bill-paid')));
+    await tester.pumpAndSettle();
+    // It asks first, with the bill's tile.
+    await tester.tap(find.text('Yes, mark as paid'));
     await tester.pumpAndSettle();
     expect(h.data.instanceCalls, ['paid:1']);
     // it stays in this month's list, now as paid
@@ -260,6 +263,8 @@ void main() {
       inst('1', 'Internet', '2026-10-31', matchState: 'suggested'),
     ]);
     await tester.tap(find.text('Confirm'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Yes, mark as paid'));
     await tester.pumpAndSettle();
     expect(h.data.instanceCalls, ['confirm:1']);
     expect(h.data.instances.first.status, 'paid');
