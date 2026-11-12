@@ -17,6 +17,7 @@ import '../../router.dart';
 import '../../ui/app_card.dart';
 import '../../ui/bottom_inset.dart';
 import '../../ui/empty_state.dart';
+import '../../ui/grow_in.dart';
 import '../../ui/header_button.dart';
 import '../../ui/skeleton.dart';
 import '../../ui/chevron.dart';
@@ -656,30 +657,33 @@ class _CycleBar extends StatelessWidget {
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(5),
-          child: LayoutBuilder(
-            builder: (context, box) => Stack(
-              children: [
-                PositionedDirectional(
-                  start: 0,
-                  top: 0,
-                  bottom: 0,
-                  width: box.maxWidth * share,
-                  child: DecoratedBox(
-                    key: const ValueKey('cycle-bar-fill'),
-                    decoration: BoxDecoration(
-                      color: AppTokens.accent.resolveFrom(context),
-                      border: share > 0 && share < 1
-                          ? BorderDirectional(
-                              end: BorderSide(
-                                color: ink,
-                                width: AppTokens.outlineThin,
-                              ),
-                            )
-                          : null,
+          // The paid share grows from empty each time Bills comes into view.
+          child: GrowIn(
+            builder: (context, g) => LayoutBuilder(
+              builder: (context, box) => Stack(
+                children: [
+                  PositionedDirectional(
+                    start: 0,
+                    top: 0,
+                    bottom: 0,
+                    width: box.maxWidth * (share * g).clamp(0.0, 1.0),
+                    child: DecoratedBox(
+                      key: const ValueKey('cycle-bar-fill'),
+                      decoration: BoxDecoration(
+                        color: AppTokens.accent.resolveFrom(context),
+                        border: share > 0 && share < 1
+                            ? BorderDirectional(
+                                end: BorderSide(
+                                  color: ink,
+                                  width: AppTokens.outlineThin,
+                                ),
+                              )
+                            : null,
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

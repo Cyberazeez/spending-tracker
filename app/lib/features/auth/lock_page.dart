@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -16,15 +18,58 @@ class LockPage extends ConsumerStatefulWidget {
   ConsumerState<LockPage> createState() => _LockPageState();
 }
 
+/// How long the lock screen waits before asking for Face ID, so the logo's coin drop is seen first (the system
+/// prompt would cover it, and a quick unlock would skip the screen altogether). No wait with Reduce Motion.
+const lockPromptDelay = Duration(milliseconds: 900);
+
 class _LockPageState extends ConsumerState<LockPage> {
+  Timer? _wait;
+  bool _promptWhenBack = false;
+
+  // The automatic prompt only runs while the app is in front: iOS refuses Face ID in the background and that would
+  // show "Unlock failed". Left within the wait, it asks when the app comes back.
+  late final AppLifecycleListener _life = AppLifecycleListener(
+    onResume: () {
+      if (_promptWhenBack) {
+        _promptWhenBack = false;
+        _unlock();
+      }
+    },
+  );
+
+  void _autoPrompt() {
+    final state = WidgetsBinding.instance.lifecycleState;
+    if (state != null && state != AppLifecycleState.resumed) {
+      _promptWhenBack = true;
+      return;
+    }
+    _unlock();
+  }
+
   @override
   void initState() {
     super.initState();
-    // Prompt as soon as the lock screen appears.
-    WidgetsBinding.instance.addPostFrameCallback((_) => _unlock());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _life; // start listening
+      if (MediaQuery.disableAnimationsOf(context)) {
+        _autoPrompt();
+      } else {
+        _wait = Timer(lockPromptDelay, _autoPrompt);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _wait?.cancel();
+    _life.dispose();
+    super.dispose();
   }
 
   Future<void> _unlock() async {
+    _wait?.cancel(); // Unlock tapped before the automatic prompt: ask once
+    _promptWhenBack = false;
     if (!mounted) return;
     await ref
         .read(lockProvider.notifier)

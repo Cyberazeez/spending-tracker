@@ -5,6 +5,7 @@ import '../../../core/models.dart';
 import '../../../core/money.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/tokens.dart';
+import '../../../ui/press.dart';
 
 /// One upcoming or overdue bill: a status pill, its name, the amount (with "~" when it is an estimate) and the due date.
 class BillCard extends StatelessWidget {
@@ -65,10 +66,13 @@ class BillCard extends StatelessWidget {
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: onTap,
-          child: DecoratedBox(
+          child: PressShadow(
+            offset: const Offset(4, 5),
+            enabled: onTap != null,
             decoration: BoxDecoration(
               color: AppTokens.card.resolveFrom(context),
-              borderRadius: BorderRadius.circular(22),
+              borderRadius: BorderRadius.circular(AppTokens.radiusCard),
+              border: outlineOf(context),
             ),
             child: Padding(
               padding: const EdgeInsets.all(16),

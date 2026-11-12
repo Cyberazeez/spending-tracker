@@ -18,3 +18,12 @@
 ## Not built
 - **Launch screen** (iOS storyboard) cannot animate; the coins drop starts on the first Flutter screen.
 - **Cards with buttons inside** (the AI tips card) do not press as a whole, so pressing one of their buttons does not sink the card too.
+
+## Owner's TestFlight round (2026-11-12)
+1. **Pill bars slide** (`ui/sliding_pill.dart`, `SlidingPill`): every `PillSegments` (Bills Upcoming / Overdue / History, the bill form's type, amount and repeat pickers, Quick add) now slides its emerald pill like the tab bar. Reduce Motion: fade.
+2. **Every button presses** (`PressShadow` in `ui/press.dart`: a small 2 x 3 hard shadow and the press): Activity filter chips, Home's attention chip, Home's bill cards (now outlined, 4 x 5 shadow), amount-sheet suggestion chips, AI chat prompt chips and send button, AI tips pills, the close buttons of every sheet (now all outlined), the bill form's minus / plus buttons. Rows inside cards (More, Account, Privacy with "Delete my account") light up while held (`PressHighlight`): a row has no shadow of its own to sink into. Text links keep the system fade.
+3. **Switches** (`appSwitch`): a 2 x 3 hard shadow under the track that the switch presses into; the thumb keeps its own slide.
+4. **Coin drop at launch:** the lock screen waits until the coins land (`lockPromptDelay`, 0.9 s) before asking for Face ID, so the drop is seen; Unlock tapped earlier asks at once. Reduce Motion: asks straight away, no drop.
+5. **Home budget ring** and 6. **Bills progress bar** (`ui/grow_in.dart`, `GrowIn`): fill from empty with a small overshoot (the ring's percentage counts up with it) each time the screen comes into view, not only the first time it was built (which happened behind the lock screen, unseen). Reduce Motion: shown at the value at once.
+
+Not changed: field-style pickers (date row, bank and type pickers in the account sheet), the category tiles and list rows of Activity, which are rows or fields rather than buttons.

@@ -2,6 +2,8 @@ import 'package:flutter/gestures.dart' show kTouchSlop;
 import 'package:flutter/physics.dart';
 import 'package:flutter/widgets.dart';
 
+import 'tokens.dart';
+
 /// Builds the pressable box. [depth] is how far it has sunk into its hard shadow: 0 at rest, 1 fully pressed, a
 /// little below 0 while it springs back. Draw the shadow with `offset * (1 - depth)` so the box and its shadow meet
 /// when pressed.
@@ -129,6 +131,103 @@ class _PressableState extends State<Pressable>
           child: widget.builder(context, d),
         );
       },
+    ),
+  );
+}
+
+/// A button's box with a small hard shadow that presses into it: [decoration] gets the shadow (default 2 x 3,
+/// for chips and small round buttons), and the shadow's room is kept inside the widget's own box.
+class PressShadow extends StatelessWidget {
+  const PressShadow({
+    super.key,
+    required this.decoration,
+    required this.child,
+    this.offset = const Offset(2, 3),
+    this.enabled = true,
+  });
+
+  final BoxDecoration decoration;
+  final Widget child;
+  final Offset offset;
+  final bool enabled;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: EdgeInsets.only(right: offset.dx, bottom: offset.dy),
+    child: Pressable(
+      offset: offset,
+      enabled: enabled,
+      builder: (context, depth) => DecoratedBox(
+        decoration: decoration.copyWith(
+          boxShadow: enabled
+              ? hardShadowOf(context, offset: offset * (1 - depth))
+              : null,
+        ),
+        child: child,
+      ),
+    ),
+  );
+}
+
+/// Press feedback for a row inside a card (settings rows, account rows), which has no shadow of its own to sink
+/// into: a soft `bar`-coloured highlight behind the row while a finger is on it. Like [Pressable] it only watches the
+/// pointer and lets go when the finger starts scrolling.
+class PressHighlight extends StatefulWidget {
+  const PressHighlight({
+    super.key,
+    required this.child,
+    this.radius = 12,
+    this.enabled = true,
+  });
+
+  final Widget child;
+  final double radius;
+  final bool enabled;
+
+  @override
+  State<PressHighlight> createState() => _PressHighlightState();
+}
+
+class _PressHighlightState extends State<PressHighlight> {
+  bool _on = false;
+  Offset? _start;
+  int? _pointer;
+
+  void _set(bool on) {
+    if (mounted && _on != on) setState(() => _on = on);
+  }
+
+  @override
+  Widget build(BuildContext context) => Listener(
+    onPointerDown: (e) {
+      if (!widget.enabled || _pointer != null) return;
+      _pointer = e.pointer;
+      _start = e.position;
+      _set(true);
+    },
+    onPointerMove: (e) {
+      if (e.pointer != _pointer || _start == null) return;
+      if ((e.position - _start!).distance > Pressable.slop) _set(false);
+    },
+    onPointerUp: (e) {
+      if (e.pointer != _pointer) return;
+      _pointer = null;
+      _set(false);
+    },
+    onPointerCancel: (e) {
+      if (e.pointer != _pointer) return;
+      _pointer = null;
+      _set(false);
+    },
+    child: AnimatedContainer(
+      duration: Duration(milliseconds: _on ? 60 : 200),
+      decoration: BoxDecoration(
+        color: _on
+            ? AppTokens.bar.resolveFrom(context)
+            : AppTokens.bar.resolveFrom(context).withValues(alpha: 0),
+        borderRadius: BorderRadius.circular(widget.radius),
+      ),
+      child: widget.child,
     ),
   );
 }

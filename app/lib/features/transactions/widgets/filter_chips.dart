@@ -6,6 +6,7 @@ import '../../../core/providers.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/tokens.dart';
 import '../providers.dart';
+import '../../../ui/press.dart';
 
 enum QuickFilter { noCategory, ai, hideInternal }
 
@@ -139,8 +140,9 @@ class _Chip extends StatelessWidget {
         child: CupertinoButton(
           padding: EdgeInsets.zero,
           minimumSize: const Size(44, 44),
+          pressedOpacity: 1,
           onPressed: onTap,
-          child: DecoratedBox(
+          child: PressShadow(
             decoration: BoxDecoration(
               color: fill,
               borderRadius: BorderRadius.circular(20),

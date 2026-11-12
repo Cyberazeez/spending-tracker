@@ -13,6 +13,7 @@ import '../../insights/metrics.dart';
 import '../ai_aggregates.dart';
 import '../ai_messages.dart';
 import '../providers.dart';
+import '../../../ui/press.dart';
 
 /// Savings tips from Claude on the month's totals. Only shown while the AI switch in More is on.
 class AiTipsCard extends ConsumerStatefulWidget {
@@ -115,26 +116,41 @@ class _AiTipsCardState extends ConsumerState<AiTipsCard> {
         CupertinoButton(
           padding: EdgeInsets.zero,
           minimumSize: const Size(44, 44),
+          pressedOpacity: 1,
           onPressed: onPressed,
-          child: Container(
-            margin: const EdgeInsets.only(right: 3, bottom: 4),
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-            decoration: BoxDecoration(
-              color: const Color(0xFFFFFFFF),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: onHero, width: AppTokens.outline),
-              boxShadow: [BoxShadow(color: onHero, offset: const Offset(3, 4))],
-            ),
-            child: _busy && leading != null
-                ? CupertinoActivityIndicator(color: onHero)
-                : Text(
-                    label,
-                    style: TextStyle(
+          child: Padding(
+            padding: const EdgeInsets.only(right: 3, bottom: 4),
+            child: Pressable(
+              offset: const Offset(3, 4),
+              enabled: onPressed != null,
+              builder: (context, depth) => Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 9,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFFFFF),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: onHero, width: AppTokens.outline),
+                  boxShadow: [
+                    BoxShadow(
                       color: onHero,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
+                      offset: const Offset(3, 4) * (1 - depth),
                     ),
-                  ),
+                  ],
+                ),
+                child: _busy && leading != null
+                    ? CupertinoActivityIndicator(color: onHero)
+                    : Text(
+                        label,
+                        style: TextStyle(
+                          color: onHero,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+              ),
+            ),
           ),
         );
 

@@ -3,6 +3,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../ui/app_card.dart';
 import '../../../ui/icon_tile.dart';
+import '../../../ui/sliding_pill.dart';
 import '../../../ui/swipe_action.dart';
 import '../../../ui/tokens.dart';
 
@@ -34,96 +35,102 @@ class PillSegments<T> extends StatelessWidget {
       ),
       child: Padding(
         padding: const EdgeInsets.all(4),
-        child: Row(
+        child: Stack(
           children: [
-            for (final e in labels.entries)
-              Expanded(
-                child: Semantics(
-                  button: true,
-                  selected: e.key == value,
-                  excludeSemantics: true,
-                  label: e.value,
-                  onTap: () => onChanged(e.key),
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: () => onChanged(e.key),
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(minHeight: 44),
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          color: e.key == value
-                              ? AppTokens.accent.resolveFrom(context)
-                              : null,
-                          borderRadius: BorderRadius.circular(22),
-                          border: e.key == value
-                              ? outlineOf(context, width: AppTokens.outlineThin)
-                              : null,
-                        ),
-                        child: Center(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 8,
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Flexible(
-                                  child: Text(
-                                    e.value,
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
-                                      color: e.key == value
-                                          ? AppTokens.onAccent.resolveFrom(
-                                              context,
-                                            )
-                                          : AppTokens.muted.resolveFrom(
-                                              context,
-                                            ),
+            // The emerald pill slides to the chosen segment.
+            SlidingPill(
+              count: labels.length,
+              index: labels.keys.toList().indexOf(value),
+              pill: DecoratedBox(
+                key: const ValueKey('segment-pill'),
+                decoration: BoxDecoration(
+                  color: AppTokens.accent.resolveFrom(context),
+                  borderRadius: BorderRadius.circular(22),
+                  border: outlineOf(context, width: AppTokens.outlineThin),
+                ),
+              ),
+            ),
+            Row(
+              children: [
+                for (final e in labels.entries)
+                  Expanded(
+                    child: Semantics(
+                      button: true,
+                      selected: e.key == value,
+                      excludeSemantics: true,
+                      label: e.value,
+                      onTap: () => onChanged(e.key),
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () => onChanged(e.key),
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(minHeight: 44),
+                          child: Center(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 8,
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Flexible(
+                                    child: Text(
+                                      e.value,
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: e.key == value
+                                            ? AppTokens.onAccent.resolveFrom(
+                                                context,
+                                              )
+                                            : AppTokens.muted.resolveFrom(
+                                                context,
+                                              ),
+                                      ),
                                     ),
                                   ),
-                                ),
-                                if ((badges[e.key] ?? 0) > 0) ...[
-                                  const SizedBox(width: 6),
-                                  DecoratedBox(
-                                    decoration: BoxDecoration(
-                                      color: AppTokens.danger.resolveFrom(
-                                        context,
+                                  if ((badges[e.key] ?? 0) > 0) ...[
+                                    const SizedBox(width: 6),
+                                    DecoratedBox(
+                                      decoration: BoxDecoration(
+                                        color: AppTokens.danger.resolveFrom(
+                                          context,
+                                        ),
+                                        borderRadius: BorderRadius.circular(9),
+                                        border: outlineOf(
+                                          context,
+                                          width: AppTokens.outlineThin,
+                                        ),
                                       ),
-                                      borderRadius: BorderRadius.circular(9),
-                                      border: outlineOf(
-                                        context,
-                                        width: AppTokens.outlineThin,
-                                      ),
-                                    ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 6,
-                                        vertical: 1,
-                                      ),
-                                      child: Text(
-                                        '${badges[e.key]}',
-                                        style: TextStyle(
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.w700,
-                                          color: onDanger(context),
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 6,
+                                          vertical: 1,
+                                        ),
+                                        child: Text(
+                                          '${badges[e.key]}',
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w700,
+                                            color: onDanger(context),
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  ),
+                                  ],
                                 ],
-                              ],
+                              ),
                             ),
                           ),
                         ),
                       ),
                     ),
                   ),
-                ),
-              ),
+              ],
+            ),
           ],
         ),
       ),

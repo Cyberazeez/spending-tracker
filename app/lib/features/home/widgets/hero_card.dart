@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import '../../../core/format.dart';
 import '../../../core/money.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../ui/grow_in.dart';
 import '../../../ui/tokens.dart';
 import '../../insights/metrics.dart' show budgetPercent;
 
@@ -244,24 +245,31 @@ class _Ring extends StatelessWidget {
     return SizedBox(
       width: 84,
       height: 84,
+      // The ring fills from empty with a small overshoot, and the percentage counts up with it, each time Home
+      // comes into view.
+      // A new value while Home is shown moves the ring from the old value to the new one.
       child: TweenAnimationBuilder<double>(
-        tween: Tween(begin: 0, end: fraction),
-        duration: animate ? const Duration(milliseconds: 700) : Duration.zero,
+        tween: Tween(end: fraction),
+        duration: Duration(milliseconds: animate ? 600 : 0),
         curve: Curves.easeOutCubic,
-        builder: (_, v, _) => CustomPaint(
-          painter: _RingPainter(v, over),
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(18),
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                child: _ltr(
-                  Text(
-                    '$percent%',
-                    style: const TextStyle(
-                      color: Color(0xFF0D1F17),
-                      fontSize: 19,
-                      fontWeight: FontWeight.w700,
+        builder: (_, f, _) => GrowIn(
+          duration: Duration(milliseconds: animate ? 1100 : 0),
+          builder: (_, g) => CustomPaint(
+            key: const ValueKey('budget-ring'),
+            painter: _RingPainter((f * g).clamp(0.0, 1.0), over),
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(18),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: _ltr(
+                    Text(
+                      '${(percent * (fraction == 0 ? 1 : f / fraction) * g.clamp(0.0, 1.0)).round()}%',
+                      style: const TextStyle(
+                        color: Color(0xFF0D1F17),
+                        fontSize: 19,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
                 ),
