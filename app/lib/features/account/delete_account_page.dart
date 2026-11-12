@@ -1,5 +1,8 @@
 import 'package:flutter/cupertino.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../ui/settings_group.dart' show dangerTileColor;
+import '../../ui/swipe_action.dart' show swipeLabelColor;
 import '../../ui/confirm_sheet.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -123,6 +126,8 @@ class _DeleteAccountPageState extends ConsumerState<DeleteAccountPage> {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final danger = AppTokens.danger.resolveFrom(context);
+    final onDanger = swipeLabelColor(danger);
+    final ink = AppTokens.onTint.resolveFrom(context);
     return CupertinoPageScaffold(
       backgroundColor: AppTokens.bg.resolveFrom(context),
       navigationBar: appNavBar(context, t.deleteTitle),
@@ -131,13 +136,26 @@ class _DeleteAccountPageState extends ConsumerState<DeleteAccountPage> {
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
           children: [
             AppCard(
-              child: Text(
-                t.deleteWarn,
-                style: TextStyle(
-                  color: AppTokens.text.resolveFrom(context),
-                  fontSize: 16,
-                  height: 1.4,
-                ),
+              key: const ValueKey('delete-warning'),
+              color: dangerTileColor,
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(LucideIcons.triangleAlert, size: 22, color: ink),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      t.deleteWarn,
+                      style: TextStyle(
+                        color: ink,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        height: 1.45,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 20),
@@ -174,27 +192,33 @@ class _DeleteAccountPageState extends ConsumerState<DeleteAccountPage> {
                 padding: EdgeInsets.zero,
                 minimumSize: const Size(44, 52),
                 onPressed: _busy ? null : _delete,
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: danger,
-                    borderRadius: BorderRadius.circular(26),
-                  ),
-                  child: SizedBox(
-                    width: double.infinity,
-                    height: 52,
-                    child: Center(
-                      child: _busy
-                          ? const CupertinoActivityIndicator(
-                              color: CupertinoColors.white,
-                            )
-                          : Text(
-                              t.deleteButton,
-                              style: const TextStyle(
-                                color: CupertinoColors.white,
-                                fontSize: 17,
-                                fontWeight: FontWeight.w700,
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 3, bottom: 4),
+                  child: DecoratedBox(
+                    key: const ValueKey('delete-button'),
+                    decoration: BoxDecoration(
+                      color: danger,
+                      borderRadius: BorderRadius.circular(26),
+                      border: outlineOf(context),
+                      boxShadow: _busy
+                          ? null
+                          : hardShadowOf(context, offset: const Offset(3, 4)),
+                    ),
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: 52,
+                      child: Center(
+                        child: _busy
+                            ? CupertinoActivityIndicator(color: onDanger)
+                            : Text(
+                                t.deleteButton,
+                                style: TextStyle(
+                                  color: onDanger,
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w700,
+                                ),
                               ),
-                            ),
+                      ),
                     ),
                   ),
                 ),

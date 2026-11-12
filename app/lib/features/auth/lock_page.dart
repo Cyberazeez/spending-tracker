@@ -1,10 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../core/lock.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ui/app_card.dart';
 import '../../ui/app_form.dart';
+import '../../ui/icon_tile.dart';
 import '../../ui/launch_skeleton.dart';
 import '../../ui/tokens.dart';
 
@@ -50,20 +52,33 @@ class _LockPageState extends ConsumerState<LockPage> {
             Align(
               alignment: const Alignment(0, 0.45),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 32),
+                padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: AppCard(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: Text(
-                          t.lockTitle,
-                          style: TextStyle(
-                            color: AppTokens.text.resolveFrom(context),
-                            fontSize: 20,
-                            fontWeight: FontWeight.w700,
-                          ),
+                        padding: const EdgeInsets.only(bottom: 14),
+                        child: Row(
+                          children: [
+                            IconTile(
+                              color: AppTokens.gold.resolveFrom(context),
+                              icon: LucideIcons.lock,
+                              iconSize: 21,
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                t.lockTitle,
+                                style: TextStyle(
+                                  color: AppTokens.text.resolveFrom(context),
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                       if (state.failed)
@@ -71,10 +86,10 @@ class _LockPageState extends ConsumerState<LockPage> {
                           padding: const EdgeInsets.only(bottom: 12),
                           child: Text(
                             t.unlockFailed,
-                            textAlign: TextAlign.center,
                             style: TextStyle(
                               color: AppTokens.muted.resolveFrom(context),
-                              fontSize: 15,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ),

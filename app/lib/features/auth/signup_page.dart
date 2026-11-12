@@ -175,7 +175,14 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
                 ),
                 CupertinoButton(
                   onPressed: () => popOrHome(context),
-                  child: Text(t.signUpBackToSignIn),
+                  child: Text(
+                    t.signUpBackToSignIn,
+                    style: TextStyle(
+                      color: AppTokens.accentText.resolveFrom(context),
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
                 ),
               ] else ...[
                 AppField(
@@ -207,7 +214,8 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
                     t.secRulesHint,
                     style: TextStyle(
                       color: AppTokens.muted.resolveFrom(context),
-                      fontSize: 12,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
@@ -240,7 +248,8 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: AppTokens.muted.resolveFrom(context),
-                        fontSize: 12,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ),
@@ -268,21 +277,42 @@ class _AgreeRow extends ConsumerWidget {
     final text = TextStyle(
       color: AppTokens.text.resolveFrom(context),
       fontSize: 14,
+      fontWeight: FontWeight.w500,
     );
     Widget link(String label, LegalPage page) => CupertinoButton(
       padding: EdgeInsets.zero,
       minimumSize: const Size(0, 28),
       onPressed: () => ref.read(urlOpenerProvider).open(legalUri(page, locale)),
-      child: Text(label, style: const TextStyle(fontSize: 14)),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: AppTokens.accentText.resolveFrom(context),
+          fontSize: 14,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
     );
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Semantics(
           label: t.signUpAgreePrefix,
-          child: CupertinoCheckbox(
-            value: agreed,
-            onChanged: (v) => onChanged(v ?? false),
+          // Drawn larger than the native 14 pt box, like the mockup's 24 pt one.
+          child: Transform.scale(
+            scale: 1.4,
+            child: CupertinoCheckbox(
+              value: agreed,
+              onChanged: (v) => onChanged(v ?? false),
+              activeColor: AppTokens.accent.resolveFrom(context),
+              checkColor: AppTokens.onAccent.resolveFrom(context),
+              side: BorderSide(
+                color: AppTokens.line.resolveFrom(context),
+                width: AppTokens.outlineThin,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(5),
+              ),
+            ),
           ),
         ),
         const SizedBox(width: 8),

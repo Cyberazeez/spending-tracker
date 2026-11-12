@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/capture_bridge.dart';
 import '../../l10n/app_localizations.dart';
+import '../../ui/icon_tile.dart';
 import '../../ui/app_card.dart';
 import '../../ui/app_form.dart';
 import '../../ui/bottom_inset.dart';
@@ -29,7 +30,6 @@ class CapturePage extends ConsumerWidget {
     final last = captureLastLabel(t, status?.last ?? '');
     final text = AppTokens.text.resolveFrom(context);
     final muted = AppTokens.muted.resolveFrom(context);
-    final accent = AppTokens.accent.resolveFrom(context);
     final steps = [
       t.captureStep1,
       t.captureStep2,
@@ -51,7 +51,11 @@ class CapturePage extends ConsumerWidget {
                     padding: const EdgeInsets.fromLTRB(4, 0, 4, 10),
                     child: Text(
                       t.captureIntro,
-                      style: TextStyle(color: muted, fontSize: 14),
+                      style: TextStyle(
+                        color: muted,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
                   AppCard(
@@ -63,36 +67,28 @@ class CapturePage extends ConsumerWidget {
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                DecoratedBox(
-                                  decoration: BoxDecoration(
-                                    color: accent.withValues(alpha: 0.18),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: SizedBox(
-                                    width: 28,
-                                    height: 28,
-                                    child: Center(
-                                      child: Text(
-                                        '${i + 1}',
-                                        style: TextStyle(
-                                          color: AppTokens.accentText
-                                              .resolveFrom(context),
-                                          fontWeight: FontWeight.w700,
-                                          fontSize: 14,
-                                        ),
-                                      ),
+                                IconTile(
+                                  color: AppTokens.gold.resolveFrom(context),
+                                  size: 30,
+                                  radius: 15,
+                                  child: Text(
+                                    '${i + 1}',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w800,
+                                      fontSize: 14,
                                     ),
                                   ),
                                 ),
                                 const SizedBox(width: 12),
                                 Expanded(
                                   child: Padding(
-                                    padding: const EdgeInsets.only(top: 4),
+                                    padding: const EdgeInsets.only(top: 5),
                                     child: Text(
                                       steps[i],
                                       style: TextStyle(
                                         color: text,
-                                        fontSize: 16,
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w500,
                                       ),
                                     ),
                                   ),
@@ -103,32 +99,11 @@ class CapturePage extends ConsumerWidget {
                       ],
                     ),
                   ),
-                  CupertinoButton(
-                    padding: EdgeInsets.zero,
-                    minimumSize: const Size(44, 44),
+                  const SizedBox(height: 12),
+                  SecondaryButton(
+                    label: t.captureGuideOpen,
+                    icon: LucideIcons.images,
                     onPressed: () => showShortcutGuide(context),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          LucideIcons.images,
-                          size: 18,
-                          color: AppTokens.accentText.resolveFrom(context),
-                        ),
-                        const SizedBox(width: 8),
-                        Flexible(
-                          child: Text(
-                            t.captureGuideOpen,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: AppTokens.accentText.resolveFrom(context),
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
                   ),
                   const SizedBox(height: 4),
                   PrimaryButton(
@@ -146,7 +121,7 @@ class CapturePage extends ConsumerWidget {
                           style: TextStyle(
                             color: text,
                             fontSize: 16,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                         if (last.isNotEmpty)

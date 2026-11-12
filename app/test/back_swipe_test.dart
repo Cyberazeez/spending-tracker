@@ -19,10 +19,10 @@ void main() {
     await openMore(tester);
     await tester.tap(find.text('Account'));
     await tester.pumpAndSettle();
-    expect(find.byType(CupertinoNavigationBarBackButton), findsOneWidget);
+    expect(find.byKey(const ValueKey('nav-back')), findsOneWidget);
     await tester.dragFrom(const Offset(3, 300), const Offset(700, 0));
     await tester.pumpAndSettle();
-    expect(find.byType(CupertinoNavigationBarBackButton), findsNothing);
+    expect(find.byKey(const ValueKey('nav-back')), findsNothing);
     expect(find.text('Sign out'), findsOneWidget);
   });
 
@@ -53,7 +53,7 @@ void main() {
     expect(find.text('Sign out'), findsOneWidget);
     await tester.tap(find.text('SMS capture'));
     await tester.pumpAndSettle();
-    await tester.tap(find.byType(CupertinoNavigationBarBackButton));
+    await tester.tap(find.byKey(const ValueKey('nav-back')));
     await tester.pumpAndSettle();
     expect(find.text('Sign out'), findsOneWidget);
   });
@@ -71,7 +71,7 @@ void main() {
     expect(find.text('Quick add'), findsWidgets);
     await tester.dragFrom(const Offset(3, 300), const Offset(700, 0));
     await tester.pumpAndSettle();
-    expect(find.byType(CupertinoNavigationBarBackButton), findsNothing);
+    expect(find.byKey(const ValueKey('nav-back')), findsNothing);
     await tester.tap(find.text('Bills').last);
     await tester.pumpAndSettle();
     await tester.tap(find.bySemanticsLabel('Add an obligation'));

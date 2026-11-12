@@ -55,14 +55,14 @@ class AccountPage extends ConsumerWidget {
               children: [
                 SettingsRow(
                   icon: LucideIcons.user,
-                  color: const Color(0xFF6C8CFF),
+                  color: const Color(0xFF9CC4FF),
                   title: t.accountProfile,
                   subtitle: auth.displayName ?? auth.email,
                   onTap: () => context.push(profilePath),
                 ),
                 SettingsRow(
                   icon: LucideIcons.landmark,
-                  color: const Color(0xFFFFB340),
+                  color: const Color(0xFFFFC93C),
                   title: t.accountBanks,
                   subtitle: t.accountBanksShort,
                   onTap: () => context.push(banksPath),
@@ -76,7 +76,7 @@ class AccountPage extends ConsumerWidget {
                 ),
                 SettingsRow(
                   icon: LucideIcons.eyeOff,
-                  color: const Color(0xFFC084FC),
+                  color: const Color(0xFFCDB4FF),
                   title: t.accountPrivacy,
                   onTap: () => context.push(privacyPath),
                 ),

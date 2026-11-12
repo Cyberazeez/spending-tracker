@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 
+import '../../ui/chevron.dart';
+import '../../ui/icon_tile.dart';
 import '../../ui/confirm_sheet.dart';
 
 import 'package:flutter/services.dart';
@@ -22,6 +24,14 @@ String bankName(BuildContext context, String bank) => bankDisplayName(
   bank,
   arabic: Localizations.localeOf(context).languageCode == 'ar',
 );
+
+/// The tile of an account row: sky for bank accounts, gold for credit cards, mint for wallets.
+(Color, IconData) kindTile(String kind) => switch (kind) {
+  'credit_card' => (const Color(0xFFFFC93C), LucideIcons.creditCard),
+  'debit_card' => (const Color(0xFF9CC4FF), LucideIcons.creditCard),
+  'wallet' => (const Color(0xFF3FD79B), LucideIcons.wallet),
+  _ => (const Color(0xFF9CC4FF), LucideIcons.landmark),
+};
 
 String kindName(AppLocalizations t, String kind) => switch (kind) {
   'debit_card' => t.kindDebit,
@@ -74,7 +84,11 @@ class OwnAccountsPage extends ConsumerWidget {
                 padding: const EdgeInsets.fromLTRB(4, 0, 4, 12),
                 child: Text(
                   t.accountBanksHint,
-                  style: TextStyle(color: muted, fontSize: 14),
+                  style: TextStyle(
+                    color: muted,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
               if (accounts.isEmpty)
@@ -90,15 +104,15 @@ class OwnAccountsPage extends ConsumerWidget {
               else
                 AppCard(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 4,
+                    horizontal: 14,
+                    vertical: 2,
                   ),
                   child: Column(
                     children: [
                       for (var i = 0; i < accounts.length; i++) ...[
                         if (i > 0)
                           Container(
-                            height: 1,
+                            height: 2,
                             color: AppTokens.bar.resolveFrom(context),
                           ),
                         Semantics(
@@ -108,47 +122,52 @@ class OwnAccountsPage extends ConsumerWidget {
                             onTap: () => _open(context, ref, accounts[i]),
                             child: ConstrainedBox(
                               constraints: const BoxConstraints(minHeight: 56),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    LucideIcons.landmark,
-                                    size: 20,
-                                    color: AppTokens.accentText.resolveFrom(
-                                      context,
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 12,
+                                ),
+                                child: Row(
+                                  children: [
+                                    IconTile(
+                                      color: kindTile(accounts[i].kind).$1,
+                                      icon: kindTile(accounts[i].kind).$2,
+                                      iconSize: 21,
                                     ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          '${bankName(context, accounts[i].bank)} ${accounts[i].last4}',
-                                          style: TextStyle(
-                                            color: AppTokens.text.resolveFrom(
-                                              context,
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            '${bankName(context, accounts[i].bank)} ${accounts[i].last4}',
+                                            style: TextStyle(
+                                              color: AppTokens.text.resolveFrom(
+                                                context,
+                                              ),
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.w700,
                                             ),
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w600,
                                           ),
-                                        ),
-                                        Text(
-                                          [
-                                            kindName(t, accounts[i].kind),
-                                            if ((accounts[i].label ?? '')
-                                                .isNotEmpty)
-                                              accounts[i].label!,
-                                          ].join(' · '),
-                                          style: TextStyle(
-                                            color: muted,
-                                            fontSize: 13,
+                                          Text(
+                                            [
+                                              kindName(t, accounts[i].kind),
+                                              if ((accounts[i].label ?? '')
+                                                  .isNotEmpty)
+                                                accounts[i].label!,
+                                            ].join(' · '),
+                                            style: TextStyle(
+                                              color: muted,
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w500,
+                                            ),
                                           ),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                    ForwardChevron(size: 18, color: muted),
+                                  ],
+                                ),
                               ),
                             ),
                           ),

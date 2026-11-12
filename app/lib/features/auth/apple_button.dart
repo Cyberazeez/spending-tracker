@@ -68,17 +68,27 @@ class _AppleSignInSectionState extends ConsumerState<AppleSignInSection> {
         Row(
           children: [
             Expanded(
-              child: Container(height: 1, color: muted.withValues(alpha: 0.3)),
+              child: Container(
+                height: 2,
+                color: AppTokens.bar.resolveFrom(context),
+              ),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12),
               child: Text(
                 t.orDivider,
-                style: TextStyle(color: muted, fontSize: 13),
+                style: TextStyle(
+                  color: muted,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
             Expanded(
-              child: Container(height: 1, color: muted.withValues(alpha: 0.3)),
+              child: Container(
+                height: 2,
+                color: AppTokens.bar.resolveFrom(context),
+              ),
             ),
           ],
         ),

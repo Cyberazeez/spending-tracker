@@ -1,18 +1,39 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 
+import 'package:lucide_icons_flutter/lucide_icons.dart';
+
 import '../router.dart';
+import 'header_button.dart';
 import 'tokens.dart';
 
-/// Navigation bar of the sub-screens: the page colour, no line, and a back button that pops the screen (so the
-/// swipe from the left edge and the button do the same thing).
+/// Navigation bar of the sub-screens: the page colour, no line, and an outlined back button (key `nav-back`) that
+/// pops the screen (so the swipe from the left edge and the button do the same thing).
 CupertinoNavigationBar appNavBar(BuildContext context, String title) =>
     CupertinoNavigationBar(
       backgroundColor: AppTokens.bg.resolveFrom(context),
       border: null,
-      middle: Text(title),
-      leading: CupertinoNavigationBarBackButton(
-        onPressed: () => popOrHome(context),
+      middle: Text(
+        title,
+        style: TextStyle(
+          color: AppTokens.text.resolveFrom(context),
+          fontSize: 18,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+      leading: Align(
+        alignment: AlignmentDirectional.centerStart,
+        widthFactor: 1,
+        child: HeaderIconButton(
+          key: const ValueKey('nav-back'),
+          onPressed: () => popOrHome(context),
+          fill: AppTokens.card.resolveFrom(context),
+          icon: Directionality.of(context) == TextDirection.rtl
+              ? LucideIcons.chevronRight
+              : LucideIcons.chevronLeft,
+          iconColor: AppTokens.text.resolveFrom(context),
+          semanticLabel: CupertinoLocalizations.of(context).backButtonLabel,
+        ),
       ),
     );
 
@@ -89,11 +110,15 @@ class SecondaryButton extends StatelessWidget {
     required this.label,
     required this.onPressed,
     this.danger = false,
+    this.icon,
   });
 
   final String label;
   final VoidCallback? onPressed;
   final bool danger;
+
+  /// Drawn before the label, in the label's colour.
+  final IconData? icon;
 
   @override
   Widget build(BuildContext context) {
@@ -135,15 +160,26 @@ class SecondaryButton extends StatelessWidget {
                   vertical: 12,
                 ),
                 child: Center(
-                  child: Text(
-                    label,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: color,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      decoration: TextDecoration.none,
-                    ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (icon != null) ...[
+                        Icon(icon, size: 18, color: color),
+                        const SizedBox(width: 8),
+                      ],
+                      Flexible(
+                        child: Text(
+                          label,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: color,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            decoration: TextDecoration.none,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -292,8 +328,8 @@ class AppField extends StatelessWidget {
                 label!,
                 style: TextStyle(
                   fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: AppTokens.muted.resolveFrom(context),
+                  fontWeight: FontWeight.w700,
+                  color: AppTokens.text.resolveFrom(context),
                 ),
               ),
             ),

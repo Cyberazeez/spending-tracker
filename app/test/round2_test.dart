@@ -112,7 +112,7 @@ void main() {
     await tester.showKeyboard(find.byType(CupertinoTextField));
     await tester.pumpAndSettle();
     expect(tester.testTextInput.isVisible, isTrue);
-    await tester.tap(find.byType(CupertinoNavigationBarBackButton));
+    await tester.tap(find.byKey(const ValueKey('nav-back')));
     await tester.pumpAndSettle();
     expect(find.text('Ask about your spending'), findsNothing);
     expect(tester.testTextInput.isVisible, isFalse);

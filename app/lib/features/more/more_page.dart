@@ -23,6 +23,7 @@ import '../account/account_pages.dart';
 import '../ai/providers.dart';
 import '../insights/budget_flow.dart';
 import '../insights/providers.dart' show monthlyBudgetProvider;
+import '../../ui/app_form.dart';
 import '../../ui/bottom_inset.dart';
 import '../../ui/choice_sheet.dart';
 import '../../ui/settings_group.dart';
@@ -98,7 +99,7 @@ class MorePage extends ConsumerWidget {
                   children: [
                     SettingsRow(
                       icon: LucideIcons.globe,
-                      color: const Color(0xFF6C8CFF),
+                      color: const Color(0xFF9BE7E0),
                       title: t.language,
                       value: locale.languageCode == 'ar'
                           ? t.languageArabic
@@ -107,12 +108,12 @@ class MorePage extends ConsumerWidget {
                     ),
                     SettingsRow(
                       icon: LucideIcons.bell,
-                      color: const Color(0xFFFFB340),
+                      color: const Color(0xFFFFA574),
                       title: t.remindersTitle,
                       subtitle: t.remindersHelp,
-                      control: CupertinoSwitch(
+                      control: appSwitch(
+                        context,
                         value: ref.watch(remindersEnabledProvider),
-                        activeTrackColor: AppTokens.accent.resolveFrom(context),
                         onChanged: (on) => _toggleReminders(context, ref, on),
                       ),
                     ),
@@ -134,7 +135,7 @@ class MorePage extends ConsumerWidget {
                     const _CaptureStatusRow(),
                     SettingsRow(
                       icon: LucideIcons.user,
-                      color: const Color(0xFF6C8CFF),
+                      color: const Color(0xFF3FD79B),
                       title: t.moreAccount,
                       subtitle: account,
                       onTap: () => context.push(accountPath),
@@ -142,27 +143,20 @@ class MorePage extends ConsumerWidget {
                   ],
                 ),
                 const SizedBox(height: 16),
-                SettingsGroup(
-                  children: [
-                    SettingsRow(
-                      icon: LucideIcons.logOut,
-                      color: AppTokens.danger.resolveFrom(context),
-                      title: t.signOut,
-                      danger: true,
-                      onTap: () async {
-                        await releaseCapture(
-                          ref.read(captureBridgeProvider),
-                          ref.read(tokenRepositoryProvider),
-                        );
-                        await releaseWidget(
-                          ref.read(widgetBridgeProvider),
-                          ref.read(tokenRepositoryProvider),
-                        );
-                        await ref.read(authRepositoryProvider).signOut();
-                        ref.read(lockProvider.notifier).lockNow();
-                      },
-                    ),
-                  ],
+                SecondaryButton(
+                  label: t.signOut,
+                  onPressed: () async {
+                    await releaseCapture(
+                      ref.read(captureBridgeProvider),
+                      ref.read(tokenRepositoryProvider),
+                    );
+                    await releaseWidget(
+                      ref.read(widgetBridgeProvider),
+                      ref.read(tokenRepositoryProvider),
+                    );
+                    await ref.read(authRepositoryProvider).signOut();
+                    ref.read(lockProvider.notifier).lockNow();
+                  },
                 ),
               ],
             ),
@@ -213,21 +207,17 @@ class _AiRowState extends ConsumerState<_AiRow> {
     if (ref.watch(aiAllowedProvider).value == false) {
       return SettingsRow(
         icon: LucideIcons.sparkles,
-        color: const Color(0xFF3FD79B),
+        color: const Color(0xFFFFC93C),
         title: t.aiTitle,
         subtitle: t.aiPaidOnly,
       );
     }
     return SettingsRow(
       icon: LucideIcons.sparkles,
-      color: const Color(0xFF3FD79B),
+      color: const Color(0xFFFFC93C),
       title: t.aiTitle,
       subtitle: t.aiSubtitle,
-      control: CupertinoSwitch(
-        value: _pending ?? stored,
-        activeTrackColor: AppTokens.accent.resolveFrom(context),
-        onChanged: _set,
-      ),
+      control: appSwitch(context, value: _pending ?? stored, onChanged: _set),
     );
   }
 }
@@ -277,14 +267,10 @@ class _AiParseRowState extends ConsumerState<_AiParseRow> {
     final stored = ref.watch(aiParseEnabledProvider).value ?? false;
     return SettingsRow(
       icon: LucideIcons.scanText,
-      color: const Color(0xFF6C8CFF),
+      color: const Color(0xFF9CC4FF),
       title: t.aiParseTitle,
       subtitle: t.aiParseSubtitle,
-      control: CupertinoSwitch(
-        value: _pending ?? stored,
-        activeTrackColor: AppTokens.accent.resolveFrom(context),
-        onChanged: _set,
-      ),
+      control: appSwitch(context, value: _pending ?? stored, onChanged: _set),
     );
   }
 }
@@ -301,7 +287,7 @@ class _BudgetRow extends ConsumerWidget {
     final budget = ref.watch(monthlyBudgetProvider).value;
     return SettingsRow(
       icon: LucideIcons.wallet,
-      color: const Color(0xFFFFB340),
+      color: const Color(0xFFFFC93C),
       title: t.insMonthlyBudget,
       value: budget == null
           ? t.insMonthlyBudgetNotSet
