@@ -67,7 +67,7 @@ void main() {
     },
   );
 
-  testWidgets('quick filter chips drive the same filter as the sheet', (
+  testWidgets('the No category chip switches the filter on and off', (
     tester,
   ) async {
     final h = Harness(signedIn: true)
@@ -76,18 +76,36 @@ void main() {
         tx('2', '2026-10-30T10:01:00', 500, merchant: 'XYZ'),
       ];
     await open(tester, h);
-    await tester.tap(find.text('No category'));
+    expect(find.text('No category · 1'), findsOneWidget);
+    await tester.tap(find.text('No category · 1'));
     await tester.pumpAndSettle();
     expect(h.data.lastFilter.uncategorizedOnly, isTrue);
     expect(find.text('Otten'), findsNothing);
-    await tester.tap(find.text('Hide internal'));
-    await tester.pumpAndSettle();
-    expect(h.data.lastFilter.hideInternal, isTrue);
-    await tester.tap(find.text('All'));
+    await tester.tap(find.text('No category · 1'));
     await tester.pumpAndSettle();
     expect(h.data.lastFilter.uncategorizedOnly, isFalse);
-    expect(h.data.lastFilter.hideInternal, isFalse);
     expect(find.text('Otten'), findsOneWidget);
+  });
+
+  testWidgets('the period and bank chips open the filter sheet', (
+    tester,
+  ) async {
+    final h = Harness(signedIn: true)
+      ..data.txns = [tx('1', '2026-10-30T10:00:00', 1000, cat: 'c-din')];
+    await open(tester, h);
+    await tester.tap(find.text('All banks'));
+    await tester.pumpAndSettle();
+    expect(find.text('Bank or card'), findsOneWidget);
+    await tester.tap(find.text('•••• 6000'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Last month'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filter-show')));
+    await tester.pumpAndSettle();
+    expect(h.data.lastFilter.accountLast4, '6000');
+    expect(h.data.lastFilter.period, TxPeriod.lastMonth);
+    expect(find.text('•••• 6000'), findsOneWidget); // the chip shows the card
+    expect(find.text('Last month'), findsOneWidget);
   });
 
   testWidgets(
@@ -207,7 +225,7 @@ void main() {
     final h = Harness(signedIn: true)
       ..data.txns = [tx('1', '2026-10-30T10:00:00', 1000)];
     await open(tester, h);
-    await tester.tap(find.bySemanticsLabel('No category'));
+    await tester.tap(find.bySemanticsLabel(RegExp('^No category')));
     await tester.pumpAndSettle();
     expect(h.data.lastFilter.uncategorizedOnly, isTrue);
     handle.dispose();

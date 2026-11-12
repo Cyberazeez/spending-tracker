@@ -18,6 +18,8 @@ import 'features/account/own_accounts_page.dart';
 import 'features/transactions/quick_add_page.dart';
 import 'features/transactions/review_page.dart';
 import 'features/shell/shell_page.dart';
+import 'core/models.dart' show Txn;
+import 'features/transactions/transaction_page.dart';
 
 const loginPath = '/login';
 const lockPath = '/lock';
@@ -32,6 +34,9 @@ const privacyPath = '/home/account/privacy';
 const banksPath = '/home/account/banks';
 const deleteAccountPath = '/home/account/privacy/delete';
 const quickAddPath = '/home/quick-add';
+
+/// One transaction's details; push it with the [Txn] as `extra`.
+const txnPath = '/home/txn';
 const reviewPath = '/home/review';
 const capturePath = '/home/capture';
 const obligationFormPath = '/home/obligation';
@@ -151,6 +156,15 @@ final routerProvider = Provider<GoRouter>((ref) {
                 ],
               ),
             ],
+          ),
+          GoRoute(
+            path: 'txn',
+            pageBuilder: (_, state) => _page(
+              state,
+              state.extra is Txn
+                  ? TransactionPage(txn: state.extra! as Txn)
+                  : const SizedBox.shrink(),
+            ),
           ),
           GoRoute(
             path: 'quick-add',

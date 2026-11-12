@@ -68,6 +68,7 @@ class ReviewPage extends ConsumerWidget {
           ),
           child: SafeArea(
             child: ManualTxnForm(
+              showDirection: true,
               initialTime: m.receivedAt,
               initialAmount: guessAmountFromSms(m.body),
               onSave: (txn) async {

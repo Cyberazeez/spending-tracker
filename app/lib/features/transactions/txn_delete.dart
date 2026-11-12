@@ -10,7 +10,8 @@ import 'providers.dart';
 
 /// Asks first, then removes the transaction from everything (budgets, insights, widget numbers). It cannot be undone
 /// from the app, so the question says so.
-Future<void> confirmAndDeleteTxn(
+/// Asks, then deletes. True when the transaction was deleted.
+Future<bool> confirmAndDeleteTxn(
   BuildContext context,
   WidgetRef ref,
   Txn txn,
@@ -23,17 +24,18 @@ Future<void> confirmAndDeleteTxn(
     confirmLabel: t.txDelete,
     destructive: true,
   );
-  if (ok != true) return;
+  if (ok != true) return false;
   try {
     await ref.read(dataRepositoryProvider).deleteTransaction(txn.id);
   } catch (_) {
     if (context.mounted) {
       await showNoticeSheet(context, title: t.txDeleteFailed);
     }
-    return;
+    return false;
   }
   ref.invalidate(transactionsProvider);
   ref.invalidate(insightsProvider);
   ref.invalidate(todaySpendProvider);
   ref.invalidate(budgetsProvider);
+  return true;
 }

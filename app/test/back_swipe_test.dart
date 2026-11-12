@@ -68,7 +68,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.bySemanticsLabel('Add a transaction'));
     await tester.pumpAndSettle();
-    expect(find.text('Quick add'), findsWidgets);
+    expect(find.text('Add a transaction'), findsWidgets);
     await tester.dragFrom(const Offset(3, 300), const Offset(700, 0));
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('nav-back')), findsNothing);

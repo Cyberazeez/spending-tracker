@@ -63,14 +63,14 @@ Future<List<String?>> _open(
 }
 
 void main() {
-  testWidgets('groups the categories, shows the merchant and picks one', (
+  testWidgets('one grid of every category, shows the merchant and picks one', (
     tester,
   ) async {
     final r = await _open(tester, selected: 'd');
     expect(find.text('Category'), findsOneWidget);
     expect(find.text('Starbucks · 24.00'), findsOneWidget);
-    expect(find.text('FOOD'), findsOneWidget);
-    expect(find.text('TRANSPORT'), findsOneWidget);
+    // One grid in Home's group order, no group headings (the redesign).
+    expect(find.text('FOOD'), findsNothing);
     await tester.tap(find.text('Fuel'));
     await tester.pumpAndSettle();
     expect(r, ['f']);
@@ -88,11 +88,11 @@ void main() {
     tester,
   ) async {
     await _open(tester, suggested: ['g']);
-    expect(find.text('SUGGESTED FOR THIS MERCHANT'), findsOneWidget);
-    expect(find.text('Groceries'), findsNWidgets(2));
+    expect(find.text('Suggested for this merchant'), findsOneWidget);
+    expect(find.text('Groceries'), findsNWidgets(2)); // the chip and the tile
     await tester.enterText(find.byType(CupertinoSearchTextField), 'fue');
     await tester.pumpAndSettle();
-    expect(find.text('SUGGESTED FOR THIS MERCHANT'), findsNothing);
+    expect(find.text('Suggested for this merchant'), findsNothing);
     expect(find.text('Fuel'), findsOneWidget);
     expect(find.text('Dining'), findsNothing);
     await tester.enterText(find.byType(CupertinoSearchTextField), 'zzz');

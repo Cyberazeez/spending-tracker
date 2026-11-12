@@ -369,9 +369,34 @@ class FakeDataRepository implements DataRepository {
       }
       if (filter.hideInternal && t.isInternal) return false;
       if (filter.aiOnly && t.categorySource != 'ai') return false;
+      final ids = filter.categoryIds;
+      if (ids != null &&
+          !filter.uncategorizedOnly &&
+          !ids.contains(t.categoryId)) {
+        return false;
+      }
+      if (filter.accountLast4 != null &&
+          t.accountLast4 != filter.accountLast4) {
+        return false;
+      }
       return true;
     }).toList();
   }
+
+  final notes = <String, String>{};
+  final rawBodies = <String, String>{};
+
+  @override
+  Future<int> countTransactions(TxFilter filter) async =>
+      (await recentTransactions(filter: filter)).length;
+
+  @override
+  Future<void> setNote(String txnId, String note) async {
+    notes[txnId] = note;
+  }
+
+  @override
+  Future<String?> rawMessageBody(String rawId) async => rawBodies[rawId];
 
   @override
   Future<void> deleteTransaction(String id) async {

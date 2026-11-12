@@ -11,6 +11,11 @@ class Txn {
     this.isInternal = false,
     this.excludedFromSpend = false,
     this.categorySource,
+    this.bank,
+    this.accountLast4,
+    this.note,
+    this.source,
+    this.rawMessageId,
   });
 
   final String id;
@@ -27,6 +32,19 @@ class Txn {
   /// How the category was set: `rule`, `manual`, `ai`, ... (null when unknown). `ai` rows are shown with a tag.
   final String? categorySource;
 
+  /// The bank code and the last four digits of the account or card it was paid with, when known.
+  final String? bank;
+  final String? accountLast4;
+
+  /// The owner's own note.
+  final String? note;
+
+  /// Where it came from: `sms`, `manual`, `csv` or `ai`.
+  final String? source;
+
+  /// The bank SMS it was read from, when there is one.
+  final String? rawMessageId;
+
   bool get isIncoming => direction == 'in';
 
   factory Txn.fromRow(Map<String, dynamic> r) => Txn(
@@ -41,6 +59,11 @@ class Txn {
     isInternal: (r['is_internal'] as bool?) ?? false,
     excludedFromSpend: (r['excluded_from_spend'] as bool?) ?? false,
     categorySource: r['category_source'] as String?,
+    bank: r['bank'] as String?,
+    accountLast4: r['account_last4'] as String?,
+    note: r['note'] as String?,
+    source: r['source'] as String?,
+    rawMessageId: r['raw_message_id'] as String?,
   );
 }
 
@@ -87,12 +110,24 @@ class ManualTxn {
     required this.amountHalalas,
     required this.occurredAt,
     this.merchant,
+    this.categoryId,
+    this.bank,
+    this.accountLast4,
+    this.note,
   });
 
   final String direction;
   final int amountHalalas;
   final DateTime occurredAt;
   final String? merchant;
+
+  /// Chosen on the Add a transaction screen; null leaves it to the merchant rules.
+  final String? categoryId;
+
+  /// "Paid with": one of the owner's accounts.
+  final String? bank;
+  final String? accountLast4;
+  final String? note;
 }
 
 class Category {
@@ -119,6 +154,9 @@ class Category {
 }
 
 /// What the Transactions list is currently showing.
+/// Which months the Activity list shows.
+enum TxPeriod { thisMonth, lastMonth, custom, all }
+
 class TxFilter {
   const TxFilter({
     this.query = '',
@@ -126,6 +164,11 @@ class TxFilter {
     this.uncategorizedOnly = false,
     this.hideInternal = false,
     this.aiOnly = false,
+    this.period = TxPeriod.thisMonth,
+    this.from,
+    this.to,
+    this.categoryIds,
+    this.accountLast4,
   });
   final String query;
   final String? categoryId;
@@ -135,12 +178,52 @@ class TxFilter {
   /// Only rows whose category was suggested by the AI.
   final bool aiOnly;
 
+  /// This month (the default), last month, a custom range ([from] to [to], both days included) or everything.
+  final TxPeriod period;
+  final DateTime? from;
+  final DateTime? to;
+
+  /// A category group chosen in the filter sheet: the ids of its categories (null = every category).
+  final List<String>? categoryIds;
+
+  /// Only one account or card (its last four digits).
+  final String? accountLast4;
+
+  /// The date range of [period] as UTC instants [start, end), in Riyadh days (UTC+3). Null for everything.
+  (DateTime, DateTime)? range(DateTime now) {
+    final riyadh = now.toUtc().add(const Duration(hours: 3));
+    DateTime utc(int y, int m, int d) =>
+        DateTime.utc(y, m, d).subtract(const Duration(hours: 3));
+    switch (period) {
+      case TxPeriod.thisMonth:
+        return (
+          utc(riyadh.year, riyadh.month, 1),
+          utc(riyadh.year, riyadh.month + 1, 1),
+        );
+      case TxPeriod.lastMonth:
+        return (
+          utc(riyadh.year, riyadh.month - 1, 1),
+          utc(riyadh.year, riyadh.month, 1),
+        );
+      case TxPeriod.custom:
+        final f = from, t = to;
+        if (f == null || t == null) return null;
+        return (utc(f.year, f.month, f.day), utc(t.year, t.month, t.day + 1));
+      case TxPeriod.all:
+        return null;
+    }
+  }
+
+  /// Anything narrowed beyond the default (this month, every category and account).
   bool get isActive =>
       query.isNotEmpty ||
       categoryId != null ||
       uncategorizedOnly ||
       hideInternal ||
-      aiOnly;
+      aiOnly ||
+      period != TxPeriod.thisMonth ||
+      categoryIds != null ||
+      accountLast4 != null;
 
   TxFilter copyWith({
     String? query,
@@ -148,6 +231,11 @@ class TxFilter {
     bool? uncategorizedOnly,
     bool? hideInternal,
     bool? aiOnly,
+    TxPeriod? period,
+    Object? from = _keep,
+    Object? to = _keep,
+    Object? categoryIds = _keep,
+    Object? accountLast4 = _keep,
   }) => TxFilter(
     query: query ?? this.query,
     categoryId: identical(categoryId, _keep)
@@ -156,6 +244,15 @@ class TxFilter {
     uncategorizedOnly: uncategorizedOnly ?? this.uncategorizedOnly,
     hideInternal: hideInternal ?? this.hideInternal,
     aiOnly: aiOnly ?? this.aiOnly,
+    period: period ?? this.period,
+    from: identical(from, _keep) ? this.from : from as DateTime?,
+    to: identical(to, _keep) ? this.to : to as DateTime?,
+    categoryIds: identical(categoryIds, _keep)
+        ? this.categoryIds
+        : categoryIds as List<String>?,
+    accountLast4: identical(accountLast4, _keep)
+        ? this.accountLast4
+        : accountLast4 as String?,
   );
 
   static const _keep = Object();

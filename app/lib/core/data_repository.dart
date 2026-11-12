@@ -35,6 +35,15 @@ abstract class DataRepository {
   Future<List<RawMessage>> needsReview();
   Future<void> addManual(ManualTxn t);
 
+  /// How many transactions [filter] would show (the "Show 42" button of the filter sheet).
+  Future<int> countTransactions(TxFilter filter);
+
+  /// Saves the owner's note on a transaction (empty removes it).
+  Future<void> setNote(String txnId, String note);
+
+  /// The text of the bank SMS a transaction was read from, or null when it is gone.
+  Future<String?> rawMessageBody(String rawId);
+
   /// Removes a transaction from every total (budgets, insights, widget): it is marked deleted and no query returns it.
   Future<void> deleteTransaction(String id);
 
@@ -166,6 +175,13 @@ class SupabaseDataRepository implements DataRepository {
     'merchant_norm': t.merchant == null ? null : _norm(t.merchant!),
     'occurred_at': t.occurredAt.toUtc().toIso8601String(),
     'raw_message_id': ?rawId,
+    if (t.categoryId != null) ...{
+      'category_id': t.categoryId,
+      'category_source': 'manual',
+    },
+    'bank': ?t.bank,
+    'account_last4': ?t.accountLast4,
+    if ((t.note ?? '').trim().isNotEmpty) 'note': t.note!.trim(),
   };
 
   @override
@@ -176,9 +192,19 @@ class SupabaseDataRepository implements DataRepository {
     var q = _db
         .from('transactions')
         .select(
-          'id, type, direction, amount_halalas, merchant_raw, merchant_norm, category_id, category_source, occurred_at, is_internal, excluded_from_spend',
+          'id, type, direction, amount_halalas, merchant_raw, merchant_norm, category_id, category_source, occurred_at, is_internal, excluded_from_spend, bank, account_last4, note, source, raw_message_id',
         )
         .isFilter('deleted_at', null);
+    q = _narrow(q, filter);
+    final rows = await q.order('occurred_at', ascending: false).limit(limit);
+    return rows.map<Txn>(Txn.fromRow).toList();
+  }
+
+  /// The filter's conditions, shared by the list and its count.
+  PostgrestFilterBuilder<T> _narrow<T>(
+    PostgrestFilterBuilder<T> q,
+    TxFilter filter,
+  ) {
     final text = normalizeMerchant(filter.query);
     if (text.isNotEmpty) q = q.ilike('merchant_norm', '%$text%');
     if (filter.aiOnly) q = q.eq('category_source', 'ai');
@@ -188,8 +214,48 @@ class SupabaseDataRepository implements DataRepository {
       q = q.eq('category_id', filter.categoryId!);
     }
     if (filter.hideInternal) q = q.eq('is_internal', false);
-    final rows = await q.order('occurred_at', ascending: false).limit(limit);
-    return rows.map<Txn>(Txn.fromRow).toList();
+    final ids = filter.categoryIds;
+    if (ids != null && !filter.uncategorizedOnly) {
+      q = q.inFilter('category_id', ids);
+    }
+    if (filter.accountLast4 != null) {
+      q = q.eq('account_last4', filter.accountLast4!);
+    }
+    final range = filter.range(DateTime.now());
+    if (range != null) {
+      q = q
+          .gte('occurred_at', range.$1.toIso8601String())
+          .lt('occurred_at', range.$2.toIso8601String());
+    }
+    return q;
+  }
+
+  @override
+  Future<int> countTransactions(TxFilter filter) async {
+    final res = await _narrow(
+      _db.from('transactions').select('id').isFilter('deleted_at', null),
+      filter,
+    ).count(CountOption.exact);
+    return res.count;
+  }
+
+  @override
+  Future<void> setNote(String txnId, String note) async {
+    final n = note.trim();
+    await _db
+        .from('transactions')
+        .update({'note': n.isEmpty ? null : n})
+        .eq('id', txnId);
+  }
+
+  @override
+  Future<String?> rawMessageBody(String rawId) async {
+    final row = await _db
+        .from('raw_messages')
+        .select('body')
+        .eq('id', rawId)
+        .maybeSingle();
+    return row?['body'] as String?;
   }
 
   @override

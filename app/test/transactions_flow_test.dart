@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:spending_tracker/core/models.dart';
 
+import 'package:spending_tracker/features/transactions/manual_form.dart';
 import 'package:spending_tracker/ui/pill_tab_bar.dart';
 
 import 'support/fakes.dart';
@@ -28,6 +29,21 @@ Future<void> openTransactions(WidgetTester tester, Harness h) async {
   await tester.pumpAndSettle();
   await tester.tap(find.text('Activity').last);
   await tester.pumpAndSettle();
+}
+
+/// The form is taller than the screen now: scroll Save into view, then tap it.
+Future<void> tapSave(WidgetTester tester) async {
+  await tester.scrollUntilVisible(
+    find.widgetWithText(CupertinoButton, 'Save'),
+    200,
+    scrollable: find
+        .descendant(
+          of: find.byType(ManualTxnForm),
+          matching: find.byType(Scrollable),
+        )
+        .first,
+  );
+  await tester.tap(find.widgetWithText(CupertinoButton, 'Save'));
 }
 
 void main() {
@@ -95,20 +111,17 @@ void main() {
       await tester.tap(find.widgetWithText(CupertinoButton, 'Quick add'));
       await tester.pumpAndSettle();
 
-      await tester.tap(find.widgetWithText(CupertinoButton, 'Save'));
+      await tapSave(tester);
       await tester.pumpAndSettle();
       expect(find.text('Enter an amount like 25 or 25.50'), findsOneWidget);
       expect(h.data.added, isEmpty);
 
+      await tester.enterText(find.byKey(const ValueKey('qa-amount')), '25.5');
       await tester.enterText(
-        find.widgetWithText(CupertinoTextField, 'Amount (⃁)'),
-        '25.5',
-      );
-      await tester.enterText(
-        find.widgetWithText(CupertinoTextField, 'Merchant or note'),
+        find.widgetWithText(CupertinoTextField, 'Where you paid'),
         'Coffee',
       );
-      await tester.tap(find.widgetWithText(CupertinoButton, 'Save'));
+      await tapSave(tester);
       await tester.pumpAndSettle();
       expect(h.data.added.length, 1);
       expect(h.data.added.single.amountHalalas, 2550);
@@ -117,20 +130,33 @@ void main() {
     },
   );
 
-  testWidgets('quick add can record money received', (tester) async {
+  testWidgets('add a transaction keeps the category, account and note', (
+    tester,
+  ) async {
     final h = Harness(signedIn: true);
     await openTransactions(tester, h);
     await tester.tap(find.widgetWithText(CupertinoButton, 'Quick add'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Received'));
+    await tester.enterText(find.byKey(const ValueKey('qa-amount')), '100');
+    await tester.tap(find.byKey(const ValueKey('qa-category')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Dining'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('qa-account')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.textContaining('6000'));
     await tester.pumpAndSettle();
     await tester.enterText(
-      find.widgetWithText(CupertinoTextField, 'Amount (⃁)'),
-      '100',
+      find.widgetWithText(CupertinoTextField, 'Optional'),
+      'Team lunch',
     );
-    await tester.tap(find.widgetWithText(CupertinoButton, 'Save'));
+    await tapSave(tester);
     await tester.pumpAndSettle();
-    expect(h.data.added.single.direction, 'in');
+    final a = h.data.added.single;
+    expect(a.direction, 'out');
+    expect(a.categoryId, 'c-din');
+    expect(a.accountLast4, '6000');
+    expect(a.note, 'Team lunch');
   });
 
   group('needs review inbox', () {
@@ -175,10 +201,10 @@ void main() {
         await tester.tap(find.text('Add as transaction'));
         await tester.pumpAndSettle();
         await tester.enterText(
-          find.widgetWithText(CupertinoTextField, 'Amount (⃁)'),
+          find.byKey(const ValueKey('qa-amount')),
           '944.96',
         );
-        await tester.tap(find.widgetWithText(CupertinoButton, 'Save'));
+        await tapSave(tester);
         await tester.pumpAndSettle();
         expect(h.data.converted['r1']!.amountHalalas, 94496);
         expect(

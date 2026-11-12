@@ -1554,4 +1554,140 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get loadFailedBody =>
       'Check your connection. Your saved numbers are still on Home.';
+
+  @override
+  String get filterDate => 'Date';
+
+  @override
+  String get filterThisMonth => 'This month';
+
+  @override
+  String get filterLastMonth => 'Last month';
+
+  @override
+  String get filterCustom => 'Custom';
+
+  @override
+  String get filterAllTime => 'All time';
+
+  @override
+  String get filterCategory => 'Category';
+
+  @override
+  String get filterBankCard => 'Bank or card';
+
+  @override
+  String get filterAllAccounts => 'All';
+
+  @override
+  String get filterNoCategoryOnly => 'No category only';
+
+  @override
+  String get filterIncludeTransfers => 'Include transfers between my accounts';
+
+  @override
+  String get filterReset => 'Reset';
+
+  @override
+  String get filterFrom => 'From';
+
+  @override
+  String get filterTo => 'To';
+
+  @override
+  String get txChipAllBanks => 'All banks';
+
+  @override
+  String filterShow(int count) {
+    return 'Show $count';
+  }
+
+  @override
+  String txChipNoCategoryCount(int count) {
+    return 'No category · $count';
+  }
+
+  @override
+  String get txnTitle => 'Transaction';
+
+  @override
+  String get txnChangeCategory => 'Change category';
+
+  @override
+  String get txnCard => 'Card';
+
+  @override
+  String get txnSource => 'Source';
+
+  @override
+  String get txnLinkedBill => 'Linked bill';
+
+  @override
+  String get txnNone => 'None';
+
+  @override
+  String get txnNote => 'Note';
+
+  @override
+  String get txnAddNote => 'Add a note';
+
+  @override
+  String get txnOriginal => 'Original message';
+
+  @override
+  String get txnReport => 'Report a reading problem';
+
+  @override
+  String get txnSourceSms => 'Bank SMS';
+
+  @override
+  String get txnSourceManual => 'Added by hand';
+
+  @override
+  String get txnSourceAi => 'Read by AI';
+
+  @override
+  String get txnSourceCsv => 'Statement';
+
+  @override
+  String get txnNoCategory => 'No category';
+
+  @override
+  String get txnNoteFailed => 'Could not save the note. Try again.';
+
+  @override
+  String get txnMessageGone => 'The message is no longer stored.';
+
+  @override
+  String get qaAmountLabel => 'Amount';
+
+  @override
+  String get qaMerchantLabel => 'Merchant';
+
+  @override
+  String get qaMerchantHint => 'Where you paid';
+
+  @override
+  String get qaCategory => 'Category';
+
+  @override
+  String get qaDate => 'Date';
+
+  @override
+  String get qaTime => 'Time';
+
+  @override
+  String get qaPaidWith => 'Paid with';
+
+  @override
+  String get qaNote => 'Note';
+
+  @override
+  String get qaOptional => 'Optional';
+
+  @override
+  String get qaChoose => 'Choose';
+
+  @override
+  String get qaNotSet => 'Not set';
 }

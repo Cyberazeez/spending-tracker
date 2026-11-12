@@ -2815,6 +2815,270 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Check your connection. Your saved numbers are still on Home.'**
   String get loadFailedBody;
+
+  /// No description provided for @filterDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get filterDate;
+
+  /// No description provided for @filterThisMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'This month'**
+  String get filterThisMonth;
+
+  /// No description provided for @filterLastMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Last month'**
+  String get filterLastMonth;
+
+  /// No description provided for @filterCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get filterCustom;
+
+  /// No description provided for @filterAllTime.
+  ///
+  /// In en, this message translates to:
+  /// **'All time'**
+  String get filterAllTime;
+
+  /// No description provided for @filterCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get filterCategory;
+
+  /// No description provided for @filterBankCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank or card'**
+  String get filterBankCard;
+
+  /// No description provided for @filterAllAccounts.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get filterAllAccounts;
+
+  /// No description provided for @filterNoCategoryOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'No category only'**
+  String get filterNoCategoryOnly;
+
+  /// No description provided for @filterIncludeTransfers.
+  ///
+  /// In en, this message translates to:
+  /// **'Include transfers between my accounts'**
+  String get filterIncludeTransfers;
+
+  /// No description provided for @filterReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get filterReset;
+
+  /// No description provided for @filterFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get filterFrom;
+
+  /// No description provided for @filterTo.
+  ///
+  /// In en, this message translates to:
+  /// **'To'**
+  String get filterTo;
+
+  /// No description provided for @txChipAllBanks.
+  ///
+  /// In en, this message translates to:
+  /// **'All banks'**
+  String get txChipAllBanks;
+
+  /// No description provided for @filterShow.
+  ///
+  /// In en, this message translates to:
+  /// **'Show {count}'**
+  String filterShow(int count);
+
+  /// No description provided for @txChipNoCategoryCount.
+  ///
+  /// In en, this message translates to:
+  /// **'No category · {count}'**
+  String txChipNoCategoryCount(int count);
+
+  /// No description provided for @txnTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction'**
+  String get txnTitle;
+
+  /// No description provided for @txnChangeCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Change category'**
+  String get txnChangeCategory;
+
+  /// No description provided for @txnCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Card'**
+  String get txnCard;
+
+  /// No description provided for @txnSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Source'**
+  String get txnSource;
+
+  /// No description provided for @txnLinkedBill.
+  ///
+  /// In en, this message translates to:
+  /// **'Linked bill'**
+  String get txnLinkedBill;
+
+  /// No description provided for @txnNone.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get txnNone;
+
+  /// No description provided for @txnNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get txnNote;
+
+  /// No description provided for @txnAddNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a note'**
+  String get txnAddNote;
+
+  /// No description provided for @txnOriginal.
+  ///
+  /// In en, this message translates to:
+  /// **'Original message'**
+  String get txnOriginal;
+
+  /// No description provided for @txnReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Report a reading problem'**
+  String get txnReport;
+
+  /// No description provided for @txnSourceSms.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank SMS'**
+  String get txnSourceSms;
+
+  /// No description provided for @txnSourceManual.
+  ///
+  /// In en, this message translates to:
+  /// **'Added by hand'**
+  String get txnSourceManual;
+
+  /// No description provided for @txnSourceAi.
+  ///
+  /// In en, this message translates to:
+  /// **'Read by AI'**
+  String get txnSourceAi;
+
+  /// No description provided for @txnSourceCsv.
+  ///
+  /// In en, this message translates to:
+  /// **'Statement'**
+  String get txnSourceCsv;
+
+  /// No description provided for @txnNoCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'No category'**
+  String get txnNoCategory;
+
+  /// No description provided for @txnNoteFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save the note. Try again.'**
+  String get txnNoteFailed;
+
+  /// No description provided for @txnMessageGone.
+  ///
+  /// In en, this message translates to:
+  /// **'The message is no longer stored.'**
+  String get txnMessageGone;
+
+  /// No description provided for @qaAmountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get qaAmountLabel;
+
+  /// No description provided for @qaMerchantLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Merchant'**
+  String get qaMerchantLabel;
+
+  /// No description provided for @qaMerchantHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Where you paid'**
+  String get qaMerchantHint;
+
+  /// No description provided for @qaCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get qaCategory;
+
+  /// No description provided for @qaDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get qaDate;
+
+  /// No description provided for @qaTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get qaTime;
+
+  /// No description provided for @qaPaidWith.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid with'**
+  String get qaPaidWith;
+
+  /// No description provided for @qaNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get qaNote;
+
+  /// No description provided for @qaOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional'**
+  String get qaOptional;
+
+  /// No description provided for @qaChoose.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose'**
+  String get qaChoose;
+
+  /// No description provided for @qaNotSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not set'**
+  String get qaNotSet;
 }
 
 class _AppLocalizationsDelegate
