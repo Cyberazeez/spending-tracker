@@ -24,16 +24,38 @@ const lockPromptDelay = Duration(milliseconds: 900);
 
 class _LockPageState extends ConsumerState<LockPage> {
   Timer? _wait;
+  bool _promptWhenBack = false;
+
+  // The automatic prompt only runs while the app is in front: iOS refuses Face ID in the background and that would
+  // show "Unlock failed". Left within the wait, it asks when the app comes back.
+  late final AppLifecycleListener _life = AppLifecycleListener(
+    onResume: () {
+      if (_promptWhenBack) {
+        _promptWhenBack = false;
+        _unlock();
+      }
+    },
+  );
+
+  void _autoPrompt() {
+    final state = WidgetsBinding.instance.lifecycleState;
+    if (state != null && state != AppLifecycleState.resumed) {
+      _promptWhenBack = true;
+      return;
+    }
+    _unlock();
+  }
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
+      _life; // start listening
       if (MediaQuery.disableAnimationsOf(context)) {
-        _unlock();
+        _autoPrompt();
       } else {
-        _wait = Timer(lockPromptDelay, _unlock);
+        _wait = Timer(lockPromptDelay, _autoPrompt);
       }
     });
   }
@@ -41,11 +63,13 @@ class _LockPageState extends ConsumerState<LockPage> {
   @override
   void dispose() {
     _wait?.cancel();
+    _life.dispose();
     super.dispose();
   }
 
   Future<void> _unlock() async {
     _wait?.cancel(); // Unlock tapped before the automatic prompt: ask once
+    _promptWhenBack = false;
     if (!mounted) return;
     await ref
         .read(lockProvider.notifier)

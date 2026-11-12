@@ -174,6 +174,24 @@ void main() {
       expect(h.authenticator.calls, 1);
     });
 
+    testWidgets('left before the prompt, it asks when the app is back', (
+      t,
+    ) async {
+      final h = Harness(signedIn: true)..authenticator.result = false;
+      await t.pumpWidget(await h.build());
+      await t.pump();
+      t.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+      t.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
+      t.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+      await t.pump(lockPromptDelay + const Duration(milliseconds: 100));
+      expect(h.authenticator.calls, 0);
+      t.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
+      t.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+      t.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      await t.pump();
+      expect(h.authenticator.calls, greaterThanOrEqualTo(1));
+    });
+
     testWidgets('with Reduce Motion it asks straight away', (t) async {
       final h = Harness(signedIn: true)..authenticator.result = false;
       await t.pumpWidget(
