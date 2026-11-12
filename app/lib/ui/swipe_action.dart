@@ -106,8 +106,8 @@ class _SwipeActionState extends State<SwipeAction>
                         onPressed: _run,
                         child: Text(
                           widget.label,
-                          style: const TextStyle(
-                            color: CupertinoColors.white,
+                          style: TextStyle(
+                            color: swipeLabelColor(color),
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
                           ),
@@ -140,4 +140,14 @@ class _SwipeActionState extends State<SwipeAction>
       ),
     );
   }
+}
+
+/// Label colour on the swipe button: whichever of white and ink reads better on [fill] (white on the deep
+/// light-mode red, ink on the light dark-mode pink, where white is under 2:1).
+Color swipeLabelColor(Color fill) {
+  final l = fill.computeLuminance();
+  final onWhite = 1.05 / (l + 0.05);
+  final onInk =
+      (l + 0.05) / (const Color(0xFF0D1F17).computeLuminance() + 0.05);
+  return onWhite >= onInk ? const Color(0xFFFFFFFF) : const Color(0xFF0D1F17);
 }

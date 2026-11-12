@@ -2,9 +2,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../core/models.dart';
+import '../core/money.dart';
 import '../features/home/category_groups.dart';
 import '../features/home/group_style.dart';
 import '../l10n/app_localizations.dart';
+import 'app_form.dart';
+import 'icon_tile.dart';
 import 'theme.dart';
 import 'tokens.dart';
 
@@ -107,6 +110,7 @@ class _CategorySheetState extends State<_CategorySheet> {
     final text = AppTokens.text.resolveFrom(context);
     final muted = AppTokens.muted.resolveFrom(context);
     final bar = AppTokens.bar.resolveFrom(context);
+    final line = AppTokens.line.resolveFrom(context);
     final media = MediaQuery.of(context);
     final scale = media.textScaler.scale(13) / 13;
     final q = _search.text.trim().toLowerCase();
@@ -147,7 +151,7 @@ class _CategorySheetState extends State<_CategorySheet> {
           crossAxisCount: 3,
           mainAxisSpacing: 10,
           crossAxisSpacing: 10,
-          mainAxisExtent: 76 + 2 * 13 * 1.25 * scale,
+          mainAxisExtent: 74 + 2 * 13 * 1.25 * scale,
         ),
         delegate: SliverChildBuilderDelegate((ctx, i) {
           final c = list[i];
@@ -167,10 +171,19 @@ class _CategorySheetState extends State<_CategorySheet> {
         height: media.size.height * 0.88,
         decoration: BoxDecoration(
           color: bg,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+          borderRadius: const BorderRadius.vertical(
+            top: Radius.circular(AppTokens.radiusSheet),
+          ),
+          border: outlineOf(context),
         ),
         child: DefaultTextStyle(
-          style: TextStyle(color: text, fontSize: 15, inherit: false),
+          style: TextStyle(
+            color: text,
+            fontSize: 15,
+            inherit: false,
+            fontFamily: appFont,
+            fontFamilyFallback: const [riyalFont],
+          ),
           child: Column(
             children: [
               Container(
@@ -178,7 +191,7 @@ class _CategorySheetState extends State<_CategorySheet> {
                 height: 5,
                 margin: const EdgeInsets.only(top: 8, bottom: 4),
                 decoration: BoxDecoration(
-                  color: bar,
+                  color: line.withValues(alpha: 0.35),
                   borderRadius: BorderRadius.circular(3),
                 ),
               ),
@@ -195,7 +208,7 @@ class _CategorySheetState extends State<_CategorySheet> {
                             style: TextStyle(
                               color: text,
                               fontSize: 20,
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.w800,
                               decoration: TextDecoration.none,
                             ),
                           ),
@@ -224,13 +237,17 @@ class _CategorySheetState extends State<_CategorySheet> {
                         minimumSize: const Size(44, 44),
                         onPressed: () => Navigator.pop(context),
                         child: Container(
-                          width: 32,
-                          height: 32,
+                          width: 34,
+                          height: 34,
                           decoration: BoxDecoration(
                             color: card,
                             shape: BoxShape.circle,
+                            border: outlineOf(
+                              context,
+                              width: AppTokens.outlineThin,
+                            ),
                           ),
-                          child: Icon(LucideIcons.x, size: 16, color: muted),
+                          child: Icon(LucideIcons.x, size: 16, color: text),
                         ),
                       ),
                     ),
@@ -287,30 +304,14 @@ class _CategorySheetState extends State<_CategorySheet> {
                   ),
                   decoration: BoxDecoration(
                     color: bg,
-                    border: Border(top: BorderSide(color: bar)),
-                  ),
-                  child: CupertinoButton(
-                    padding: EdgeInsets.zero,
-                    onPressed: () => Navigator.pop(context, ''),
-                    child: Container(
-                      height: 46,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: card,
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      child: Text(
-                        widget.removeLabel!,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          decoration: TextDecoration.none,
-                          color: widget.removeIsDestructive
-                              ? AppColors.danger.resolveFrom(context)
-                              : text,
-                        ),
-                      ),
+                    border: Border(
+                      top: BorderSide(color: bar, width: AppTokens.outlineThin),
                     ),
+                  ),
+                  child: SecondaryButton(
+                    label: widget.removeLabel!,
+                    danger: widget.removeIsDestructive,
+                    onPressed: () => Navigator.pop(context, ''),
                   ),
                 ),
             ],
@@ -335,8 +336,9 @@ class _Tile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final card = AppTokens.card.resolveFrom(context);
     final accent = AppTokens.accent.resolveFrom(context);
+    // The ring is drawn on the page colour: the deeper green keeps it above 3:1 there (emerald is 2.8:1).
+    final ring = AppTokens.accentText.resolveFrom(context);
     final text = AppTokens.text.resolveFrom(context);
     final group = groupOf(category.name);
     return Semantics(
@@ -348,74 +350,70 @@ class _Tile extends StatelessWidget {
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: onTap,
-        child: Stack(
+        child: Column(
           children: [
-            Positioned.fill(
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  color: selected ? AppTokens.okBg.resolveFrom(context) : card,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: selected ? accent : const Color(0x00000000),
-                    width: 2,
+            // The chosen tile gets an emerald ring and a check, so the choice is not shown by colour alone.
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Container(
+                  key: selected ? const ValueKey('category-selected') : null,
+                  padding: const EdgeInsets.all(3),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(21),
+                    border: Border.all(
+                      color: selected ? ring : const Color(0x00000000),
+                      width: 3,
+                    ),
+                  ),
+                  child: IconTile(
+                    color: groupColor(group),
+                    icon: categoryIcon(category),
+                    size: 56,
+                    radius: 16,
+                    iconSize: 26,
                   ),
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(4, 12, 4, 8),
-                  child: Column(
-                    children: [
-                      Container(
-                        width: 42,
-                        height: 42,
-                        decoration: BoxDecoration(
-                          color: groupColor(group),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          categoryIcon(category),
-                          size: 22,
-                          color: const Color(0xFF0B0F14),
+                if (selected)
+                  PositionedDirectional(
+                    top: -4,
+                    end: -4,
+                    child: Container(
+                      width: 22,
+                      height: 22,
+                      decoration: BoxDecoration(
+                        color: accent,
+                        shape: BoxShape.circle,
+                        border: outlineOf(
+                          context,
+                          width: AppTokens.outlineThin,
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      Expanded(
-                        child: Text(
-                          label,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: text,
-                            fontSize: 13,
-                            height: 1.25,
-                            fontWeight: FontWeight.w500,
-                            decoration: TextDecoration.none,
-                          ),
-                        ),
+                      child: Icon(
+                        LucideIcons.check,
+                        size: 13,
+                        color: AppTokens.onAccent.resolveFrom(context),
                       ),
-                    ],
+                    ),
                   ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Expanded(
+              child: Text(
+                label,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: text,
+                  fontSize: 13,
+                  height: 1.25,
+                  fontWeight: FontWeight.w700,
+                  decoration: TextDecoration.none,
                 ),
               ),
             ),
-            if (selected)
-              PositionedDirectional(
-                top: 6,
-                end: 6,
-                child: Container(
-                  width: 18,
-                  height: 18,
-                  decoration: BoxDecoration(
-                    color: accent,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    LucideIcons.check,
-                    size: 12,
-                    color: AppTokens.onAccent.resolveFrom(context),
-                  ),
-                ),
-              ),
           ],
         ),
       ),

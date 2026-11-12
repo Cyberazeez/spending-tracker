@@ -1,11 +1,11 @@
 import 'package:flutter/cupertino.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../core/models.dart';
 import '../../core/money.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ui/app_form.dart';
 import '../../ui/sheet_frame.dart';
-import '../../ui/tokens.dart';
 import '../obligations/widgets/bills_widgets.dart';
 
 /// Amount + merchant + spent/received + time. Used by Quick add and by "Add as transaction" in the review inbox.
@@ -130,26 +130,17 @@ class _ManualTxnFormState extends State<ManualTxnForm> {
           controller: _amount,
           placeholder: t.qaAmount,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          large: true,
         ),
         if (_invalid) FormError(t.qaAmountInvalid),
         const SizedBox(height: 12),
         AppField(controller: _merchant, placeholder: t.qaMerchant),
         const SizedBox(height: 12),
-        CupertinoButton(
-          padding: EdgeInsets.zero,
+        // The date keeps its left-to-right order inside an Arabic line (U+2066 ... U+2069 isolate it).
+        FieldButton(
+          icon: LucideIcons.calendar,
+          label: '${t.qaWhen}: \u2066${_fmt(_when)}\u2069',
           onPressed: _pickTime,
-          child: Align(
-            alignment: AlignmentDirectional.centerStart,
-            child: Directionality(
-              textDirection: TextDirection.ltr,
-              child: Text(
-                '${t.qaWhen}: ${_fmt(_when)}',
-                style: TextStyle(
-                  color: AppTokens.accentText.resolveFrom(context),
-                ),
-              ),
-            ),
-          ),
         ),
         if (_failed) FormError(t.qaSaveFailed),
         const SizedBox(height: 20),

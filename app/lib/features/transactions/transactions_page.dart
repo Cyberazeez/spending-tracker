@@ -65,42 +65,32 @@ class TransactionsPage extends ConsumerWidget {
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                CupertinoButton(
-                  padding: EdgeInsets.zero,
-                  minimumSize: const Size(44, 44),
+                _HeaderButton(
                   onPressed: () => showFilterSheet(context, ref),
-                  child: Icon(
-                    LucideIcons.listFilter,
-                    color:
-                        filter.categoryId != null ||
-                            filter.uncategorizedOnly ||
-                            filter.hideInternal
-                        ? AppTokens.accent.resolveFrom(context)
-                        : AppTokens.text.resolveFrom(context),
-                    semanticLabel: t.filterTitle,
-                  ),
+                  fill:
+                      filter.categoryId != null ||
+                          filter.uncategorizedOnly ||
+                          filter.hideInternal
+                      ? AppTokens.accent.resolveFrom(context)
+                      : AppTokens.card.resolveFrom(context),
+                  radius: 14,
+                  icon: LucideIcons.listFilter,
+                  iconColor:
+                      filter.categoryId != null ||
+                          filter.uncategorizedOnly ||
+                          filter.hideInternal
+                      ? AppTokens.onAccent.resolveFrom(context)
+                      : AppTokens.text.resolveFrom(context),
+                  semanticLabel: t.filterTitle,
                 ),
-                CupertinoButton(
-                  padding: EdgeInsets.zero,
-                  minimumSize: const Size(44, 44),
+                const SizedBox(width: 8),
+                _HeaderButton(
                   onPressed: () => context.push(quickAddPath),
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: AppTokens.gold.resolveFrom(context),
-                      shape: BoxShape.circle,
-                      border: outlineOf(context, width: AppTokens.outlineThin),
-                    ),
-                    child: SizedBox(
-                      width: 36,
-                      height: 36,
-                      child: Icon(
-                        LucideIcons.plus,
-                        size: 20,
-                        color: AppTokens.onAccent.resolveFrom(context),
-                        semanticLabel: t.homeAddTx,
-                      ),
-                    ),
-                  ),
+                  fill: AppTokens.gold.resolveFrom(context),
+                  radius: 22,
+                  icon: LucideIcons.plus,
+                  iconColor: AppTokens.onTint.resolveFrom(context),
+                  semanticLabel: t.homeAddTx,
                 ),
               ],
             ),
@@ -241,8 +231,7 @@ class _DayBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final muted = AppTokens.muted.resolveFrom(context);
-    final line = muted.withValues(alpha: 0.18);
+    final line = AppTokens.bar.resolveFrom(context);
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Column(
@@ -259,10 +248,13 @@ class _DayBlock extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           // The rows run edge to edge so a swiped row can slide its whole width; the 14 px side margin is inside them.
+          // Inset by the outline so a swiped row (which paints its own card colour) never covers it.
           AppCard(
-            padding: const EdgeInsets.symmetric(vertical: 2),
+            padding: const EdgeInsets.all(AppTokens.outline),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(AppTokens.radiusCard),
+              borderRadius: BorderRadius.circular(
+                AppTokens.radiusCard - AppTokens.outline,
+              ),
               child: Column(
                 children: [
                   for (var i = 0; i < group.items.length; i++) ...[
@@ -283,7 +275,7 @@ class _DayBlock extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 14),
                         child: SizedBox(
-                          height: 1,
+                          height: 2,
                           child: ColoredBox(color: line),
                         ),
                       ),
@@ -298,6 +290,53 @@ class _DayBlock extends StatelessWidget {
   }
 }
 
+/// A 40 pt outlined button with the hard shadow in the title bar, inside a 44 x 44 tap area.
+class _HeaderButton extends StatelessWidget {
+  const _HeaderButton({
+    required this.onPressed,
+    required this.fill,
+    required this.radius,
+    required this.icon,
+    required this.iconColor,
+    required this.semanticLabel,
+  });
+
+  final VoidCallback onPressed;
+  final Color fill;
+  final double radius;
+  final IconData icon;
+  final Color iconColor;
+  final String semanticLabel;
+
+  @override
+  Widget build(BuildContext context) => CupertinoButton(
+    padding: EdgeInsets.zero,
+    minimumSize: const Size(44, 44),
+    onPressed: onPressed,
+    child: Padding(
+      padding: const EdgeInsets.only(right: 3, bottom: 4),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: fill,
+          borderRadius: BorderRadius.circular(radius),
+          border: outlineOf(context),
+          boxShadow: hardShadowOf(context, offset: const Offset(3, 4)),
+        ),
+        child: SizedBox(
+          width: 40,
+          height: 40,
+          child: Icon(
+            icon,
+            size: 20,
+            color: iconColor,
+            semanticLabel: semanticLabel,
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
 /// "Today" and the day's spend; the spend drops under the label at large text sizes.
 class _DayHeader extends StatelessWidget {
   const _DayHeader({required this.label, required this.total});
@@ -307,14 +346,13 @@ class _DayHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final text = AppTokens.text.resolveFrom(context);
     final muted = AppTokens.muted.resolveFrom(context);
     final stacked = MediaQuery.textScalerOf(context).scale(10) > 13;
     final labelText = Text(
       label,
       maxLines: 2,
       overflow: TextOverflow.ellipsis,
-      style: TextStyle(color: text, fontSize: 15, fontWeight: FontWeight.w600),
+      style: TextStyle(color: muted, fontSize: 14, fontWeight: FontWeight.w700),
     );
     final totalText = total == null
         ? null
@@ -323,7 +361,15 @@ class _DayHeader extends StatelessWidget {
             child: FittedBox(
               fit: BoxFit.scaleDown,
               alignment: AlignmentDirectional.centerEnd,
-              child: Text(total!, style: TextStyle(color: muted, fontSize: 13)),
+              child: Text(
+                total!,
+                style: TextStyle(
+                  color: muted,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
+              ),
             ),
           );
     if (stacked || totalText == null) {
@@ -371,7 +417,7 @@ class _SearchBoxState extends ConsumerState<_SearchBox> {
       placeholder: AppLocalizations.of(context).searchHint,
       decoration: BoxDecoration(
         color: AppTokens.card.resolveFrom(context),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(26),
         border: outlineOf(context),
       ),
       // 44 pt tall (the default is 36): the smallest comfortable tap target on iOS
