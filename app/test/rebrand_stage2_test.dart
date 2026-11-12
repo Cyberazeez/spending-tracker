@@ -201,7 +201,17 @@ void main() {
       );
       await t.tap(find.text('open'));
       await t.pumpAndSettle();
-      expect(find.byKey(const ValueKey('category-selected')), findsOneWidget);
+      final ring = t.widget<Container>(
+        find.byKey(const ValueKey('category-selected')),
+      );
+      final ringColor =
+          ((ring.decoration! as BoxDecoration).border! as Border).top.color;
+      // The deeper green (accentText), 3:1 or more on the page colour.
+      expect(_v(ringColor), 0xFF00704A);
+      expect(
+        _contrast(ringColor, const Color(0xFFF0F5E6)),
+        greaterThanOrEqualTo(3),
+      );
       expect(find.byIcon(LucideIcons.check), findsOneWidget);
       await t.tap(find.text('Remove category'));
       await t.pumpAndSettle();

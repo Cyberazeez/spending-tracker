@@ -222,7 +222,10 @@ class ReviewPage extends ConsumerWidget {
                                                 fontSize: 12,
                                               ),
                                             ),
-                                            if (stacked) amountOf(a),
+                                            if (stacked) ...[
+                                              const SizedBox(height: 4),
+                                              amountOf(a),
+                                            ],
                                           ],
                                         ),
                                       ),
