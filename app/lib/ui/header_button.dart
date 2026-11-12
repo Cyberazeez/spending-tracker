@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 
 import 'tokens.dart';
+import 'press.dart';
 
 /// A 40 pt outlined button with the hard shadow for a title bar, inside a 44 x 44 tap area.
 class HeaderIconButton extends StatelessWidget {
@@ -25,24 +26,32 @@ class HeaderIconButton extends StatelessWidget {
   Widget build(BuildContext context) => CupertinoButton(
     padding: EdgeInsets.zero,
     minimumSize: const Size(44, 44),
+    pressedOpacity: 1,
     onPressed: onPressed,
     child: Padding(
       padding: const EdgeInsets.only(right: 3, bottom: 4),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: fill,
-          borderRadius: BorderRadius.circular(radius),
-          border: outlineOf(context),
-          boxShadow: hardShadowOf(context, offset: const Offset(3, 4)),
-        ),
-        child: SizedBox(
-          width: 40,
-          height: 40,
-          child: Icon(
-            icon,
-            size: 20,
-            color: iconColor,
-            semanticLabel: semanticLabel,
+      child: Pressable(
+        offset: const Offset(3, 4),
+        enabled: true,
+        builder: (context, depth) => DecoratedBox(
+          decoration: BoxDecoration(
+            color: fill,
+            borderRadius: BorderRadius.circular(radius),
+            border: outlineOf(context),
+            boxShadow: hardShadowOf(
+              context,
+              offset: const Offset(3, 4) * (1 - depth),
+            ),
+          ),
+          child: SizedBox(
+            width: 40,
+            height: 40,
+            child: Icon(
+              icon,
+              size: 20,
+              color: iconColor,
+              semanticLabel: semanticLabel,
+            ),
           ),
         ),
       ),

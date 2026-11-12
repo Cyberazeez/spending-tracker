@@ -5,6 +5,7 @@ import '../l10n/app_localizations.dart';
 import 'app_form.dart';
 import 'sheet_frame.dart';
 import 'tokens.dart';
+import 'app_sheet.dart';
 
 /// Asks for an amount in the app's bottom-sheet look: a big field with the riyal sign, quick amounts to tap and a
 /// Save button. Returns halalas, or null when dismissed.
@@ -17,7 +18,7 @@ Future<int?> showAmountSheet(
   required int maxHalalas,
   required String invalidText,
 }) {
-  return showCupertinoModalPopup<int>(
+  return showAppSheet<int>(
     context: context,
     builder: (ctx) => _AmountSheet(
       title: title,

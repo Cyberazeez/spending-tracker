@@ -10,6 +10,7 @@ import 'app_form.dart';
 import 'icon_tile.dart';
 import 'theme.dart';
 import 'tokens.dart';
+import 'app_sheet.dart';
 
 IconData categoryIcon(Category c) => categoryIconByName(c.name);
 
@@ -51,7 +52,7 @@ Future<String?> showCategorySheet(
   bool removeIsDestructive = true,
   String? title,
 }) {
-  return showCupertinoModalPopup<String>(
+  return showAppSheet<String>(
     context: context,
     builder: (ctx) => _CategorySheet(
       cats: cats,

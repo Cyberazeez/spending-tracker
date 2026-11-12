@@ -7,27 +7,81 @@ import 'tokens.dart';
 /// The Halala logo (the word هللة with two gold coins), drawn from the path in `docs/brand/logo.svg` so it needs no
 /// image package and follows the theme: outline and hard shadow in [AppTokens.line] (ink in light mode, paper in
 /// dark so it stays visible on the dark page), letters in [AppTokens.accent], coins in [AppTokens.gold].
-class HalalaLogo extends StatelessWidget {
-  const HalalaLogo({super.key, this.width = 190});
+class HalalaLogo extends StatefulWidget {
+  const HalalaLogo({super.key, this.width = 190, this.dropCoins = false});
 
   final double width;
+
+  /// Play the coin drop once when the logo appears (launch: lock and sign-in screens): the coins hop up and fall
+  /// back into place with a bounce. They never leave the picture, so the static launch image hands over without a
+  /// jump. Off with Reduce Motion.
+  final bool dropCoins;
 
   /// The logo's own word, read by VoiceOver (it is a picture of this word).
   static const semanticLabel = 'هللة';
 
+  /// Length of the coin drop.
+  static const dropDuration = Duration(milliseconds: 1100);
+
+  @override
+  State<HalalaLogo> createState() => _HalalaLogoState();
+}
+
+class _HalalaLogoState extends State<HalalaLogo>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _drop = AnimationController(
+    vsync: this,
+    duration: HalalaLogo.dropDuration,
+    value: 1, // at rest unless the drop plays
+  );
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (widget.dropCoins &&
+        !MediaQuery.disableAnimationsOf(context) &&
+        _drop.value == 1 &&
+        !_played) {
+      _played = true;
+      _drop.forward(from: 0);
+    }
+  }
+
+  bool _played = false;
+
+  @override
+  void dispose() {
+    _drop.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) => Semantics(
     image: true,
-    label: semanticLabel,
-    child: CustomPaint(
-      size: Size(width, width * _viewH / _viewW),
-      painter: HalalaLogoPainter(
-        line: AppTokens.line.resolveFrom(context),
-        fill: AppTokens.accent.resolveFrom(context),
-        coin: AppTokens.gold.resolveFrom(context),
+    label: HalalaLogo.semanticLabel,
+    child: AnimatedBuilder(
+      animation: _drop,
+      builder: (context, _) => CustomPaint(
+        size: Size(widget.width, widget.width * _viewH / _viewW),
+        painter: HalalaLogoPainter(
+          line: AppTokens.line.resolveFrom(context),
+          fill: AppTokens.accent.resolveFrom(context),
+          coin: AppTokens.gold.resolveFrom(context),
+          coinLift: [coinLift(_drop.value, 0), coinLift(_drop.value, 1)],
+        ),
       ),
     ),
   );
+}
+
+/// How high (in logo units, about a third of the letters' height at most) coin [i] is at time [t] of the drop:
+/// a quick hop up, then a fall with a bounce. 0 at the start and at the end. The second coin follows a moment later.
+double coinLift(double t, int i) {
+  const height = 300.0;
+  final u = ((t - i * 0.12) / 0.88).clamp(0.0, 1.0);
+  if (u <= 0 || u >= 1) return 0;
+  if (u < 0.25) return height * Curves.easeOutCubic.transform(u / 0.25);
+  return height * (1 - Curves.bounceOut.transform((u - 0.25) / 0.75));
 }
 
 // The SVG's viewBox, rotation and shadow offset.
@@ -43,11 +97,17 @@ class HalalaLogoPainter extends CustomPainter {
     required this.line,
     required this.fill,
     required this.coin,
+    this.coinLift = const [0, 0],
   });
 
   final Color line;
   final Color fill;
   final Color coin;
+
+  /// How far each coin is lifted, in logo units.
+  final List<double> coinLift;
+
+  Offset _coin(int i) => _coins[i] - Offset(0, coinLift[i]);
 
   static final Path _letters = parseSvgPath(_lettersPath);
 
@@ -75,10 +135,10 @@ class HalalaLogoPainter extends CustomPainter {
     }
 
     void coinsInk(Offset at) {
-      for (final c in _coins) {
+      for (var i = 0; i < _coins.length; i++) {
         canvas
-          ..drawCircle(c + at, _coinRadius, solid)
-          ..drawCircle(c + at, _coinRadius, outline);
+          ..drawCircle(_coin(i) + at, _coinRadius, solid)
+          ..drawCircle(_coin(i) + at, _coinRadius, outline);
       }
     }
 
@@ -89,15 +149,19 @@ class HalalaLogoPainter extends CustomPainter {
     letters(Offset.zero);
     canvas.drawPath(_letters, Paint()..color = fill);
     coinsInk(Offset.zero);
-    for (final c in _coins) {
-      canvas.drawCircle(c, _coinRadius, Paint()..color = coin);
+    for (var i = 0; i < _coins.length; i++) {
+      canvas.drawCircle(_coin(i), _coinRadius, Paint()..color = coin);
     }
     canvas.restore();
   }
 
   @override
   bool shouldRepaint(HalalaLogoPainter old) =>
-      old.line != line || old.fill != fill || old.coin != coin;
+      old.line != line ||
+      old.fill != fill ||
+      old.coin != coin ||
+      old.coinLift[0] != coinLift[0] ||
+      old.coinLift[1] != coinLift[1];
 }
 
 /// Reads the absolute M, L, Q and Z commands of an SVG path (the only ones the logo uses); a command letter may be

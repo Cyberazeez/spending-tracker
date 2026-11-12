@@ -7,6 +7,7 @@ import '../../l10n/app_localizations.dart';
 import '../../ui/app_form.dart';
 import '../../ui/sheet_frame.dart';
 import '../obligations/widgets/bills_widgets.dart';
+import '../../ui/app_sheet.dart';
 
 /// Amount + merchant + spent/received + time. Used by Quick add and by "Add as transaction" in the review inbox.
 class ManualTxnForm extends StatefulWidget {
@@ -77,7 +78,7 @@ class _ManualTxnFormState extends State<ManualTxnForm> {
   Future<void> _pickTime() async {
     final t = AppLocalizations.of(context);
     var picked = _when;
-    final result = await showCupertinoModalPopup<DateTime>(
+    final result = await showAppSheet<DateTime>(
       context: context,
       builder: (ctx) => SheetFrame(
         title: t.qaWhen,

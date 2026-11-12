@@ -368,6 +368,7 @@ class _NoticeCard extends StatelessWidget {
     behavior: HitTestBehavior.opaque,
     onTap: onTap,
     child: AppCard(
+      pressable: true,
       padding: const EdgeInsets.all(14),
       child: Row(
         children: [

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 
+import 'press.dart';
 import 'tokens.dart';
 
 /// The surface of every block: a card with the ink outline and the hard offset shadow.
@@ -14,7 +15,12 @@ class AppCard extends StatelessWidget {
     this.flat = false,
     this.radius = AppTokens.radiusCard,
     this.shadow = const Offset(4, 5),
+    this.pressable = false,
   });
+
+  /// For a card that opens something when tapped (the tap handler sits around it): it presses into its shadow
+  /// while a finger is on it.
+  final bool pressable;
 
   final Widget child;
   final EdgeInsetsGeometry padding;
@@ -27,19 +33,23 @@ class AppCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final box = DecoratedBox(
+    Widget box(double depth) => DecoratedBox(
       decoration: BoxDecoration(
         color: color ?? AppTokens.card.resolveFrom(context),
         borderRadius: BorderRadius.circular(radius),
         border: outlineOf(context),
-        boxShadow: flat ? null : hardShadowOf(context, offset: shadow),
+        boxShadow: flat
+            ? null
+            : hardShadowOf(context, offset: shadow * (1 - depth)),
       ),
       child: Padding(padding: padding, child: child),
     );
-    if (flat) return box;
+    if (flat) return box(0);
     return Padding(
       padding: EdgeInsets.only(right: shadow.dx, bottom: shadow.dy),
-      child: box,
+      child: pressable
+          ? Pressable(offset: shadow, builder: (_, depth) => box(depth))
+          : box(0),
     );
   }
 }

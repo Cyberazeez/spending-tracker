@@ -47,7 +47,7 @@ class _LockPageState extends ConsumerState<LockPage> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const HalalaLogo(width: 220),
+                const HalalaLogo(width: 220, dropCoins: true),
                 const SizedBox(height: 48),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
