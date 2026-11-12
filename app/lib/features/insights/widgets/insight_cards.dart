@@ -487,3 +487,31 @@ class _AmountBox extends StatelessWidget {
     );
   }
 }
+
+/// The place number in a ranked list: an outlined circle that grows with large text.
+class RankCircle extends StatelessWidget {
+  const RankCircle(this.n, {super.key});
+  final int n;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    key: const ValueKey('insights-rank'),
+    // At least 32 pt, and it grows with large text so the digit is never clipped by the outline.
+    constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+    padding: const EdgeInsets.all(4),
+    alignment: Alignment.center,
+    decoration: BoxDecoration(
+      color: AppTokens.bar.resolveFrom(context),
+      shape: BoxShape.circle,
+      border: outlineOf(context, width: AppTokens.outlineThin),
+    ),
+    child: Text(
+      '$n',
+      style: TextStyle(
+        color: AppTokens.text.resolveFrom(context),
+        fontSize: 13,
+        fontWeight: FontWeight.w700,
+      ),
+    ),
+  );
+}

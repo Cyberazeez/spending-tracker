@@ -50,8 +50,9 @@ class DonutShare extends StatelessWidget {
                 AppTokens.line.resolveFrom(context),
               ),
             ),
+            // The label box fits inside the ring's inner outline (radius about 44 on the 140 pt donut).
             Padding(
-              padding: const EdgeInsets.all(34),
+              padding: const EdgeInsets.all(40),
               child: Directionality(
                 textDirection: TextDirection.ltr,
                 child: FittedBox(

@@ -3,9 +3,11 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:spending_tracker/core/models.dart';
+import 'package:spending_tracker/features/insights/widgets/insight_cards.dart';
 import 'package:spending_tracker/features/obligations/widgets/bills_widgets.dart';
 import 'package:spending_tracker/l10n/app_localizations.dart';
 import 'package:spending_tracker/ui/confirm_sheet.dart';
+import 'package:spending_tracker/ui/icon_tile.dart';
 import 'package:spending_tracker/ui/outlined_bar.dart';
 
 import 'support/fakes.dart';
@@ -19,6 +21,7 @@ final _spend = Txn(
   amountHalalas: 1800,
   occurredAt: DateTime.utc(2026, 10, 30, 9),
   merchant: 'Coffee',
+  merchantNorm: 'coffee',
   categoryId: 'c-din',
 );
 
@@ -189,10 +192,75 @@ void main() {
       await t.tap(find.text('open'));
       await t.pumpAndSettle();
       final label = t.widget<Text>(find.text('Stop tracking'));
-      final fill = b == Brightness.dark
-          ? const Color(0xFFFF9DB0)
-          : const Color(0xFFD11A3F);
+      final fill =
+          (t
+                      .widgetList<Container>(
+                        find.ancestor(
+                          of: find.text('Stop tracking'),
+                          matching: find.byType(Container),
+                        ),
+                      )
+                      .first
+                      .decoration!
+                  as BoxDecoration)
+              .color!;
+      expect(fill.toARGB32(), b == Brightness.dark ? 0xFFFF9DB0 : 0xFFD11A3F);
       expect(_contrast(label.style!.color!, fill), greaterThanOrEqualTo(4.5));
     });
   }
+
+  testWidgets(
+    'AI tips card in dark mode: the sparkles tile is outlined in ink',
+    (t) async {
+      t.platformDispatcher.platformBrightnessTestValue = Brightness.dark;
+      t.view.physicalSize = const Size(390 * 2, 1600 * 2);
+      t.view.devicePixelRatio = 2;
+      addTearDown(t.view.reset);
+      addTearDown(t.platformDispatcher.clearAllTestValues);
+      final h = Harness(signedIn: true);
+      h.data
+        ..aiOn = true
+        ..aiPaid = true
+        ..saved = ['Dining is up this month.']
+        ..txns = [_spend]
+        ..history = [_spend];
+      await t.pumpWidget(await h.build());
+      await t.pumpAndSettle();
+      await t.tap(find.text('Insights').last);
+      await t.pumpAndSettle();
+      final tile = t.widget<Container>(
+        find
+            .descendant(
+              of: find.ancestor(
+                of: find.byIcon(LucideIcons.sparkles),
+                matching: find.byType(IconTile),
+              ),
+              matching: find.byType(Container),
+            )
+            .first,
+      );
+      final border = (tile.decoration! as BoxDecoration).border! as Border;
+      expect(border.top.color.toARGB32(), _ink.toARGB32());
+    },
+  );
+
+  testWidgets('rank circles grow with large text', (t) async {
+    await t.pumpWidget(
+      _app(
+        Builder(
+          builder: (context) => MediaQuery(
+            data: MediaQuery.of(context)
+                .copyWith(textScaler: const TextScaler.linear(3)),
+            child: const Center(child: RankCircle(3)),
+          ),
+        ),
+      ),
+    );
+    final circle = t.getSize(find.byType(RankCircle));
+    final digit = t.getSize(find.text('3'));
+    // 3x: the old fixed 32 pt circle leaves 28 pt inside its outline, less than the digit.
+    expect(digit.height, greaterThan(28));
+    // Room for the digit inside the 2 pt outline on each side.
+    expect(circle.height - 4, greaterThanOrEqualTo(digit.height));
+  });
 }

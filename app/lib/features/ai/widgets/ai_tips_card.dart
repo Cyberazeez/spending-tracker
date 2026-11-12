@@ -155,11 +155,13 @@ class _AiTipsCardState extends ConsumerState<AiTipsCard> {
               children: [
                 Row(
                   children: [
-                    const IconTile(
-                      color: Color(0xFFFFFFFF),
+                    // Everything on the gold card is outlined in ink, in both modes.
+                    IconTile(
+                      color: const Color(0xFFFFFFFF),
                       icon: LucideIcons.sparkles,
                       size: 38,
                       iconSize: 19,
+                      outline: onHero,
                     ),
                     const SizedBox(width: 10),
                     Expanded(
