@@ -51,13 +51,15 @@ void main() {
     await open(tester, h);
     await tester.tap(find.byIcon(LucideIcons.listFilter));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Uncategorized only'));
+    await tester.tap(find.byType(CupertinoSwitch).first); // No category only
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filter-show')));
     await tester.pumpAndSettle();
     expect(find.text('XYZ'), findsOneWidget);
     expect(find.text('OTTEN'), findsNothing);
   });
 
-  testWidgets('the filter picks a category through the category sheet', (
+  testWidgets('the filter picks a category group, and Reset clears it', (
     tester,
   ) async {
     final h = Harness(signedIn: true)
@@ -65,18 +67,19 @@ void main() {
     await open(tester, h);
     await tester.tap(find.byIcon(LucideIcons.listFilter));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Category'));
+    await tester.tap(find.text('Food')); // the group Dining belongs to
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Dining'));
+    expect(find.text('Show 1'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('filter-show')));
     await tester.pumpAndSettle();
-    expect(h.data.lastFilter.categoryId, 'c-din');
-    // the filter sheet now shows the chosen category and offers to clear
+    expect(h.data.lastFilter.categoryIds, contains('c-din'));
     await tester.tap(find.byIcon(LucideIcons.listFilter));
     await tester.pumpAndSettle();
-    expect(find.text('Clear filters'), findsOneWidget);
-    await tester.tap(find.text('Clear filters'));
+    await tester.tap(find.text('Reset'));
     await tester.pumpAndSettle();
-    expect(h.data.lastFilter.categoryId, isNull);
+    await tester.tap(find.byKey(const ValueKey('filter-show')));
+    await tester.pumpAndSettle();
+    expect(h.data.lastFilter.categoryIds, isNull);
   });
 
   testWidgets('recategorizing asks about past ones and remembers the rule', (
@@ -85,7 +88,9 @@ void main() {
     final h = Harness(signedIn: true)
       ..data.txns = [tx('1', 'OTTEN'), tx('2', 'OTTEN')];
     await open(tester, h);
-    await tester.tap(find.text('OTTEN').first);
+    await tester.tap(find.text('OTTEN').first); // opens the transaction
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Change category'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Dining'));
     await tester.pumpAndSettle();
@@ -100,13 +105,17 @@ void main() {
     final h = Harness(signedIn: true)
       ..data.txns = [tx('1', 'OTTEN'), tx('2', 'OTTEN')];
     await open(tester, h);
-    await tester.tap(find.text('OTTEN').first);
+    await tester.tap(find.text('OTTEN').first); // opens the transaction
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Change category'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Dining'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Only future ones'));
     await tester.pumpAndSettle();
     expect(h.data.categoryCalls, [('1', 'c-din', 'otten', false)]);
+    await tester.tap(find.byKey(const ValueKey('nav-back')));
+    await tester.pumpAndSettle();
     expect(find.textContaining('Choose category'), findsOneWidget);
   });
 }

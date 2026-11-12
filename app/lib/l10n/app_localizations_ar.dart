@@ -1545,4 +1545,143 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get loadFailedBody =>
       'تحقق من اتصالك. أرقامك المحفوظة ما زالت في الرئيسية.';
+
+  @override
+  String get filterDate => 'التاريخ';
+
+  @override
+  String get filterThisMonth => 'هذا الشهر';
+
+  @override
+  String get filterLastMonth => 'الشهر الماضي';
+
+  @override
+  String get filterCustom => 'مخصص';
+
+  @override
+  String get filterAllTime => 'كل الأوقات';
+
+  @override
+  String get filterCategory => 'الفئة';
+
+  @override
+  String get filterBankCard => 'البنك أو البطاقة';
+
+  @override
+  String get filterAllAccounts => 'الكل';
+
+  @override
+  String get filterNoCategoryOnly => 'بدون فئة فقط';
+
+  @override
+  String get filterIncludeTransfers => 'تضمين التحويلات بين حساباتي';
+
+  @override
+  String get filterReset => 'إعادة ضبط';
+
+  @override
+  String get filterFrom => 'من';
+
+  @override
+  String get filterTo => 'إلى';
+
+  @override
+  String get txChipAllBanks => 'كل البنوك';
+
+  @override
+  String filterShow(int count) {
+    return 'اعرض $count';
+  }
+
+  @override
+  String txChipNoCategoryCount(int count) {
+    return 'بدون فئة · $count';
+  }
+
+  @override
+  String get txnTitle => 'العملية';
+
+  @override
+  String get txnChangeCategory => 'تغيير الفئة';
+
+  @override
+  String get txnCard => 'البطاقة';
+
+  @override
+  String get txnSource => 'المصدر';
+
+  @override
+  String get txnLinkedBill => 'فاتورة مرتبطة';
+
+  @override
+  String get txnNone => 'لا يوجد';
+
+  @override
+  String get txnNote => 'ملاحظة';
+
+  @override
+  String get txnAddNote => 'أضف ملاحظة';
+
+  @override
+  String get txnOriginal => 'الرسالة الأصلية';
+
+  @override
+  String get txnReport => 'الإبلاغ عن خطأ في القراءة';
+
+  @override
+  String get txnSourceSms => 'رسالة البنك';
+
+  @override
+  String get txnSourceManual => 'أضيفت يدويًا';
+
+  @override
+  String get txnSourceAi => 'قرأها الذكاء الاصطناعي';
+
+  @override
+  String get txnSourceCsv => 'كشف الحساب';
+
+  @override
+  String get txnNoCategory => 'بدون فئة';
+
+  @override
+  String get txnNoteFailed => 'تعذّر حفظ الملاحظة. حاول مرة أخرى.';
+
+  @override
+  String get txnMessageGone => 'الرسالة لم تعد محفوظة.';
+
+  @override
+  String get qaAmountLabel => 'المبلغ';
+
+  @override
+  String get qaMerchantLabel => 'التاجر';
+
+  @override
+  String get qaMerchantHint => 'أين دفعت';
+
+  @override
+  String get qaCategory => 'الفئة';
+
+  @override
+  String get qaDate => 'التاريخ';
+
+  @override
+  String get qaTime => 'الوقت';
+
+  @override
+  String get qaPaidWith => 'دُفع بواسطة';
+
+  @override
+  String get qaNote => 'ملاحظة';
+
+  @override
+  String get qaOptional => 'اختياري';
+
+  @override
+  String get qaChoose => 'اختر';
+
+  @override
+  String get qaNotSet => 'غير محدد';
+
+  @override
+  String get txEmptyMonth => 'لا شيء بعد هذا الشهر';
 }

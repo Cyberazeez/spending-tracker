@@ -369,9 +369,57 @@ class FakeDataRepository implements DataRepository {
       }
       if (filter.hideInternal && t.isInternal) return false;
       if (filter.aiOnly && t.categorySource != 'ai') return false;
+      final ids = filter.categoryIds;
+      if (ids != null &&
+          !filter.uncategorizedOnly &&
+          !ids.contains(t.categoryId)) {
+        return false;
+      }
+      if (filter.accountLast4 != null &&
+          t.accountLast4 != filter.accountLast4 &&
+          t.cardLast4 != filter.accountLast4) {
+        return false;
+      }
       return true;
     }).toList();
   }
+
+  final notes = <String, String>{};
+  final rawBodies = <String, String>{};
+
+  @override
+  Future<int> countTransactions(TxFilter filter) async =>
+      (await recentTransactions(filter: filter)).length;
+
+  @override
+  Future<void> setNote(String txnId, String note) async {
+    notes[txnId] = note;
+    txns = [
+      for (final t in txns)
+        t.id == txnId
+            ? Txn(
+                id: t.id,
+                type: t.type,
+                direction: t.direction,
+                amountHalalas: t.amountHalalas,
+                occurredAt: t.occurredAt,
+                merchant: t.merchant,
+                merchantNorm: t.merchantNorm,
+                categoryId: t.categoryId,
+                categorySource: t.categorySource,
+                bank: t.bank,
+                accountLast4: t.accountLast4,
+                cardLast4: t.cardLast4,
+                note: note,
+                source: t.source,
+                rawMessageId: t.rawMessageId,
+              )
+            : t,
+    ];
+  }
+
+  @override
+  Future<String?> rawMessageBody(String rawId) async => rawBodies[rawId];
 
   @override
   Future<void> deleteTransaction(String id) async {

@@ -17,7 +17,7 @@ class QuickAddPage extends ConsumerWidget {
     final t = AppLocalizations.of(context);
     return CupertinoPageScaffold(
       backgroundColor: AppTokens.bg.resolveFrom(context),
-      navigationBar: appNavBar(context, t.quickAdd),
+      navigationBar: appNavBar(context, t.homeAddTx),
       child: SafeArea(
         child: ManualTxnForm(
           onSave: (txn) async {

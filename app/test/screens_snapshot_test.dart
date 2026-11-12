@@ -100,7 +100,7 @@ Future<void> _save(WidgetTester t, String name) async {
 }
 
 /// Sub-screens and sheets of the Activity tab (rebrand stage 2).
-const _activityScreens = ['quickadd', 'review', 'category', 'filter'];
+const _activityScreens = ['quickadd', 'review', 'category', 'filter', 'txn'];
 
 void main() {
   setUpAll(() async {
@@ -183,8 +183,14 @@ void main() {
               GoRouter.of(ctx).push(reviewPath);
             case 'category':
               await t.tap(find.text('Online order'));
+              await t.pumpAndSettle();
+              await t.tap(
+                find.text(lang == 'en' ? 'Change category' : 'تغيير الفئة'),
+              );
             case 'filter':
               await t.tap(find.byIcon(LucideIcons.listFilter));
+            case 'txn':
+              await t.tap(find.text('Coffee').first);
           }
           await t.pumpAndSettle();
           await _save(t, '${lang}_${mode.name}_activity_$screen');

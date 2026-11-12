@@ -292,7 +292,7 @@ void main() {
       Color? fillOf(String label) => t
           .widgetList<DecoratedBox>(
             find.ancestor(
-              of: find.text(label),
+              of: find.textContaining(label),
               matching: find.byType(DecoratedBox),
             ),
           )
@@ -302,8 +302,8 @@ void main() {
           .color;
 
       expect(_v(fillOf('No category')), 0xFFFFC93C);
-      expect(_v(fillOf('All')), 0xFF00A86B);
-      await t.tap(find.text('No category'));
+      expect(_v(fillOf('This month')), 0xFF00A86B); // the period chip
+      await t.tap(find.textContaining('No category'));
       await t.pumpAndSettle();
       expect(_v(fillOf('No category')), 0xFF00A86B);
     },

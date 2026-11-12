@@ -133,14 +133,13 @@ class _CategorySheetState extends State<_CategorySheet> {
 
     Widget heading(String s) => SliverToBoxAdapter(
       child: Padding(
-        padding: const EdgeInsetsDirectional.fromSTEB(20, 16, 20, 8),
+        padding: const EdgeInsetsDirectional.fromSTEB(20, 14, 20, 8),
         child: Text(
           s,
           style: TextStyle(
             color: muted,
-            fontSize: 12,
+            fontSize: 14,
             fontWeight: FontWeight.w600,
-            letterSpacing: 0.4,
           ),
         ),
       ),
@@ -150,9 +149,9 @@ class _CategorySheetState extends State<_CategorySheet> {
       padding: const EdgeInsets.symmetric(horizontal: 20),
       sliver: SliverGrid(
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3,
+          crossAxisCount: 4,
           mainAxisSpacing: 10,
-          crossAxisSpacing: 10,
+          crossAxisSpacing: 8,
           mainAxisExtent: 74 + 2 * 13 * 1.25 * scale,
         ),
         delegate: SliverChildBuilderDelegate((ctx, i) {
@@ -286,15 +285,43 @@ class _CategorySheetState extends State<_CategorySheet> {
                       )
                     : CustomScrollView(
                         slivers: [
+                          // Suggestions as chips (the first one gold), then every category in one grid,
+                          // in Home's group order.
                           if (suggested.isNotEmpty) ...[
-                            heading(t.categorySuggested.toUpperCase()),
-                            grid(suggested),
+                            heading(t.categorySuggested),
+                            SliverToBoxAdapter(
+                              child: Padding(
+                                padding: const EdgeInsets.fromLTRB(
+                                  20,
+                                  0,
+                                  20,
+                                  8,
+                                ),
+                                child: Wrap(
+                                  spacing: 8,
+                                  runSpacing: 8,
+                                  children: [
+                                    for (var i = 0; i < suggested.length; i++)
+                                      _SuggestChip(
+                                        label: suggested[i].label(
+                                          arabic: widget.arabic,
+                                        ),
+                                        first: i == 0,
+                                        onTap: () => Navigator.pop(
+                                          context,
+                                          suggested[i].id,
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            ),
                           ],
-                          for (final g in CategoryGroup.values)
-                            if (byGroup[g] != null) ...[
-                              heading(groupLabel(t, g).toUpperCase()),
-                              grid(byGroup[g]!),
-                            ],
+                          const SliverToBoxAdapter(child: SizedBox(height: 6)),
+                          grid([
+                            for (final g in CategoryGroup.values)
+                              ...?byGroup[g],
+                          ]),
                           const SliverToBoxAdapter(child: SizedBox(height: 16)),
                         ],
                       ),
@@ -424,4 +451,52 @@ class _Tile extends StatelessWidget {
       ),
     );
   }
+}
+
+/// A suggested category as a chip: the first (best) one gold, the others white.
+class _SuggestChip extends StatelessWidget {
+  const _SuggestChip({
+    required this.label,
+    required this.first,
+    required this.onTap,
+  });
+  final String label;
+  final bool first;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    button: true,
+    label: label,
+    excludeSemantics: true,
+    child: CupertinoButton(
+      padding: EdgeInsets.zero,
+      minimumSize: const Size(44, 44),
+      pressedOpacity: 1,
+      onPressed: onTap,
+      child: PressShadow(
+        decoration: BoxDecoration(
+          color: first
+              ? AppTokens.gold.resolveFrom(context)
+              : AppTokens.card.resolveFrom(context),
+          borderRadius: BorderRadius.circular(20),
+          border: outlineOf(context, width: AppTokens.outlineThin),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+          child: Text(
+            label,
+            style: TextStyle(
+              color: first
+                  ? AppTokens.onTint.resolveFrom(context)
+                  : AppTokens.text.resolveFrom(context),
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              decoration: TextDecoration.none,
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
 }

@@ -15,7 +15,8 @@ import 'providers.dart';
 
 /// Lets the owner choose a category for one transaction. If other transactions share the merchant, asks whether
 /// to change them too and remembers the choice as a rule for future ones.
-Future<void> pickCategory(
+/// Picks and saves a category. Returns the category id now saved (`''` when removed), or null when nothing changed.
+Future<String?> pickCategory(
   BuildContext context,
   WidgetRef ref,
   Txn txn,
@@ -52,12 +53,14 @@ Future<void> pickCategory(
     suggestedIds: suggestedIds,
     removeLabel: txn.categoryId != null ? t.categoryRemove : null,
   );
-  if (picked == null || !context.mounted) return;
-  if (picked == txn.categoryId) return;
+  if (picked == null || !context.mounted) return null;
+  if (picked == txn.categoryId) return null;
+  String? saved;
 
   try {
     if (picked.isEmpty) {
       await repo.setCategory(txn.id, null);
+      saved = '';
     } else {
       var remember = false;
       var alsoPast = false;
@@ -77,7 +80,7 @@ Future<void> pickCategory(
             confirmLabel: t.applyPastYes,
             cancelLabel: t.applyPastNo,
           );
-          if (choice == null) return; // dismissed: do nothing
+          if (choice == null) return null; // dismissed: do nothing
           alsoPast = choice;
         }
       }
@@ -87,6 +90,7 @@ Future<void> pickCategory(
         rememberFor: remember ? norm : null,
         alsoPast: alsoPast,
       );
+      saved = picked;
     }
   } catch (_) {
     if (context.mounted) {
@@ -95,6 +99,7 @@ Future<void> pickCategory(
   } finally {
     if (context.mounted) ref.invalidate(transactionsProvider);
   }
+  return saved;
 }
 
 Future<void> showFilterSheet(BuildContext context, WidgetRef ref) async {

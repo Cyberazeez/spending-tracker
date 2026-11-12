@@ -19,14 +19,15 @@ import '../../ui/app_form.dart';
 import '../../ui/bottom_inset.dart';
 import '../../ui/empty_state.dart';
 import '../../ui/header_button.dart';
+import '../../ui/press.dart';
 import '../../ui/skeleton.dart';
 import '../../ui/swipe_action.dart';
 import '../../ui/tokens.dart';
 import '../ai/widgets/suggest_categories_card.dart';
 import '../obligations/logic.dart' show riyadhToday;
-import 'category_actions.dart';
 import 'day_groups.dart';
 import 'providers.dart';
+import 'filter_sheet.dart';
 import 'txn_delete.dart';
 import 'widgets/filter_chips.dart';
 import 'widgets/txn_row.dart';
@@ -41,7 +42,6 @@ class TransactionsPage extends ConsumerWidget {
     final filter = ref.watch(txFilterProvider);
     final txns = ref.watch(transactionsProvider);
     final cats = ref.watch(categoriesProvider).value ?? const <Category>[];
-    final reviewCount = ref.watch(reviewCountProvider);
     final byId = {for (final c in cats) c.id: c};
     final today = riyadhToday(ref.watch(clockProvider)());
 
@@ -54,158 +54,221 @@ class TransactionsPage extends ConsumerWidget {
 
     return CupertinoPageScaffold(
       backgroundColor: AppTokens.bg.resolveFrom(context),
-      child: CustomScrollView(
-        physics: const BouncingScrollPhysics(
-          parent: AlwaysScrollableScrollPhysics(),
-        ),
-        slivers: [
-          CupertinoSliverNavigationBar(
-            largeTitle: Text(t.txTitle),
-            backgroundColor: AppTokens.bg.resolveFrom(context),
-            border: null,
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                HeaderIconButton(
-                  onPressed: () => showFilterSheet(context, ref),
-                  fill:
-                      filter.categoryId != null ||
-                          filter.uncategorizedOnly ||
-                          filter.hideInternal
-                      ? AppTokens.accent.resolveFrom(context)
-                      : AppTokens.card.resolveFrom(context),
-                  radius: 14,
-                  icon: LucideIcons.listFilter,
-                  iconColor:
-                      filter.categoryId != null ||
-                          filter.uncategorizedOnly ||
-                          filter.hideInternal
-                      ? AppTokens.onAccent.resolveFrom(context)
-                      : AppTokens.text.resolveFrom(context),
-                  semanticLabel: t.filterTitle,
-                ),
-                const SizedBox(width: 8),
-                HeaderIconButton(
-                  onPressed: () => context.push(quickAddPath),
-                  fill: AppTokens.gold.resolveFrom(context),
-                  radius: 22,
-                  icon: LucideIcons.plus,
-                  iconColor: AppTokens.onTint.resolveFrom(context),
-                  semanticLabel: t.homeAddTx,
-                ),
-              ],
+      child: Stack(
+        children: [
+          CustomScrollView(
+            physics: const BouncingScrollPhysics(
+              parent: AlwaysScrollableScrollPhysics(),
             ),
-          ),
-          CupertinoSliverRefreshControl(
-            onRefresh: () async {
-              ref.invalidate(transactionsProvider);
-              ref.invalidate(needsReviewProvider);
-              ref.invalidate(aiReadProvider);
-              ref.invalidate(categoriesProvider);
-              await Future.wait([
-                ref
-                    .read(transactionsProvider.future)
-                    .catchError((_) => <Txn>[]),
-                ref
-                    .read(needsReviewProvider.future)
-                    .catchError((_) => <RawMessage>[]),
-              ]);
-            },
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const _SearchBox(),
-                  const SizedBox(height: 8),
-                  FilterChips(
-                    reviewCount: reviewCount,
-                    onReview: () => context.push(reviewPath),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          ...txns.when(
-            loading: () => [
-              const SkeletonSliver(heights: [150, 200, 150]),
-            ],
-            error: (_, _) => [
-              SliverFillRemaining(
-                hasScrollBody: false,
-                child: LoadFailedCard(
-                  onRetry: () => ref.invalidate(transactionsProvider),
-                ),
-              ),
-            ],
-            data: (list) => list.isEmpty
-                ? [
-                    SliverFillRemaining(
-                      hasScrollBody: false,
-                      child: filter.isActive
-                          ? EmptyState(
-                              icon: CupertinoIcons.search,
-                              title: t.noMatches,
-                              action: CupertinoButton(
-                                onPressed: () =>
-                                    ref.read(txFilterProvider.notifier).clear(),
-                                child: Text(t.filterClear),
-                              ),
-                            )
-                          : EmptyState(
-                              icon: CupertinoIcons.tray,
-                              title: t.txEmptyTitle,
-                              body: t.txEmptyBody,
-                              action: PrimaryButton(
-                                label: t.quickAdd,
-                                onPressed: () => context.push(quickAddPath),
-                              ),
-                            ),
-                    ),
-                  ]
-                : [
-                    SliverToBoxAdapter(
-                      child: SuggestCategoriesCard(
-                        uncategorized:
-                            ref.watch(uncategorizedCountProvider).value ?? 0,
-                      ),
-                    ),
-                    Builder(
-                      builder: (_) {
-                        final groups = groupByDay(
-                          list,
-                          excludedCategories: {
-                            for (final c in cats)
-                              if (c.excludedFromSpend) c.id,
-                          },
-                        );
-                        return SliverPadding(
-                          padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-                          sliver: SliverList.builder(
-                            itemCount: groups.length,
-                            itemBuilder: (_, i) => _DayBlock(
-                              label: dayLabel(groups[i].day),
-                              group: groups[i],
-                              arabic: arabic,
-                              byId: byId,
-                              onPick: (txn) =>
-                                  pickCategory(context, ref, txn, cats),
-                              onDelete: (txn) =>
-                                  confirmAndDeleteTxn(context, ref, txn),
-                            ),
-                          ),
-                        );
-                      },
+            slivers: [
+              CupertinoSliverNavigationBar(
+                largeTitle: Text(t.txTitle),
+                backgroundColor: AppTokens.bg.resolveFrom(context),
+                border: null,
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    HeaderIconButton(
+                      onPressed: () => showTxFilterSheet(context, ref),
+                      fill: filter.isActive
+                          ? AppTokens.accent.resolveFrom(context)
+                          : AppTokens.card.resolveFrom(context),
+                      radius: 14,
+                      icon: LucideIcons.listFilter,
+                      iconColor: filter.isActive
+                          ? AppTokens.onAccent.resolveFrom(context)
+                          : AppTokens.text.resolveFrom(context),
+                      semanticLabel: t.filterTitle,
                     ),
                   ],
+                ),
+              ),
+              CupertinoSliverRefreshControl(
+                onRefresh: () async {
+                  ref.invalidate(transactionsProvider);
+                  ref.invalidate(needsReviewProvider);
+                  ref.invalidate(aiReadProvider);
+                  ref.invalidate(categoriesProvider);
+                  await Future.wait([
+                    ref
+                        .read(transactionsProvider.future)
+                        .catchError((_) => <Txn>[]),
+                    ref
+                        .read(needsReviewProvider.future)
+                        .catchError((_) => <RawMessage>[]),
+                  ]);
+                },
+              ),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const _SearchBox(),
+                      const SizedBox(height: 8),
+                      FilterChips(
+                        onOpenFilter: () => showTxFilterSheet(context, ref),
+                        reviewCount: ref.watch(reviewCountProvider),
+                        onReview: () => context.push(reviewPath),
+                        showAi:
+                            txns.value?.any((x) => x.categorySource == 'ai') ??
+                            false,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              ...txns.when(
+                loading: () => [
+                  const SkeletonSliver(heights: [150, 200, 150]),
+                ],
+                error: (_, _) => [
+                  SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: LoadFailedCard(
+                      onRetry: () => ref.invalidate(transactionsProvider),
+                    ),
+                  ),
+                ],
+                data: (list) => list.isEmpty
+                    ? [
+                        SliverFillRemaining(
+                          hasScrollBody: false,
+                          child:
+                              !filter.isActive &&
+                                  (ref.watch(anyTransactionsProvider).value ??
+                                      false)
+                              // An empty month for an account that has older rows: offer last month.
+                              ? EmptyState(
+                                  icon: CupertinoIcons.calendar,
+                                  title: t.txEmptyMonth,
+                                  action: SecondaryButton(
+                                    label: t.filterLastMonth,
+                                    onPressed: () => ref
+                                        .read(txFilterProvider.notifier)
+                                        .set(
+                                          filter.copyWith(
+                                            period: TxPeriod.lastMonth,
+                                          ),
+                                        ),
+                                  ),
+                                )
+                              : filter.isActive
+                              ? EmptyState(
+                                  icon: CupertinoIcons.search,
+                                  title: t.noMatches,
+                                  action: CupertinoButton(
+                                    onPressed: () => ref
+                                        .read(txFilterProvider.notifier)
+                                        .clear(),
+                                    child: Text(t.filterClear),
+                                  ),
+                                )
+                              : EmptyState(
+                                  icon: CupertinoIcons.tray,
+                                  title: t.txEmptyTitle,
+                                  body: t.txEmptyBody,
+                                  action: PrimaryButton(
+                                    label: t.quickAdd,
+                                    onPressed: () => context.push(quickAddPath),
+                                  ),
+                                ),
+                        ),
+                      ]
+                    : [
+                        SliverToBoxAdapter(
+                          child: SuggestCategoriesCard(
+                            uncategorized:
+                                ref.watch(uncategorizedCountProvider).value ??
+                                0,
+                          ),
+                        ),
+                        Builder(
+                          builder: (_) {
+                            final groups = groupByDay(
+                              list,
+                              excludedCategories: {
+                                for (final c in cats)
+                                  if (c.excludedFromSpend) c.id,
+                              },
+                            );
+                            return SliverPadding(
+                              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                              sliver: SliverList.builder(
+                                itemCount: groups.length,
+                                itemBuilder: (_, i) => _DayBlock(
+                                  label: dayLabel(groups[i].day),
+                                  group: groups[i],
+                                  arabic: arabic,
+                                  byId: byId,
+                                  // A row opens its details (category, note, SMS, delete).
+                                  onPick: (txn) =>
+                                      context.push(txnPath, extra: txn),
+                                  onDelete: (txn) =>
+                                      confirmAndDeleteTxn(context, ref, txn),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+              ),
+              const BottomInset(),
+              // Room for the floating add button over the last row.
+              const SliverToBoxAdapter(child: SizedBox(height: 64)),
+            ],
           ),
-          const BottomInset(),
+          // Add a transaction: the gold round button in the corner above the tab bar.
+          PositionedDirectional(
+            end: 20,
+            bottom: MediaQuery.paddingOf(context).bottom + 12,
+            child: _AddButton(
+              label: t.homeAddTx,
+              onTap: () => context.push(quickAddPath),
+            ),
+          ),
         ],
       ),
     );
   }
+}
+
+class _AddButton extends StatelessWidget {
+  const _AddButton({required this.label, required this.onTap});
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    button: true,
+    label: label,
+    excludeSemantics: true,
+    child: CupertinoButton(
+      key: const ValueKey('add-fab'),
+      padding: EdgeInsets.zero,
+      minimumSize: const Size(64, 64),
+      pressedOpacity: 1,
+      onPressed: onTap,
+      child: PressShadow(
+        offset: const Offset(4, 5),
+        decoration: BoxDecoration(
+          color: AppTokens.gold.resolveFrom(context),
+          shape: BoxShape.circle,
+          border: outlineOf(context),
+        ),
+        child: SizedBox(
+          width: 60,
+          height: 60,
+          child: Icon(
+            LucideIcons.plus,
+            size: 28,
+            color: AppTokens.onTint.resolveFrom(context),
+          ),
+        ),
+      ),
+    ),
+  );
 }
 
 class _DayBlock extends StatelessWidget {

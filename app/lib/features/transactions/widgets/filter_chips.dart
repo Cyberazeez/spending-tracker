@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/models.dart';
-import '../../../core/providers.dart';
+import '../../../core/format.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/tokens.dart';
 import '../providers.dart';
@@ -26,79 +26,80 @@ TxFilter quickFilter(TxFilter f, QuickFilter chip) {
   );
 }
 
-/// Quick filters under the search box. They drive the same [txFilterProvider] as the filter sheet.
-/// [reviewCount] > 0 adds a chip that opens the inbox of messages that could not be read.
+/// The chips under the search box: the period and the account (tap: the filter sheet), "No category · N" (a quick
+/// switch) and, when some rows were categorised by the AI, "AI suggested". They drive the same [txFilterProvider]
+/// as the filter sheet.
 class FilterChips extends ConsumerWidget {
   const FilterChips({
     super.key,
-    required this.reviewCount,
-    required this.onReview,
+    required this.onOpenFilter,
+    this.showAi = false,
+    this.reviewCount = 0,
+    this.onReview,
   });
 
+  final VoidCallback onOpenFilter;
+
+  /// Messages waiting in Needs review: a gold "N to review" chip that opens it (only while something waits).
   final int reviewCount;
-  final VoidCallback onReview;
+  final VoidCallback? onReview;
+
+  /// Offer the "AI suggested" chip (some rows were categorised by the AI, or the chip is on).
+  final bool showAi;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = AppLocalizations.of(context);
     final f = ref.watch(txFilterProvider);
     final ctl = ref.read(txFilterProvider.notifier);
-    final arabic = ref.watch(localeProvider).languageCode == 'ar';
-    final cats = ref.watch(categoriesProvider).value ?? const [];
-    final picked = f.categoryId == null
-        ? null
-        : cats.where((c) => c.id == f.categoryId).firstOrNull;
-    final onlyBase =
-        f.categoryId == null &&
-        !f.uncategorizedOnly &&
-        !f.hideInternal &&
-        !f.aiOnly;
+    final uncategorized = ref.watch(uncategorizedCountProvider).value ?? 0;
+    final period = switch (f.period) {
+      TxPeriod.thisMonth => t.filterThisMonth,
+      TxPeriod.lastMonth => t.filterLastMonth,
+      TxPeriod.all => t.filterAllTime,
+      TxPeriod.custom =>
+        f.from == null || f.to == null
+            ? t.filterCustom
+            : '${formatDay(f.from!)} – ${formatDay(f.to!)}',
+    };
     return Wrap(
       spacing: 8,
       runSpacing: 4,
       children: [
         _Chip(
-          label: t.txChipAll,
-          selected: onlyBase,
-          onTap: () => ctl.set(
-            f.copyWith(
-              categoryId: null,
-              uncategorizedOnly: false,
-              hideInternal: false,
-              aiOnly: false,
-            ),
-          ),
+          key: const ValueKey('chip-period'),
+          label: period,
+          selected: true,
+          onTap: onOpenFilter,
         ),
-        if (picked != null)
-          _Chip(
-            label: picked.label(arabic: arabic),
-            selected: true,
-            onTap: () => ctl.set(f.copyWith(categoryId: null)),
-          ),
-        // The three quick filters are one choice: picking one clears the others (No category and AI suggested can
-        // never match together, and a stack of filters is hard to read). Tapping the chosen one goes back to All.
         _Chip(
-          label: t.txChipNoCategory,
+          key: const ValueKey('chip-account'),
+          label: f.accountLast4 == null
+              ? t.txChipAllBanks
+              : '•••• ${f.accountLast4}',
+          selected: f.accountLast4 != null,
+          onTap: onOpenFilter,
+        ),
+        _Chip(
+          label: uncategorized > 0
+              ? t.txChipNoCategoryCount(uncategorized)
+              : t.txChipNoCategory,
           warn: true,
           selected: f.uncategorizedOnly,
           onTap: () => ctl.set(quickFilter(f, QuickFilter.noCategory)),
         ),
-        _Chip(
-          label: t.txChipAi,
-          selected: f.aiOnly,
-          onTap: () => ctl.set(quickFilter(f, QuickFilter.ai)),
-        ),
-        _Chip(
-          label: t.txChipHideInternal,
-          selected: f.hideInternal,
-          onTap: () => ctl.set(quickFilter(f, QuickFilter.hideInternal)),
-        ),
-        if (reviewCount > 0 && onlyBase)
+        if (showAi || f.aiOnly)
+          _Chip(
+            label: t.txChipAi,
+            selected: f.aiOnly,
+            onTap: () => ctl.set(quickFilter(f, QuickFilter.ai)),
+          ),
+        if (reviewCount > 0 && onReview != null)
           _Chip(
             label: t.homeToReview(reviewCount),
             warn: true,
             selected: false,
-            onTap: onReview,
+            onTap: onReview!,
           ),
       ],
     );
@@ -107,6 +108,7 @@ class FilterChips extends ConsumerWidget {
 
 class _Chip extends StatelessWidget {
   const _Chip({
+    super.key,
     required this.label,
     required this.selected,
     required this.onTap,
