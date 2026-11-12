@@ -261,6 +261,8 @@ void main() {
     // 3x: the old fixed 32 pt circle leaves 28 pt inside its outline, less than the digit.
     expect(digit.height, greaterThan(28));
     // Room for the digit inside the 2 pt outline on each side.
-    expect(circle.height - 4, greaterThanOrEqualTo(digit.height));
+    // The circle is as wide as it is tall and leaves room for the digit inside the 2 pt outline.
+    expect(circle.width, circle.height);
+    expect(circle.shortestSide - 4, greaterThanOrEqualTo(digit.height));
   });
 }

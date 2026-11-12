@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/cupertino.dart';
 
 import '../../../ui/trailing_box.dart';
@@ -494,24 +496,31 @@ class RankCircle extends StatelessWidget {
   final int n;
 
   @override
-  Widget build(BuildContext context) => Container(
-    key: const ValueKey('insights-rank'),
-    // At least 32 pt, and it grows with large text so the digit is never clipped by the outline.
-    constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-    padding: const EdgeInsets.all(4),
-    alignment: Alignment.center,
-    decoration: BoxDecoration(
-      color: AppTokens.bar.resolveFrom(context),
-      shape: BoxShape.circle,
-      border: outlineOf(context, width: AppTokens.outlineThin),
-    ),
-    child: Text(
-      '$n',
-      style: TextStyle(
-        color: AppTokens.text.resolveFrom(context),
-        fontSize: 13,
-        fontWeight: FontWeight.w700,
+  Widget build(BuildContext context) {
+    // A square that grows with the text (line height about 1.3 plus the 2 pt outline and a little air), so the
+    // circle is never narrower than the digit is tall.
+    final side = math.max(
+      32.0,
+      MediaQuery.textScalerOf(context).scale(13) * 1.3 + 8,
+    );
+    return Container(
+      key: const ValueKey('insights-rank'),
+      width: side,
+      height: side,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: AppTokens.bar.resolveFrom(context),
+        shape: BoxShape.circle,
+        border: outlineOf(context, width: AppTokens.outlineThin),
       ),
-    ),
-  );
+      child: Text(
+        '$n',
+        style: TextStyle(
+          color: AppTokens.text.resolveFrom(context),
+          fontSize: 13,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
+  }
 }
