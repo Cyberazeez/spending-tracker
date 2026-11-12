@@ -11,6 +11,7 @@ import 'features/auth/reset_password_page.dart';
 import 'features/auth/signup_page.dart';
 import 'features/auth/lock_page.dart';
 import 'features/more/capture_page.dart';
+import 'features/obligations/add_bill_page.dart';
 import 'features/obligations/obligation_form_page.dart';
 import 'features/account/account_pages.dart';
 import 'features/account/delete_account_page.dart';
@@ -40,6 +41,9 @@ const txnPath = '/home/txn';
 const reviewPath = '/home/review';
 const capturePath = '/home/capture';
 const obligationFormPath = '/home/obligation';
+
+/// "Add a bill": the starting-point tiles before the form.
+const addBillPath = '/home/add-bill';
 const aiChatPath = '/home/ai-chat';
 
 /// Back from a sub-screen: pops it (animated, same as the swipe), or goes Home if it was opened directly.
@@ -184,10 +188,18 @@ final routerProvider = Provider<GoRouter>((ref) {
             pageBuilder: (_, state) => _page(state, const AiChatPage()),
           ),
           GoRoute(
+            path: 'add-bill',
+            pageBuilder: (_, state) => _page(state, const AddBillPage()),
+          ),
+          GoRoute(
             path: 'obligation',
             pageBuilder: (_, state) => _page(
               state,
-              ObligationFormPage(obligationId: state.uri.queryParameters['id']),
+              ObligationFormPage(
+                obligationId: state.uri.queryParameters['id'],
+                startKind: state.uri.queryParameters['kind'],
+                startName: state.uri.queryParameters['name'],
+              ),
             ),
           ),
         ],

@@ -433,7 +433,7 @@ class SupabaseDataRepository implements DataRepository {
     final row = await _db
         .from('obligations')
         .select(
-          'id, name, kind, amount_type, expected_amount_halalas, frequency, due_rule, lead_days, category_id, match',
+          'id, name, kind, amount_type, expected_amount_halalas, frequency, due_rule, lead_days, category_id, match, active',
         )
         .eq('id', id)
         .single();

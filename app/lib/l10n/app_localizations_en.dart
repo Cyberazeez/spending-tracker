@@ -1693,4 +1693,104 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get txEmptyMonth => 'Nothing yet this month';
+
+  @override
+  String get addBillTitle => 'Add a bill';
+
+  @override
+  String get addBillIntro =>
+      'Pick a starting point. You can change everything later.';
+
+  @override
+  String get addBillBill => 'Bill';
+
+  @override
+  String get addBillBillHint => 'Electricity, mobile, internet';
+
+  @override
+  String get addBillFixed => 'Fixed cost';
+
+  @override
+  String get addBillFixedHint => 'Rent, stable, school';
+
+  @override
+  String get addBillLoan => 'Loan';
+
+  @override
+  String get addBillLoanHint => 'Same amount each month';
+
+  @override
+  String get addBillCard => 'Card statement';
+
+  @override
+  String get addBillCardHint => 'Amount arrives by SMS';
+
+  @override
+  String get addBillScratch => 'Start from scratch';
+
+  @override
+  String bsDaysLate(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n days late',
+      one: '1 day late',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get bsEveryMonth => 'Every month';
+
+  @override
+  String get bsRemindMe => 'Remind me';
+
+  @override
+  String get bsRemindOnDay => 'On the day';
+
+  @override
+  String bsRemindDays(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n days before',
+      one: '1 day before',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get bsActive => 'Active';
+
+  @override
+  String get bsSkipMonth => 'Skip this month';
+
+  @override
+  String get bsStopBill => 'Stop this bill';
+
+  @override
+  String bsPaidTitle(String name) {
+    return 'Mark $name as paid?';
+  }
+
+  @override
+  String bsPaidMatch(String amount, String date) {
+    return 'A payment of $amount on $date looks like this bill.';
+  }
+
+  @override
+  String bsPaidMatchNoDate(String amount) {
+    return 'A payment of $amount looks like this bill.';
+  }
+
+  @override
+  String bsPaidPlain(String amount, String date) {
+    return '$amount due $date.';
+  }
+
+  @override
+  String get bsYesPaid => 'Yes, mark as paid';
+
+  @override
+  String get bsNotThis => 'Not this payment';
 }

@@ -1684,4 +1684,103 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get txEmptyMonth => 'لا شيء بعد هذا الشهر';
+
+  @override
+  String get addBillTitle => 'أضف فاتورة';
+
+  @override
+  String get addBillIntro => 'اختر نقطة بداية. يمكنك تغيير كل شيء لاحقًا.';
+
+  @override
+  String get addBillBill => 'فاتورة';
+
+  @override
+  String get addBillBillHint => 'كهرباء، جوال، إنترنت';
+
+  @override
+  String get addBillFixed => 'تكلفة ثابتة';
+
+  @override
+  String get addBillFixedHint => 'إيجار، إسطبل، مدرسة';
+
+  @override
+  String get addBillLoan => 'قرض';
+
+  @override
+  String get addBillLoanHint => 'نفس المبلغ كل شهر';
+
+  @override
+  String get addBillCard => 'كشف البطاقة';
+
+  @override
+  String get addBillCardHint => 'يصل المبلغ برسالة';
+
+  @override
+  String get addBillScratch => 'ابدأ من الصفر';
+
+  @override
+  String bsDaysLate(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'متأخر $n أيام',
+      one: 'متأخر يومًا واحدًا',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get bsEveryMonth => 'كل شهر';
+
+  @override
+  String get bsRemindMe => 'ذكّرني';
+
+  @override
+  String get bsRemindOnDay => 'في يوم الاستحقاق';
+
+  @override
+  String bsRemindDays(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'قبل $n أيام',
+      one: 'قبل يوم',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get bsActive => 'نشطة';
+
+  @override
+  String get bsSkipMonth => 'تخطَّ هذا الشهر';
+
+  @override
+  String get bsStopBill => 'أوقف هذه الفاتورة';
+
+  @override
+  String bsPaidTitle(String name) {
+    return 'هل تسجّل $name كمدفوعة؟';
+  }
+
+  @override
+  String bsPaidMatch(String amount, String date) {
+    return 'دفعة بقيمة $amount في $date تبدو أنها هذه الفاتورة.';
+  }
+
+  @override
+  String bsPaidMatchNoDate(String amount) {
+    return 'دفعة بقيمة $amount تبدو أنها هذه الفاتورة.';
+  }
+
+  @override
+  String bsPaidPlain(String amount, String date) {
+    return '$amount مستحقة في $date.';
+  }
+
+  @override
+  String get bsYesPaid => 'نعم، سجّلها مدفوعة';
+
+  @override
+  String get bsNotThis => 'ليست هذه الدفعة';
 }

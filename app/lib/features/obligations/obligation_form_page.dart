@@ -28,9 +28,18 @@ import '../../ui/press.dart';
 
 /// Create ([obligationId] null) or edit one bill, fixed payment or loan by hand.
 class ObligationFormPage extends ConsumerStatefulWidget {
-  const ObligationFormPage({super.key, this.obligationId});
+  const ObligationFormPage({
+    super.key,
+    this.obligationId,
+    this.startKind,
+    this.startName,
+  });
 
   final String? obligationId;
+
+  /// A new one started from a tile of "Add a bill": its kind (bill, fixed, loan) and, for a card statement, a name.
+  final String? startKind;
+  final String? startName;
 
   @override
   ConsumerState<ObligationFormPage> createState() => _ObligationFormPageState();
@@ -61,6 +70,12 @@ class _ObligationFormPageState extends ConsumerState<ObligationFormPage> {
     final today = riyadhToday(ref.read(clockProvider)());
     _startMonth = today.month;
     _day = today.day;
+    if (const ['bill', 'fixed', 'loan'].contains(widget.startKind)) {
+      _kind = widget.startKind!;
+      // A bill's amount changes from month to month: estimated by default.
+      if (_kind == 'bill') _amountType = 'estimated';
+    }
+    if (widget.startName != null) _name.text = widget.startName!;
     if (widget.obligationId != null) {
       _loading = true;
       _load();

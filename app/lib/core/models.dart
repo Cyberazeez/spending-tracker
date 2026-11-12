@@ -307,6 +307,7 @@ class ObligationDef {
     this.merchantWords = const [],
     this.tolerancePct = 10,
     this.autoMerchant = false,
+    this.active = true,
   });
 
   final String? id;
@@ -323,6 +324,9 @@ class ObligationDef {
   final List<String> merchantWords;
   final int tolerancePct;
   final bool autoMerchant;
+
+  /// False once the bill was stopped. Not sent: saving always (re)activates on the server.
+  final bool active;
 
   factory ObligationDef.fromRow(Map<String, dynamic> r) {
     final rule = (r['due_rule'] as Map?)?.cast<String, dynamic>() ?? const {};
@@ -345,6 +349,7 @@ class ObligationDef {
       ],
       tolerancePct: n(match['tolerance_pct']) ?? 10,
       autoMerchant: (match['auto_merchant'] as bool?) ?? false,
+      active: (r['active'] as bool?) ?? true,
     );
   }
 

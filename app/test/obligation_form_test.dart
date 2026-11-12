@@ -32,8 +32,11 @@ Future<Harness> openBills(
   return h;
 }
 
+/// + opens "Add a bill" (the starting-point tiles); "Start from scratch" opens the empty form.
 Future<void> openForm(WidgetTester tester) async {
   await tester.tap(find.bySemanticsLabel('Add an obligation'));
+  await tester.pumpAndSettle();
+  await tester.tap(find.byKey(const ValueKey('add-bill-scratch')));
   await tester.pumpAndSettle();
 }
 
@@ -209,15 +212,14 @@ void main() {
     final h = await openBills(tester, list: [inst()]);
     await tester.tap(find.text('Gym'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Stop tracking'));
+    await tester.tap(find.byKey(const ValueKey('bill-stop')));
     await tester.pumpAndSettle();
     expect(find.textContaining('Paid history stays'), findsOneWidget);
     await tester.tap(find.text('Cancel'));
     await tester.pumpAndSettle();
     expect(h.data.stoppedObligations, isEmpty);
-    await tester.tap(find.text('Gym'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Stop tracking'));
+    // The bill's sheet is still open behind the question.
+    await tester.tap(find.byKey(const ValueKey('bill-stop')));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Stop tracking').last);
     await tester.pumpAndSettle();
@@ -228,9 +230,9 @@ void main() {
     await openBills(tester, list: [inst(kind: 'card_statement')]);
     await tester.tap(find.text('Gym'));
     await tester.pumpAndSettle();
-    expect(find.text('Edit amount'), findsOneWidget);
-    expect(find.text('Edit details'), findsNothing);
-    expect(find.text('Stop tracking'), findsNothing);
+    expect(find.byKey(const ValueKey('bill-amount')), findsOneWidget);
+    expect(find.byKey(const ValueKey('bill-edit')), findsNothing);
+    expect(find.byKey(const ValueKey('bill-stop')), findsNothing);
   });
 
   for (final lang in ['en', 'ar']) {
@@ -255,6 +257,17 @@ void main() {
           lang == 'en' ? 'Add an obligation' : 'إضافة التزام',
         ),
       );
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull); // the starting-point tiles
+      await tester.scrollUntilVisible(
+        find.byKey(const ValueKey('add-bill-scratch')),
+        200,
+        scrollable: find.byType(Scrollable).last,
+      );
+      expect(tester.takeException(), isNull);
+      await tester.drag(find.byType(Scrollable).last, const Offset(0, -300));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('add-bill-scratch')));
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
       final quarterly = find.text(

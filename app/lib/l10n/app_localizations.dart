@@ -3085,6 +3085,156 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Nothing yet this month'**
   String get txEmptyMonth;
+
+  /// No description provided for @addBillTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a bill'**
+  String get addBillTitle;
+
+  /// No description provided for @addBillIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a starting point. You can change everything later.'**
+  String get addBillIntro;
+
+  /// No description provided for @addBillBill.
+  ///
+  /// In en, this message translates to:
+  /// **'Bill'**
+  String get addBillBill;
+
+  /// No description provided for @addBillBillHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Electricity, mobile, internet'**
+  String get addBillBillHint;
+
+  /// No description provided for @addBillFixed.
+  ///
+  /// In en, this message translates to:
+  /// **'Fixed cost'**
+  String get addBillFixed;
+
+  /// No description provided for @addBillFixedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Rent, stable, school'**
+  String get addBillFixedHint;
+
+  /// No description provided for @addBillLoan.
+  ///
+  /// In en, this message translates to:
+  /// **'Loan'**
+  String get addBillLoan;
+
+  /// No description provided for @addBillLoanHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Same amount each month'**
+  String get addBillLoanHint;
+
+  /// No description provided for @addBillCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Card statement'**
+  String get addBillCard;
+
+  /// No description provided for @addBillCardHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount arrives by SMS'**
+  String get addBillCardHint;
+
+  /// No description provided for @addBillScratch.
+  ///
+  /// In en, this message translates to:
+  /// **'Start from scratch'**
+  String get addBillScratch;
+
+  /// No description provided for @bsDaysLate.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{1 day late} other{{n} days late}}'**
+  String bsDaysLate(int n);
+
+  /// No description provided for @bsEveryMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Every month'**
+  String get bsEveryMonth;
+
+  /// No description provided for @bsRemindMe.
+  ///
+  /// In en, this message translates to:
+  /// **'Remind me'**
+  String get bsRemindMe;
+
+  /// No description provided for @bsRemindOnDay.
+  ///
+  /// In en, this message translates to:
+  /// **'On the day'**
+  String get bsRemindOnDay;
+
+  /// No description provided for @bsRemindDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{1 day before} other{{n} days before}}'**
+  String bsRemindDays(int n);
+
+  /// No description provided for @bsActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get bsActive;
+
+  /// No description provided for @bsSkipMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip this month'**
+  String get bsSkipMonth;
+
+  /// No description provided for @bsStopBill.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop this bill'**
+  String get bsStopBill;
+
+  /// No description provided for @bsPaidTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark {name} as paid?'**
+  String bsPaidTitle(String name);
+
+  /// No description provided for @bsPaidMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'A payment of {amount} on {date} looks like this bill.'**
+  String bsPaidMatch(String amount, String date);
+
+  /// No description provided for @bsPaidMatchNoDate.
+  ///
+  /// In en, this message translates to:
+  /// **'A payment of {amount} looks like this bill.'**
+  String bsPaidMatchNoDate(String amount);
+
+  /// No description provided for @bsPaidPlain.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} due {date}.'**
+  String bsPaidPlain(String amount, String date);
+
+  /// No description provided for @bsYesPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes, mark as paid'**
+  String get bsYesPaid;
+
+  /// No description provided for @bsNotThis.
+  ///
+  /// In en, this message translates to:
+  /// **'Not this payment'**
+  String get bsNotThis;
 }
 
 class _AppLocalizationsDelegate
