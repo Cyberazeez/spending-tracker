@@ -573,7 +573,6 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
                                         ],
                                       ),
                                     ),
-                                    ForwardChevron(size: 16, color: muted),
                                   ],
                                 ),
                               ),
