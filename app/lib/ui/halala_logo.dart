@@ -67,11 +67,14 @@ class HalalaLogoPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = _stroke
       ..strokeJoin = StrokeJoin.round;
-    void inked(Offset at) {
-      final letters = _letters.shift(at);
+    void letters(Offset at) {
+      final path = _letters.shift(at);
       canvas
-        ..drawPath(letters, solid)
-        ..drawPath(letters, outline);
+        ..drawPath(path, solid)
+        ..drawPath(path, outline);
+    }
+
+    void coinsInk(Offset at) {
       for (final c in _coins) {
         canvas
           ..drawCircle(c + at, _coinRadius, solid)
@@ -79,9 +82,13 @@ class HalalaLogoPainter extends CustomPainter {
       }
     }
 
-    inked(_shadow); // the hard shadow
-    inked(Offset.zero); // the outline
+    // Same order as the SVG: shadow, letter outline, letter fill, coin outline, coin fill (so the coins stay on
+    // top when they move).
+    letters(_shadow);
+    coinsInk(_shadow);
+    letters(Offset.zero);
     canvas.drawPath(_letters, Paint()..color = fill);
+    coinsInk(Offset.zero);
     for (final c in _coins) {
       canvas.drawCircle(c, _coinRadius, Paint()..color = coin);
     }

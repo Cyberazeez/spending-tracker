@@ -297,7 +297,7 @@ class _AgreeRow extends ConsumerWidget {
       children: [
         Semantics(
           label: t.signUpAgreePrefix,
-          // Drawn larger than the native 14 pt box, like the mockup's 24 pt one.
+          // Drawn 1.4x the native 14 pt box (about 20 pt), closer to the mockup's 24 pt one.
           child: Transform.scale(
             scale: 1.4,
             child: CupertinoCheckbox(
