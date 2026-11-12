@@ -41,6 +41,6 @@
 - **Snapshots:** the guide pictures sometimes are not decoded yet when the snapshot is taken (an empty picture box in a few of the pictures); the app itself is unaffected.
 
 ## Owner's TestFlight fixes (2026-11-12)
-- **Launch screen** (iOS storyboard, shown while the app starts and Face ID asks): was white with no logo. Now the page colour (`LaunchBackground`, paper in light, ink in dark) with the logo in the middle (`LaunchImage`, rendered from `HalalaLogo`, a dark-mode copy with the paper outline).
+- **Launch screen** (iOS storyboard, shown while the app starts and Face ID asks): was white with no logo. Now the page colour (also behind the Flutter view in `Main.storyboard`, so no white flash before the first frame) (`LaunchBackground`, paper in light, ink in dark) with the logo in the middle (`LaunchImage`, rendered from `HalalaLogo`, a dark-mode copy with the paper outline).
 - **Lock screen:** no placeholder cards and no card: only the logo, the gold lock tile with "Locked", the failure line and Unlock, centred. `LaunchSkeleton` is gone (it had no other use).
 - **Bills, next month:** the folded card no longer has its own arrow; the heading's down arrow is the only one.
