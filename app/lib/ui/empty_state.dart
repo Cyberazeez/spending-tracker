@@ -1,6 +1,10 @@
 import 'package:flutter/cupertino.dart';
 
+import 'icon_tile.dart';
 import 'tokens.dart';
+
+/// The neutral sand tile of an empty or failed state (no colour that would call it good or bad).
+const emptyTileColor = Color(0xFFDDE3CC);
 
 class EmptyState extends StatelessWidget {
   const EmptyState({
@@ -26,15 +30,15 @@ class EmptyState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 48, color: secondary),
+            IconTile(color: emptyTileColor, icon: icon, size: 64, iconSize: 30),
             const SizedBox(height: 16),
             Text(
               title,
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: text,
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
+                fontSize: 20,
+                fontWeight: FontWeight.w800,
               ),
             ),
             if (body != null) ...[
@@ -42,7 +46,12 @@ class EmptyState extends StatelessWidget {
               Text(
                 body!,
                 textAlign: TextAlign.center,
-                style: TextStyle(color: secondary, fontSize: 15),
+                style: TextStyle(
+                  color: secondary,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  height: 1.45,
+                ),
               ),
             ],
             if (action != null) ...[const SizedBox(height: 20), action!],

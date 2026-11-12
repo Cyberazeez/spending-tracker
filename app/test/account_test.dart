@@ -221,7 +221,7 @@ void main() {
         await tester.pumpAndSettle();
         expect(tester.takeException(), isNull, reason: label);
         // right-to-left screens swipe back from the right edge: use the button for both languages
-        await tester.tap(find.byType(CupertinoNavigationBarBackButton));
+        await tester.tap(find.byKey(const ValueKey('nav-back')));
         await tester.pumpAndSettle();
       }
     });

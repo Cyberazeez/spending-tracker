@@ -42,7 +42,7 @@ void main() {
     expect(find.text('Ask about your spending'), findsOneWidget);
     expect(find.text('Where can I cut spending?'), findsOneWidget);
     expect(find.text('Why is Dining so high?'), findsOneWidget);
-    await tester.tap(find.byType(CupertinoNavigationBarBackButton));
+    await tester.tap(find.byKey(const ValueKey('nav-back')));
     await tester.pumpAndSettle();
     await tester.tap(find.text('AI tips'));
     await tester.pumpAndSettle();

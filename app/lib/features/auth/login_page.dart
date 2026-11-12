@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../account/account_providers.dart';
 import '../../core/auth_repository.dart';
@@ -13,6 +12,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../router.dart';
 import '../../ui/app_form.dart';
+import '../../ui/halala_logo.dart';
 import 'apple_button.dart';
 import '../../ui/confirm_sheet.dart';
 import '../../ui/tokens.dart';
@@ -93,44 +93,24 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     });
     final missingEmail = _submitted && _email.text.trim().isEmpty;
     final missingPassword = _submitted && _password.text.isEmpty;
-    final accent = AppTokens.accent.resolveFrom(context);
     return CupertinoPageScaffold(
       backgroundColor: AppTokens.bg.resolveFrom(context),
       child: SafeArea(
         child: AutofillGroup(
           child: ListView(
-            padding: const EdgeInsets.fromLTRB(20, 48, 20, 24),
+            padding: const EdgeInsets.fromLTRB(20, 32, 20, 24),
             children: [
-              Center(
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: accent.withValues(alpha: 0.18),
-                    shape: BoxShape.circle,
-                  ),
-                  child: SizedBox(
-                    width: 72,
-                    height: 72,
-                    child: Icon(
-                      LucideIcons.wallet,
-                      size: 34,
-                      color: AppTokens.accentText.resolveFrom(context),
-                    ),
-                  ),
+              const Center(child: HalalaLogo(width: 190)),
+              const SizedBox(height: 24),
+              Text(
+                t.loginTitle,
+                style: TextStyle(
+                  color: AppTokens.text.resolveFrom(context),
+                  fontSize: 26,
+                  fontWeight: FontWeight.w800,
                 ),
               ),
               const SizedBox(height: 20),
-              Center(
-                child: Text(
-                  t.loginTitle,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: AppTokens.text.resolveFrom(context),
-                    fontSize: 30,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 32),
               AppField(
                 controller: _email,
                 placeholder: t.email,
@@ -165,8 +145,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     t.forgotLink,
                     style: TextStyle(
                       color: AppTokens.accentText.resolveFrom(context),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ),
@@ -183,7 +163,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   t.signUpLink,
                   style: TextStyle(
                     color: AppTokens.accentText.resolveFrom(context),
-                    fontWeight: FontWeight.w600,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),

@@ -8,8 +8,8 @@ For the next session that picks up the Halala rebrand. Read the spec first: `doc
 | 1 | Design layer and Home | Merged (PR #104). Plan: `2026-11-11-rebrand-stage1.md` |
 | 2 | Activity | Merged (PR #105). Plan: `2026-11-12-rebrand-stage2.md`. Owner tested on TestFlight: all pass |
 | 3 | Bills and Insights | Merged (PR #106). Plan: `2026-11-12-rebrand-stage3.md`. Owner has not reported a TestFlight check yet |
-| 4 | Start and More | **Next. Wait for the owner's go.** |
-| 5 | Motion | Not started |
+| 4 | Start and More | Built, in review. Plan: `2026-11-12-rebrand-stage4.md` |
+| 5 | Motion | **Next. Wait for the owner's go.** |
 | 6 | Widget, emails, website, App Store screenshots | Not started |
 
 ## Owner's rules for this work
@@ -22,7 +22,7 @@ For the next session that picks up the Halala rebrand. Read the spec first: `doc
 - Owner wants short replies, simple numbered steps, and facts checked before they are stated.
 
 ## Shared pieces built so far (reuse them)
-`AppCard` (outline, hard shadow, `flat`, `shadow:` offset), `PrimaryButton`, `SecondaryButton`, `FieldButton`, `AppField` (`large:`), `IconTile` (`outline:`), `HeaderIconButton`, `OutlinedBar`, `PillSegments`, `StatusPill`, `RowsCard`, `RankCircle`, `swipeLabelColor` / `onDanger` (white or ink on a red fill, whichever reads better). Sheets set their text to Rubik explicitly (`appFont`, `riyalFont` fallback) because they use `inherit: false`.
+`AppCard` (outline, hard shadow, `flat`, `shadow:` offset), `HalalaLogo`, `appSwitch`, `PrimaryButton`, `SecondaryButton` (`icon:`), `FieldButton`, `AppField` (`large:`), `IconTile` (`outline:`), `HeaderIconButton`, `OutlinedBar`, `PillSegments`, `StatusPill`, `RowsCard`, `RankCircle`, `swipeLabelColor` / `onDanger` (white or ink on a red fill, whichever reads better). Sheets set their text to Rubik explicitly (`appFont`, `riyalFont` fallback) because they use `inherit: false`.
 
 ## Tools in a cloud session
 - Flutter is not preinstalled: download `https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.47.9-stable.tar.xz` (about 1.5 GB), unpack into the scratchpad, put `flutter/bin` on PATH, run `flutter pub get` in `app/`. CI checks `dart format` too.
@@ -30,7 +30,7 @@ For the next session that picks up the Halala rebrand. Read the spec first: `doc
 - Mockups: https://claude.ai/artifact/SKu3Y19HmGqcn19UDyb1KS (private to the owner, made from the Design type). Read boards with the Artifact tool, `action: "read"` with `paths: ["project/<Board>.dc.html"]`. Stage 4 boards: Loading, Lock, Login, Signup, Error, More, Accounts, Capture, Guide, Delete, NoticeSheet, ChoiceSheet.
 
 ## Waiting on the owner
-- Mockup items not built because they change flows: transaction detail screen, the bigger filter sheet, Add / Not a purchase buttons on review cards, floating add button (stage 2); bill detail sheet with fields, "Add a bill" start tiles, "82%" / "Over" pills on budget rows (stage 3).
+- Mockup items not built because they change flows: transaction detail screen, the bigger filter sheet, Add / Not a purchase buttons on review cards, floating add button (stage 2); bill detail sheet with fields, "Add a bill" start tiles, "82%" / "Over" pills on budget rows (stage 3); More's account card and regrouped rows, lock subtitle and "Use passcode", Capture's "Working" card and per-bank pills, the notice sheet icon, a restyled Apple button (stage 4).
 - TestFlight check of stage 3.
 
 ## Other open items (outside the rebrand)

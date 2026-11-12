@@ -259,4 +259,98 @@ void main() {
       }
     }
   }
+
+  // Rebrand stage 4: start screens and the More family.
+  const stage4 = [
+    'lock',
+    'login',
+    'signup',
+    'forgot',
+    'account',
+    'banks',
+    'banks_error',
+    'capture',
+    'guide',
+    'guide_last',
+    'delete',
+    'language',
+  ];
+  for (final lang in ['en', 'ar']) {
+    final en = lang == 'en';
+    for (final mode in Brightness.values) {
+      for (final screen in stage4) {
+        testWidgets('snapshot: $screen ($lang, ${mode.name})', (t) async {
+          t.view.physicalSize = const Size(390 * 2, 844 * 2);
+          t.view.devicePixelRatio = 2;
+          t.platformDispatcher.platformBrightnessTestValue = mode;
+          addTearDown(t.view.reset);
+          addTearDown(t.platformDispatcher.clearAllTestValues);
+          final signedOut = const ['login', 'signup', 'forgot'];
+          final h = Harness(signedIn: !signedOut.contains(screen));
+          _sample(h);
+          h.data.accounts = [
+            const OwnAccount(
+              id: 'oa1',
+              bank: 'alinma',
+              last4: '6000',
+              kind: 'account',
+              label: 'Main',
+            ),
+            const OwnAccount(
+              id: 'oa2',
+              bank: 'alinma',
+              last4: '7730',
+              kind: 'credit_card',
+            ),
+            const OwnAccount(
+              id: 'oa3',
+              bank: 'mobilypay',
+              last4: '0912',
+              kind: 'wallet',
+            ),
+          ];
+          if (screen == 'lock') h.authenticator.result = false;
+          if (screen == 'banks_error') h.data.failLoad = true;
+          await t.pumpWidget(await h.build(prefs: {'locale': lang}));
+          await t.pumpAndSettle();
+          void go(String path) =>
+              GoRouter.of(t.element(find.byType(CupertinoPageScaffold).last))
+                  .push(path);
+          switch (screen) {
+            case 'signup':
+              go(signUpPath);
+            case 'forgot':
+              go(forgotPath);
+            case 'account':
+              go(accountPath);
+            case 'banks' || 'banks_error':
+              go(banksPath);
+            case 'capture':
+              go(capturePath);
+            case 'guide' || 'guide_last':
+              go(capturePath);
+              await t.pumpAndSettle();
+              await t.tap(
+                find.text(en ? 'Show me how, step by step' : 'اعرض لي الخطوات'),
+              );
+              await t.pumpAndSettle();
+              if (screen == 'guide_last') {
+                for (var i = 0; i < 6; i++) {
+                  await t.tap(find.byKey(const ValueKey('guide-next')));
+                  await t.pumpAndSettle();
+                }
+              }
+            case 'delete':
+              go(deleteAccountPath);
+            case 'language':
+              await t.tap(find.text(en ? 'More' : 'المزيد').last);
+              await t.pumpAndSettle();
+              await t.tap(find.text(en ? 'Language' : 'اللغة'));
+          }
+          await t.pumpAndSettle();
+          await _save(t, '${lang}_${mode.name}_s4_$screen');
+        });
+      }
+    }
+  }
 }

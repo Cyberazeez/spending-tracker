@@ -74,7 +74,7 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
               t.resetTitle,
               style: TextStyle(
                 color: AppTokens.text.resolveFrom(context),
-                fontSize: 28,
+                fontSize: 26,
                 fontWeight: FontWeight.w800,
               ),
             ),

@@ -239,6 +239,9 @@ void main() {
       await tester.tap(find.text('Saudi National Bank (SNB)'));
       await tester.pumpAndSettle();
       expect(find.text('Vision Bank'), findsOneWidget);
+      // The choices are separate cards now, so the list is taller: scroll to the wallet first.
+      await tester.ensureVisible(find.text('Mobily Pay'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Mobily Pay'));
       await tester.pumpAndSettle();
       await tester.enterText(find.byType(CupertinoTextField).at(0), '5555');
@@ -406,7 +409,7 @@ void main() {
         await tester.tap(row);
         await tester.pumpAndSettle();
         expect(tester.takeException(), isNull, reason: label);
-        await tester.tap(find.byType(CupertinoNavigationBarBackButton));
+        await tester.tap(find.byKey(const ValueKey('nav-back')));
         await tester.pumpAndSettle();
       }
     });

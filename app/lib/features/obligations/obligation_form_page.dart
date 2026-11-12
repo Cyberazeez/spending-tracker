@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 
+import '../../ui/settings_group.dart' show appSwitch;
 import '../../ui/chevron.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -388,11 +389,9 @@ class _ObligationFormPageState extends ConsumerState<ObligationFormPage> {
                             ),
                           ),
                         ),
-                        CupertinoSwitch(
+                        appSwitch(
+                          context,
                           value: _auto,
-                          activeTrackColor: AppTokens.accent.resolveFrom(
-                            context,
-                          ),
                           onChanged: (v) => setState(() => _auto = v),
                         ),
                       ],

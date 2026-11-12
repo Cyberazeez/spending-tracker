@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 
 import 'chevron.dart';
+import 'icon_tile.dart';
 
 import 'app_card.dart';
 import 'tokens.dart';
@@ -14,7 +15,7 @@ class SettingsGroup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final line = AppTokens.muted.resolveFrom(context).withValues(alpha: 0.18);
+    final line = AppTokens.bar.resolveFrom(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -25,8 +26,8 @@ class SettingsGroup extends StatelessWidget {
               title!,
               style: TextStyle(
                 color: AppTokens.muted.resolveFrom(context),
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
               ),
             ),
           ),
@@ -37,7 +38,7 @@ class SettingsGroup extends StatelessWidget {
               for (var i = 0; i < children.length; i++) ...[
                 children[i],
                 if (i < children.length - 1)
-                  SizedBox(height: 1, child: ColoredBox(color: line)),
+                  SizedBox(height: 2, child: ColoredBox(color: line)),
               ],
             ],
           ),
@@ -47,7 +48,10 @@ class SettingsGroup extends StatelessWidget {
   }
 }
 
-/// One setting: a colored rounded icon tile, a title, an optional subtitle and either a value + chevron or a control.
+/// The pink tile of a destructive row (sign out, delete my account); light in both modes, icon in ink.
+const dangerTileColor = Color(0xFFFF9DB0);
+
+/// One setting: a pastel [IconTile] (pass one of the palette fills; its icon is ink), a title, an optional subtitle and either a value + chevron or a control.
 class SettingsRow extends StatelessWidget {
   const SettingsRow({
     super.key,
@@ -84,25 +88,11 @@ class SettingsRow extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 10),
         child: Row(
           children: [
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: danger
-                    ? AppTokens.danger
-                          .resolveFrom(context)
-                          .withValues(alpha: 0.16)
-                    : color,
-                borderRadius: BorderRadius.circular(AppTokens.radiusTile),
-                border: outlineOf(context, width: AppTokens.outlineThin),
-              ),
-              child: Icon(
-                icon,
-                size: 19,
-                color: danger
-                    ? AppTokens.danger.resolveFrom(context)
-                    : const Color(0xFF0B0F14),
-              ),
+            IconTile(
+              color: danger ? dangerTileColor : color,
+              icon: icon,
+              size: 38,
+              iconSize: 19,
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -115,8 +105,8 @@ class SettingsRow extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       color: text,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                   if (subtitle != null && subtitle!.isNotEmpty)
@@ -124,7 +114,11 @@ class SettingsRow extends StatelessWidget {
                       subtitle!,
                       maxLines: 3,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(color: muted, fontSize: 12),
+                      style: TextStyle(
+                        color: muted,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                 ],
               ),
@@ -138,7 +132,11 @@ class SettingsRow extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.end,
-                  style: TextStyle(color: muted, fontSize: 14),
+                  style: TextStyle(
+                    color: muted,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
             ],
@@ -170,4 +168,21 @@ class SettingsRow extends StatelessWidget {
       ),
     );
   }
+}
+
+/// The app's on/off switch: the native switch with an outlined track (emerald when on, `bar` when off).
+CupertinoSwitch appSwitch(
+  BuildContext context, {
+  required bool value,
+  required ValueChanged<bool>? onChanged,
+}) {
+  final line = AppTokens.line.resolveFrom(context);
+  return CupertinoSwitch(
+    value: value,
+    onChanged: onChanged,
+    activeTrackColor: AppTokens.accent.resolveFrom(context),
+    inactiveTrackColor: AppTokens.bar.resolveFrom(context),
+    trackOutlineColor: WidgetStatePropertyAll(line),
+    trackOutlineWidth: const WidgetStatePropertyAll(AppTokens.outlineThin),
+  );
 }

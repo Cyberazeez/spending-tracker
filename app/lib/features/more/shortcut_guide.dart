@@ -5,6 +5,7 @@ import '../../core/money.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ui/theme.dart';
 import '../../ui/tokens.dart';
+import '../../ui/app_form.dart';
 
 /// The snippets (cropped from real screenshots, the tap target outlined) shown on each page of the guide.
 const shortcutGuideImages = [
@@ -66,6 +67,7 @@ class _ShortcutGuideSheetState extends State<ShortcutGuideSheet> {
     final accent = AppTokens.accent.resolveFrom(context);
     final bar = AppTokens.bar.resolveFrom(context);
     final card = AppTokens.card.resolveFrom(context);
+    final line = AppTokens.line.resolveFrom(context);
     final titles = [
       t.captureGuide1Title,
       t.captureGuide2Title,
@@ -91,7 +93,10 @@ class _ShortcutGuideSheetState extends State<ShortcutGuideSheet> {
         height: media.size.height * 0.92,
         decoration: BoxDecoration(
           color: bg,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+          borderRadius: const BorderRadius.vertical(
+            top: Radius.circular(AppTokens.radiusSheet),
+          ),
+          border: outlineOf(context),
         ),
         child: DefaultTextStyle(
           style: TextStyle(
@@ -109,7 +114,7 @@ class _ShortcutGuideSheetState extends State<ShortcutGuideSheet> {
                 height: 5,
                 margin: const EdgeInsets.only(top: 8, bottom: 4),
                 decoration: BoxDecoration(
-                  color: bar,
+                  color: line.withValues(alpha: 0.35),
                   borderRadius: BorderRadius.circular(3),
                 ),
               ),
@@ -123,16 +128,32 @@ class _ShortcutGuideSheetState extends State<ShortcutGuideSheet> {
                         style: TextStyle(
                           color: text,
                           fontSize: 20,
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w800,
                           decoration: TextDecoration.none,
                         ),
                       ),
                     ),
-                    CupertinoButton(
-                      padding: EdgeInsets.zero,
-                      minimumSize: const Size(44, 44),
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: Icon(LucideIcons.x, size: 22, color: muted),
+                    Semantics(
+                      button: true,
+                      label: t.cancel,
+                      child: CupertinoButton(
+                        padding: EdgeInsets.zero,
+                        minimumSize: const Size(44, 44),
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: Container(
+                          width: 34,
+                          height: 34,
+                          decoration: BoxDecoration(
+                            color: card,
+                            shape: BoxShape.circle,
+                            border: outlineOf(
+                              context,
+                              width: AppTokens.outlineThin,
+                            ),
+                          ),
+                          child: Icon(LucideIcons.x, size: 16, color: text),
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -155,35 +176,56 @@ class _ShortcutGuideSheetState extends State<ShortcutGuideSheet> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              t.captureGuideStepOf(i + 1, titles.length),
-                              style: TextStyle(
-                                color: AppTokens.accentText.resolveFrom(
-                                  context,
+                            DecoratedBox(
+                              decoration: BoxDecoration(
+                                color: AppTokens.gold.resolveFrom(context),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: AppTokens.line.resolveFrom(context),
+                                  width: AppTokens.outlineThin,
                                 ),
-                                fontSize: 13,
-                                fontWeight: FontWeight.w700,
-                                decoration: TextDecoration.none,
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 5,
+                                ),
+                                child: Text(
+                                  t.captureGuideStepOf(i + 1, titles.length),
+                                  style: TextStyle(
+                                    color: AppTokens.onTint.resolveFrom(
+                                      context,
+                                    ),
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w700,
+                                    decoration: TextDecoration.none,
+                                  ),
+                                ),
                               ),
                             ),
-                            const SizedBox(height: 6),
+                            const SizedBox(height: 10),
                             Text(
                               titles[i],
                               style: TextStyle(
                                 color: text,
-                                fontSize: 26,
+                                fontSize: 24,
                                 fontWeight: FontWeight.w800,
                                 decoration: TextDecoration.none,
                               ),
                             ),
                             const SizedBox(height: 16),
                             DecoratedBox(
+                              position: DecorationPosition.foreground,
                               decoration: BoxDecoration(
-                                color: card,
-                                borderRadius: BorderRadius.circular(18),
+                                borderRadius: BorderRadius.circular(
+                                  AppTokens.radiusCard,
+                                ),
+                                border: outlineOf(context),
                               ),
                               child: ClipRRect(
-                                borderRadius: BorderRadius.circular(18),
+                                borderRadius: BorderRadius.circular(
+                                  AppTokens.radiusCard,
+                                ),
                                 child: Image.asset(
                                   shortcutGuideImages[i],
                                   width: double.infinity,
@@ -196,9 +238,10 @@ class _ShortcutGuideSheetState extends State<ShortcutGuideSheet> {
                             Text(
                               bodies[i],
                               style: TextStyle(
-                                color: text,
-                                fontSize: 17,
-                                height: 1.35,
+                                color: muted,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                height: 1.45,
                                 decoration: TextDecoration.none,
                               ),
                             ),
@@ -211,74 +254,61 @@ class _ShortcutGuideSheetState extends State<ShortcutGuideSheet> {
               ),
               Padding(
                 padding: EdgeInsets.fromLTRB(
-                  16,
+                  20,
                   4,
-                  16,
+                  20,
                   12 + media.padding.bottom,
                 ),
-                child: Row(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    SizedBox(
-                      width: 84,
-                      child: _page == 0 && !widget.offer
-                          ? null
-                          : CupertinoButton(
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        for (var i = 0; i < titles.length; i++)
+                          Container(
+                            width: i == _page ? 22 : 9,
+                            height: 9,
+                            margin: const EdgeInsets.symmetric(horizontal: 3),
+                            decoration: BoxDecoration(
+                              color: i == _page ? accent : bar,
+                              borderRadius: BorderRadius.circular(5),
+                              border: Border.all(color: line, width: 1.5),
+                            ),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 14),
+                    Row(
+                      children: [
+                        if (_page > 0 || widget.offer) ...[
+                          Expanded(
+                            child: SecondaryButton(
                               key: _page == 0
                                   ? const ValueKey('guide-skip')
                                   : null,
-                              padding: EdgeInsets.zero,
-                              minimumSize: const Size(44, 44),
-                              alignment: AlignmentDirectional.centerStart,
+                              label: _page == 0
+                                  ? t.captureGuideSkip
+                                  : t.captureGuideBack,
                               onPressed: () => _page == 0
                                   ? Navigator.of(context).pop()
                                   : _go(_page - 1),
-                              child: Text(
-                                _page == 0
-                                    ? t.captureGuideSkip
-                                    : t.captureGuideBack,
-                                style: TextStyle(
-                                  color: muted,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
                             ),
-                    ),
-                    Expanded(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          for (var i = 0; i < titles.length; i++)
-                            Container(
-                              width: i == _page ? 20 : 7,
-                              height: 7,
-                              margin: const EdgeInsets.symmetric(horizontal: 3),
-                              decoration: BoxDecoration(
-                                color: i == _page ? accent : bar,
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                            ),
+                          ),
+                          const SizedBox(width: 12),
                         ],
-                      ),
-                    ),
-                    SizedBox(
-                      width: 84,
-                      child: CupertinoButton(
-                        key: const ValueKey('guide-next'),
-                        padding: EdgeInsets.zero,
-                        minimumSize: const Size(44, 44),
-                        alignment: AlignmentDirectional.centerEnd,
-                        onPressed: () =>
-                            last ? Navigator.of(context).pop() : _go(_page + 1),
-                        child: Text(
-                          last ? t.captureGuideDone : t.captureGuideNext,
-                          style: TextStyle(
-                            color: AppTokens.accentText.resolveFrom(context),
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
+                        Expanded(
+                          child: PrimaryButton(
+                            key: const ValueKey('guide-next'),
+                            label: last
+                                ? t.captureGuideDone
+                                : t.captureGuideNext,
+                            onPressed: () => last
+                                ? Navigator.of(context).pop()
+                                : _go(_page + 1),
                           ),
                         ),
-                      ),
+                      ],
                     ),
                   ],
                 ),
