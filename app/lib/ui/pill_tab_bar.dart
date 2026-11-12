@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'tokens.dart';
 
 /// The floating, fully rounded tab bar of the design: inset 12 from the sides, a 64 high outlined pill with the
-/// hard shadow; the selected tab is an emerald pill.
+/// hard shadow; the selected tab is a wide emerald pill with its icon and name, the others show their icon only.
 /// Drop-in for [CupertinoTabBar] inside a [CupertinoTabScaffold] (the scaffold clones it with the current index).
 class PillTabBar extends CupertinoTabBar {
   const PillTabBar({
@@ -44,115 +44,164 @@ class PillTabBar extends CupertinoTabBar {
     final onAccent = AppTokens.onAccent.resolveFrom(context);
     final text = AppTokens.text.resolveFrom(context);
     final reduce = MediaQuery.disableAnimationsOf(context);
-    final pill = Padding(
-      padding: const EdgeInsets.all(5),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: AppTokens.accent.resolveFrom(context),
-          borderRadius: BorderRadius.circular(24),
-          border: outlineOf(context, width: AppTokens.outlineThin),
-        ),
-        child: const SizedBox.expand(),
-      ),
-    );
+    final bar = AppTokens.tab.resolveFrom(context);
+    final rtl = Directionality.of(context) == TextDirection.rtl;
+    final duration = reduce ? Duration.zero : const Duration(milliseconds: 320);
     return Padding(
       padding: EdgeInsets.fromLTRB(12, 0, 12 - 4, safe > 24 ? safe - 6 : 24),
       child: Padding(
         padding: const EdgeInsets.only(right: 4, bottom: 5),
         child: DecoratedBox(
           decoration: BoxDecoration(
-            color: AppTokens.tab.resolveFrom(context),
+            color: bar,
             borderRadius: BorderRadius.circular(32),
             border: outlineOf(context),
             boxShadow: hardShadowOf(context),
           ),
           child: SizedBox(
             height: 64,
-            child: Stack(
-              children: [
-                // The emerald pill under the selected tab. It slides to the tab that was tapped (with a small
-                // overshoot); with Reduce Motion it fades out under the old tab and in under the new one.
-                if (reduce)
-                  Row(
-                    children: [
-                      for (var i = 0; i < items.length; i++)
-                        Expanded(
-                          child: AnimatedOpacity(
-                            opacity: i == currentIndex ? 1 : 0,
-                            duration: const Duration(milliseconds: 160),
-                            child: pill,
-                          ),
-                        ),
-                    ],
-                  )
-                else if (items.length > 1)
-                  AnimatedAlign(
-                    key: const ValueKey('tab-pill'),
-                    alignment: AlignmentDirectional(
-                      -1 + 2 * currentIndex / (items.length - 1),
-                      0,
-                    ),
-                    duration: const Duration(milliseconds: 320),
-                    // No overshoot into the first or last slot: it would poke past the bar's rounded end.
-                    curve: currentIndex == 0 || currentIndex == items.length - 1
-                        ? Curves.easeOutCubic
-                        : const _SmallBack(),
-                    child: FractionallySizedBox(
-                      widthFactor: 1 / items.length,
-                      heightFactor: 1,
-                      child: pill,
-                    ),
-                  ),
-                Row(
+            child: LayoutBuilder(
+              builder: (context, box) {
+                // The selected tab is a wide emerald pill with its icon and name; the others show their icon only.
+                // Widths and the pill slide to the tapped tab.
+                const pad = 6.0;
+                final inner = box.maxWidth - pad * 2;
+                final n = items.length;
+                final wide = n > 1 ? inner * 0.34 : inner;
+                final narrow = n > 1 ? (inner - wide) / (n - 1) : 0.0;
+                double width(int i) => i == currentIndex ? wide : narrow;
+                double start(int i) {
+                  var x = 0.0;
+                  for (var j = 0; j < i; j++) {
+                    x += width(j);
+                  }
+                  return x;
+                }
+
+                double left(int i) =>
+                    pad + (rtl ? inner - start(i) - width(i) : start(i));
+                final curve = currentIndex == 0 || currentIndex == n - 1
+                    ? Curves.easeOutCubic
+                    : const _SmallBack();
+                return Stack(
                   children: [
-                    for (var i = 0; i < items.length; i++)
-                      Expanded(
-                        child: Semantics(
-                          button: true,
-                          selected: i == currentIndex,
-                          label: items[i].label,
-                          excludeSemantics: true,
-                          onTap: () => onTap?.call(i),
-                          child: GestureDetector(
-                            behavior: HitTestBehavior.opaque,
-                            onTap: () => onTap?.call(i),
-                            child: Padding(
-                              padding: const EdgeInsets.all(5),
-                              child: IconTheme(
-                                data: IconThemeData(
-                                  size: 22,
-                                  color: i == currentIndex ? onAccent : text,
-                                ),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    items[i].icon,
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      items[i].label ?? '',
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        fontSize: 11,
-                                        fontWeight: i == currentIndex
-                                            ? FontWeight.w700
-                                            : FontWeight.w500,
-                                        color: i == currentIndex
-                                            ? onAccent
-                                            : text,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
+                    AnimatedPositioned(
+                      key: const ValueKey('tab-pill'),
+                      duration: duration,
+                      curve: curve,
+                      left: left(currentIndex),
+                      width: wide,
+                      top: 6,
+                      bottom: 6,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: AppTokens.accent.resolveFrom(context),
+                          borderRadius: BorderRadius.circular(26),
+                          border: outlineOf(
+                            context,
+                            width: AppTokens.outlineThin,
                           ),
                         ),
                       ),
+                    ),
+                    for (var i = 0; i < n; i++)
+                      AnimatedPositioned(
+                        key: ValueKey('tab-item-$i'),
+                        duration: duration,
+                        curve: curve,
+                        left: left(i),
+                        width: width(i),
+                        top: 0,
+                        bottom: 0,
+                        child: _TabItem(
+                          item: items[i],
+                          selected: i == currentIndex,
+                          onTap: () => onTap?.call(i),
+                          on: onAccent,
+                          off: text,
+                        ),
+                      ),
                   ],
-                ),
-              ],
+                );
+              },
             ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _TabItem extends StatelessWidget {
+  const _TabItem({
+    required this.item,
+    required this.selected,
+    required this.onTap,
+    required this.on,
+    required this.off,
+  });
+
+  final BottomNavigationBarItem item;
+  final bool selected;
+  final VoidCallback onTap;
+  final Color on;
+  final Color off;
+
+  @override
+  Widget build(BuildContext context) {
+    final label = item.label ?? '';
+    return Semantics(
+      button: true,
+      selected: selected,
+      label: label,
+      excludeSemantics: true,
+      onTap: onTap,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: IconTheme(
+          data: IconThemeData(size: 22, color: selected ? on : off),
+          child: Center(
+            child: selected
+                ? Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        item.icon,
+                        const SizedBox(width: 6),
+                        Flexible(
+                          child: Text(
+                            label,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: on,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                // The name stays in the tree, invisible, so the tab is still found by its name.
+                : Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Opacity(
+                        opacity: 0,
+                        child: Text(
+                          label,
+                          maxLines: 1,
+                          overflow: TextOverflow.clip,
+                          softWrap: false,
+                          style: const TextStyle(fontSize: 1),
+                        ),
+                      ),
+                      item.icon,
+                    ],
+                  ),
           ),
         ),
       ),

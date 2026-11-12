@@ -12,17 +12,27 @@ import '../../../router.dart';
 import '../../../ui/app_card.dart';
 import '../../../ui/tokens.dart';
 import '../../account/account_providers.dart';
+import '../../../ui/icon_tile.dart';
 
 /// The first steps of a new account: bank accounts, SMS capture, a monthly budget. Disappears by itself when all
 /// three are done, or when the user taps Hide.
 class WelcomeCard extends ConsumerStatefulWidget {
-  const WelcomeCard({super.key});
+  const WelcomeCard({super.key, this.showSteps = true});
+
+  /// False on the empty Home of a new account: the card above it already offers the first step, so this one is
+  /// only the title, the progress and Hide.
+  final bool showSteps;
 
   @override
   ConsumerState<WelcomeCard> createState() => _WelcomeCardState();
 }
 
 class _WelcomeCardState extends ConsumerState<WelcomeCard> {
+  /// Compact card (empty Home): the steps show after the title is tapped.
+  bool _open = false;
+
+  bool get _steps => widget.showSteps || _open;
+
   @override
   void initState() {
     super.initState();
@@ -43,6 +53,49 @@ class _WelcomeCardState extends ConsumerState<WelcomeCard> {
     final muted = AppTokens.muted.resolveFrom(context);
     final accent = AppTokens.accent.resolveFrom(context);
 
+    final progress = t.welcomeProgress(
+      w.done.toString(),
+      WelcomeState.total.toString(),
+    );
+    // The card's head, folded or open: gold target tile, title and progress.
+    Widget header() => Expanded(
+      child: Row(
+        children: [
+          IconTile(
+            color: AppTokens.gold.resolveFrom(context),
+            icon: LucideIcons.target,
+            size: 44,
+            iconSize: 22,
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  t.welcomeTitle,
+                  style: TextStyle(
+                    color: text,
+                    fontSize: 17,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                Text(
+                  progress,
+                  style: TextStyle(
+                    color: muted,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+
     if (ref.watch(welcomeProvider).collapsed) {
       // Folded: one line that opens the card again.
       return Padding(
@@ -57,28 +110,13 @@ class _WelcomeCardState extends ConsumerState<WelcomeCard> {
             onTap: () => ref.read(welcomeProvider.notifier).setCollapsed(false),
             child: AppCard(
               pressable: true,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.all(16),
               child: ConstrainedBox(
                 constraints: const BoxConstraints(minHeight: 44),
                 child: Row(
                   children: [
-                    Icon(
-                      LucideIcons.listChecks,
-                      size: 20,
-                      color: AppTokens.accentText.resolveFrom(context),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        '${t.welcomeTitle} · ${t.welcomeProgress(w.done.toString(), WelcomeState.total.toString())}',
-                        style: TextStyle(
-                          color: text,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                    Icon(CupertinoIcons.chevron_down, size: 14, color: muted),
+                    header(),
+                    Icon(CupertinoIcons.chevron_down, size: 16, color: muted),
                   ],
                 ),
               ),
@@ -127,21 +165,26 @@ class _WelcomeCardState extends ConsumerState<WelcomeCard> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: AppCard(
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
-                Expanded(
-                  child: Text(
-                    t.welcomeTitle,
-                    style: TextStyle(
-                      color: text,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w800,
+                if (widget.showSteps)
+                  header()
+                else
+                  Expanded(
+                    child: Semantics(
+                      button: true,
+                      excludeSemantics: false,
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () => setState(() => _open = !_open),
+                        child: Row(children: [header()]),
+                      ),
                     ),
                   ),
-                ),
                 CupertinoButton(
                   padding: EdgeInsets.zero,
                   minimumSize: const Size(44, 44),
@@ -149,25 +192,28 @@ class _WelcomeCardState extends ConsumerState<WelcomeCard> {
                       ref.read(welcomeProvider.notifier).setCollapsed(true),
                   child: Text(
                     t.welcomeHide,
-                    style: TextStyle(color: muted, fontSize: 14),
+                    style: TextStyle(
+                      color: AppTokens.accentText.resolveFrom(context),
+                      fontSize: 15,
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
                 ),
               ],
             ),
-            Text(
-              t.welcomeProgress(
-                w.done.toString(),
-                WelcomeState.total.toString(),
+            if (_steps) const SizedBox(height: 8),
+            if (_steps)
+              step(
+                w.capture,
+                t.welcomeCapture,
+                () => context.push(capturePath),
               ),
-              style: TextStyle(color: muted, fontSize: 13),
-            ),
-            const SizedBox(height: 8),
-            step(w.capture, t.welcomeCapture, () => context.push(capturePath)),
-            step(
-              w.budget,
-              t.welcomeBudget,
-              () => showMonthlyBudgetFlow(context, ref),
-            ),
+            if (_steps)
+              step(
+                w.budget,
+                t.welcomeBudget,
+                () => showMonthlyBudgetFlow(context, ref),
+              ),
           ],
         ),
       ),

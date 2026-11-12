@@ -233,7 +233,7 @@ abstract class AppLocalizations {
   /// No description provided for @emptyHomeBody.
   ///
   /// In en, this message translates to:
-  /// **'Set up the iOS Shortcut in More, then every bank SMS shows up here.'**
+  /// **'Set up SMS capture once and every purchase shows up here by itself.'**
   String get emptyHomeBody;
 
   /// No description provided for @comingSoon.
@@ -587,7 +587,7 @@ abstract class AppLocalizations {
   /// No description provided for @loadFailed.
   ///
   /// In en, this message translates to:
-  /// **'Could not load. Pull to retry.'**
+  /// **'Could not load'**
   String get loadFailed;
 
   /// No description provided for @searchHint.
@@ -1429,6 +1429,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Same'**
   String get homeSameShort;
+
+  /// No description provided for @homeBudgetLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% of your {amount} budget'**
+  String homeBudgetLine(String percent, String amount);
 
   /// No description provided for @homeOfBudget.
   ///
@@ -2489,7 +2495,7 @@ abstract class AppLocalizations {
   /// No description provided for @welcomeTitle.
   ///
   /// In en, this message translates to:
-  /// **'Get started'**
+  /// **'Getting started'**
   String get welcomeTitle;
 
   /// No description provided for @welcomeHide.
@@ -2773,6 +2779,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'amount comes with the statement'**
   String get obAmountPending;
+
+  /// No description provided for @homeAddByHand.
+  ///
+  /// In en, this message translates to:
+  /// **'Add one by hand'**
+  String get homeAddByHand;
+
+  /// No description provided for @homeChipBudget.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} at {pct}%'**
+  String homeChipBudget(String name, String pct);
+
+  /// No description provided for @homeChipOver.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} over budget'**
+  String homeChipOver(String name);
+
+  /// No description provided for @homeChipMonthly.
+  ///
+  /// In en, this message translates to:
+  /// **'Budget at {pct}%'**
+  String homeChipMonthly(String pct);
+
+  /// No description provided for @homeChipMonthlyOver.
+  ///
+  /// In en, this message translates to:
+  /// **'Over budget'**
+  String get homeChipMonthlyOver;
+
+  /// No description provided for @loadFailedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your connection. Your saved numbers are still on Home.'**
+  String get loadFailedBody;
 }
 
 class _AppLocalizationsDelegate

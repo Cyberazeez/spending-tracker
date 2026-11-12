@@ -145,13 +145,8 @@ class _InsightsPageState extends ConsumerState<InsightsPage> {
             error: (_, _) => [
               SliverFillRemaining(
                 hasScrollBody: false,
-                child: EmptyState(
-                  icon: CupertinoIcons.exclamationmark_triangle,
-                  title: t.loadFailed,
-                  action: CupertinoButton(
-                    onPressed: () => ref.invalidate(insightsProvider),
-                    child: Text(t.tryAgain),
-                  ),
+                child: LoadFailedCard(
+                  onRetry: () => ref.invalidate(insightsProvider),
                 ),
               ),
             ],

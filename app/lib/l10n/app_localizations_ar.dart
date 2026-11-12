@@ -80,7 +80,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get emptyHomeBody =>
-      'فعّل اختصار iOS من «المزيد» وستظهر هنا كل رسائل البنوك.';
+      'فعّل التقاط الرسائل مرة واحدة وستظهر هنا كل عملية شراء من تلقاء نفسها.';
 
   @override
   String get comingSoon => 'قريباً';
@@ -272,7 +272,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get sar => '⃁';
 
   @override
-  String get loadFailed => 'تعذّر التحميل. اسحب لإعادة المحاولة.';
+  String get loadFailed => 'تعذّر التحميل';
 
   @override
   String get searchHint => 'ابحث عن متجر';
@@ -756,6 +756,11 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get homeSameShort => 'مماثل';
+
+  @override
+  String homeBudgetLine(String percent, String amount) {
+    return '$percent% من ميزانيتك $amount';
+  }
 
   @override
   String homeOfBudget(String amount) {
@@ -1335,7 +1340,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get kindWallet => 'محفظة';
 
   @override
-  String get welcomeTitle => 'ابدأ من هنا';
+  String get welcomeTitle => 'البداية';
 
   @override
   String get welcomeHide => 'إخفاء';
@@ -1515,4 +1520,29 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get obAmountPending => 'المبلغ يصل مع كشف الحساب';
+
+  @override
+  String get homeAddByHand => 'أضف واحدة يدويًا';
+
+  @override
+  String homeChipBudget(String name, String pct) {
+    return '$name عند $pct%';
+  }
+
+  @override
+  String homeChipOver(String name) {
+    return '$name تجاوز الميزانية';
+  }
+
+  @override
+  String homeChipMonthly(String pct) {
+    return 'الميزانية عند $pct%';
+  }
+
+  @override
+  String get homeChipMonthlyOver => 'تجاوزت الميزانية';
+
+  @override
+  String get loadFailedBody =>
+      'تحقق من اتصالك. أرقامك المحفوظة ما زالت في الرئيسية.';
 }

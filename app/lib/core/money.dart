@@ -18,6 +18,13 @@ String formatSar(int halalas, {required bool arabic, bool symbol = true}) {
   return arabic ? '$neg$n ر.س' : '${neg}SAR $n';
 }
 
+/// The number alone, "1,862.15" (Western digits), for places where the currency is already clear.
+String formatAmountPlain(int halalas) {
+  final whole = NumberFormat('#,##0', 'en').format(halalas.abs() ~/ 100);
+  final frac = (halalas.abs() % 100).toString().padLeft(2, '0');
+  return '${halalas < 0 ? '-' : ''}$whole.$frac';
+}
+
 const _arabicDigits = '٠١٢٣٤٥٦٧٨٩';
 
 /// "25", "25.5", "1,250.50", "٢٥٫٥" -> halalas, or null when it is not a valid positive amount.

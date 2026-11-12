@@ -45,11 +45,15 @@ class PrimaryButton extends StatelessWidget {
     required this.label,
     required this.onPressed,
     this.busy = false,
+    this.icon,
   });
 
   final String label;
   final VoidCallback? onPressed;
   final bool busy;
+
+  /// Drawn before the label, in the label's colour.
+  final IconData? icon;
 
   @override
   Widget build(BuildContext context) {
@@ -91,15 +95,34 @@ class PrimaryButton extends StatelessWidget {
                       ? CupertinoActivityIndicator(
                           color: AppTokens.onAccent.resolveFrom(context),
                         )
-                      : Text(
-                          label,
-                          style: TextStyle(
-                            color: enabled
-                                ? AppTokens.onAccent.resolveFrom(context)
-                                : AppTokens.muted.resolveFrom(context),
-                            fontSize: 17,
-                            fontWeight: FontWeight.w700,
-                          ),
+                      : Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (icon != null) ...[
+                              Icon(
+                                icon,
+                                size: 19,
+                                color: enabled
+                                    ? AppTokens.onAccent.resolveFrom(context)
+                                    : AppTokens.muted.resolveFrom(context),
+                              ),
+                              const SizedBox(width: 8),
+                            ],
+                            Flexible(
+                              child: Text(
+                                label,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: enabled
+                                      ? AppTokens.onAccent.resolveFrom(context)
+                                      : AppTokens.muted.resolveFrom(context),
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                 ),
               ),

@@ -161,7 +161,16 @@ void main() {
       AppTokens.accent.color.toARGB32(),
     );
     final fillW = tester.getSize(find.byKey(const ValueKey('cycle-bar-fill')));
-    final barW = tester.getSize(find.byType(LayoutBuilder).last).width;
+    final barW = tester
+        .getSize(
+          find
+              .ancestor(
+                of: find.byKey(const ValueKey('cycle-bar-fill')),
+                matching: find.byType(LayoutBuilder),
+              )
+              .first,
+        )
+        .width;
     expect(fillW.width / barW, closeTo(0.75, 0.01)); // 300 of 400 paid
   });
 
@@ -313,7 +322,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Bills').last);
     await tester.pumpAndSettle();
-    expect(find.text('Could not load. Pull to retry.'), findsOneWidget);
+    expect(find.text('Could not load'), findsOneWidget);
   });
 
   testWidgets('arabic labels and RTL amounts', (tester) async {

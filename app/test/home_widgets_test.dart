@@ -65,7 +65,7 @@ void main() {
           locale: locale,
           brightness: b,
         );
-        expect(find.text('60%'), findsOneWidget);
+        expect(find.textContaining(RegExp(r'60\W*%')), findsOneWidget);
         expect(tester(t), isNull); // no exception was thrown while building
       });
     }
@@ -93,22 +93,18 @@ void main() {
         arabic: false,
       ),
     );
-    expect(find.text('112%'), findsOneWidget);
+    expect(find.textContaining(RegExp(r'112\W*% of')), findsOneWidget);
     expect(
-      find.text('⃁ 0.00'),
+      find.text('0.00'),
       findsWidgets,
-    ); // nothing left to spend, never negative
+    ); // nothing left to spend, never negative (Today is 0.00 too)
   });
 
   testWidgets('hero with nothing to compare shows a dash', (t) async {
     await pump(
       t,
-      const HeroCard(
-        monthHalalas: 100,
-        todayHalalas: 0,
-        budgetHalalas: 800000,
-        arabic: false,
-      ),
+      // Without a budget the white panel compares with last month instead of "Left to spend".
+      const HeroCard(monthHalalas: 100, todayHalalas: 0, arabic: false),
     );
     expect(find.text('—'), findsOneWidget);
   });
@@ -265,13 +261,12 @@ void main() {
         t,
         const HeroCard(
           monthHalalas: 480000,
-          budgetHalalas: 800000,
           lastMonthDiffHalalas: 479000,
           lastMonthPercent: 47900,
           arabic: false,
         ),
       );
-      expect(find.textContaining('%'), findsNWidgets(1)); // only the ring
+      expect(find.textContaining('%'), findsNothing);
       expect(find.textContaining('+⃁ 4,790.00'), findsOneWidget);
     },
   );
@@ -281,7 +276,6 @@ void main() {
       t,
       const HeroCard(
         monthHalalas: 100001,
-        budgetHalalas: 800000,
         lastMonthDiffHalalas: 1,
         lastMonthPercent: 0,
         arabic: false,

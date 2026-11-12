@@ -22,7 +22,7 @@
   "unlockReason": "فتح تطبيق المصروفات",
   "unlockFailed": "تعذّر فتح القفل. حاول مرة أخرى.",
   "emptyHomeTitle": "بانتظار أول رسالة نصية",
-  "emptyHomeBody": "فعّل اختصار iOS من «المزيد» وستظهر هنا كل رسائل البنوك.",
+  "emptyHomeBody": "فعّل التقاط الرسائل مرة واحدة وستظهر هنا كل عملية شراء من تلقاء نفسها.",
   "comingSoon": "قريباً",
   "language": "اللغة",
   "languageEnglish": "English",
@@ -116,7 +116,7 @@
   "reviewDismiss": "ليست عملية",
   "reviewLoadFailed": "تعذّر تحميل الرسائل.",
   "sar": "⃁",
-  "loadFailed": "تعذّر التحميل. اسحب لإعادة المحاولة.",
+  "loadFailed": "تعذّر التحميل",
   "searchHint": "ابحث عن متجر",
   "filterTitle": "تصفية",
   "filterAll": "كل الفئات",
@@ -284,6 +284,7 @@
   "homeSetBudget": "حدد ميزانية شهرية",
   "homeTodayShort": "اليوم",
   "homeSameShort": "مماثل",
+  "homeBudgetLine": "{percent}% من ميزانيتك {amount}",
   "homeOfBudget": "من ميزانية {amount}",
   "homeLower": "أقل بنسبة {percent}%",
   "homeHigher": "أعلى بنسبة {percent}%",
@@ -474,7 +475,7 @@
   "kindDebit": "بطاقة مدى",
   "kindCredit": "بطاقة ائتمان",
   "kindWallet": "محفظة",
-  "welcomeTitle": "ابدأ من هنا",
+  "welcomeTitle": "البداية",
   "welcomeHide": "إخفاء",
   "welcomeProgress": "تم {done} من {total}",
   "welcomeAccounts": "أضف حساباتك البنكية",
@@ -572,5 +573,11 @@
         "type": "String"
       }
     }
-  }
+  },
+  "homeAddByHand": "أضف واحدة يدويًا",
+  "homeChipBudget": "{name} عند {pct}%",
+  "homeChipOver": "{name} تجاوز الميزانية",
+  "homeChipMonthly": "الميزانية عند {pct}%",
+  "homeChipMonthlyOver": "تجاوزت الميزانية",
+  "loadFailedBody": "تحقق من اتصالك. أرقامك المحفوظة ما زالت في الرئيسية."
 }

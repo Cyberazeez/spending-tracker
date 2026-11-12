@@ -26,6 +26,9 @@ void main() {
       final h = Harness(signedIn: true)..data.accounts = [];
       await tester.pumpWidget(await h.build());
       await tester.pumpAndSettle();
+      // The getting-started card on the empty Home opens its steps when its title is tapped.
+      await tester.tap(find.text('Getting started'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Set a monthly budget'));
       await tester.pumpAndSettle();
       // the amount prompt opens right here, no empty Insights page

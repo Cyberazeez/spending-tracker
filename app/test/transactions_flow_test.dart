@@ -79,7 +79,7 @@ void main() {
   testWidgets('a failed load shows an error with retry', (tester) async {
     final h = Harness(signedIn: true)..data.failLoad = true;
     await openTransactions(tester, h);
-    expect(find.text('Could not load. Pull to retry.'), findsOneWidget);
+    expect(find.text('Could not load'), findsOneWidget);
     h.data.failLoad = false;
     h.data.txns = [tx('1', 'purchase', 'out', 500, merchant: 'Shop')];
     await tester.tap(find.widgetWithText(CupertinoButton, 'Try again'));

@@ -70,13 +70,8 @@ class OwnAccountsPage extends ConsumerWidget {
       child: SafeArea(
         child: list.when(
           loading: () => const Center(child: CupertinoActivityIndicator()),
-          error: (_, _) => EmptyState(
-            icon: CupertinoIcons.exclamationmark_triangle,
-            title: t.loadFailed,
-            action: CupertinoButton(
-              onPressed: () => ref.invalidate(ownAccountsProvider),
-              child: Text(t.tryAgain),
-            ),
+          error: (_, _) => LoadFailedCard(
+            onRetry: () => ref.invalidate(ownAccountsProvider),
           ),
           data: (accounts) => ListView(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),

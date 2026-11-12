@@ -301,56 +301,50 @@ void main() {
   });
 
   group('tab pill', () {
+    double centre(WidgetTester t, Key key) => t.getCenter(find.byKey(key)).dx;
+
     testWidgets('slides to the tapped tab, past it a little and back', (
       t,
     ) async {
       final h = Harness(signedIn: true);
       await t.pumpWidget(await h.build());
       await t.pumpAndSettle();
-      final pill = find.byKey(const ValueKey('tab-pill'));
-      double x() => t
-          .getCenter(
-            find
-                .descendant(of: pill, matching: find.byType(DecoratedBox))
-                .first,
-          )
-          .dx;
+      double x() => centre(t, const ValueKey('tab-pill'));
       final home = x();
-      final bills = t.getCenter(find.text('Bills').last).dx;
       await t.tap(find.text('Bills').last);
       await t.pump();
       await t.pump(const Duration(milliseconds: 80));
-      expect(x(), inExclusiveRange(home, bills));
+      final mid = x();
       var furthest = 0.0;
       for (var i = 0; i < 30; i++) {
         await t.pump(const Duration(milliseconds: 16));
         if (x() > furthest) furthest = x();
       }
       await t.pumpAndSettle();
+      final bills = centre(t, const ValueKey('tab-item-2'));
+      expect(mid, inExclusiveRange(home, bills));
       expect(x(), closeTo(bills, 1));
       expect(furthest, greaterThan(bills + 1));
+      // The selected tab shows its name; the others only their icon.
+      expect(
+        t.getSize(find.byKey(const ValueKey('tab-item-2'))).width,
+        greaterThan(t.getSize(find.byKey(const ValueKey('tab-item-0'))).width),
+      );
     });
 
     testWidgets('slides the other way in Arabic', (t) async {
       final h = Harness(signedIn: true);
       await t.pumpWidget(await h.build(prefs: {'locale': 'ar'}));
       await t.pumpAndSettle();
-      final pill = find.byKey(const ValueKey('tab-pill'));
-      double x() => t
-          .getCenter(
-            find
-                .descendant(of: pill, matching: find.byType(DecoratedBox))
-                .first,
-          )
-          .dx;
+      double x() => centre(t, const ValueKey('tab-pill'));
       final home = x();
       await t.tap(find.text('الفواتير').last);
       await t.pumpAndSettle();
       expect(x(), lessThan(home));
-      expect(x(), closeTo(t.getCenter(find.text('الفواتير').last).dx, 1));
+      expect(x(), closeTo(centre(t, const ValueKey('tab-item-2')), 1));
     });
 
-    testWidgets('with Reduce Motion it does not slide', (t) async {
+    testWidgets('with Reduce Motion it jumps without sliding', (t) async {
       final h = Harness(signedIn: true);
       await t.pumpWidget(
         MediaQuery(
@@ -359,8 +353,13 @@ void main() {
         ),
       );
       await t.pumpAndSettle();
-      expect(find.byKey(const ValueKey('tab-pill')), findsNothing);
-      expect(find.byType(AnimatedOpacity), findsWidgets);
+      await t.tap(find.text('Bills').last);
+      await t.pump();
+      await t.pump(const Duration(milliseconds: 16));
+      expect(
+        centre(t, const ValueKey('tab-pill')),
+        closeTo(centre(t, const ValueKey('tab-item-2')), 1),
+      );
     });
   });
 

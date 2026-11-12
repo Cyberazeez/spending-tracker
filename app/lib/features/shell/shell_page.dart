@@ -171,11 +171,11 @@ class _ShellPageState extends ConsumerState<ShellPage>
             label: t.tabTransactions,
           ),
           BottomNavigationBarItem(
-            icon: const Icon(LucideIcons.calendar),
+            icon: const Icon(LucideIcons.receiptText),
             label: t.tabObligations,
           ),
           BottomNavigationBarItem(
-            icon: const Icon(LucideIcons.chartPie),
+            icon: const Icon(LucideIcons.chartNoAxesColumn),
             label: t.tabInsights,
           ),
           BottomNavigationBarItem(
