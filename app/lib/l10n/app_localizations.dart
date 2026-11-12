@@ -3331,6 +3331,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Delete rule'**
   String get rulesDeleteYes;
+
+  /// No description provided for @capOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'No connection'**
+  String get capOffline;
+
+  /// No description provided for @capOfflineBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages wait on the phone and go out when it is online.'**
+  String get capOfflineBody;
+
+  /// No description provided for @capQueued.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting to send'**
+  String get capQueued;
+
+  /// No description provided for @aiAskTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on the AI assistant?'**
+  String get aiAskTitle;
+
+  /// No description provided for @aiAskConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on'**
+  String get aiAskConfirm;
+
+  /// No description provided for @aiAskBody.
+  ///
+  /// In en, this message translates to:
+  /// **'To answer questions and suggest savings, your totals and merchant names are sent to Anthropic\'s AI. Never message text, names or account numbers. You can turn this off at any time.'**
+  String get aiAskBody;
 }
 
 class _AppLocalizationsDelegate

@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:spending_tracker/core/banks.dart';
 import 'package:spending_tracker/core/models.dart';
 import 'package:spending_tracker/features/more/capture_label.dart';
 
@@ -59,22 +60,24 @@ void main() {
     expect(h.capture.shortcutsOpened, 1);
   });
 
-  testWidgets('a failed send says so, counts what waits and sends it now', (
-    tester,
-  ) async {
-    final h = Harness(signedIn: true)
-      ..capture.hasToken = true
-      ..capture.tokenUser = 'user-1'
-      ..capture.pending = 2
-      ..capture.last = '19:55:13 error -1009';
-    await _open(tester, h);
-    expect(find.text('Not sending'), findsOneWidget);
-    expect(find.textContaining('2 waiting'), findsOneWidget);
-    final before = h.capture.flushes;
-    await tester.tap(find.byKey(const ValueKey('capture-send-now')));
-    await tester.pumpAndSettle();
-    expect(h.capture.flushes, before + 1);
-  });
+  testWidgets(
+    'offline is not a failure; it counts what waits and sends it now',
+    (tester) async {
+      final h = Harness(signedIn: true)
+        ..capture.hasToken = true
+        ..capture.tokenUser = 'user-1'
+        ..capture.pending = 2
+        ..capture.last = '19:55:13 error -1009';
+      await _open(tester, h);
+      expect(find.text('No connection'), findsOneWidget);
+      expect(find.text('Not sending'), findsNothing);
+      expect(find.textContaining('2 waiting'), findsOneWidget);
+      final before = h.capture.flushes;
+      await tester.tap(find.byKey(const ValueKey('capture-send-now')));
+      await tester.pumpAndSettle();
+      expect(h.capture.flushes, before + 1);
+    },
+  );
 
   testWidgets('nothing sent yet waits for the first message', (tester) async {
     final h = Harness(signedIn: true);
@@ -83,11 +86,45 @@ void main() {
     expect(find.text('Show me how, step by step'), findsOneWidget);
   });
 
-  test('the send result is read from the bridge string', () {
-    expect(captureLastSucceeded(''), isNull);
-    expect(captureLastSucceeded('11:20:05 HTTP 200'), isTrue);
-    expect(captureLastSucceeded('11:20:05 HTTP 401'), isFalse);
-    expect(captureLastSucceeded('19:55:13 error -1009'), isFalse);
+  test('the phone\'s log entries are sorted into what they mean', () {
+    expect(captureResult(''), CaptureResult.none);
+    expect(captureResult('11:20:05 HTTP 200'), CaptureResult.sent);
+    expect(captureResult('11:20:05 HTTP 401'), CaptureResult.failed);
+    expect(captureResult('19:55:13 error -1009'), CaptureResult.offline);
+    expect(captureResult('19:55:13 no response'), CaptureResult.offline);
+    expect(captureResult('19:55:13 queued'), CaptureResult.queued);
+    expect(captureResult('19:55:13 no token'), CaptureResult.noToken);
+  });
+
+  testWidgets('a server refusal is the only pink card', (tester) async {
+    final h = Harness(signedIn: true)
+      ..capture.hasToken = true
+      ..capture.tokenUser = 'user-1'
+      ..capture.last = '08:00:01 HTTP 500';
+    await _open(tester, h);
+    expect(find.text('Not sending'), findsOneWidget);
+    expect(find.text('Last send failed (500)'), findsOneWidget);
+  });
+
+  testWidgets('an interrupted shortcut says it is waiting to send', (
+    tester,
+  ) async {
+    final h = Harness(signedIn: true)
+      ..capture.hasToken = true
+      ..capture.tokenUser = 'user-1'
+      ..capture.pending = 1
+      ..capture.last = '08:00:01 queued';
+    await _open(tester, h);
+    expect(find.text('Waiting to send'), findsOneWidget);
+    expect(find.text('Not sending'), findsNothing);
+  });
+
+  test('a bank sender spelled differently is still that bank', () {
+    expect(bankCodeForSender('RiyadBank'), 'riyad');
+    expect(bankCodeForSender('Riyad Bank'), 'riyad');
+    expect(bankCodeForSender('SNB-AlAhli'), 'snb');
+    expect(bankCodeForSender('900'), isNull);
+    expect(bankCodeForSender('Unknown Shop'), isNull);
   });
 
   for (final lang in ['en', 'ar']) {

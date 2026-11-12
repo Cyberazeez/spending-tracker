@@ -115,6 +115,16 @@ void main() {
     expect(tester.widget<CupertinoSwitch>(sw).value, isFalse);
     await tester.tap(sw);
     await tester.pumpAndSettle();
+    // It says what is sent, and to whom, before turning on; Cancel changes nothing.
+    expect(find.text('Turn on the AI assistant?'), findsOneWidget);
+    expect(find.textContaining("Anthropic's AI"), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('confirm-no')));
+    await tester.pumpAndSettle();
+    expect(h.data.aiOn, isFalse);
+    await tester.tap(sw);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('confirm-yes')));
+    await tester.pumpAndSettle();
     expect(h.data.aiOn, isTrue);
     expect(tester.widget<CupertinoSwitch>(sw).value, isTrue);
   });
@@ -149,6 +159,8 @@ void main() {
     await tester.pumpAndSettle();
     final sw = await moreSwitch(tester, 'more-ai');
     await tester.tap(sw);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('confirm-yes')));
     await tester.pumpAndSettle();
     expect(tester.widget<CupertinoSwitch>(sw).value, isFalse);
     expect(find.textContaining('Could not save'), findsOneWidget);

@@ -237,11 +237,13 @@ class _CategoryCard extends StatelessWidget {
                   ),
                 ),
                 Semantics(
+                  key: ValueKey('rule-delete-${rules[i].id}'),
+                  container: true,
                   button: true,
                   label: '${t.rulesDeleteYes}, ${rules[i].pattern}',
+                  onTap: () => onDelete(rules[i]),
                   excludeSemantics: true,
                   child: CupertinoButton(
-                    key: ValueKey('rule-delete-${rules[i].id}'),
                     padding: EdgeInsets.zero,
                     minimumSize: const Size(44, 44),
                     onPressed: () => onDelete(rules[i]),

@@ -1848,4 +1848,24 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get rulesDeleteYes => 'احذف القاعدة';
+
+  @override
+  String get capOffline => 'لا يوجد اتصال';
+
+  @override
+  String get capOfflineBody =>
+      'تنتظر الرسائل على الجوال وتُرسل عند توفر الاتصال.';
+
+  @override
+  String get capQueued => 'بانتظار الإرسال';
+
+  @override
+  String get aiAskTitle => 'تشغيل المساعد الذكي؟';
+
+  @override
+  String get aiAskConfirm => 'تشغيل';
+
+  @override
+  String get aiAskBody =>
+      'للإجابة على أسئلتك واقتراح التوفير، تُرسل مجاميعك وأسماء المتاجر إلى الذكاء الاصطناعي من Anthropic، وليس نص الرسائل أو الأسماء أو أرقام الحسابات. يمكنك إيقافه في أي وقت.';
 }

@@ -202,6 +202,7 @@ class _AccountCard extends StatelessWidget {
     return Semantics(
       button: true,
       label: '$title, $subtitle',
+      onTap: onTap,
       excludeSemantics: true,
       child: GestureDetector(
         key: const ValueKey('more-account'),
@@ -271,8 +272,20 @@ class _AiRowState extends ConsumerState<_AiRow> {
 
   Future<void> _set(bool on) async {
     if (_pending != null) return; // one save at a time
-    setState(() => _pending = on);
     final t = AppLocalizations.of(context);
+    // Turning it on says first what is sent and to whom (the row has no subtitle in the redesign).
+    if (on) {
+      final ok = await showConfirmSheet(
+        context,
+        title: t.aiAskTitle,
+        message: t.aiAskBody,
+        confirmLabel: t.aiAskConfirm,
+        icon: LucideIcons.sparkles,
+        iconColor: AppTokens.gold.resolveFrom(context),
+      );
+      if (ok != true || !mounted) return;
+    }
+    setState(() => _pending = on);
     var failed = false;
     try {
       await ref.read(dataRepositoryProvider).setAiEnabled(on);

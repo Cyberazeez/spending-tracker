@@ -1021,5 +1021,11 @@
   "rulesDeleteTitle": "Delete this rule?",
   "rulesDeleteBody": "\"{place}\" will no longer go to {category} by itself. Past purchases keep their category.",
   "@rulesDeleteBody": {"placeholders": {"place": {"type": "String"}, "category": {"type": "String"}}},
-  "rulesDeleteYes": "Delete rule"
+  "rulesDeleteYes": "Delete rule",
+  "capOffline": "No connection",
+  "capOfflineBody": "Messages wait on the phone and go out when it is online.",
+  "capQueued": "Waiting to send",
+  "aiAskTitle": "Turn on the AI assistant?",
+  "aiAskConfirm": "Turn on",
+  "aiAskBody": "To answer questions and suggest savings, your totals and merchant names are sent to Anthropic's AI. Never message text, names or account numbers. You can turn this off at any time."
 }

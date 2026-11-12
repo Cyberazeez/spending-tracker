@@ -60,6 +60,22 @@ String? bankCodeForSender(String sender) {
     'stcbank' => 'stc',
     'snbalahli' || 'snb' => 'snb',
     'alrajhibank' || 'alrajhi' => 'alrajhi',
-    _ => null,
+    _ => _bankByName(s),
   };
+}
+
+/// Another sender that spells a known bank's code or English name ("RiyadBank", "Riyad Bank"), so a bank never
+/// shows twice on the SMS capture page (once as the sender, once as an account with no messages).
+String? _bankByName(String s) {
+  if (s.isEmpty || s == '900') return null;
+  String norm(String v) => v
+      .toLowerCase()
+      .replaceAll(RegExp(r'\(.*?\)'), '')
+      .replaceAll(RegExp(r'[^a-z0-9]'), '');
+  for (final b in bankList) {
+    final code = norm(b.code);
+    final name = norm(b.en);
+    if (s == code || s == '${code}bank' || s == name) return b.code;
+  }
+  return null;
 }

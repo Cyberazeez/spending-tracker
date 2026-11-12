@@ -8,7 +8,7 @@ Supersedes the earlier "ask in Needs review" design. No questions, no Needs revi
 3. Order does not matter: the first counts until the second arrives, then both flip.
 4. A single SMS whose other side matches a saved own account is internal automatically.
 5. Fees stay separate expenses. Wallet top-ups and own credit-card payments stay auto-internal.
-6. Account > Bank accounts: add, edit, delete. Deleting never touches past transactions.
+6. More > Bank accounts (was Account > Bank accounts until 2026-11-13): add, edit, delete. Deleting never touches past transactions.
 
 ## Code
 - `_shared/enrich.ts`: `pairsWith`, `accountsOfPair`.

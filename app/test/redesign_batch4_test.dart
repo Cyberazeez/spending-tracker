@@ -151,6 +151,37 @@ void main() {
     });
   });
 
+  testWidgets('VoiceOver can activate the account card and a rule delete', (
+    t,
+  ) async {
+    _tall(t);
+    final handle = t.ensureSemantics();
+    final h = Harness(signedIn: true)
+      ..data.rules = [
+        const MerchantRule(id: 'r1', pattern: 'otten', categoryId: 'c-gro'),
+      ];
+    await _more(t, h);
+    expect(
+      t.getSemantics(find.byKey(const ValueKey('more-account'))),
+      matchesSemantics(
+        isButton: true,
+        hasTapAction: true,
+        label: 'Your account, ${h.auth.email}',
+      ),
+    );
+    await t.tap(find.byKey(const ValueKey('more-rules')));
+    await t.pumpAndSettle();
+    expect(
+      t.getSemantics(find.byKey(const ValueKey('rule-delete-r1'))),
+      matchesSemantics(
+        isButton: true,
+        hasTapAction: true,
+        label: 'Delete rule, otten',
+      ),
+    );
+    handle.dispose();
+  });
+
   for (final lang in ['en', 'ar']) {
     testWidgets('More and Categories and rules survive 2x text ($lang)', (
       t,

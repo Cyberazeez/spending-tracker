@@ -59,7 +59,7 @@ List<CaptureSource> captureSources(
     }
   }
   return [for (final v in byKey.values) CaptureSource(v.$1, v.$2)]
-    ..sort((a, b) => a.label.compareTo(b.label));
+    ..sort((a, b) => a.label.toLowerCase().compareTo(b.label.toLowerCase()));
 }
 
 /// More > SMS capture: whether the Shortcuts automation works, which banks have sent messages, and the guide.
@@ -148,7 +148,8 @@ class CapturePage extends ConsumerWidget {
   }
 }
 
-/// The big card on top: working (mint), not sending (pink), or not set up / nothing sent yet (gold). Messages
+/// The big card on top: working (mint), refused by the server (pink), or not set up / offline / nothing sent yet
+/// (gold). Messages
 /// waiting on the phone are counted, with a link to send them now.
 class _StatusCard extends ConsumerWidget {
   const _StatusCard({required this.status});
@@ -159,7 +160,8 @@ class _StatusCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = AppLocalizations.of(context);
     final s = status;
-    final ok = s == null ? null : captureLastSucceeded(s.last);
+    final result = s == null ? CaptureResult.none : captureResult(s.last);
+    final gold = AppTokens.gold.resolveFrom(context);
     final (Color fill, IconData icon, String title, String body) = switch (s) {
       null => (
         AppTokens.card.resolveFrom(context),
@@ -167,38 +169,51 @@ class _StatusCard extends ConsumerWidget {
         t.captureStatus,
         '',
       ),
-      _ when !s.hasToken => (
-        AppTokens.gold.resolveFrom(context),
+      _ when !s.hasToken || result == CaptureResult.noToken => (
+        gold,
         LucideIcons.messageSquare,
         t.capNotSetUp,
         t.capNotSetUpBody,
       ),
-      _ when ok == false => (
+      // The server refused the message (a real failure; 401/403 mean the phone must sign in again).
+      _ when result == CaptureResult.failed => (
         dangerTileColor,
         LucideIcons.triangleAlert,
         t.capFailing,
         captureLastLabel(t, s.last),
       ),
-      _ when ok == true => (
+      // Offline for a moment: the messages wait on the phone and are retried, so it is not a failure.
+      _ when result == CaptureResult.offline => (
+        gold,
+        LucideIcons.wifiOff,
+        t.capOffline,
+        t.capOfflineBody,
+      ),
+      _ when result == CaptureResult.sent => (
         AppTokens.okBg.resolveFrom(context),
         LucideIcons.check,
         t.capWorking,
         captureLastLabel(t, s.last),
       ),
-      _ => (
-        AppTokens.gold.resolveFrom(context),
+      _ when result == CaptureResult.none => (
+        gold,
         LucideIcons.hourglass,
         t.capWaitingFirst,
         t.captureNone,
       ),
+      // Queued (the shortcut stopped before sending) or a shape this app does not know.
+      _ => (gold, LucideIcons.hourglass, t.capQueued, ''),
     };
     // Text sits on a pastel fill (or the plain card while loading).
     final ink = s == null
         ? AppTokens.text.resolveFrom(context)
         : AppTokens.onTint.resolveFrom(context);
     final pending = s?.pending ?? 0;
+    // "Send now" needs the phone's credentials; without them the native flush does nothing.
+    final canSend = pending > 0 && (s?.hasToken ?? false);
     final lines = [
-      if (body.isNotEmpty && !(ok == null && pending > 0)) body,
+      if (body.isNotEmpty && !(result == CaptureResult.none && pending > 0))
+        body,
       if (pending > 0) t.captureWaiting(pending),
     ];
     return AppCard(
@@ -210,8 +225,9 @@ class _StatusCard extends ConsumerWidget {
         children: [
           Row(
             children: [
+              // A fixed white tile: the icon is ink in both modes, so the dark card colour would hide it.
               IconTile(
-                color: AppTokens.card.resolveFrom(context),
+                color: const Color(0xFFFFFFFF),
                 icon: icon,
                 size: 52,
                 radius: 14,
@@ -244,7 +260,7 @@ class _StatusCard extends ConsumerWidget {
               ),
             ],
           ),
-          if (pending > 0)
+          if (canSend)
             CupertinoButton(
               key: const ValueKey('capture-send-now'),
               padding: const EdgeInsetsDirectional.only(start: 66),

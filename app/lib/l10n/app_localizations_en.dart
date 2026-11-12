@@ -1857,4 +1857,24 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get rulesDeleteYes => 'Delete rule';
+
+  @override
+  String get capOffline => 'No connection';
+
+  @override
+  String get capOfflineBody =>
+      'Messages wait on the phone and go out when it is online.';
+
+  @override
+  String get capQueued => 'Waiting to send';
+
+  @override
+  String get aiAskTitle => 'Turn on the AI assistant?';
+
+  @override
+  String get aiAskConfirm => 'Turn on';
+
+  @override
+  String get aiAskBody =>
+      'To answer questions and suggest savings, your totals and merchant names are sent to Anthropic\'s AI. Never message text, names or account numbers. You can turn this off at any time.';
 }
