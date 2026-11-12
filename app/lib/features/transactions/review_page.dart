@@ -15,6 +15,8 @@ import '../../ui/empty_state.dart';
 import '../../ui/choice_sheet.dart';
 import '../../ui/tokens.dart';
 import '../../ui/app_card.dart';
+import '../home/category_groups.dart';
+import '../home/group_style.dart';
 import '../../ui/icon_tile.dart';
 import 'manual_form.dart';
 import 'providers.dart';
@@ -122,6 +124,21 @@ class ReviewPage extends ConsumerWidget {
     final t = AppLocalizations.of(context);
     final items = ref.watch(needsReviewProvider);
     final aiRead = ref.watch(aiReadProvider).value ?? const <AiRead>[];
+    final arabic = ref.watch(localeProvider).languageCode == 'ar';
+    // Past 1.3x text the amount drops under the merchant instead of squeezing it (as on Activity).
+    final stacked = MediaQuery.textScalerOf(context).scale(10) > 13;
+    Widget amountOf(AiRead a) => Directionality(
+      textDirection: TextDirection.ltr,
+      child: Text(
+        formatSar(a.txn.amountHalalas, arabic: arabic),
+        style: TextStyle(
+          color: AppTokens.text.resolveFrom(context),
+          fontSize: 15,
+          fontWeight: FontWeight.w700,
+          fontFeatures: const [FontFeature.tabularFigures()],
+        ),
+      ),
+    );
     return CupertinoPageScaffold(
       backgroundColor: AppTokens.bg.resolveFrom(context),
       navigationBar: appNavBar(context, t.reviewTitle),
@@ -148,12 +165,15 @@ class ReviewPage extends ConsumerWidget {
                     if (aiRead.isNotEmpty) ...[
                       Padding(
                         padding: const EdgeInsets.fromLTRB(4, 0, 4, 8),
-                        child: Text(
-                          t.aiReadHeader,
-                          style: TextStyle(
-                            color: AppTokens.text.resolveFrom(context),
-                            fontSize: 18,
-                            fontWeight: FontWeight.w800,
+                        child: Semantics(
+                          header: true,
+                          child: Text(
+                            t.aiReadHeader,
+                            style: TextStyle(
+                              color: AppTokens.text.resolveFrom(context),
+                              fontSize: 18,
+                              fontWeight: FontWeight.w800,
+                            ),
                           ),
                         ),
                       ),
@@ -202,26 +222,14 @@ class ReviewPage extends ConsumerWidget {
                                                 fontSize: 12,
                                               ),
                                             ),
+                                            if (stacked) amountOf(a),
                                           ],
                                         ),
                                       ),
-                                      Text(
-                                        formatSar(
-                                          a.txn.amountHalalas,
-                                          arabic:
-                                              ref
-                                                  .watch(localeProvider)
-                                                  .languageCode ==
-                                              'ar',
-                                        ),
-                                        style: TextStyle(
-                                          color: AppTokens.text.resolveFrom(
-                                            context,
-                                          ),
-                                          fontSize: 15,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 8),
+                                      if (!stacked) ...[
+                                        amountOf(a),
+                                        const SizedBox(width: 8),
+                                      ],
                                       ForwardChevron(
                                         size: 14,
                                         color: AppTokens.muted.resolveFrom(
@@ -252,8 +260,8 @@ class ReviewPage extends ConsumerWidget {
                                 child: Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const IconTile(
-                                      color: Color(0xFFDDE3CC),
+                                    IconTile(
+                                      color: groupColor(CategoryGroup.other),
                                       icon: LucideIcons.messageSquare,
                                       iconSize: 21,
                                     ),

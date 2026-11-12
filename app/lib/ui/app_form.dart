@@ -177,9 +177,11 @@ class FieldButton extends StatelessWidget {
       label: label,
       excludeSemantics: true,
       onTap: onPressed,
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: onPressed,
+      // CupertinoButton for the same pressed feedback the old text button had.
+      child: CupertinoButton(
+        padding: EdgeInsets.zero,
+        minimumSize: const Size(44, 50),
+        onPressed: onPressed,
         child: Container(
           constraints: const BoxConstraints(minHeight: 50),
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),

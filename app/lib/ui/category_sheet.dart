@@ -337,6 +337,8 @@ class _Tile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final accent = AppTokens.accent.resolveFrom(context);
+    // The ring is drawn on the page colour: the deeper green keeps it above 3:1 there (emerald is 2.8:1).
+    final ring = AppTokens.accentText.resolveFrom(context);
     final text = AppTokens.text.resolveFrom(context);
     final group = groupOf(category.name);
     return Semantics(
@@ -360,7 +362,7 @@ class _Tile extends StatelessWidget {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(21),
                     border: Border.all(
-                      color: selected ? accent : const Color(0x00000000),
+                      color: selected ? ring : const Color(0x00000000),
                       width: 3,
                     ),
                   ),

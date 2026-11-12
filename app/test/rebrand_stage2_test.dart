@@ -1,10 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:spending_tracker/core/models.dart';
 import 'package:spending_tracker/features/transactions/widgets/txn_row.dart';
 import 'package:spending_tracker/l10n/app_localizations.dart';
+import 'package:spending_tracker/router.dart';
 import 'package:spending_tracker/ui/app_form.dart';
 import 'package:spending_tracker/ui/category_sheet.dart';
 import 'package:spending_tracker/ui/icon_tile.dart';
@@ -62,6 +64,7 @@ Txn _txn({String? categoryId}) => Txn(
 );
 
 void main() {
+  stage2LayoutTests();
   for (final b in Brightness.values) {
     testWidgets('IconTile: 2 pt line outline and an ink icon (${b.name})', (
       t,
@@ -206,6 +209,66 @@ void main() {
     },
   );
 
+  test('the chosen-category ring is at least 3:1 on the page colour', () {
+    expect(
+      _contrast(const Color(0xFF00704A), const Color(0xFFF0F5E6)),
+      greaterThanOrEqualTo(3),
+    );
+    expect(
+      _contrast(const Color(0xFF3FD79B), const Color(0xFF0D1F17)),
+      greaterThanOrEqualTo(3),
+    );
+  });
+
+  testWidgets('Quick add: the date row still opens the time picker', (t) async {
+    final h = Harness(signedIn: true);
+    await t.pumpWidget(await h.build());
+    await t.pumpAndSettle();
+    GoRouter.of(t.element(find.byType(CupertinoPageScaffold).last))
+        .push(quickAddPath);
+    await t.pumpAndSettle();
+    await t.tap(find.byIcon(LucideIcons.calendar));
+    await t.pumpAndSettle();
+    expect(find.byType(CupertinoDatePicker), findsOneWidget);
+  });
+
+  testWidgets(
+    'Activity: title-bar buttons are 44 pt with labels; filter fills when on',
+    (t) async {
+      final h = Harness(signedIn: true);
+      h.data.txns = [_txn()];
+      await t.pumpWidget(await h.build());
+      await t.pumpAndSettle();
+      await t.tap(find.text('Activity').last);
+      await t.pumpAndSettle();
+      for (final icon in [LucideIcons.listFilter, LucideIcons.plus]) {
+        final button = find.ancestor(
+          of: find.byIcon(icon),
+          matching: find.byType(CupertinoButton),
+        );
+        final size = t.getSize(button.first);
+        expect(size.width, greaterThanOrEqualTo(44));
+        expect(size.height, greaterThanOrEqualTo(44));
+      }
+      expect(find.bySemanticsLabel('Filter'), findsWidgets);
+      Color? filterFill() => t
+          .widgetList<DecoratedBox>(
+            find.ancestor(
+              of: find.byIcon(LucideIcons.listFilter),
+              matching: find.byType(DecoratedBox),
+            ),
+          )
+          .map((d) => d.decoration)
+          .whereType<BoxDecoration>()
+          .firstWhere((d) => d.border != null)
+          .color;
+      expect(_v(filterFill()), 0xFFFFFFFF);
+      await t.tap(find.text('No category'));
+      await t.pumpAndSettle();
+      expect(_v(filterFill()), 0xFF00A86B);
+    },
+  );
+
   testWidgets(
     'Activity: "No category" chip is gold, the chosen chip is emerald',
     (t) async {
@@ -235,4 +298,59 @@ void main() {
       expect(_v(fillOf('No category')), 0xFF00A86B);
     },
   );
+}
+
+void _reviewData(Harness h) {
+  final raw = RawMessage(
+    id: 'r1',
+    sender: 'Bank',
+    body: 'Purchase 123456.00 SAR card **4821 at [merchant]',
+    receivedAt: DateTime.utc(2026, 10, 29, 11),
+  );
+  h.data
+    ..review = [raw]
+    ..aiRead = [
+      AiRead(
+        raw: raw,
+        txn: Txn(
+          id: 'a1',
+          type: 'purchase',
+          direction: 'out',
+          amountHalalas: 12345600,
+          occurredAt: DateTime.utc(2026, 10, 29, 11),
+          merchant: 'A merchant with a rather long name',
+        ),
+      ),
+    ];
+}
+
+void stage2LayoutTests() {
+  for (final lang in ['en', 'ar']) {
+    testWidgets(
+      'Needs review: no overflow at 2x text on a 360 pt phone ($lang)',
+      (t) async {
+        t.view.physicalSize = const Size(360 * 2, 720 * 2);
+        t.view.devicePixelRatio = 2;
+        t.platformDispatcher.textScaleFactorTestValue = 2;
+        addTearDown(t.view.reset);
+        addTearDown(t.platformDispatcher.clearAllTestValues);
+        final h = Harness(signedIn: true);
+        _reviewData(h);
+        await t.pumpWidget(await h.build(prefs: {'locale': lang}));
+        await t.pumpAndSettle();
+        GoRouter.of(t.element(find.byType(CupertinoPageScaffold).last))
+            .push(reviewPath);
+        await t.pumpAndSettle();
+        expect(t.takeException(), isNull);
+        final heading = t.getSemantics(
+          find.text(
+            lang == 'en'
+                ? 'Read by AI: please check'
+                : 'قرأها الذكاء الاصطناعي: يرجى التحقق',
+          ),
+        );
+        expect(heading.flagsCollection.isHeader, isTrue);
+      },
+    );
+  }
 }
