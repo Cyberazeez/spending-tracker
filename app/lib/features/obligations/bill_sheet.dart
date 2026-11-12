@@ -107,7 +107,9 @@ class _BillSheet extends ConsumerStatefulWidget {
 
 class _BillSheetState extends ConsumerState<_BillSheet> {
   ObligationDef? _def;
-  bool _saving = false;
+
+  /// A save or an action is running: further taps wait, so nothing is sent twice and nothing pops twice.
+  bool _busy = false;
 
   ObligationInstance get i => widget.i;
   bool get _editable => i.kind != 'card_statement';
@@ -130,47 +132,68 @@ class _BillSheetState extends ConsumerState<_BillSheet> {
     }
   }
 
-  void _refresh() {
-    ref.invalidate(obligationsProvider);
-    ref.invalidate(monthSpendProvider);
+  /// Refreshes the Bills lists. Taken from the container, so it still works after the sheet was closed.
+  void Function() _refresher() {
+    final c = ProviderScope.containerOf(context, listen: false);
+    return () {
+      c.invalidate(obligationsProvider);
+      c.invalidate(monthSpendProvider);
+    };
   }
 
-  /// Saves the bill's settings with one change; the server rebuilds its open months.
-  Future<void> _save(ObligationDef d) async {
+  /// Closes this sheet, only while it is still the top route (it may have been dismissed meanwhile).
+  void _close(ModalRoute<Object?>? route) {
+    if (mounted && route != null && route.isCurrent) {
+      Navigator.of(context).pop();
+    }
+  }
+
+  /// Saves the bill's settings with one change; the server rebuilds its open months. A change of how often or
+  /// which day moves this month's due date (or removes it), so the sheet closes and the list shows the new one.
+  Future<void> _save(ObligationDef d, {bool close = false}) async {
+    if (_busy) return;
     final t = AppLocalizations.of(context);
+    final refresh = _refresher();
+    final route = ModalRoute.of(context);
     final before = _def;
     setState(() {
       _def = d;
-      _saving = true;
+      _busy = true;
     });
     try {
       await ref.read(dataRepositoryProvider).saveObligation(i.obligationId, d);
-      _refresh();
+      refresh();
+      if (close) _close(route);
     } catch (_) {
       if (!mounted) return;
       setState(() => _def = before);
       await showNoticeSheet(context, title: t.obSaveFailed);
     } finally {
-      if (mounted) setState(() => _saving = false);
+      if (mounted) setState(() => _busy = false);
     }
   }
 
   /// Runs an action on the bill, then closes the sheet.
   Future<void> _act(Future<void> Function() action) async {
+    if (_busy) return;
     final t = AppLocalizations.of(context);
-    final nav = Navigator.of(context);
+    final refresh = _refresher();
+    final route = ModalRoute.of(context);
+    setState(() => _busy = true);
     try {
       await action();
     } catch (_) {
       if (mounted) await showNoticeSheet(context, title: t.obSaveFailed);
       return;
     } finally {
-      _refresh();
+      refresh();
+      if (mounted) setState(() => _busy = false);
     }
-    if (mounted) nav.pop();
+    _close(route);
   }
 
   Future<void> _markPaid(bool arabic) async {
+    if (_busy) return;
     final repo = ref.read(dataRepositoryProvider);
     final ok = await confirmMarkPaid(context, ref, i, arabic: arabic);
     if (!mounted) return;
@@ -186,6 +209,7 @@ class _BillSheetState extends ConsumerState<_BillSheet> {
   }
 
   Future<void> _stop() async {
+    if (_busy) return;
     final t = AppLocalizations.of(context);
     final sure = await showConfirmSheet(
       context,
@@ -201,6 +225,7 @@ class _BillSheetState extends ConsumerState<_BillSheet> {
   }
 
   Future<void> _editAmount() async {
+    if (_busy) return;
     final t = AppLocalizations.of(context);
     final paid = widget.status == 'paid';
     final current = paid
@@ -238,6 +263,7 @@ class _BillSheetState extends ConsumerState<_BillSheet> {
     startMonth: d.startMonth ?? widget.today.month,
     graceDays: d.graceDays,
     leadDays: leadDays ?? d.leadDays,
+    active: d.active,
     categoryId: d.categoryId,
     merchantWords: d.merchantWords,
     tolerancePct: d.tolerancePct,
@@ -276,7 +302,9 @@ class _BillSheetState extends ConsumerState<_BillSheet> {
     final shown = widget.status == 'paid' && i.actualHalalas != null
         ? i.actualHalalas
         : i.expectedHalalas;
-    final d = _def;
+    // A stopped bill (seen from History) shows no settings: saving any of them would start it again.
+    final d = _def?.active == false ? null : _def;
+    final stopped = _def?.active == false;
 
     Widget label(String s) => Padding(
       padding: const EdgeInsets.only(top: 14, bottom: 6),
@@ -346,6 +374,7 @@ class _BillSheetState extends ConsumerState<_BillSheet> {
                     ),
                     const SizedBox(width: 14),
                     Expanded(
+                      flex: 3,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -373,7 +402,18 @@ class _BillSheetState extends ConsumerState<_BillSheet> {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    StatusPill(label: widget.statusLabel, tone: widget.tone),
+                    // Shrinks rather than overflow with large text.
+                    Flexible(
+                      flex: 2,
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: AlignmentDirectional.centerEnd,
+                        child: StatusPill(
+                          label: widget.statusLabel,
+                          tone: widget.tone,
+                        ),
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 12),
@@ -420,7 +460,7 @@ class _BillSheetState extends ConsumerState<_BillSheet> {
                       'estimated': t.obfAmountEstimated,
                     },
                     onChanged: (v) {
-                      if (!_saving && v != d.amountType) {
+                      if (v != d.amountType) {
                         _save(_with(d, amountType: v));
                       }
                     },
@@ -455,7 +495,10 @@ class _BillSheetState extends ConsumerState<_BillSheet> {
                                   ],
                                 );
                                 if (f != null && f != d.frequency && mounted) {
-                                  await _save(_with(d, frequency: f));
+                                  await _save(
+                                    _with(d, frequency: f),
+                                    close: true,
+                                  );
                                 }
                               },
                             ),
@@ -475,7 +518,7 @@ class _BillSheetState extends ConsumerState<_BillSheet> {
                               onPressed: () async {
                                 final n = await _pickDay(d.day);
                                 if (n != null && n != d.day && mounted) {
-                                  await _save(_with(d, day: n));
+                                  await _save(_with(d, day: n), close: true);
                                 }
                               },
                             ),
@@ -567,7 +610,7 @@ class _BillSheetState extends ConsumerState<_BillSheet> {
                               .setInstanceStatus(i.id, 'skipped'),
                         ),
                       ),
-                    if (_editable)
+                    if (_editable && !stopped)
                       _Link(
                         key: const ValueKey('bill-edit'),
                         label: t.obEditDetails,
@@ -579,7 +622,7 @@ class _BillSheetState extends ConsumerState<_BillSheet> {
                           );
                         },
                       ),
-                    if (_editable)
+                    if (_editable && !stopped)
                       _Link(
                         key: const ValueKey('bill-stop'),
                         label: t.bsStopBill,

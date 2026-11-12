@@ -135,8 +135,11 @@ void main() {
   });
 
   for (final lang in ['en', 'ar']) {
-    testWidgets('the bill sheet survives 2x text ($lang)', (t) async {
-      t.view.physicalSize = const Size(720, 1400);
+    testWidgets('the bill sheet survives 2x text at 360 wide ($lang)', (
+      t,
+    ) async {
+      // 360 pt wide; tall enough that the row is not under the floating tab bar.
+      t.view.physicalSize = const Size(720, 2000);
       t.view.devicePixelRatio = 2;
       t.platformDispatcher.textScaleFactorTestValue = 2;
       addTearDown(t.view.reset);
@@ -146,9 +149,90 @@ void main() {
       await t.pumpAndSettle();
       await t.tap(find.byKey(const ValueKey('tab-item-2')));
       await t.pumpAndSettle();
-      await t.tap(find.text('Electricity'));
+      await t.tap(find.text('Electricity').first);
       await t.pumpAndSettle();
+      // The sheet really opened (the header with the status pill is laid out).
+      expect(find.byKey(const ValueKey('bill-amount')), findsOneWidget);
       expect(t.takeException(), isNull);
     });
   }
+
+  testWidgets('a second tap on Skip while the first runs sends nothing more', (
+    t,
+  ) async {
+    final h = await _bills(t, [_inst()]);
+    h.data.instanceDelay = const Duration(milliseconds: 300);
+    await t.tap(find.text('Electricity'));
+    await t.pumpAndSettle();
+    await t.tap(find.byKey(const ValueKey('bill-skip')));
+    await t.pump(const Duration(milliseconds: 60));
+    await t.tap(find.byKey(const ValueKey('bill-skip')), warnIfMissed: false);
+    await t.pumpAndSettle();
+    expect(h.data.instanceCalls, ['skipped:1']);
+    expect(t.takeException(), isNull);
+    // Only the sheet closed: the Bills tab is still there.
+    expect(find.byKey(const ValueKey('tab-pill')), findsOneWidget);
+  });
+
+  testWidgets(
+    'closing the sheet while an action runs still refreshes the list',
+    (t) async {
+      final h = await _bills(t, [_inst()]);
+      h.data.instanceDelay = const Duration(seconds: 2);
+      await t.tap(find.text('Electricity'));
+      await t.pumpAndSettle();
+      await t.tap(find.byKey(const ValueKey('bill-skip')));
+      await t.pump(const Duration(milliseconds: 50));
+      await t.tapAt(const Offset(200, 40)); // the dimmed area above the sheet
+      await t.pumpAndSettle();
+      expect(find.byKey(const ValueKey('bill-skip')), findsNothing);
+      await t.pump(const Duration(seconds: 3));
+      await t.pumpAndSettle();
+      expect(t.takeException(), isNull);
+      expect(find.byKey(const ValueKey('tab-pill')), findsOneWidget);
+      // The list was refreshed: the bill left the pending list.
+      expect(find.text('Electricity'), findsNothing);
+    },
+  );
+
+  testWidgets('a stopped bill opened from History shows no settings', (
+    t,
+  ) async {
+    final h = Harness(signedIn: true)
+      ..data.instances = [_inst(status: 'paid')]
+      ..data.editing = const ObligationDef(
+        id: 'o-1',
+        name: 'Electricity',
+        amountHalalas: 38500,
+        active: false,
+      );
+    t.view.physicalSize = const Size(800, 2400);
+    t.view.devicePixelRatio = 2;
+    addTearDown(t.view.reset);
+    await t.pumpWidget(await h.build());
+    await t.pumpAndSettle();
+    await t.tap(find.text('Bills').last);
+    await t.pumpAndSettle();
+    await t.tap(find.text('Electricity').first);
+    await t.pumpAndSettle();
+    expect(find.byKey(const ValueKey('bill-reopen')), findsOneWidget);
+    for (final k in ['bill-repeats', 'bill-day', 'bill-remind', 'bill-stop']) {
+      expect(find.byKey(ValueKey(k)), findsNothing);
+    }
+    expect(find.text('Active'), findsNothing);
+  });
+
+  testWidgets('changing the due day saves it and closes the sheet', (t) async {
+    final h = await _bills(t, [_inst()]);
+    await t.tap(find.text('Electricity'));
+    await t.pumpAndSettle();
+    await t.tap(find.byKey(const ValueKey('bill-day')));
+    await t.pumpAndSettle();
+    await t.drag(find.byType(CupertinoPicker), const Offset(0, -80));
+    await t.pumpAndSettle();
+    await t.tap(find.text('Done').last);
+    await t.pumpAndSettle();
+    expect(h.data.savedObligations, hasLength(1));
+    expect(find.byKey(const ValueKey('bill-day')), findsNothing);
+  });
 }

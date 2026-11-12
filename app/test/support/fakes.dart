@@ -726,6 +726,9 @@ class FakeDataRepository implements DataRepository {
   final savedObligations = <(String?, ObligationDef)>[];
   final stoppedObligations = <String>[];
   ObligationDef? editing;
+
+  /// When set, a bill action waits this long (to test taps while it runs).
+  Duration? instanceDelay;
   bool failSave = false;
   bool nameTaken = false;
 
@@ -751,6 +754,7 @@ class FakeDataRepository implements DataRepository {
   @override
   Future<void> setInstanceStatus(String id, String status) async {
     instanceCalls.add('$status:$id');
+    if (instanceDelay != null) await Future<void>.delayed(instanceDelay!);
     _patch(id, (i) => _copy(i, status: status, matchState: 'manual'));
   }
 
