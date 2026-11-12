@@ -37,8 +37,8 @@ Harness loaded() => Harness(signedIn: true)
     ObligationInstance(
       id: 'i1',
       obligationId: 'o1',
-      name: 'Credit card 8119 statement with a long name',
-      kind: 'card_statement',
+      name: 'Electricity bill for the main house with a long name',
+      kind: 'bill',
       dueDate: DateTime.utc(2026, 11, 25),
       status: 'pending',
       expectedHalalas: 846323,

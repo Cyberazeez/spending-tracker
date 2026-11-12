@@ -12,7 +12,11 @@ final obligationsProvider =
       } catch (_) {
         // Offline or not yet migrated: show what is already stored.
       }
-      return repo.obligationInstances();
+      // Card statements are not tracked on Bills (owner, 2026-11-12); old ones stay hidden.
+      return [
+        for (final i in await repo.obligationInstances())
+          if (i.kind != 'card_statement') i,
+      ];
     }, retry: (_, _) => null);
 
 final monthSpendProvider = FutureProvider.autoDispose<int>(

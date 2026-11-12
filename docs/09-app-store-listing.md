@@ -34,7 +34,7 @@ Status: DRAFT for the owner (2026-11-08). Nothing here is submitted. Items marke
 > Transfers between your own accounts, wallet top-ups and credit card payments are recognised and left out, so your spending and income are not counted twice. Everything is in Saudi riyals, with the week starting on Sunday and 24-hour time.
 >
 > BILLS AND REGULAR PAYMENTS
-> Track bills, loan instalments and your card statement. The app shows what is due, marks it paid when the matching payment arrives, and reminds you before the due date.
+> Track bills, fixed costs and loan instalments. The app shows what is due, marks it paid when the matching payment arrives, and reminds you before the due date.
 >
 > BUDGETS AND INSIGHTS
 > Set a monthly budget and category limits, see where the month is heading against your last three months, and spot what is repeating every month.
@@ -69,7 +69,7 @@ Status: DRAFT for the owner (2026-11-08). Nothing here is submitted. Items marke
 > يتعرّف التطبيق على التحويلات بين حساباتك وتعبئة المحافظ وسداد بطاقة الائتمان ويستبعدها، فلا يُحتسب الصرف أو الدخل مرتين. كل شيء بالريال السعودي، والأسبوع يبدأ من الأحد، والوقت بنظام 24 ساعة.
 >
 > الفواتير والالتزامات الدورية
-> تابع الفواتير وأقساط التمويل وكشف بطاقتك. يعرض لك التطبيق المستحق، ويضع علامة «مدفوع» عند وصول الدفعة المطابقة، ويذكّرك قبل موعد الاستحقاق.
+> تابع الفواتير والتكاليف الثابتة وأقساط التمويل. يعرض لك التطبيق المستحق، ويضع علامة «مدفوع» عند وصول الدفعة المطابقة، ويذكّرك قبل موعد الاستحقاق.
 >
 > ميزانيات وتحليلات
 > حدّد ميزانية شهرية وحدودًا للتصنيفات، وتابع وجهة الشهر مقارنةً بآخر ثلاثة أشهر، وانتبه لما يتكرر كل شهر.

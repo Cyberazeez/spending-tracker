@@ -1528,9 +1528,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get obAmountPending => 'amount comes with the statement';
-
-  @override
   String get homeAddByHand => 'Add one by hand';
 
   @override
@@ -1718,12 +1715,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get addBillLoanHint => 'Same amount each month';
-
-  @override
-  String get addBillCard => 'Card statement';
-
-  @override
-  String get addBillCardHint => 'Amount arrives by SMS';
 
   @override
   String get addBillScratch => 'Start from scratch';

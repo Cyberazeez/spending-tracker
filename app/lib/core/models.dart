@@ -396,7 +396,7 @@ class ObligationInstance {
   final String id;
   final String obligationId;
   final String name;
-  final String kind; // bill | fixed | loan | card_statement
+  final String kind; // bill | fixed | loan (card_statement rows are hidden)
   final DateTime? periodStart; // UTC midnight of a Riyadh calendar date
   final DateTime dueDate; // UTC midnight of a Riyadh calendar date
   final int? expectedHalalas;

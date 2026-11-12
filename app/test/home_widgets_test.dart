@@ -39,8 +39,8 @@ ObligationInstance bill(DateTime due, {int? amount = 199400, int? usualMin}) =>
     ObligationInstance(
       id: 'i',
       obligationId: 'o',
-      name: 'Card statement',
-      kind: 'card_statement',
+      name: 'Electricity',
+      kind: 'bill',
       dueDate: due,
       status: 'pending',
       expectedHalalas: amount,

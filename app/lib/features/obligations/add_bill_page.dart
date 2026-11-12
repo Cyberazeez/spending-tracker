@@ -35,11 +35,10 @@ class AddBillPage extends StatelessWidget {
       required String hint,
       required VoidCallback onTap,
     }) {
-      // The mockup's icons for the four starting points; colours as the bill rows.
+      // The mockup's icons for the starting points; colours as the bill rows.
       final icon = switch (kind) {
         'bill' => LucideIcons.zap,
         'loan' => LucideIcons.car,
-        'card_statement' => LucideIcons.creditCard,
         _ => LucideIcons.house,
       };
       final color = kindStyle(kind).color;
@@ -106,15 +105,6 @@ class AddBillPage extends StatelessWidget {
         hint: t.addBillLoanHint,
         onTap: () => open('loan'),
       ),
-      // A card statement's amount is only known when the statement SMS comes: started as a bill (amount arrives
-      // later) named after the statement.
-      tile(
-        key: const ValueKey('add-bill-card'),
-        kind: 'card_statement',
-        title: t.addBillCard,
-        hint: t.addBillCardHint,
-        onTap: () => open('bill', name: t.addBillCard),
-      ),
     ];
 
     return CupertinoPageScaffold(
@@ -136,18 +126,21 @@ class AddBillPage extends StatelessWidget {
                 ),
               ),
             ),
-            // Two tiles a row, as tall as the taller of the two.
+            // Two tiles a row, as tall as the taller of the two; an odd last tile takes the whole row.
             for (var i = 0; i < tiles.length; i += 2) ...[
-              IntrinsicHeight(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Expanded(child: tiles[i]),
-                    const SizedBox(width: 10),
-                    Expanded(child: tiles[i + 1]),
-                  ],
-                ),
-              ),
+              if (i + 1 < tiles.length)
+                IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Expanded(child: tiles[i]),
+                      const SizedBox(width: 10),
+                      Expanded(child: tiles[i + 1]),
+                    ],
+                  ),
+                )
+              else
+                tiles[i],
               const SizedBox(height: 10),
             ],
             const SizedBox(height: 4),

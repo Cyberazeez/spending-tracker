@@ -226,15 +226,6 @@ void main() {
     expect(h.data.stoppedObligations, ['o-1']);
   });
 
-  testWidgets('a card statement cannot be edited or stopped', (tester) async {
-    await openBills(tester, list: [inst(kind: 'card_statement')]);
-    await tester.tap(find.text('Gym'));
-    await tester.pumpAndSettle();
-    expect(find.byKey(const ValueKey('bill-amount')), findsOneWidget);
-    expect(find.byKey(const ValueKey('bill-edit')), findsNothing);
-    expect(find.byKey(const ValueKey('bill-stop')), findsNothing);
-  });
-
   for (final lang in ['en', 'ar']) {
     testWidgets('the form survives 2x text on a 360pt phone ($lang)', (
       tester,

@@ -50,13 +50,11 @@ begin
   select count(*) into n from public.merchant_rules mr join public.categories c on c.id = mr.category_id
     where mr.user_id = a and c.name = 'Car' and mr.pattern in ('tawuniya', 'autopia');
   if n <> 2 then raise exception 'seed: car rules missing'; end if;
-  select count(*) into n from public.obligations where user_id = a and match ? 'plan';
-  if n <> 1 then raise exception 'seed: the statement obligation should carry the payment plan note'; end if;
   select count(*) into n from public.own_accounts where user_id = a;
   if n <> 17 then raise exception 'seed: expected 17 own_accounts for A, got %', n; end if;
 
   select count(*) into n from public.obligations where user_id in (a, b);
-  if n <> 14 then raise exception 'seed: expected 14 obligations, got %', n; end if;
+  if n <> 12 then raise exception 'seed: expected 12 obligations (6 each, no card statement), got %', n; end if;
 
   insert into public.ingest_tokens (user_id, token_hash) values (a, 'hash-a'), (b, 'hash-b');
   insert into public.raw_messages (user_id, sender, body, received_at, dedupe_hash)
@@ -137,13 +135,16 @@ begin
   if n < 3 then raise exception 'refresh created % instances for A, expected at least 3', n; end if;
   select count(*) into n from public.obligation_instances;
   if n <> (select count(*) from public.obligation_instances where user_id = a) then raise exception 'A sees instances of others'; end if;
-  -- bills and the card statement are shown before their SMS arrives: bills with the usual amount, statements without one
+  -- bills are shown before their SMS arrives, with the usual amount
   select count(*) into n from public.obligation_instances i join public.obligations o on o.id = i.obligation_id
     where o.kind = 'bill' and i.expected_amount_halalas is not null;
   if n < 2 then raise exception 'refresh created % bill instances, expected at least 2', n; end if;
+  -- card statements are no longer tracked (owner, 2026-11-12): none seeded, so none shown
+  select count(*) into n from public.obligations where user_id = a and kind = 'card_statement';
+  if n <> 0 then raise exception 'a new account was seeded with a card statement'; end if;
   select count(*) into n from public.obligation_instances i join public.obligations o on o.id = i.obligation_id
-    where o.kind = 'card_statement' and i.expected_amount_halalas is null;
-  if n < 1 then raise exception 'refresh created no card statement instance'; end if;
+    where o.kind = 'card_statement';
+  if n <> 0 then raise exception 'refresh created a card statement instance'; end if;
   select count(*) into n from public.obligation_instances i join public.obligations o on o.id = i.obligation_id
     where i.due_date + coalesce((o.due_rule->>'grace')::int, 0) < (now() at time zone 'Asia/Riyadh')::date;
   if n <> 0 then raise exception 'refresh created instances in the past'; end if;
@@ -189,6 +190,18 @@ begin
     if n <> 0 then raise exception 'edit did not rebuild open instances'; end if;
     select count(*) into n from public.obligations where id = m and match ? 'merchant';
     if n <> 0 then raise exception 'edit without match words kept old words'; end if;
+
+    -- a month whose amount was changed by hand keeps it when the settings are saved again; the others follow
+    update public.obligation_instances set expected_amount_halalas = 41200
+    where id = (select id from public.obligation_instances where obligation_id = m and status = 'pending'
+                order by period_start limit 1);
+    perform public.save_my_obligation(m, jsonb_build_object('name', 'Gym', 'kind', 'fixed', 'amount_type', 'fixed',
+      'amount_halalas', 25000, 'frequency', 'monthly', 'day', 28, 'grace', 3, 'lead_days', 5));
+    select count(*) into n from public.obligation_instances where obligation_id = m and expected_amount_halalas = 41200;
+    if n <> 1 then raise exception 'a hand-edited amount was reset by a settings save'; end if;
+    select count(*) into n from public.obligation_instances where obligation_id = m
+      and expected_amount_halalas not in (41200, 25000);
+    if n <> 0 then raise exception 'untouched months did not follow the new amount'; end if;
 
     -- editing the day moves the open instance without deleting it
     select count(*) into n from public.obligation_instances where obligation_id = m and extract(day from due_date) = 28;

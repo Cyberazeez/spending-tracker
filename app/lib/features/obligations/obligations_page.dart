@@ -78,6 +78,7 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
             backgroundColor: AppTokens.bg.resolveFrom(context),
             border: null,
             trailing: HeaderIconButton(
+              key: const ValueKey('obligations-add'),
               onPressed: () => context.push(addBillPath),
               fill: AppTokens.gold.resolveFrom(context),
               icon: LucideIcons.plus,
@@ -541,7 +542,7 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
         : i.expectedHalalas;
     final amount = shown != null
         ? ltrIsolate(formatSar(shown, arabic: arabic))
-        : (i.kind == 'card_statement' ? t.obAmountPending : '');
+        : '';
     return ObligationRow(
       onTap: () => showBillSheet(
         context,

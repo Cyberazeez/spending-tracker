@@ -1519,9 +1519,6 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get obAmountPending => 'المبلغ يصل مع كشف الحساب';
-
-  @override
   String get homeAddByHand => 'أضف واحدة يدويًا';
 
   @override
@@ -1708,12 +1705,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get addBillLoanHint => 'نفس المبلغ كل شهر';
-
-  @override
-  String get addBillCard => 'كشف البطاقة';
-
-  @override
-  String get addBillCardHint => 'يصل المبلغ برسالة';
 
   @override
   String get addBillScratch => 'ابدأ من الصفر';

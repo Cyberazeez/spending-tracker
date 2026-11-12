@@ -7,10 +7,9 @@ void main() {
     'every obligation kind has its own icon, unknown falls back to fixed',
     () {
       final icons = {
-        for (final k in ['bill', 'card_statement', 'loan', 'fixed'])
-          kindStyle(k).icon,
+        for (final k in ['bill', 'loan', 'fixed']) kindStyle(k).icon,
       };
-      expect(icons.length, 4);
+      expect(icons.length, 3);
       expect(kindStyle('whatever').icon, kindStyle('fixed').icon);
     },
   );

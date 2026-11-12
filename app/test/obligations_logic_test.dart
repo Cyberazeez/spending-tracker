@@ -235,35 +235,5 @@ void main() {
       expect(s.paidCount, 1);
       expect(s.count, 4);
     });
-
-    test(
-      'a credit card statement is not counted in the hero numbers, paid or not',
-      () {
-        final rows = [
-          inst('sec', '2026-11-28', expected: 69200, period: '2026-11-01'),
-          inst(
-            'card',
-            '2026-11-25',
-            status: 'paid',
-            expected: 1483450,
-            actual: 1483450,
-            period: '2026-11-01',
-            kind: 'card_statement',
-          ),
-          inst(
-            'card2',
-            '2026-11-26',
-            expected: 500000,
-            period: '2026-11-01',
-            kind: 'card_statement',
-          ),
-        ];
-        final s = summarizeCycle(rows, today);
-        expect(s.stillHalalas, 69200);
-        expect(s.paidHalalas, 0);
-        expect(s.paidCount, 0);
-        expect(s.count, 1);
-      },
-    );
   });
 }

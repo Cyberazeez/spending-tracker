@@ -3,7 +3,7 @@
 > Claude reads this file at the start of every session, local or cloud.
 
 ## What this is
-Single-user personal finance app for Azeez (Riyadh, iPhone, no Mac). Captures every purchase from bank SMS via iOS Shortcuts, categorizes it, tracks regular obligations (bills, horse housing, loan, credit card statement), shows where money goes, suggests savings and enforces budgets. SAR, Asia/Riyadh, week starts Sunday, 24-hour time, English and Arabic UI.
+Single-user personal finance app for Azeez (Riyadh, iPhone, no Mac). Captures every purchase from bank SMS via iOS Shortcuts, categorizes it, tracks regular obligations (bills, horse housing, loan), shows where money goes, suggests savings and enforces budgets. SAR, Asia/Riyadh, week starts Sunday, 24-hour time, English and Arabic UI.
 
 ## Stack
 - **Client:** Flutter (iOS-first, Cupertino), Riverpod, go_router, fl_chart. Folder `app/`.
