@@ -11,6 +11,7 @@ import 'icon_tile.dart';
 import 'theme.dart';
 import 'tokens.dart';
 import 'app_sheet.dart';
+import 'press.dart';
 
 IconData categoryIcon(Category c) => categoryIconByName(c.name);
 
@@ -234,12 +235,11 @@ class _CategorySheetState extends State<_CategorySheet> {
                       button: true,
                       label: t.cancel,
                       child: CupertinoButton(
+                        pressedOpacity: 1,
                         padding: EdgeInsets.zero,
                         minimumSize: const Size(44, 44),
                         onPressed: () => Navigator.pop(context),
-                        child: Container(
-                          width: 34,
-                          height: 34,
+                        child: PressShadow(
                           decoration: BoxDecoration(
                             color: card,
                             shape: BoxShape.circle,
@@ -248,7 +248,11 @@ class _CategorySheetState extends State<_CategorySheet> {
                               width: AppTokens.outlineThin,
                             ),
                           ),
-                          child: Icon(LucideIcons.x, size: 16, color: text),
+                          child: SizedBox(
+                            width: 34,
+                            height: 34,
+                            child: Icon(LucideIcons.x, size: 16, color: text),
+                          ),
                         ),
                       ),
                     ),

@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 
 import 'chevron.dart';
 import 'icon_tile.dart';
+import 'press.dart';
 
 import 'app_card.dart';
 import 'tokens.dart';
@@ -32,13 +33,17 @@ class SettingsGroup extends StatelessWidget {
             ),
           ),
         AppCard(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
+          // Rows carry their own side padding so a pressed row's highlight reaches close to the card's sides.
+          padding: const EdgeInsets.symmetric(vertical: 2),
           child: Column(
             children: [
               for (var i = 0; i < children.length; i++) ...[
                 children[i],
                 if (i < children.length - 1)
-                  SizedBox(height: 2, child: ColoredBox(color: line)),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                    child: SizedBox(height: 2, child: ColoredBox(color: line)),
+                  ),
               ],
             ],
           ),
@@ -85,7 +90,7 @@ class SettingsRow extends StatelessWidget {
     final row = ConstrainedBox(
       constraints: const BoxConstraints(minHeight: 44),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
         child: Row(
           children: [
             IconTile(
@@ -151,8 +156,14 @@ class SettingsRow extends StatelessWidget {
         ),
       ),
     );
+    // 6 + 8 = the 14 pt side padding the rows always had.
+    const side = EdgeInsets.symmetric(horizontal: 6);
     if (onTap == null) {
-      return Semantics(container: true, label: title, child: row);
+      return Semantics(
+        container: true,
+        label: title,
+        child: Padding(padding: side, child: row),
+      );
     }
     return Semantics(
       container: true,
@@ -163,26 +174,54 @@ class SettingsRow extends StatelessWidget {
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: onTap,
-          child: row,
+          child: Padding(
+            padding: side,
+            child: PressHighlight(child: row),
+          ),
         ),
       ),
     );
   }
 }
 
-/// The app's on/off switch: the native switch with an outlined track (emerald when on, `bar` when off).
-CupertinoSwitch appSwitch(
+/// The app's on/off switch: the native switch (it keeps its own thumb slide and drag) with an outlined track
+/// (emerald when on, `bar` when off) and a small hard shadow it presses into, like the app's buttons.
+Widget appSwitch(
   BuildContext context, {
   required bool value,
   required ValueChanged<bool>? onChanged,
 }) {
   final line = AppTokens.line.resolveFrom(context);
-  return CupertinoSwitch(
+  final sw = CupertinoSwitch(
     value: value,
     onChanged: onChanged,
     activeTrackColor: AppTokens.accent.resolveFrom(context),
     inactiveTrackColor: AppTokens.bar.resolveFrom(context),
     trackOutlineColor: WidgetStatePropertyAll(line),
     trackOutlineWidth: const WidgetStatePropertyAll(AppTokens.outlineThin),
+  );
+  // The switch lays out 59 x 39 with its 51 x 31 track in the middle, so the 2 x 3 shadow fits in that margin.
+  const shadow = Offset(2, 3);
+  return Pressable(
+    offset: shadow,
+    enabled: onChanged != null,
+    builder: (context, depth) => Stack(
+      children: [
+        Positioned(
+          left: 4 + shadow.dx * (1 - depth),
+          top: 4 + shadow.dy * (1 - depth),
+          width: 51,
+          height: 31,
+          child: DecoratedBox(
+            key: const ValueKey('switch-shadow'),
+            decoration: BoxDecoration(
+              color: line,
+              borderRadius: BorderRadius.circular(15.5),
+            ),
+          ),
+        ),
+        sw,
+      ],
+    ),
   );
 }

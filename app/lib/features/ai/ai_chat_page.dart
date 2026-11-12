@@ -13,6 +13,7 @@ import '../obligations/logic.dart' show riyadhToday;
 import '../transactions/providers.dart' show categoriesProvider;
 import 'ai_aggregates.dart';
 import 'ai_messages.dart';
+import '../../ui/press.dart';
 
 /// Chat about the month's totals: dig into a category or a budget. The assistant only ever sees the same totals the
 /// tips use (never merchants or messages), and the conversation lives on this screen only.
@@ -214,14 +215,11 @@ class _AiChatPageState extends ConsumerState<AiChatPage> {
                         children: [
                           for (final p in _prompts(t))
                             CupertinoButton(
+                              pressedOpacity: 1,
                               padding: EdgeInsets.zero,
                               minimumSize: const Size(44, 44),
                               onPressed: () => _ask(p),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 14,
-                                  vertical: 9,
-                                ),
+                              child: PressShadow(
                                 decoration: BoxDecoration(
                                   color: card,
                                   borderRadius: BorderRadius.circular(20),
@@ -230,12 +228,18 @@ class _AiChatPageState extends ConsumerState<AiChatPage> {
                                     width: AppTokens.outlineThin,
                                   ),
                                 ),
-                                child: Text(
-                                  p,
-                                  style: TextStyle(
-                                    color: text,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w700,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 14,
+                                    vertical: 9,
+                                  ),
+                                  child: Text(
+                                    p,
+                                    style: TextStyle(
+                                      color: text,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -322,12 +326,12 @@ class _AiChatPageState extends ConsumerState<AiChatPage> {
                       button: true,
                       label: t.aiChatSend,
                       child: CupertinoButton(
+                        pressedOpacity: 1,
                         padding: EdgeInsets.zero,
                         minimumSize: const Size(44, 44),
                         onPressed: canSend ? () => _ask(_input.text) : null,
-                        child: Container(
-                          width: 44,
-                          height: 44,
+                        child: PressShadow(
+                          enabled: canSend,
                           decoration: BoxDecoration(
                             color: canSend
                                 ? AppTokens.gold.resolveFrom(context)
@@ -335,12 +339,16 @@ class _AiChatPageState extends ConsumerState<AiChatPage> {
                             shape: BoxShape.circle,
                             border: outlineOf(context),
                           ),
-                          child: Icon(
-                            LucideIcons.arrowUp,
-                            size: 20,
-                            color: canSend
-                                ? AppTokens.onTint.resolveFrom(context)
-                                : muted,
+                          child: SizedBox(
+                            width: 44,
+                            height: 44,
+                            child: Icon(
+                              LucideIcons.arrowUp,
+                              size: 20,
+                              color: canSend
+                                  ? AppTokens.onTint.resolveFrom(context)
+                                  : muted,
+                            ),
                           ),
                         ),
                       ),

@@ -114,15 +114,15 @@ void main() {
     );
 
     testWidgets('switch track has the line-coloured outline', (t) async {
-      late CupertinoSwitch sw;
       await t.pumpWidget(
         _app(
           Builder(
-            builder: (c) => sw = appSwitch(c, value: false, onChanged: (_) {}),
+            builder: (c) => appSwitch(c, value: false, onChanged: (_) {}),
           ),
           brightness: Brightness.dark,
         ),
       );
+      final sw = t.widget<CupertinoSwitch>(find.byType(CupertinoSwitch));
       expect(sw.trackOutlineColor!.resolve({})!.toARGB32(), _paper.toARGB32());
       expect(sw.trackOutlineWidth!.resolve({}), 2);
     });

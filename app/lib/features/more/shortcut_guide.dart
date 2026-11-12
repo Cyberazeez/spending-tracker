@@ -7,6 +7,7 @@ import '../../ui/theme.dart';
 import '../../ui/tokens.dart';
 import '../../ui/app_form.dart';
 import '../../ui/app_sheet.dart';
+import '../../ui/press.dart';
 
 /// The snippets (cropped from real screenshots, the tap target outlined) shown on each page of the guide.
 const shortcutGuideImages = [
@@ -138,12 +139,11 @@ class _ShortcutGuideSheetState extends State<ShortcutGuideSheet> {
                       button: true,
                       label: t.cancel,
                       child: CupertinoButton(
+                        pressedOpacity: 1,
                         padding: EdgeInsets.zero,
                         minimumSize: const Size(44, 44),
                         onPressed: () => Navigator.of(context).pop(),
-                        child: Container(
-                          width: 34,
-                          height: 34,
+                        child: PressShadow(
                           decoration: BoxDecoration(
                             color: card,
                             shape: BoxShape.circle,
@@ -152,7 +152,11 @@ class _ShortcutGuideSheetState extends State<ShortcutGuideSheet> {
                               width: AppTokens.outlineThin,
                             ),
                           ),
-                          child: Icon(LucideIcons.x, size: 16, color: text),
+                          child: SizedBox(
+                            width: 34,
+                            height: 34,
+                            child: Icon(LucideIcons.x, size: 16, color: text),
+                          ),
                         ),
                       ),
                     ),

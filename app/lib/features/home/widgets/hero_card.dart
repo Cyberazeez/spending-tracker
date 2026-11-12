@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import '../../../core/format.dart';
 import '../../../core/money.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../ui/grow_in.dart';
 import '../../../ui/tokens.dart';
 import '../../insights/metrics.dart' show budgetPercent;
 
@@ -244,12 +245,13 @@ class _Ring extends StatelessWidget {
     return SizedBox(
       width: 84,
       height: 84,
-      child: TweenAnimationBuilder<double>(
-        tween: Tween(begin: 0, end: fraction),
-        duration: animate ? const Duration(milliseconds: 700) : Duration.zero,
-        curve: Curves.easeOutCubic,
-        builder: (_, v, _) => CustomPaint(
-          painter: _RingPainter(v, over),
+      // The ring fills from empty with a small overshoot, and the percentage counts up with it, each time Home
+      // comes into view.
+      child: GrowIn(
+        duration: Duration(milliseconds: animate ? 1100 : 0),
+        builder: (_, g) => CustomPaint(
+          key: const ValueKey('budget-ring'),
+          painter: _RingPainter((fraction * g).clamp(0.0, 1.0), over),
           child: Center(
             child: Padding(
               padding: const EdgeInsets.all(18),
@@ -257,7 +259,7 @@ class _Ring extends StatelessWidget {
                 fit: BoxFit.scaleDown,
                 child: _ltr(
                   Text(
-                    '$percent%',
+                    '${(percent * g.clamp(0.0, 1.0)).round()}%',
                     style: const TextStyle(
                       color: Color(0xFF0D1F17),
                       fontSize: 19,

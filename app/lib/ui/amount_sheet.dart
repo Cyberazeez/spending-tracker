@@ -6,6 +6,7 @@ import 'app_form.dart';
 import 'sheet_frame.dart';
 import 'tokens.dart';
 import 'app_sheet.dart';
+import 'press.dart';
 
 /// Asks for an amount in the app's bottom-sheet look: a big field with the riyal sign, quick amounts to tap and a
 /// Save button. Returns halalas, or null when dismissed.
@@ -173,13 +174,7 @@ class _AmountSheetState extends State<_AmountSheet> {
                             offset: _c.text.length,
                           );
                         }),
-                        child: Container(
-                          constraints: const BoxConstraints(minHeight: 44),
-                          alignment: Alignment.center,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 10,
-                          ),
+                        child: PressShadow(
                           decoration: BoxDecoration(
                             color: card,
                             borderRadius: BorderRadius.circular(22),
@@ -188,18 +183,26 @@ class _AmountSheetState extends State<_AmountSheet> {
                               width: AppTokens.outlineThin,
                             ),
                           ),
-                          child: Text(
-                            (s / 100)
-                                .toStringAsFixed(0)
-                                .replaceAllMapped(
-                                  RegExp(r'\B(?=(\d{3})+(?!\d))'),
-                                  (m) => ',',
-                                ),
-                            style: TextStyle(
-                              color: text,
-                              fontSize: 15,
-                              fontWeight: FontWeight.w700,
-                              decoration: TextDecoration.none,
+                          child: Container(
+                            constraints: const BoxConstraints(minHeight: 44),
+                            alignment: Alignment.center,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 10,
+                            ),
+                            child: Text(
+                              (s / 100)
+                                  .toStringAsFixed(0)
+                                  .replaceAllMapped(
+                                    RegExp(r'\B(?=(\d{3})+(?!\d))'),
+                                    (m) => ',',
+                                  ),
+                              style: TextStyle(
+                                color: text,
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                                decoration: TextDecoration.none,
+                              ),
                             ),
                           ),
                         ),

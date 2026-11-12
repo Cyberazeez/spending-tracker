@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 
 import '../../../ui/tokens.dart';
+import '../../../ui/press.dart';
 
 /// A small pill with a colored dot, e.g. "2 to review". Tapping it opens the thing it counts.
 class AttentionChip extends StatelessWidget {
@@ -20,8 +21,9 @@ class AttentionChip extends StatelessWidget {
     return CupertinoButton(
       padding: EdgeInsets.zero,
       minimumSize: const Size(44, 44),
+      pressedOpacity: 1,
       onPressed: onTap,
-      child: DecoratedBox(
+      child: PressShadow(
         decoration: BoxDecoration(
           color: AppTokens.card.resolveFrom(context),
           borderRadius: BorderRadius.circular(22),

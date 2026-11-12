@@ -24,6 +24,7 @@ import '../transactions/providers.dart';
 import 'logic.dart' show riyadhToday;
 import 'providers.dart';
 import 'widgets/bills_widgets.dart';
+import '../../ui/press.dart';
 
 /// Create ([obligationId] null) or edit one bill, fixed payment or loan by hand.
 class ObligationFormPage extends ConsumerStatefulWidget {
@@ -445,12 +446,12 @@ class _Stepper extends StatelessWidget {
     // Outlined round buttons; at the limit the button is flat on the track colour with a muted sign.
     Widget btn(IconData icon, String label, bool on, VoidCallback f) =>
         CupertinoButton(
+          pressedOpacity: 1,
           padding: EdgeInsets.zero,
           minimumSize: const Size(44, 44),
           onPressed: on ? f : null,
-          child: Container(
-            width: 34,
-            height: 34,
+          child: PressShadow(
+            enabled: on,
             decoration: BoxDecoration(
               color: on
                   ? AppTokens.card.resolveFrom(context)
@@ -458,11 +459,15 @@ class _Stepper extends StatelessWidget {
               shape: BoxShape.circle,
               border: outlineOf(context, width: AppTokens.outlineThin),
             ),
-            child: Icon(
-              icon,
-              size: 18,
-              color: on ? text : AppTokens.muted.resolveFrom(context),
-              semanticLabel: label,
+            child: SizedBox(
+              width: 34,
+              height: 34,
+              child: Icon(
+                icon,
+                size: 18,
+                color: on ? text : AppTokens.muted.resolveFrom(context),
+                semanticLabel: label,
+              ),
             ),
           ),
         );

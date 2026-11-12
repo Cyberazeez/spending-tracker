@@ -5,6 +5,7 @@ import '../core/money.dart';
 import '../l10n/app_localizations.dart';
 import 'theme.dart';
 import 'tokens.dart';
+import 'press.dart';
 
 /// The frame of the app's bottom sheets: rounded top, grabber, a title with an optional subtitle and a close button.
 /// The sheet sits above the keyboard when it is open.
@@ -110,20 +111,27 @@ class SheetFrame extends StatelessWidget {
                           button: true,
                           label: t.cancel,
                           child: CupertinoButton(
+                            pressedOpacity: 1,
                             padding: EdgeInsets.zero,
                             minimumSize: const Size(44, 44),
                             onPressed: () => Navigator.pop(context),
-                            child: Container(
-                              width: 32,
-                              height: 32,
+                            child: PressShadow(
                               decoration: BoxDecoration(
                                 color: card,
                                 shape: BoxShape.circle,
+                                border: outlineOf(
+                                  context,
+                                  width: AppTokens.outlineThin,
+                                ),
                               ),
-                              child: Icon(
-                                LucideIcons.x,
-                                size: 16,
-                                color: muted,
+                              child: SizedBox(
+                                width: 34,
+                                height: 34,
+                                child: Icon(
+                                  LucideIcons.x,
+                                  size: 16,
+                                  color: muted,
+                                ),
                               ),
                             ),
                           ),

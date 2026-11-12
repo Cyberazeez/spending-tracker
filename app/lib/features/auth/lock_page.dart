@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -16,15 +18,34 @@ class LockPage extends ConsumerStatefulWidget {
   ConsumerState<LockPage> createState() => _LockPageState();
 }
 
+/// How long the lock screen waits before asking for Face ID, so the logo's coin drop is seen first (the system
+/// prompt would cover it, and a quick unlock would skip the screen altogether). No wait with Reduce Motion.
+const lockPromptDelay = Duration(milliseconds: 900);
+
 class _LockPageState extends ConsumerState<LockPage> {
+  Timer? _wait;
+
   @override
   void initState() {
     super.initState();
-    // Prompt as soon as the lock screen appears.
-    WidgetsBinding.instance.addPostFrameCallback((_) => _unlock());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (MediaQuery.disableAnimationsOf(context)) {
+        _unlock();
+      } else {
+        _wait = Timer(lockPromptDelay, _unlock);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _wait?.cancel();
+    super.dispose();
   }
 
   Future<void> _unlock() async {
+    _wait?.cancel(); // Unlock tapped before the automatic prompt: ask once
     if (!mounted) return;
     await ref
         .read(lockProvider.notifier)
