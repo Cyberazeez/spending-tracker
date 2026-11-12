@@ -54,6 +54,25 @@ void main() {
     },
   );
 
+  for (final lang in ['en', 'ar']) {
+    testWidgets('Add a bill survives 2x text at 360 wide ($lang)', (t) async {
+      t.view.physicalSize = const Size(720, 1600);
+      t.view.devicePixelRatio = 2;
+      t.platformDispatcher.textScaleFactorTestValue = 2;
+      addTearDown(t.view.reset);
+      addTearDown(t.platformDispatcher.clearAllTestValues);
+      final h = Harness(signedIn: true);
+      await t.pumpWidget(await h.build(prefs: {'locale': lang}));
+      await t.pumpAndSettle();
+      await t.tap(find.byKey(const ValueKey('tab-item-2')));
+      await t.pumpAndSettle();
+      await t.tap(find.byKey(const ValueKey('obligations-add')));
+      await t.pumpAndSettle();
+      expect(find.byKey(const ValueKey('add-bill-loan')), findsOneWidget);
+      expect(t.takeException(), isNull);
+    });
+  }
+
   testWidgets('an old card statement from the server is not shown', (t) async {
     await _bills(t, [
       _inst(),

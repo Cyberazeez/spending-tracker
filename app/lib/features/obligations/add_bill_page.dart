@@ -35,7 +35,7 @@ class AddBillPage extends StatelessWidget {
       required String hint,
       required VoidCallback onTap,
     }) {
-      // The mockup's icons for the four starting points; colours as the bill rows.
+      // The mockup's icons for the starting points; colours as the bill rows.
       final icon = switch (kind) {
         'bill' => LucideIcons.zap,
         'loan' => LucideIcons.car,
