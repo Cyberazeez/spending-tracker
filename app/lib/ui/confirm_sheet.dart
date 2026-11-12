@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 
 import '../l10n/app_localizations.dart';
 import 'sheet_frame.dart';
+import 'swipe_action.dart';
 import 'theme.dart';
 import 'tokens.dart';
 
@@ -123,7 +124,7 @@ class _SheetButton extends StatelessWidget {
         : AppTokens.card.resolveFrom(context);
     final fg = primary
         ? (destructive
-              ? const Color(0xFFFFFFFF)
+              ? swipeLabelColor(AppColors.danger.resolveFrom(context))
               : AppTokens.onAccent.resolveFrom(context))
         : AppTokens.text.resolveFrom(context);
     return Semantics(
@@ -137,18 +138,22 @@ class _SheetButton extends StatelessWidget {
         child: Container(
           constraints: const BoxConstraints(minHeight: 50),
           alignment: Alignment.center,
+          // The (3, 4) shadow stays inside the button's own box.
+          margin: const EdgeInsets.only(right: 3, bottom: 4),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
             color: bg,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(26),
+            border: outlineOf(context),
+            boxShadow: hardShadowOf(context, offset: const Offset(3, 4)),
           ),
           child: Text(
             label,
             textAlign: TextAlign.center,
             style: TextStyle(
               color: fg,
-              fontSize: 17,
-              fontWeight: FontWeight.w600,
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
               decoration: TextDecoration.none,
             ),
           ),

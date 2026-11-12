@@ -44,9 +44,11 @@ class DonutShare extends StatelessWidget {
           children: [
             CustomPaint(
               size: const Size(140, 140),
-              painter: _DonutPainter([
-                for (final g in groups) (groupColor(g.group), g.halalas),
-              ], AppTokens.card.resolveFrom(context)),
+              painter: _DonutPainter(
+                [for (final g in groups) (groupColor(g.group), g.halalas)],
+                AppTokens.bar.resolveFrom(context),
+                AppTokens.line.resolveFrom(context),
+              ),
             ),
             Padding(
               padding: const EdgeInsets.all(34),
@@ -94,11 +96,15 @@ class DonutShare extends StatelessWidget {
                 child: Row(
                   children: [
                     Container(
-                      width: 10,
-                      height: 10,
+                      width: 14,
+                      height: 14,
                       decoration: BoxDecoration(
                         color: groupColor(g.group),
-                        shape: BoxShape.circle,
+                        borderRadius: BorderRadius.circular(5),
+                        border: outlineOf(
+                          context,
+                          width: AppTokens.outlineThin,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -174,50 +180,56 @@ class NumberFormatCompat {
   }
 }
 
+/// Slices with an ink outline: an outer and an inner ring and a line between slices (the mockup's look).
 class _DonutPainter extends CustomPainter {
-  _DonutPainter(this.slices, this.background);
+  _DonutPainter(this.slices, this.background, this.line);
 
   final List<(Color, int)> slices;
   final Color background;
+  final Color line;
 
   @override
   void paint(Canvas canvas, Size size) {
     const stroke = 22.0;
-    final rect = (Offset.zero & size).deflate(stroke / 2);
+    const outline = 2.5;
+    final center = size.center(Offset.zero);
+    final mid = (math.min(size.width, size.height) - stroke) / 2 - outline;
+    final rect = Rect.fromCircle(center: center, radius: mid);
     final total = slices.fold<int>(0, (s, e) => s + e.$2);
+    Paint ring(Color c, double w) => Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = w
+      ..color = c;
     if (total <= 0) {
-      canvas.drawArc(
-        rect,
-        0,
-        math.pi * 2,
-        false,
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = stroke
-          ..color = background,
-      );
-      return;
+      canvas.drawArc(rect, 0, math.pi * 2, false, ring(background, stroke));
+    } else {
+      var start = -math.pi / 2;
+      for (final (color, value) in slices) {
+        final sweep = math.pi * 2 * value / total;
+        canvas.drawArc(rect, start, sweep, false, ring(color, stroke));
+        start += sweep;
+      }
+      if (slices.where((s) => s.$2 > 0).length > 1) {
+        start = -math.pi / 2;
+        final sep = Paint()
+          ..strokeWidth = outline
+          ..color = line;
+        for (final (_, value) in slices) {
+          final dir = Offset(math.cos(start), math.sin(start));
+          canvas.drawLine(
+            center + dir * (mid - stroke / 2),
+            center + dir * (mid + stroke / 2),
+            sep,
+          );
+          start += math.pi * 2 * value / total;
+        }
+      }
     }
-    var start = -math.pi / 2;
-    const gap = 0.05;
-    for (final (color, value) in slices) {
-      final sweep = math.pi * 2 * value / total;
-      final drawn = math.max(0.0, sweep - (slices.length > 1 ? gap : 0));
-      canvas.drawArc(
-        rect,
-        start + (slices.length > 1 ? gap / 2 : 0),
-        drawn,
-        false,
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = stroke
-          ..color = color,
-      );
-      start += sweep;
-    }
+    canvas.drawCircle(center, mid + stroke / 2, ring(line, outline));
+    canvas.drawCircle(center, mid - stroke / 2, ring(line, outline));
   }
 
   @override
   bool shouldRepaint(_DonutPainter old) =>
-      old.slices != slices || old.background != background;
+      old.slices != slices || old.background != background || old.line != line;
 }

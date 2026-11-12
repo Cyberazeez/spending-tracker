@@ -93,12 +93,12 @@ class _AmountSheetState extends State<_AmountSheet> {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               decoration: BoxDecoration(
                 color: card,
-                borderRadius: BorderRadius.circular(18),
+                borderRadius: BorderRadius.circular(AppTokens.radiusCard),
                 border: Border.all(
                   color: _invalid
                       ? AppTokens.danger.resolveFrom(context)
-                      : const Color(0x00000000),
-                  width: 1.5,
+                      : AppTokens.line.resolveFrom(context),
+                  width: AppTokens.outline,
                 ),
               ),
               child: Directionality(
@@ -132,8 +132,9 @@ class _AmountSheetState extends State<_AmountSheet> {
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         style: TextStyle(
                           color: text,
-                          fontSize: 30,
-                          fontWeight: FontWeight.w700,
+                          fontSize: 32,
+                          fontWeight: FontWeight.w800,
+                          fontFeatures: const [FontFeature.tabularFigures()],
                         ),
                       ),
                     ),
@@ -172,13 +173,19 @@ class _AmountSheetState extends State<_AmountSheet> {
                           );
                         }),
                         child: Container(
+                          constraints: const BoxConstraints(minHeight: 44),
+                          alignment: Alignment.center,
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 14,
+                            horizontal: 16,
                             vertical: 10,
                           ),
                           decoration: BoxDecoration(
                             color: card,
-                            borderRadius: BorderRadius.circular(18),
+                            borderRadius: BorderRadius.circular(22),
+                            border: outlineOf(
+                              context,
+                              width: AppTokens.outlineThin,
+                            ),
                           ),
                           child: Text(
                             (s / 100)
@@ -188,9 +195,9 @@ class _AmountSheetState extends State<_AmountSheet> {
                                   (m) => ',',
                                 ),
                             style: TextStyle(
-                              color: AppTokens.accentText.resolveFrom(context),
+                              color: text,
                               fontSize: 15,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w700,
                               decoration: TextDecoration.none,
                             ),
                           ),

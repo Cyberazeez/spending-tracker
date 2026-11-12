@@ -14,7 +14,7 @@ import '../../ui/app_form.dart';
 import '../../ui/empty_state.dart';
 import '../../ui/choice_sheet.dart';
 import '../../ui/tokens.dart';
-import '../../ui/app_card.dart';
+import '../obligations/widgets/bills_widgets.dart';
 import '../home/category_groups.dart';
 import '../home/group_style.dart';
 import '../../ui/icon_tile.dart';
@@ -177,7 +177,7 @@ class ReviewPage extends ConsumerWidget {
                           ),
                         ),
                       ),
-                      _RowsCard(
+                      RowsCard(
                         children: [
                           for (final a in aiRead)
                             Semantics(
@@ -248,7 +248,7 @@ class ReviewPage extends ConsumerWidget {
                       ),
                       const SizedBox(height: 16),
                     ],
-                    _RowsCard(
+                    RowsCard(
                       children: [
                         for (final m in list)
                           Semantics(
@@ -326,29 +326,6 @@ class ReviewPage extends ConsumerWidget {
                   ],
                 ),
         ),
-      ),
-    );
-  }
-}
-
-/// The rows of one section in an outlined card, split by 2 pt lines.
-class _RowsCard extends StatelessWidget {
-  const _RowsCard({required this.children});
-
-  final List<Widget> children;
-
-  @override
-  Widget build(BuildContext context) {
-    final line = AppTokens.bar.resolveFrom(context);
-    return AppCard(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
-      child: Column(
-        children: [
-          for (var i = 0; i < children.length; i++) ...[
-            if (i > 0) Container(height: 2, color: line),
-            children[i],
-          ],
-        ],
       ),
     );
   }

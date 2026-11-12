@@ -17,6 +17,7 @@ import '../../router.dart';
 import '../../ui/app_card.dart';
 import '../../ui/bottom_inset.dart';
 import '../../ui/empty_state.dart';
+import '../../ui/header_button.dart';
 import '../../ui/skeleton.dart';
 import '../../ui/chevron.dart';
 import '../../ui/choice_sheet.dart';
@@ -149,6 +150,8 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
         : overdueRows(data.value!, today).length;
     final repo = ref.read(dataRepositoryProvider);
     final muted = AppTokens.muted.resolveFrom(context);
+    // Text on the gold hero and the gold notice: ink in both modes.
+    final ink = AppTokens.onTint.resolveFrom(context);
 
     return CupertinoPageScaffold(
       backgroundColor: AppTokens.bg.resolveFrom(context),
@@ -161,27 +164,12 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
             largeTitle: Text(t.tabObligations),
             backgroundColor: AppTokens.bg.resolveFrom(context),
             border: null,
-            trailing: CupertinoButton(
-              padding: EdgeInsets.zero,
-              minimumSize: const Size(44, 44),
+            trailing: HeaderIconButton(
               onPressed: () => context.push(obligationFormPath),
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  color: AppTokens.gold.resolveFrom(context),
-                  shape: BoxShape.circle,
-                  border: outlineOf(context, width: AppTokens.outlineThin),
-                ),
-                child: SizedBox(
-                  width: 36,
-                  height: 36,
-                  child: Icon(
-                    LucideIcons.plus,
-                    size: 20,
-                    color: AppTokens.onAccent.resolveFrom(context),
-                    semanticLabel: t.obAddHint,
-                  ),
-                ),
-              ),
+              fill: AppTokens.gold.resolveFrom(context),
+              icon: LucideIcons.plus,
+              iconColor: AppTokens.onTint.resolveFrom(context),
+              semanticLabel: t.obAddHint,
             ),
           ),
           CupertinoSliverRefreshControl(
@@ -252,8 +240,8 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
                   child: Text(
                     title,
                     style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
                       color: muted,
                     ),
                   ),
@@ -277,8 +265,8 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
                               child: Text(
                                 title,
                                 style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
                                   color: muted,
                                 ),
                               ),
@@ -393,12 +381,20 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
                 ...suggestionCards,
                 pad(
                   AppCard(
+                    key: const ValueKey('bills-hero'),
+                    color: AppTokens.gold.resolveFrom(context),
+                    radius: AppTokens.radiusHero,
+                    shadow: const Offset(5, 6),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           t.obCycleStill(monthLabel),
-                          style: TextStyle(fontSize: 14, color: muted),
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color: ink,
+                          ),
                         ),
                         const SizedBox(height: 4),
                         FittedBox(
@@ -410,7 +406,10 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
                             TextStyle(
                               fontSize: 34,
                               fontWeight: FontWeight.w800,
-                              color: AppTokens.text.resolveFrom(context),
+                              color: ink,
+                              fontFeatures: const [
+                                FontFeature.tabularFigures(),
+                              ],
                             ),
                           ),
                         ),
@@ -433,7 +432,11 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
                               summary.paidCount.toString(),
                               summary.count.toString(),
                             ),
-                            style: TextStyle(fontSize: 13, color: muted),
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                              color: ink,
+                            ),
                           ),
                         ),
                       ],
@@ -445,11 +448,9 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
                     GestureDetector(
                       behavior: HitTestBehavior.opaque,
                       onTap: () => setState(() => _section = ObSection.overdue),
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          color: AppTokens.warnBg.resolveFrom(context),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
+                      child: AppCard(
+                        color: AppTokens.warnBg.resolveFrom(context),
+                        padding: EdgeInsets.zero,
                         child: Padding(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 14,
@@ -632,7 +633,7 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
   }
 }
 
-/// A thin progress bar: how much of the cycle's money is already paid.
+/// An outlined progress bar on the gold hero: white track, emerald fill from the leading edge (the paid part).
 class _CycleBar extends StatelessWidget {
   const _CycleBar({required this.done, required this.total});
   final int done;
@@ -641,31 +642,40 @@ class _CycleBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final share = total <= 0 ? 0.0 : (done / total).clamp(0.0, 1.0);
-    // A light track with a solid green fill that starts at the leading edge: the green part is what is paid.
+    final ink = AppTokens.onTint.resolveFrom(context);
     return Semantics(
       label: '${(share * 100).round()}%',
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(5),
-        child: SizedBox(
-          height: 10,
+      child: Container(
+        height: 14,
+        decoration: BoxDecoration(
+          // White in both modes: the bar sits on gold.
+          color: const Color(0xFFFFFFFF),
+          borderRadius: BorderRadius.circular(7),
+          border: Border.all(color: ink, width: AppTokens.outlineThin),
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(5),
           child: LayoutBuilder(
             builder: (context, box) => Stack(
               children: [
-                Positioned.fill(
-                  child: ColoredBox(
-                    color: AppTokens.accent
-                        .resolveFrom(context)
-                        .withValues(alpha: 0.16),
-                  ),
-                ),
                 PositionedDirectional(
                   start: 0,
                   top: 0,
                   bottom: 0,
                   width: box.maxWidth * share,
-                  child: ColoredBox(
+                  child: DecoratedBox(
                     key: const ValueKey('cycle-bar-fill'),
-                    color: AppTokens.accent.resolveFrom(context),
+                    decoration: BoxDecoration(
+                      color: AppTokens.accent.resolveFrom(context),
+                      border: share > 0 && share < 1
+                          ? BorderDirectional(
+                              end: BorderSide(
+                                color: ink,
+                                width: AppTokens.outlineThin,
+                              ),
+                            )
+                          : null,
+                    ),
                   ),
                 ),
               ],

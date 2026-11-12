@@ -157,6 +157,15 @@ class MonthBars extends StatelessWidget {
                                                 color: isNow ? accent : idle,
                                                 borderRadius:
                                                     BorderRadius.circular(10),
+                                                // Outlined like the Home week bars; a bar shorter than its outline
+                                                // stays a plain sliver.
+                                                border: v > 6
+                                                    ? outlineOf(
+                                                        context,
+                                                        width: AppTokens
+                                                            .outlineThin,
+                                                      )
+                                                    : null,
                                               ),
                                             ),
                                           ),

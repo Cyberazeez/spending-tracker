@@ -8,6 +8,8 @@ import '../../../core/money.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/app_card.dart';
 import '../../../ui/category_sheet.dart' show categoryIconByName;
+import '../../../ui/icon_tile.dart';
+import '../../../ui/outlined_bar.dart';
 import '../../../ui/tokens.dart';
 import '../../home/category_groups.dart';
 import '../../home/group_style.dart';
@@ -109,8 +111,9 @@ class SummaryCard extends StatelessWidget {
                 const SizedBox(width: 12),
                 DecoratedBox(
                   decoration: BoxDecoration(
-                    color: accent.withValues(alpha: 0.16),
+                    color: AppTokens.bg.resolveFrom(context),
                     borderRadius: BorderRadius.circular(16),
+                    border: outlineOf(context, width: AppTokens.outlineThin),
                   ),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
@@ -201,30 +204,11 @@ class SummaryCard extends StatelessWidget {
                       ),
                       if (monthlyBudget != null) ...[
                         const SizedBox(height: 6),
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(4),
-                          child: SizedBox(
-                            height: 8,
-                            child: Stack(
-                              children: [
-                                Positioned.fill(
-                                  child: ColoredBox(
-                                    color: AppTokens.bar.resolveFrom(context),
-                                  ),
-                                ),
-                                FractionallySizedBox(
-                                  alignment: AlignmentDirectional.centerStart,
-                                  heightFactor: 1, // without it the fill has no height and is never drawn
-                                  widthFactor: fraction,
-                                  child: ColoredBox(
-                                    color: over
-                                        ? AppTokens.danger.resolveFrom(context)
-                                        : accent,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                        OutlinedBar(
+                          fraction: fraction,
+                          fill: over
+                              ? AppTokens.danger.resolveFrom(context)
+                              : accent,
                         ),
                         const SizedBox(height: 4),
                         Text(
@@ -293,7 +277,7 @@ class CategoryBudgetRow extends StatelessWidget {
     final level = budget == null ? BudgetLevel.ok : budgetLevel(spent, budget!);
     final barColor = switch (level) {
       BudgetLevel.over => AppTokens.danger.resolveFrom(context),
-      BudgetLevel.warn => AppTokens.warnText.resolveFrom(context),
+      BudgetLevel.warn => AppTokens.gold.resolveFrom(context),
       BudgetLevel.ok => AppTokens.accent.resolveFrom(context),
     };
     String sar(int h) => formatSar(h, arabic: arabic);
@@ -312,18 +296,10 @@ class CategoryBudgetRow extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: groupColor(group),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    categoryIconByName(name),
-                    size: 20,
-                    color: const Color(0xFF0B0F14),
-                  ),
+                IconTile(
+                  color: groupColor(group),
+                  icon: categoryIconByName(name),
+                  iconSize: 21,
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -340,7 +316,7 @@ class CategoryBudgetRow extends StatelessWidget {
                               style: TextStyle(
                                 color: text,
                                 fontSize: 15,
-                                fontWeight: FontWeight.w500,
+                                fontWeight: FontWeight.w700,
                               ),
                             ),
                           ),
@@ -350,36 +326,20 @@ class CategoryBudgetRow extends StatelessWidget {
                             style: TextStyle(
                               color: text,
                               fontSize: 15,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w700,
+                              fontFeatures: const [
+                                FontFeature.tabularFigures(),
+                              ],
                             ),
                           ),
                         ],
                       ),
                       if (budget != null) ...[
                         const SizedBox(height: 6),
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(3),
-                          child: SizedBox(
-                            height: 6,
-                            child: Stack(
-                              children: [
-                                Positioned.fill(
-                                  child: ColoredBox(
-                                    color: AppTokens.bar.resolveFrom(context),
-                                  ),
-                                ),
-                                FractionallySizedBox(
-                                  alignment: AlignmentDirectional.centerStart,
-                                  heightFactor: 1, // without it the fill has no height and is never drawn
-                                  widthFactor: (spent / budget!).clamp(
-                                    0.0,
-                                    1.0,
-                                  ),
-                                  child: ColoredBox(color: barColor),
-                                ),
-                              ],
-                            ),
-                          ),
+                        OutlinedBar(
+                          fraction: spent / budget!,
+                          fill: barColor,
+                          height: 10,
                         ),
                         const SizedBox(height: 4),
                         _ltr(
@@ -416,7 +376,7 @@ class ListCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final line = AppTokens.muted.resolveFrom(context).withValues(alpha: 0.18);
+    final line = AppTokens.bar.resolveFrom(context);
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -426,7 +386,7 @@ class ListCard extends StatelessWidget {
           for (var i = 0; i < children.length; i++) ...[
             children[i],
             if (i < children.length - 1)
-              SizedBox(height: 1, child: ColoredBox(color: line)),
+              SizedBox(height: 2, child: ColoredBox(color: line)),
           ],
           ?footer,
         ],

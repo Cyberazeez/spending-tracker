@@ -153,10 +153,13 @@ void main() {
       inst('1', 'Paid one', '2026-10-31', status: 'paid', expected: 30000),
       inst('2', 'Open one', '2026-10-31', expected: 10000),
     ]);
-    final fill = tester.widget<ColoredBox>(
+    final fill = tester.widget<DecoratedBox>(
       find.byKey(const ValueKey('cycle-bar-fill')),
     );
-    expect(fill.color.toARGB32(), AppTokens.accent.color.toARGB32());
+    expect(
+      (fill.decoration as BoxDecoration).color!.toARGB32(),
+      AppTokens.accent.color.toARGB32(),
+    );
     final fillW = tester.getSize(find.byKey(const ValueKey('cycle-bar-fill')));
     final barW = tester.getSize(find.byType(LayoutBuilder).last).width;
     expect(fillW.width / barW, closeTo(0.75, 0.01)); // 300 of 400 paid

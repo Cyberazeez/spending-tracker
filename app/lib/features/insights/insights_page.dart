@@ -426,6 +426,7 @@ class _Rank extends StatelessWidget {
     decoration: BoxDecoration(
       color: AppTokens.bar.resolveFrom(context),
       shape: BoxShape.circle,
+      border: outlineOf(context, width: AppTokens.outlineThin),
     ),
     child: Text(
       '$n',

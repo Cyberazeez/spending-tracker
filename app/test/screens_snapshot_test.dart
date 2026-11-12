@@ -33,16 +33,21 @@ Txn _tx(String id, String when, int h, String? cat, String merchant) => Txn(
   categoryId: cat,
 );
 
-ObligationInstance _bill(String id, String name, String due, int amount) =>
-    ObligationInstance(
-      id: id,
-      obligationId: 'o-$id',
-      name: name,
-      kind: 'fixed',
-      dueDate: DateTime.parse('${due}T00:00:00Z'),
-      status: 'pending',
-      expectedHalalas: amount,
-    );
+ObligationInstance _bill(
+  String id,
+  String name,
+  String due,
+  int amount, {
+  String status = 'pending',
+}) => ObligationInstance(
+  id: id,
+  obligationId: 'o-$id',
+  name: name,
+  kind: 'fixed',
+  dueDate: DateTime.parse('${due}T00:00:00Z'),
+  status: status,
+  expectedHalalas: amount,
+);
 
 void _sample(Harness h) {
   final txns = [
@@ -65,6 +70,9 @@ void _sample(Harness h) {
       _bill('1', 'Mobile bill', '2026-11-02', 23000),
       _bill('2', 'Horse stable', '2026-11-05', 120000),
       _bill('3', 'Car loan', '2026-11-20', 50000),
+      _bill('4', 'Electricity bill', '2026-10-20', 38500),
+      _bill('5', 'Internet', '2026-10-15', 29000, status: 'paid'),
+      _bill('6', 'Water bill', '2026-10-31', 12000),
     ]
     ..review = [
       RawMessage(
@@ -180,6 +188,73 @@ void main() {
           }
           await t.pumpAndSettle();
           await _save(t, '${lang}_${mode.name}_activity_$screen');
+        });
+      }
+    }
+  }
+
+  // Rebrand stage 3: Bills and Insights sub-screens and sheets.
+  const stage3 = ['form', 'actions', 'amount', 'confirm', 'ai_tips', 'chat'];
+  for (final lang in ['en', 'ar']) {
+    final en = lang == 'en';
+    for (final mode in Brightness.values) {
+      for (final screen in stage3) {
+        testWidgets('snapshot: $screen ($lang, ${mode.name})', (t) async {
+          t.view.physicalSize = const Size(390 * 2, 844 * 2);
+          t.view.devicePixelRatio = 2;
+          t.platformDispatcher.platformBrightnessTestValue = mode;
+          addTearDown(t.view.reset);
+          addTearDown(t.platformDispatcher.clearAllTestValues);
+          final h = Harness(signedIn: true);
+          _sample(h);
+          h.data
+            ..aiOn = true
+            ..aiPaid = true
+            ..saved = [
+              'Dining is 38% above your 3-month average.',
+              'Two coffee shops make up most of it.',
+            ];
+          await t.pumpWidget(await h.build(prefs: {'locale': lang}));
+          await t.pumpAndSettle();
+          Future<void> tab(String name) async {
+            await t.tap(find.text(name).last);
+            await t.pumpAndSettle();
+          }
+
+          final bills = en ? 'Bills' : 'الفواتير';
+          switch (screen) {
+            case 'form':
+              await tab(bills);
+              GoRouter.of(t.element(find.byType(CupertinoPageScaffold).last))
+                  .push(obligationFormPath);
+            case 'actions':
+              await tab(bills);
+              await t.tap(find.text('Electricity bill').first);
+            case 'amount':
+              await tab(bills);
+              await t.tap(find.text('Electricity bill').first);
+              await t.pumpAndSettle();
+              await t.tap(find.text(en ? 'Edit amount' : 'تعديل المبلغ'));
+            case 'confirm':
+              await tab(bills);
+              await t.tap(find.text('Electricity bill').first);
+              await t.pumpAndSettle();
+              await t.tap(find.text(en ? 'Stop tracking' : 'إيقاف المتابعة'));
+            case 'ai_tips':
+              await tab(en ? 'Insights' : 'التحليلات');
+            case 'chat':
+              GoRouter.of(t.element(find.byType(CupertinoPageScaffold).last))
+                  .push(aiChatPath);
+              await t.pumpAndSettle();
+              await t.enterText(
+                find.byType(CupertinoTextField).last,
+                en ? 'How much on dining?' : 'كم صرفت على المطاعم؟',
+              );
+              await t.pump();
+              await t.tap(find.byIcon(LucideIcons.arrowUp));
+          }
+          await t.pumpAndSettle();
+          await _save(t, '${lang}_${mode.name}_s3_$screen');
         });
       }
     }

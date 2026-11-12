@@ -6,6 +6,8 @@ import '../../../core/models.dart';
 import '../../../core/providers.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../router.dart';
+import '../../../ui/app_card.dart';
+import '../../../ui/icon_tile.dart';
 import '../../../ui/tokens.dart';
 import '../../insights/metrics.dart';
 import '../ai_aggregates.dart';
@@ -104,8 +106,9 @@ class _AiTipsCardState extends ConsumerState<AiTipsCard> {
       if (prev?.languageCode != next.languageCode) _languageChanged();
     });
     final arabic = ref.watch(localeProvider).languageCode == 'ar';
-    const onHero = Color(0xFFFFFFFF);
-    const softHero = Color(0xCCFFFFFF);
+    // Ink on gold in both modes (white on gold was 1.6:1).
+    final onHero = AppTokens.onTint.resolveFrom(context);
+    final softHero = onHero;
     final open = ref.read(routerProvider).push;
 
     Widget pill(String label, VoidCallback? onPressed, {Widget? leading}) =>
@@ -114,16 +117,19 @@ class _AiTipsCardState extends ConsumerState<AiTipsCard> {
           minimumSize: const Size(44, 44),
           onPressed: onPressed,
           child: Container(
+            margin: const EdgeInsets.only(right: 3, bottom: 4),
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
             decoration: BoxDecoration(
-              color: const Color(0x33FFFFFF),
-              borderRadius: BorderRadius.circular(18),
+              color: const Color(0xFFFFFFFF),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: onHero, width: AppTokens.outline),
+              boxShadow: [BoxShadow(color: onHero, offset: const Offset(3, 4))],
             ),
             child: _busy && leading != null
-                ? const CupertinoActivityIndicator(color: onHero)
+                ? CupertinoActivityIndicator(color: onHero)
                 : Text(
                     label,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: onHero,
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
@@ -137,27 +143,32 @@ class _AiTipsCardState extends ConsumerState<AiTipsCard> {
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () => open(aiChatPath),
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(AppTokens.radiusHero),
-            color: AppTokens.gold.resolveFrom(context),
-          ),
+        child: AppCard(
+          color: AppTokens.gold.resolveFrom(context),
+          radius: AppTokens.radiusHero,
+          shadow: const Offset(5, 6),
+          padding: EdgeInsets.zero,
           child: Padding(
-            padding: const EdgeInsets.all(22),
+            padding: const EdgeInsets.all(20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
-                    const Icon(LucideIcons.sparkles, size: 20, color: onHero),
-                    const SizedBox(width: 8),
+                    const IconTile(
+                      color: Color(0xFFFFFFFF),
+                      icon: LucideIcons.sparkles,
+                      size: 38,
+                      iconSize: 19,
+                    ),
+                    const SizedBox(width: 10),
                     Expanded(
                       child: Text(
                         t.aiTipsTitle,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: onHero,
-                          fontSize: 17,
-                          fontWeight: FontWeight.w700,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w800,
                         ),
                       ),
                     ),
@@ -174,7 +185,11 @@ class _AiTipsCardState extends ConsumerState<AiTipsCard> {
                 if (_tips.isEmpty && _error == null)
                   Text(
                     t.aiTipsEmpty,
-                    style: const TextStyle(color: softHero, fontSize: 14),
+                    style: TextStyle(
+                      color: softHero,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 for (final tip in _tips)
                   Padding(
@@ -182,24 +197,25 @@ class _AiTipsCardState extends ConsumerState<AiTipsCard> {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Padding(
-                          padding: EdgeInsets.only(top: 7),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 7),
                           child: DecoratedBox(
                             decoration: BoxDecoration(
                               color: onHero,
                               shape: BoxShape.circle,
                             ),
-                            child: SizedBox(width: 6, height: 6),
+                            child: const SizedBox(width: 6, height: 6),
                           ),
                         ),
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(
                             tip,
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: onHero,
                               fontSize: 15,
-                              height: 1.3,
+                              fontWeight: FontWeight.w700,
+                              height: 1.35,
                             ),
                           ),
                         ),
@@ -209,13 +225,27 @@ class _AiTipsCardState extends ConsumerState<AiTipsCard> {
                 if (_error != null)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 8),
-                    child: Text(
-                      _error!,
-                      style: const TextStyle(
-                        color: Color(0xFFFFD6D4),
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
+                    // Ink with a warning sign: red text on gold does not reach 4.5:1.
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(
+                          LucideIcons.triangleAlert,
+                          size: 16,
+                          color: onHero,
+                        ),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            _error!,
+                            style: TextStyle(
+                              color: onHero,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 if (_tips.isNotEmpty)
@@ -223,7 +253,11 @@ class _AiTipsCardState extends ConsumerState<AiTipsCard> {
                     padding: const EdgeInsets.only(bottom: 4),
                     child: Text(
                       t.aiTipsNote,
-                      style: const TextStyle(color: softHero, fontSize: 12),
+                      style: TextStyle(
+                        color: softHero,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
                 const SizedBox(height: 4),

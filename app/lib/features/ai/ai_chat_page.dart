@@ -158,18 +158,28 @@ class _AiChatPageState extends ConsumerState<AiChatPage> {
           : AlignmentDirectional.centerStart,
       child: Container(
         constraints: BoxConstraints(maxWidth: width * 0.85),
-        margin: const EdgeInsets.only(bottom: 10),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        // The space after the bubble holds its hard shadow.
+        margin: const EdgeInsets.only(bottom: 14, right: 3),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
           color: turn.fromUser ? accent : card,
-          borderRadius: BorderRadius.circular(18),
+          // The corner nearest the speaker is tight, like a speech bubble's tail.
+          borderRadius: BorderRadiusDirectional.only(
+            topStart: const Radius.circular(20),
+            topEnd: const Radius.circular(20),
+            bottomStart: Radius.circular(turn.fromUser ? 20 : 6),
+            bottomEnd: Radius.circular(turn.fromUser ? 6 : 20),
+          ).resolve(Directionality.of(context)),
+          border: outlineOf(context),
+          boxShadow: hardShadowOf(context, offset: const Offset(3, 4)),
         ),
         child: Text(
           turn.text,
           style: TextStyle(
             color: turn.fromUser ? onAccent : text,
             fontSize: 15,
-            height: 1.35,
+            fontWeight: FontWeight.w500,
+            height: 1.45,
           ),
         ),
       ),
@@ -210,19 +220,22 @@ class _AiChatPageState extends ConsumerState<AiChatPage> {
                               child: Container(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 14,
-                                  vertical: 10,
+                                  vertical: 9,
                                 ),
                                 decoration: BoxDecoration(
                                   color: card,
-                                  borderRadius: BorderRadius.circular(18),
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: outlineOf(
+                                    context,
+                                    width: AppTokens.outlineThin,
+                                  ),
                                 ),
                                 child: Text(
                                   p,
                                   style: TextStyle(
-                                    color: AppTokens.accentText.resolveFrom(
-                                      context,
-                                    ),
+                                    color: text,
                                     fontSize: 14,
+                                    fontWeight: FontWeight.w700,
                                   ),
                                 ),
                               ),
@@ -296,10 +309,11 @@ class _AiChatPageState extends ConsumerState<AiChatPage> {
                           horizontal: 14,
                           vertical: 11,
                         ),
-                        style: TextStyle(color: text),
+                        style: TextStyle(color: text, fontSize: 16),
                         decoration: BoxDecoration(
                           color: card,
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(24),
+                          border: outlineOf(context),
                         ),
                       ),
                     ),
@@ -312,16 +326,21 @@ class _AiChatPageState extends ConsumerState<AiChatPage> {
                         minimumSize: const Size(44, 44),
                         onPressed: canSend ? () => _ask(_input.text) : null,
                         child: Container(
-                          width: 40,
-                          height: 40,
+                          width: 44,
+                          height: 44,
                           decoration: BoxDecoration(
-                            color: canSend ? accent : card,
+                            color: canSend
+                                ? AppTokens.gold.resolveFrom(context)
+                                : card,
                             shape: BoxShape.circle,
+                            border: outlineOf(context),
                           ),
                           child: Icon(
                             LucideIcons.arrowUp,
                             size: 20,
-                            color: canSend ? onAccent : muted,
+                            color: canSend
+                                ? AppTokens.onTint.resolveFrom(context)
+                                : muted,
                           ),
                         ),
                       ),
