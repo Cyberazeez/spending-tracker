@@ -17,18 +17,18 @@ void main() {
     tester,
   ) async {
     await openMore(tester);
-    await tester.tap(find.text('Account'));
+    await tester.tap(find.text('Your account'));
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('nav-back')), findsOneWidget);
     await tester.dragFrom(const Offset(3, 300), const Offset(700, 0));
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('nav-back')), findsNothing);
-    expect(find.text('Sign out'), findsOneWidget);
+    expect(find.text('Your account'), findsOneWidget);
   });
 
   testWidgets('swipe goes back two levels, one at a time', (tester) async {
     await openMore(tester);
-    await tester.tap(find.text('Account'));
+    await tester.tap(find.text('Your account'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Security'));
     await tester.pumpAndSettle();
@@ -39,7 +39,7 @@ void main() {
     expect(find.text('Profile'), findsOneWidget); // back on Account
     await tester.dragFrom(const Offset(3, 300), const Offset(700, 0));
     await tester.pumpAndSettle();
-    expect(find.text('Sign out'), findsOneWidget);
+    expect(find.text('Your account'), findsOneWidget);
   });
 
   testWidgets('swipe goes back from SMS capture and the back button too', (
@@ -50,12 +50,12 @@ void main() {
     await tester.pumpAndSettle();
     await tester.dragFrom(const Offset(3, 300), const Offset(700, 0));
     await tester.pumpAndSettle();
-    expect(find.text('Sign out'), findsOneWidget);
+    expect(find.text('Your account'), findsOneWidget);
     await tester.tap(find.text('SMS capture'));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('nav-back')));
     await tester.pumpAndSettle();
-    expect(find.text('Sign out'), findsOneWidget);
+    expect(find.text('Your account'), findsOneWidget);
   });
 
   testWidgets('swipe goes back from Quick add and from the obligation form', (

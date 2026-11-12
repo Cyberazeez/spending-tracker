@@ -1174,7 +1174,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get secSame => 'Choose a different password.';
 
   @override
-  String get secDone => 'Password changed.';
+  String get secDone => 'Password changed';
 
   @override
   String get secNote =>
@@ -1423,10 +1423,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deleteSureBody =>
-      'Your account is closed now and everything is permanently deleted after 30 days, with no way to restore it. Signing in again within 30 days cancels the deletion.';
+      'All your data will be lost. Signing in again within 30 days cancels the deletion.';
 
   @override
-  String get deleteSureConfirm => 'Delete everything';
+  String get deleteSureConfirm => 'Yes, delete it';
 
   @override
   String get reactivatedTitle => 'Welcome back';
@@ -1784,4 +1784,77 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bsNotThis => 'Not this payment';
+
+  @override
+  String get moreYourAccount => 'Your account';
+
+  @override
+  String get moreCategoriesRules => 'Categories and rules';
+
+  @override
+  String get secDoneBody =>
+      'This phone reconnects SMS capture and the widget by itself.';
+
+  @override
+  String get deleteKeep => 'Keep my account';
+
+  @override
+  String get capWorking => 'Working';
+
+  @override
+  String get capNotSetUp => 'Not set up yet';
+
+  @override
+  String get capNotSetUpBody =>
+      'Follow the steps to forward your bank messages.';
+
+  @override
+  String get capWaitingFirst => 'Waiting for the first message';
+
+  @override
+  String get capFailing => 'Not sending';
+
+  @override
+  String get capConnected => 'Connected';
+
+  @override
+  String get capNoMessages => 'No messages yet';
+
+  @override
+  String get capBills => 'Bill messages (900)';
+
+  @override
+  String get capPrivacy =>
+      'Halala reads only bank messages your iPhone forwards with the shortcut. Nothing else leaves the phone.';
+
+  @override
+  String get rulesIntro =>
+      'Purchases from these places always get this category. Delete a rule to stop it; past purchases keep their category.';
+
+  @override
+  String get rulesEmpty =>
+      'No rules yet. When you change a category, Halala asks whether to always file that place there.';
+
+  @override
+  String rulesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count rules',
+      one: '1 rule',
+      zero: 'No rules',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get rulesDeleteTitle => 'Delete this rule?';
+
+  @override
+  String rulesDeleteBody(String place, String category) {
+    return '\"$place\" will no longer go to $category by itself. Past purchases keep their category.';
+  }
+
+  @override
+  String get rulesDeleteYes => 'Delete rule';
 }

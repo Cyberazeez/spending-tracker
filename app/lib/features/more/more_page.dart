@@ -20,10 +20,14 @@ import '../../core/widget_setup.dart';
 import '../../l10n/app_localizations.dart';
 import '../../router.dart';
 import '../account/account_pages.dart';
+import '../account/account_providers.dart';
 import '../ai/providers.dart';
 import '../insights/budget_flow.dart';
 import '../insights/providers.dart' show monthlyBudgetProvider;
+import '../../ui/app_card.dart';
 import '../../ui/app_form.dart';
+import '../../ui/chevron.dart';
+import '../../ui/icon_tile.dart';
 import '../../ui/bottom_inset.dart';
 import '../../ui/choice_sheet.dart';
 import '../../ui/settings_group.dart';
@@ -78,7 +82,8 @@ class MorePage extends ConsumerWidget {
     final locale = ref.watch(localeProvider);
     ref.watch(accountRevisionProvider);
     final auth = ref.read(authRepositoryProvider);
-    final account = auth.displayName ?? auth.email;
+    final accounts = ref.watch(ownAccountsProvider).value;
+    // The mockup's order: the account on top; money and capture; the app's own switches; sign out.
     return CupertinoPageScaffold(
       backgroundColor: AppTokens.bg.resolveFrom(context),
       child: CustomScrollView(
@@ -95,8 +100,42 @@ class MorePage extends ConsumerWidget {
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
             sliver: SliverList.list(
               children: [
+                _AccountCard(
+                  title: t.moreYourAccount,
+                  subtitle: auth.email ?? auth.displayName ?? '',
+                  onTap: () => context.push(accountPath),
+                ),
+                const SizedBox(height: 16),
                 SettingsGroup(
                   children: [
+                    const _BudgetRow(),
+                    SettingsRow(
+                      key: const ValueKey('more-rules'),
+                      icon: LucideIcons.list,
+                      color: const Color(0xFFCDB4FF),
+                      title: t.moreCategoriesRules,
+                      onTap: () => context.push(rulesPath),
+                    ),
+                    SettingsRow(
+                      key: const ValueKey('more-banks'),
+                      icon: LucideIcons.landmark,
+                      color: const Color(0xFF9CC4FF),
+                      title: t.accountBanks,
+                      value: accounts == null || accounts.isEmpty
+                          ? null
+                          : '${accounts.length}',
+                      onTap: () => context.push(banksPath),
+                    ),
+                    const _CaptureStatusRow(),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                SettingsGroup(
+                  children: [
+                    const _AiRow(),
+                    // Only paying accounts: AI reading of unknown banks needs the paid plan.
+                    if (ref.watch(aiAllowedProvider).value == true)
+                      const _AiParseRow(),
                     SettingsRow(
                       icon: LucideIcons.globe,
                       color: const Color(0xFF9BE7E0),
@@ -107,38 +146,15 @@ class MorePage extends ConsumerWidget {
                       onTap: () => _pickLanguage(context, ref),
                     ),
                     SettingsRow(
+                      key: const ValueKey('more-reminders'),
                       icon: LucideIcons.bell,
                       color: const Color(0xFFFFA574),
                       title: t.remindersTitle,
-                      subtitle: t.remindersHelp,
                       control: appSwitch(
                         context,
                         value: ref.watch(remindersEnabledProvider),
                         onChanged: (on) => _toggleReminders(context, ref, on),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                SettingsGroup(
-                  children: [
-                    const _AiRow(),
-                    // Only paying accounts: AI reading of unknown banks needs the paid plan.
-                    if (ref.watch(aiAllowedProvider).value == true)
-                      const _AiParseRow(),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                SettingsGroup(
-                  children: [
-                    const _BudgetRow(),
-                    const _CaptureStatusRow(),
-                    SettingsRow(
-                      icon: LucideIcons.user,
-                      color: const Color(0xFF3FD79B),
-                      title: t.moreAccount,
-                      subtitle: account,
-                      onTap: () => context.push(accountPath),
                     ),
                   ],
                 ),
@@ -163,6 +179,80 @@ class MorePage extends ConsumerWidget {
           ),
           const BottomInset(),
         ],
+      ),
+    );
+  }
+}
+
+/// The account card on top of More: a big mint tile, "Your account" and the email.
+class _AccountCard extends StatelessWidget {
+  const _AccountCard({
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final muted = AppTokens.muted.resolveFrom(context);
+    return Semantics(
+      button: true,
+      label: '$title, $subtitle',
+      excludeSemantics: true,
+      child: GestureDetector(
+        key: const ValueKey('more-account'),
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: AppCard(
+          pressable: true,
+          padding: const EdgeInsets.all(14),
+          child: Row(
+            children: [
+              IconTile(
+                color: AppTokens.okBg.resolveFrom(context),
+                icon: LucideIcons.user,
+                size: 56,
+                radius: 16,
+                iconSize: 26,
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: AppTokens.text.resolveFrom(context),
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    if (subtitle.isNotEmpty)
+                      Text(
+                        subtitle,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: muted,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              ForwardChevron(size: 14, color: muted),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -206,6 +296,7 @@ class _AiRowState extends ConsumerState<_AiRow> {
     // Not on the paid plan: no switch, only a note. The server refuses AI for these accounts anyway.
     if (ref.watch(aiAllowedProvider).value == false) {
       return SettingsRow(
+        key: const ValueKey('more-ai'),
         icon: LucideIcons.sparkles,
         color: const Color(0xFFFFC93C),
         title: t.aiTitle,
@@ -213,10 +304,10 @@ class _AiRowState extends ConsumerState<_AiRow> {
       );
     }
     return SettingsRow(
+      key: const ValueKey('more-ai'),
       icon: LucideIcons.sparkles,
       color: const Color(0xFFFFC93C),
       title: t.aiTitle,
-      subtitle: t.aiSubtitle,
       control: appSwitch(context, value: _pending ?? stored, onChanged: _set),
     );
   }
@@ -266,6 +357,7 @@ class _AiParseRowState extends ConsumerState<_AiParseRow> {
     final t = AppLocalizations.of(context);
     final stored = ref.watch(aiParseEnabledProvider).value ?? false;
     return SettingsRow(
+      key: const ValueKey('more-ai-parse'),
       icon: LucideIcons.scanText,
       color: const Color(0xFF9CC4FF),
       title: t.aiParseTitle,
@@ -275,7 +367,6 @@ class _AiParseRowState extends ConsumerState<_AiParseRow> {
   }
 }
 
-/// Shows what the "Add bank message" Shortcuts action has queued and how the last send went.
 /// The monthly budget: shows it, or "Not set"; tapping sets, changes or removes it.
 class _BudgetRow extends ConsumerWidget {
   const _BudgetRow();
@@ -286,7 +377,7 @@ class _BudgetRow extends ConsumerWidget {
     final arabic = ref.watch(localeProvider).languageCode == 'ar';
     final budget = ref.watch(monthlyBudgetProvider).value;
     return SettingsRow(
-      icon: LucideIcons.wallet,
+      icon: LucideIcons.target,
       color: const Color(0xFFFFC93C),
       title: t.insMonthlyBudget,
       value: budget == null
@@ -297,6 +388,7 @@ class _BudgetRow extends ConsumerWidget {
   }
 }
 
+/// Shows how the last send of the "Add bank message" Shortcuts action went, or how many messages wait.
 class _CaptureStatusRow extends ConsumerWidget {
   const _CaptureStatusRow();
 
@@ -304,17 +396,18 @@ class _CaptureStatusRow extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = AppLocalizations.of(context);
     final status = ref.watch(captureStatusProvider).value;
-    final waiting = status == null
-        ? ''
-        : (status.pending == 0
-              ? t.captureNone
-              : t.captureWaiting(status.pending));
-    final last = captureLastLabel(t, status?.last ?? '');
+    // Messages waiting say more than the last send; otherwise "Last sent 11:20" (or that it failed).
+    final value = status == null
+        ? null
+        : (status.pending > 0
+              ? t.captureWaiting(status.pending)
+              : captureLastLabel(t, status.last));
     return SettingsRow(
+      key: const ValueKey('more-capture'),
       icon: LucideIcons.messageSquare,
       color: const Color(0xFF3FD79B),
       title: t.captureStatus,
-      subtitle: last.isEmpty ? waiting : '$waiting · $last',
+      value: value == null || value.isEmpty ? null : value,
       onTap: () => context.push(capturePath),
     );
   }

@@ -162,6 +162,18 @@ class ManualTxn {
   final String? note;
 }
 
+/// A saved "always file this place under that category" rule.
+class MerchantRule {
+  const MerchantRule({
+    required this.id,
+    required this.pattern,
+    required this.categoryId,
+  });
+  final String id;
+  final String pattern;
+  final String categoryId;
+}
+
 class Category {
   const Category({
     required this.id,

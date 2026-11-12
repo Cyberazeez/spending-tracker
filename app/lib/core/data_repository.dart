@@ -14,6 +14,12 @@ abstract class DataRepository {
   });
   Future<List<Category>> categories();
 
+  /// The owner's merchant rules (place → category), without the internal account rules (`acct:` / `card:`).
+  Future<List<MerchantRule>> merchantRules();
+
+  /// Deletes one merchant rule. Transactions it already filed keep their category.
+  Future<void> deleteMerchantRule(String id);
+
   /// How many other, not manually categorised, transactions share this merchant.
   /// Spending (purchases and refunds with a merchant, not internal) that has no category yet, across all history,
   /// the same set the AI suggestion works on.
@@ -265,6 +271,30 @@ class SupabaseDataRepository implements DataRepository {
         .eq('id', rawId)
         .maybeSingle();
     return row?['body'] as String?;
+  }
+
+  @override
+  Future<List<MerchantRule>> merchantRules() async {
+    final rows = await _db
+        .from('merchant_rules')
+        .select('id, pattern, category_id')
+        .not('pattern', 'like', 'acct:%')
+        .not('pattern', 'like', 'card:%')
+        .order('pattern')
+        .limit(1000);
+    return [
+      for (final r in rows)
+        MerchantRule(
+          id: r['id'] as String,
+          pattern: r['pattern'] as String,
+          categoryId: r['category_id'] as String,
+        ),
+    ];
+  }
+
+  @override
+  Future<void> deleteMerchantRule(String id) async {
+    await _db.from('merchant_rules').delete().eq('id', id);
   }
 
   @override

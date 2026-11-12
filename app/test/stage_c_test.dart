@@ -22,8 +22,18 @@ Future<Harness> start(
 Future<void> openAccountPage(WidgetTester tester) async {
   await tester.tap(find.text('More').last);
   await tester.pumpAndSettle();
-  await tester.tap(find.text('Account'));
+  await tester.tap(find.text('Your account'));
   await tester.pumpAndSettle();
+}
+
+/// More > Bank accounts (the row moved from Account to More in the redesign).
+Future<void> openBanks(WidgetTester tester) async {
+  await tester.tap(find.text('More').last);
+  await tester.pumpAndSettle();
+  final row = find.text('Bank accounts');
+  await tester.ensureVisible(row);
+  await tester.pumpAndSettle();
+  await tester.tap(row);
 }
 
 void main() {
@@ -50,7 +60,7 @@ void main() {
         expect(find.text('1 of 2 done'), findsOneWidget);
         await tester.tap(find.text('Set up SMS capture'));
         await tester.pumpAndSettle();
-        expect(find.text('Set up SMS capture'), findsWidgets);
+        expect(find.byKey(const ValueKey('capture-status')), findsOneWidget);
         expect(find.text('Open Shortcuts'), findsOneWidget);
       },
     );
@@ -128,8 +138,7 @@ void main() {
     tester,
   ) async {
     await start(tester);
-    await openAccountPage(tester);
-    await tester.tap(find.text('Bank accounts'));
+    await openBanks(tester);
     await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(CupertinoButton, 'Add account'));
     await tester.pumpAndSettle();
@@ -163,8 +172,7 @@ void main() {
       tester,
     ) async {
       final h = await start(tester);
-      await openAccountPage(tester);
-      await tester.tap(find.text('Bank accounts'));
+      await openBanks(tester);
       await tester.pumpAndSettle();
       expect(find.text('Alinma Bank 6000'), findsOneWidget);
 
@@ -203,8 +211,7 @@ void main() {
       tester,
     ) async {
       final h = await start(tester);
-      await openAccountPage(tester);
-      await tester.tap(find.text('Bank accounts'));
+      await openBanks(tester);
       await tester.pumpAndSettle();
       await tester.tap(find.text('Alinma Bank 6000'));
       await tester.pumpAndSettle();
@@ -227,8 +234,7 @@ void main() {
       tester,
     ) async {
       final h = await start(tester);
-      await openAccountPage(tester);
-      await tester.tap(find.text('Bank accounts'));
+      await openBanks(tester);
       await tester.pumpAndSettle();
       await tester.tap(find.widgetWithText(CupertinoButton, 'Add account'));
       await tester.pumpAndSettle();
@@ -249,8 +255,7 @@ void main() {
     testWidgets('a duplicate is explained', (tester) async {
       final h = await start(tester);
       h.data.accountDuplicate = true;
-      await openAccountPage(tester);
-      await tester.tap(find.text('Bank accounts'));
+      await openBanks(tester);
       await tester.pumpAndSettle();
       await tester.tap(find.widgetWithText(CupertinoButton, 'Add account'));
       await tester.pumpAndSettle();
@@ -282,7 +287,7 @@ void main() {
       await t.tap(find.widgetWithText(CupertinoButton, 'Delete my account'));
       await t.pumpAndSettle();
       // the "Are you sure?" step appears once the form itself is valid
-      final sure = find.text('Delete everything');
+      final sure = find.text('Yes, delete it');
       if (sure.evaluate().isNotEmpty) {
         await t.tap(sure);
         await t.pumpAndSettle();
@@ -343,8 +348,11 @@ void main() {
         );
         await tester.pumpAndSettle();
         expect(find.text('Are you sure?'), findsOneWidget);
-        expect(find.textContaining('no way to restore it'), findsWidgets);
-        await tester.tap(find.text('Cancel'));
+        expect(
+          find.textContaining('Signing in again within 30 days'),
+          findsWidgets,
+        );
+        await tester.tap(find.text('Keep my account'));
         await tester.pumpAndSettle();
         expect(h.auth.deleteCalls, isEmpty);
         expect(find.text('Delete account'), findsWidgets); // still on the page
@@ -353,12 +361,13 @@ void main() {
 
     testWidgets('swipe back works on the new screens', (tester) async {
       await start(tester);
-      await openAccountPage(tester);
-      await tester.tap(find.text('Bank accounts'));
+      await openBanks(tester);
       await tester.pumpAndSettle();
       await tester.dragFrom(const Offset(3, 300), const Offset(700, 0));
       await tester.pumpAndSettle();
-      expect(find.text('Profile'), findsOneWidget);
+      expect(find.text('Your account'), findsOneWidget); // back on More
+      await tester.tap(find.text('Your account'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Privacy'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Delete my account'));
@@ -387,7 +396,7 @@ void main() {
       expect(tester.takeException(), isNull, reason: 'home with welcome card');
       await tester.tap(find.text(lang == 'en' ? 'More' : 'المزيد').last);
       await tester.pumpAndSettle();
-      final acct = find.text(lang == 'en' ? 'Account' : 'الحساب');
+      final acct = find.text(lang == 'en' ? 'Your account' : 'حسابك');
       await tester.dragUntilVisible(
         acct,
         find.byType(CustomScrollView),
@@ -396,10 +405,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(acct);
       await tester.pumpAndSettle();
-      for (final label
-          in lang == 'en'
-              ? ['Bank accounts', 'Privacy']
-              : ['الحسابات البنكية', 'الخصوصية']) {
+      for (final label in lang == 'en' ? ['Privacy'] : ['الخصوصية']) {
         final row = find.text(label);
         await tester.ensureVisible(row);
         await tester.tap(row);

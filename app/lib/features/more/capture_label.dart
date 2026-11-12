@@ -11,3 +11,14 @@ String captureLastLabel(AppLocalizations t, String last) {
       ? t.captureLastOk('\u2066${m.group(1)}\u2069')
       : t.captureLastFailed(code.toString());
 }
+
+/// Whether the last send succeeded: true for an HTTP 2xx ("19:02:11 HTTP 200"), null when nothing was sent yet, false
+/// otherwise (another HTTP code, or a network error such as "19:55:13 error -1009").
+bool? captureLastSucceeded(String last) {
+  final l = last.trim();
+  if (l.isEmpty) return null;
+  final m = RegExp(r'HTTP\s+(\d{3})').firstMatch(l);
+  if (m == null) return false;
+  final code = int.parse(m.group(1)!);
+  return code >= 200 && code < 300;
+}

@@ -299,6 +299,10 @@ void main() {
     'delete',
     'language',
     'home_empty',
+    'more',
+    'rules',
+    'delete_sure',
+    'password_done',
   ];
   for (final lang in ['en', 'ar']) {
     final en = lang == 'en';
@@ -336,6 +340,18 @@ void main() {
           ];
           if (screen == 'lock') h.authenticator.result = false;
           if (screen == 'banks_error') h.data.failLoad = true;
+          h.capture.last = '11:20:05 HTTP 200';
+          h.data.gaps = [
+            SenderGap(
+              sender: 'alinma',
+              lastReceivedAt: DateTime.utc(2026, 11, 12, 8),
+            ),
+          ];
+          h.data.rules = const [
+            MerchantRule(id: 'r1', pattern: 'otten', categoryId: 'c-gro'),
+            MerchantRule(id: 'r2', pattern: 'danube', categoryId: 'c-gro'),
+            MerchantRule(id: 'r3', pattern: 'starbucks', categoryId: 'c-din'),
+          ];
           await t.pumpWidget(await h.build(prefs: {'locale': lang}));
           await t.pumpAndSettle();
           void go(String path) =>
@@ -367,6 +383,27 @@ void main() {
               }
             case 'delete':
               go(deleteAccountPath);
+            case 'more':
+              await t.tap(find.byKey(const ValueKey('tab-item-4')));
+            case 'rules':
+              go(rulesPath);
+            case 'delete_sure':
+              go(deleteAccountPath);
+              await t.pumpAndSettle();
+              await t.enterText(
+                find.byType(CupertinoTextField).at(0),
+                en ? 'DELETE' : 'حذف',
+              );
+              await t.enterText(find.byType(CupertinoTextField).at(1), 'pw');
+              await t.tap(find.byKey(const ValueKey('delete-button')));
+            case 'password_done':
+              go(securityPath);
+              await t.pumpAndSettle();
+              final f = find.byType(CupertinoTextField);
+              await t.enterText(f.at(0), 'old-password');
+              await t.enterText(f.at(1), 'new-password-1');
+              await t.enterText(f.at(2), 'new-password-1');
+              await t.tap(find.byKey(const ValueKey('sec-save')));
             case 'language':
               await t.tap(find.text(en ? 'More' : 'المزيد').last);
               await t.pumpAndSettle();
