@@ -6,6 +6,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../router.dart';
 import 'header_button.dart';
 import 'tokens.dart';
+import 'press.dart';
 
 /// Navigation bar of the sub-screens: the page colour, no line, and an outlined back button (key `nav-back`) that
 /// pops the screen (so the swipe from the left edge and the button do the same thing).
@@ -63,36 +64,44 @@ class PrimaryButton extends StatelessWidget {
       child: CupertinoButton(
         padding: EdgeInsets.zero,
         minimumSize: const Size(44, 52),
+        pressedOpacity: 1, // the box presses into its shadow instead
         onPressed: enabled ? onPressed : null,
         child: Padding(
           padding: const EdgeInsets.only(right: 3, bottom: 4),
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              color: enabled ? accent : AppTokens.bar.resolveFrom(context),
-              borderRadius: BorderRadius.circular(26),
-              border: outlineOf(context),
-              boxShadow: enabled
-                  ? hardShadowOf(context, offset: const Offset(3, 4))
-                  : null,
-            ),
-            child: SizedBox(
-              width: double.infinity,
-              height: 52,
-              child: Center(
-                child: busy
-                    ? CupertinoActivityIndicator(
-                        color: AppTokens.onAccent.resolveFrom(context),
+          child: Pressable(
+            offset: const Offset(3, 4),
+            enabled: enabled,
+            builder: (context, depth) => DecoratedBox(
+              decoration: BoxDecoration(
+                color: enabled ? accent : AppTokens.bar.resolveFrom(context),
+                borderRadius: BorderRadius.circular(26),
+                border: outlineOf(context),
+                boxShadow: enabled
+                    ? hardShadowOf(
+                        context,
+                        offset: const Offset(3, 4) * (1 - depth),
                       )
-                    : Text(
-                        label,
-                        style: TextStyle(
-                          color: enabled
-                              ? AppTokens.onAccent.resolveFrom(context)
-                              : AppTokens.muted.resolveFrom(context),
-                          fontSize: 17,
-                          fontWeight: FontWeight.w700,
+                    : null,
+              ),
+              child: SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: Center(
+                  child: busy
+                      ? CupertinoActivityIndicator(
+                          color: AppTokens.onAccent.resolveFrom(context),
+                        )
+                      : Text(
+                          label,
+                          style: TextStyle(
+                            color: enabled
+                                ? AppTokens.onAccent.resolveFrom(context)
+                                : AppTokens.muted.resolveFrom(context),
+                            fontSize: 17,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
-                      ),
+                ),
               ),
             ),
           ),
@@ -137,49 +146,57 @@ class SecondaryButton extends StatelessWidget {
       child: CupertinoButton(
         padding: EdgeInsets.zero,
         minimumSize: const Size(44, 48),
+        pressedOpacity: 1,
         onPressed: onPressed,
         child: Padding(
           padding: const EdgeInsets.only(right: 3, bottom: 4),
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              color: AppTokens.card.resolveFrom(context),
-              borderRadius: BorderRadius.circular(26),
-              border: outlineOf(context),
-              boxShadow: enabled
-                  ? hardShadowOf(context, offset: const Offset(3, 4))
-                  : null,
-            ),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(
-                minWidth: double.infinity,
-                minHeight: 48,
+          child: Pressable(
+            offset: const Offset(3, 4),
+            enabled: enabled,
+            builder: (context, depth) => DecoratedBox(
+              decoration: BoxDecoration(
+                color: AppTokens.card.resolveFrom(context),
+                borderRadius: BorderRadius.circular(26),
+                border: outlineOf(context),
+                boxShadow: enabled
+                    ? hardShadowOf(
+                        context,
+                        offset: const Offset(3, 4) * (1 - depth),
+                      )
+                    : null,
               ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(
+                  minWidth: double.infinity,
+                  minHeight: 48,
                 ),
-                child: Center(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (icon != null) ...[
-                        Icon(icon, size: 18, color: color),
-                        const SizedBox(width: 8),
-                      ],
-                      Flexible(
-                        child: Text(
-                          label,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: color,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            decoration: TextDecoration.none,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  child: Center(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (icon != null) ...[
+                          Icon(icon, size: 18, color: color),
+                          const SizedBox(width: 8),
+                        ],
+                        Flexible(
+                          child: Text(
+                            label,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: color,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              decoration: TextDecoration.none,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),

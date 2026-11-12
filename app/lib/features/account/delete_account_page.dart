@@ -19,6 +19,7 @@ import '../../l10n/app_localizations.dart';
 import '../../ui/app_card.dart';
 import '../../ui/app_form.dart';
 import '../../ui/tokens.dart';
+import '../../ui/press.dart';
 
 /// Account > Privacy > Delete my account. Needs the password again and a typed confirmation word. The server checks
 /// the password too, deletes the account and, through the database cascade, every row of it.
@@ -191,33 +192,41 @@ class _DeleteAccountPageState extends ConsumerState<DeleteAccountPage> {
               child: CupertinoButton(
                 padding: EdgeInsets.zero,
                 minimumSize: const Size(44, 52),
+                pressedOpacity: 1,
                 onPressed: _busy ? null : _delete,
                 child: Padding(
                   padding: const EdgeInsets.only(right: 3, bottom: 4),
-                  child: DecoratedBox(
-                    key: const ValueKey('delete-button'),
-                    decoration: BoxDecoration(
-                      color: danger,
-                      borderRadius: BorderRadius.circular(26),
-                      border: outlineOf(context),
-                      boxShadow: _busy
-                          ? null
-                          : hardShadowOf(context, offset: const Offset(3, 4)),
-                    ),
-                    child: SizedBox(
-                      width: double.infinity,
-                      height: 52,
-                      child: Center(
-                        child: _busy
-                            ? CupertinoActivityIndicator(color: onDanger)
-                            : Text(
-                                t.deleteButton,
-                                style: TextStyle(
-                                  color: onDanger,
-                                  fontSize: 17,
-                                  fontWeight: FontWeight.w700,
-                                ),
+                  child: Pressable(
+                    offset: const Offset(3, 4),
+                    enabled: !_busy,
+                    builder: (context, depth) => DecoratedBox(
+                      key: const ValueKey('delete-button'),
+                      decoration: BoxDecoration(
+                        color: danger,
+                        borderRadius: BorderRadius.circular(26),
+                        border: outlineOf(context),
+                        boxShadow: _busy
+                            ? null
+                            : hardShadowOf(
+                                context,
+                                offset: const Offset(3, 4) * (1 - depth),
                               ),
+                      ),
+                      child: SizedBox(
+                        width: double.infinity,
+                        height: 52,
+                        child: Center(
+                          child: _busy
+                              ? CupertinoActivityIndicator(color: onDanger)
+                              : Text(
+                                  t.deleteButton,
+                                  style: TextStyle(
+                                    color: onDanger,
+                                    fontSize: 17,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                        ),
                       ),
                     ),
                   ),

@@ -4,6 +4,8 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'sheet_frame.dart';
 import 'theme.dart';
 import 'tokens.dart';
+import 'press.dart';
+import 'app_sheet.dart';
 
 class ChoiceOption<T> {
   const ChoiceOption({
@@ -32,7 +34,7 @@ Future<T?> showChoiceSheet<T>(
   String? message,
   required List<ChoiceOption<T>> options,
 }) {
-  return showCupertinoModalPopup<T>(
+  return showAppSheet<T>(
     context: context,
     builder: (ctx) => SheetFrame(
       title: title,
@@ -102,69 +104,78 @@ class _Row<T> extends StatelessWidget {
         onTap: () => Navigator.pop(context, option.value),
         child: Padding(
           padding: const EdgeInsets.only(right: 3, bottom: 4),
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              color: AppTokens.card.resolveFrom(context),
-              borderRadius: BorderRadius.circular(AppTokens.radiusCard),
-              border: outlineOf(context),
-              boxShadow: selected
-                  ? hardShadowOf(context, offset: const Offset(3, 4))
-                  : null,
-            ),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: 54),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 10,
-                ),
-                child: Row(
-                  children: [
-                    if (option.icon != null) ...[
-                      Icon(option.icon, size: 20, color: color),
-                      const SizedBox(width: 12),
-                    ],
-                    Expanded(
-                      child: Text(
-                        option.label,
-                        style: TextStyle(
-                          color: color,
-                          fontSize: 17,
-                          fontWeight: selected
-                              ? FontWeight.w700
-                              : FontWeight.w500,
-                          decoration: TextDecoration.none,
-                        ),
-                      ),
-                    ),
-                    if (ring) ...[
-                      const SizedBox(width: 10),
-                      Container(
-                        key: selected
-                            ? const ValueKey('choice-selected')
-                            : null,
-                        width: 28,
-                        height: 28,
-                        decoration: BoxDecoration(
-                          color: selected
-                              ? AppTokens.accent.resolveFrom(context)
-                              : null,
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: line,
-                            width: AppTokens.outlineThin,
+          child: Pressable(
+            offset: const Offset(3, 4),
+            enabled: true,
+            builder: (context, depth) => DecoratedBox(
+              decoration: BoxDecoration(
+                color: AppTokens.card.resolveFrom(context),
+                borderRadius: BorderRadius.circular(AppTokens.radiusCard),
+                border: outlineOf(context),
+                boxShadow: selected
+                    ? hardShadowOf(
+                        context,
+                        offset: const Offset(3, 4) * (1 - depth),
+                      )
+                    : null,
+              ),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: 54),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 10,
+                  ),
+                  child: Row(
+                    children: [
+                      if (option.icon != null) ...[
+                        Icon(option.icon, size: 20, color: color),
+                        const SizedBox(width: 12),
+                      ],
+                      Expanded(
+                        child: Text(
+                          option.label,
+                          style: TextStyle(
+                            color: color,
+                            fontSize: 17,
+                            fontWeight: selected
+                                ? FontWeight.w700
+                                : FontWeight.w500,
+                            decoration: TextDecoration.none,
                           ),
                         ),
-                        child: selected
-                            ? Icon(
-                                LucideIcons.check,
-                                size: 16,
-                                color: AppTokens.onAccent.resolveFrom(context),
-                              )
-                            : null,
                       ),
+                      if (ring) ...[
+                        const SizedBox(width: 10),
+                        Container(
+                          key: selected
+                              ? const ValueKey('choice-selected')
+                              : null,
+                          width: 28,
+                          height: 28,
+                          decoration: BoxDecoration(
+                            color: selected
+                                ? AppTokens.accent.resolveFrom(context)
+                                : null,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: line,
+                              width: AppTokens.outlineThin,
+                            ),
+                          ),
+                          child: selected
+                              ? Icon(
+                                  LucideIcons.check,
+                                  size: 16,
+                                  color: AppTokens.onAccent.resolveFrom(
+                                    context,
+                                  ),
+                                )
+                              : null,
+                        ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
               ),
             ),

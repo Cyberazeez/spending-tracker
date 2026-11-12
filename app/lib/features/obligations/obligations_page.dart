@@ -449,6 +449,7 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
                       behavior: HitTestBehavior.opaque,
                       onTap: () => setState(() => _section = ObSection.overdue),
                       child: AppCard(
+                        pressable: true,
                         color: AppTokens.warnBg.resolveFrom(context),
                         padding: EdgeInsets.zero,
                         child: Padding(
@@ -539,6 +540,7 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
                               behavior: HitTestBehavior.opaque,
                               onTap: () => setState(() => _nextOpen = true),
                               child: AppCard(
+                                pressable: true,
                                 child: Row(
                                   children: [
                                     Expanded(

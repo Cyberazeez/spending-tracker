@@ -100,7 +100,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           child: ListView(
             padding: const EdgeInsets.fromLTRB(20, 32, 20, 24),
             children: [
-              const Center(child: HalalaLogo(width: 190)),
+              const Center(child: HalalaLogo(width: 190, dropCoins: true)),
               const SizedBox(height: 24),
               Text(
                 t.loginTitle,

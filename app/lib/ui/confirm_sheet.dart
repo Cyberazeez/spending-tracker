@@ -5,6 +5,8 @@ import 'sheet_frame.dart';
 import 'swipe_action.dart';
 import 'theme.dart';
 import 'tokens.dart';
+import 'press.dart';
+import 'app_sheet.dart';
 
 /// Asks a yes/no question in the app's bottom-sheet look, instead of the native alert.
 /// Returns true for the confirm button, false for the cancel button, null when dismissed.
@@ -17,7 +19,7 @@ Future<bool?> showConfirmSheet(
   bool destructive = false,
 }) {
   final t = AppLocalizations.of(context);
-  return showCupertinoModalPopup<bool>(
+  return showAppSheet<bool>(
     context: context,
     builder: (ctx) => SheetFrame(
       title: title,
@@ -48,7 +50,7 @@ Future<void> showNoticeSheet(
   String? okLabel,
 }) {
   final t = AppLocalizations.of(context);
-  return showCupertinoModalPopup<void>(
+  return showAppSheet<void>(
     context: context,
     builder: (ctx) => SheetFrame(
       title: title,
@@ -135,26 +137,34 @@ class _SheetButton extends StatelessWidget {
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: onTap,
-        child: Container(
-          constraints: const BoxConstraints(minHeight: 50),
-          alignment: Alignment.center,
-          // The (3, 4) shadow stays inside the button's own box.
-          margin: const EdgeInsets.only(right: 3, bottom: 4),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
-            color: bg,
-            borderRadius: BorderRadius.circular(26),
-            border: outlineOf(context),
-            boxShadow: hardShadowOf(context, offset: const Offset(3, 4)),
-          ),
-          child: Text(
-            label,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: fg,
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-              decoration: TextDecoration.none,
+        // The (3, 4) shadow stays inside the button's own box.
+        child: Padding(
+          padding: const EdgeInsets.only(right: 3, bottom: 4),
+          child: Pressable(
+            offset: const Offset(3, 4),
+            builder: (context, depth) => Container(
+              constraints: const BoxConstraints(minHeight: 50),
+              alignment: Alignment.center,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                color: bg,
+                borderRadius: BorderRadius.circular(26),
+                border: outlineOf(context),
+                boxShadow: hardShadowOf(
+                  context,
+                  offset: const Offset(3, 4) * (1 - depth),
+                ),
+              ),
+              child: Text(
+                label,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: fg,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  decoration: TextDecoration.none,
+                ),
+              ),
             ),
           ),
         ),

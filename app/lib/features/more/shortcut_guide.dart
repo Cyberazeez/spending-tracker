@@ -6,6 +6,7 @@ import '../../l10n/app_localizations.dart';
 import '../../ui/theme.dart';
 import '../../ui/tokens.dart';
 import '../../ui/app_form.dart';
+import '../../ui/app_sheet.dart';
 
 /// The snippets (cropped from real screenshots, the tap target outlined) shown on each page of the guide.
 const shortcutGuideImages = [
@@ -24,7 +25,7 @@ String shortcutGuideSeenKey(String? userId) => 'guide.seen.${userId ?? ''}';
 /// Opens the step-by-step guide to adding the Shortcuts automation, as a swipeable bottom sheet.
 /// [offer] is the automatic first-launch version: page one has a Skip button where Back would be.
 Future<void> showShortcutGuide(BuildContext context, {bool offer = false}) =>
-    showCupertinoModalPopup<void>(
+    showAppSheet<void>(
       context: context,
       builder: (_) => ShortcutGuideSheet(offer: offer),
     );

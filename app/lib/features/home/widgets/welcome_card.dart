@@ -56,6 +56,7 @@ class _WelcomeCardState extends ConsumerState<WelcomeCard> {
             behavior: HitTestBehavior.opaque,
             onTap: () => ref.read(welcomeProvider.notifier).setCollapsed(false),
             child: AppCard(
+              pressable: true,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: ConstrainedBox(
                 constraints: const BoxConstraints(minHeight: 44),

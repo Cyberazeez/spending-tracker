@@ -19,6 +19,7 @@ import '../../ui/empty_state.dart';
 import '../../ui/choice_sheet.dart';
 import '../../ui/tokens.dart';
 import 'account_providers.dart';
+import '../../ui/app_sheet.dart';
 
 String bankName(BuildContext context, String bank) => bankDisplayName(
   bank,
@@ -51,7 +52,7 @@ class OwnAccountsPage extends ConsumerWidget {
     WidgetRef ref, [
     OwnAccount? existing,
   ]) async {
-    await showCupertinoModalPopup<void>(
+    await showAppSheet<void>(
       context: context,
       builder: (_) => _AccountSheet(existing: existing),
     );

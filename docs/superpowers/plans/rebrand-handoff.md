@@ -8,8 +8,8 @@ For the next session that picks up the Halala rebrand. Read the spec first: `doc
 | 1 | Design layer and Home | Merged (PR #104). Plan: `2026-11-11-rebrand-stage1.md` |
 | 2 | Activity | Merged (PR #105). Plan: `2026-11-12-rebrand-stage2.md`. Owner tested on TestFlight: all pass |
 | 3 | Bills and Insights | Merged (PR #106). Plan: `2026-11-12-rebrand-stage3.md`. Owner has not reported a TestFlight check yet |
-| 4 | Start and More | Built, in review. Plan: `2026-11-12-rebrand-stage4.md` |
-| 5 | Motion | **Next. Wait for the owner's go.** |
+| 4 | Start and More | Merged (PR #108, TestFlight fixes PR #109). Plan: `2026-11-12-rebrand-stage4.md` |
+| 5 | Motion | Built, in review. Plan: `2026-11-12-rebrand-stage5.md` |
 | 6 | Widget, emails, website, App Store screenshots | Not started |
 
 ## Owner's rules for this work
@@ -22,7 +22,7 @@ For the next session that picks up the Halala rebrand. Read the spec first: `doc
 - Owner wants short replies, simple numbered steps, and facts checked before they are stated.
 
 ## Shared pieces built so far (reuse them)
-`AppCard` (outline, hard shadow, `flat`, `shadow:` offset), `HalalaLogo`, `appSwitch`, `PrimaryButton`, `SecondaryButton` (`icon:`), `FieldButton`, `AppField` (`large:`), `IconTile` (`outline:`), `HeaderIconButton`, `OutlinedBar`, `PillSegments`, `StatusPill`, `RowsCard`, `RankCircle`, `swipeLabelColor` / `onDanger` (white or ink on a red fill, whichever reads better). Sheets set their text to Rubik explicitly (`appFont`, `riyalFont` fallback) because they use `inherit: false`.
+`AppCard` (outline, hard shadow, `flat`, `shadow:` offset, `pressable:`), `Pressable`, `showAppSheet` (every bottom sheet), `HalalaLogo` (`dropCoins:`), `appSwitch`, `PrimaryButton`, `SecondaryButton` (`icon:`), `FieldButton`, `AppField` (`large:`), `IconTile` (`outline:`), `HeaderIconButton`, `OutlinedBar`, `PillSegments`, `StatusPill`, `RowsCard`, `RankCircle`, `swipeLabelColor` / `onDanger` (white or ink on a red fill, whichever reads better). Sheets set their text to Rubik explicitly (`appFont`, `riyalFont` fallback) because they use `inherit: false`.
 
 ## Tools in a cloud session
 - Flutter is not preinstalled: download `https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.47.9-stable.tar.xz` (about 1.5 GB), unpack into the scratchpad, put `flutter/bin` on PATH, run `flutter pub get` in `app/`. CI checks `dart format` too.
