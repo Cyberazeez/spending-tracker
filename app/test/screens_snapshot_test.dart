@@ -274,6 +274,7 @@ void main() {
     'guide_last',
     'delete',
     'language',
+    'home_empty',
   ];
   for (final lang in ['en', 'ar']) {
     final en = lang == 'en';
@@ -287,7 +288,7 @@ void main() {
           addTearDown(t.platformDispatcher.clearAllTestValues);
           final signedOut = const ['login', 'signup', 'forgot'];
           final h = Harness(signedIn: !signedOut.contains(screen));
-          _sample(h);
+          if (screen != 'home_empty') _sample(h);
           h.data.accounts = [
             const OwnAccount(
               id: 'oa1',

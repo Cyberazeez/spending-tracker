@@ -27,6 +27,10 @@ import 'widgets/bill_card.dart';
 import 'widgets/hero_card.dart';
 import 'widgets/share_bar.dart';
 import 'widgets/week_bars.dart';
+import '../../ui/app_form.dart';
+import '../../ui/halala_logo.dart';
+import '../../ui/press.dart';
+import '../../ui/swipe_action.dart' show swipeLabelColor;
 
 /// The first tab: this month at a glance, what is due next, and anything that needs the owner's attention.
 class HomePage extends ConsumerWidget {
@@ -68,7 +72,7 @@ class HomePage extends ConsumerWidget {
         ),
         slivers: [
           CupertinoSliverNavigationBar(
-            largeTitle: Text(t.homeOverview),
+            largeTitle: Text(t.tabHome),
             backgroundColor: AppTokens.bg.resolveFrom(context),
             border: null,
           ),
@@ -95,13 +99,8 @@ class HomePage extends ConsumerWidget {
             error: (_, _) => [
               SliverFillRemaining(
                 hasScrollBody: false,
-                child: EmptyState(
-                  icon: CupertinoIcons.exclamationmark_triangle,
-                  title: t.loadFailed,
-                  action: CupertinoButton(
-                    onPressed: () => ref.invalidate(insightsProvider),
-                    child: Text(t.tryAgain),
-                  ),
+                child: LoadFailedCard(
+                  onRetry: () => ref.invalidate(insightsProvider),
                 ),
               ),
             ],
@@ -115,17 +114,16 @@ class HomePage extends ConsumerWidget {
                 ];
               }
               if (!ins.hasData && gaps.isEmpty && obligations.isEmpty) {
+                // New account, nothing yet: the logo, what to do first, then the getting-started steps.
                 return [
                   const SliverPadding(
                     padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
-                    sliver: SliverToBoxAdapter(child: WelcomeCard()),
-                  ),
-                  SliverFillRemaining(
-                    hasScrollBody: false,
-                    child: EmptyState(
-                      icon: CupertinoIcons.tray,
-                      title: t.emptyHomeTitle,
-                      body: t.emptyHomeBody,
+                    sliver: SliverList(
+                      delegate: SliverChildListDelegate.fixed([
+                        _FirstSmsCard(),
+                        SizedBox(height: 16),
+                        WelcomeCard(showSteps: false),
+                      ]),
                     ),
                   ),
                 ];
@@ -135,9 +133,6 @@ class HomePage extends ConsumerWidget {
               final monthlyLevel = monthlyBudget == null
                   ? BudgetLevel.ok
                   : budgetLevel(ins.monthSpend, monthlyBudget);
-              Color levelColor(BudgetLevel l) => l == BudgetLevel.over
-                  ? AppTokens.danger.resolveFrom(context)
-                  : AppTokens.warnText.resolveFrom(context);
               return [
                 SliverPadding(
                   padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
@@ -166,37 +161,55 @@ class HomePage extends ConsumerWidget {
                             : null,
                         arabic: arabic,
                       ),
-                      if (alerts.isNotEmpty ||
+                      // Things that want a look, as chips under the hero: messages to review, budgets near or
+                      // over their limit.
+                      if (reviewCount > 0 ||
+                          alerts.isNotEmpty ||
                           monthlyLevel != BudgetLevel.ok) ...[
-                        const SizedBox(height: 16),
-                        AppCard(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              if (monthlyLevel != BudgetLevel.ok)
-                                _AlertLine(
-                                  color: levelColor(monthlyLevel),
-                                  text: monthlyLevel == BudgetLevel.over
-                                      ? t.homeMonthlyOver
-                                      : t.homeMonthlyWarn(
-                                          budgetPercent(
-                                            ins.monthSpend,
-                                            monthlyBudget,
-                                          ).toString(),
-                                        ),
-                                ),
-                              for (final a in alerts)
-                                _AlertLine(
-                                  color: levelColor(a.level),
-                                  text: a.level == BudgetLevel.over
-                                      ? t.insBudgetOver(name(a.categoryId))
-                                      : t.insBudgetWarn(
-                                          name(a.categoryId),
-                                          a.percent.toString(),
-                                        ),
-                                ),
-                            ],
-                          ),
+                        const SizedBox(height: 14),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            if (reviewCount > 0)
+                              _HomeChip(
+                                label: t.homeToReview(reviewCount),
+                                fill: AppTokens.gold.resolveFrom(context),
+                                onTap: () => context.push(reviewPath),
+                              ),
+                            if (monthlyLevel != BudgetLevel.ok)
+                              _HomeChip(
+                                label: monthlyLevel == BudgetLevel.over
+                                    ? t.homeChipMonthlyOver
+                                    : t.homeChipMonthly(
+                                        budgetPercent(
+                                          ins.monthSpend,
+                                          monthlyBudget,
+                                        ).toString(),
+                                      ),
+                                fill: monthlyLevel == BudgetLevel.over
+                                    ? AppTokens.danger.resolveFrom(context)
+                                    : const Color(0xFFFFA574),
+                                onTap: () =>
+                                    ref.read(tabControllerProvider).index =
+                                        tabInsights,
+                              ),
+                            for (final a in alerts)
+                              _HomeChip(
+                                label: a.level == BudgetLevel.over
+                                    ? t.homeChipOver(name(a.categoryId))
+                                    : t.homeChipBudget(
+                                        name(a.categoryId),
+                                        a.percent.toString(),
+                                      ),
+                                fill: a.level == BudgetLevel.over
+                                    ? AppTokens.danger.resolveFrom(context)
+                                    : const Color(0xFFFFA574),
+                                onTap: () =>
+                                    ref.read(tabControllerProvider).index =
+                                        tabInsights,
+                              ),
+                          ],
                         ),
                       ],
                       const SizedBox(height: 16),
@@ -249,23 +262,16 @@ class HomePage extends ConsumerWidget {
                             ),
                           ),
                         ),
-                      if (reviewCount > 0 || silent != null) ...[
+                      if (silent != null) ...[
                         const SizedBox(height: 12),
                         Wrap(
                           spacing: 10,
                           children: [
-                            if (reviewCount > 0)
-                              AttentionChip(
-                                label: t.homeToReview(reviewCount),
-                                dot: const Color(0xFFFFB340),
-                                onTap: () => context.push(reviewPath),
-                              ),
-                            if (silent != null)
-                              AttentionChip(
-                                label: t.captureStatus,
-                                dot: const Color(0xFFFF6B66),
-                                onTap: () => context.push(capturePath),
-                              ),
+                            AttentionChip(
+                              label: t.captureStatus,
+                              dot: const Color(0xFFFF6B66),
+                              onTap: () => context.push(capturePath),
+                            ),
                           ],
                         ),
                       ],
@@ -325,32 +331,6 @@ class _SectionHeader extends StatelessWidget {
   );
 }
 
-class _AlertLine extends StatelessWidget {
-  const _AlertLine({required this.color, required this.text});
-  final Color color;
-  final String text;
-
-  @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.symmetric(vertical: 4),
-    child: Row(
-      children: [
-        Icon(LucideIcons.circleAlert, size: 20, color: color),
-        const SizedBox(width: 10),
-        Expanded(
-          child: Text(
-            text,
-            style: TextStyle(
-              color: AppTokens.text.resolveFrom(context),
-              fontSize: 15,
-            ),
-          ),
-        ),
-      ],
-    ),
-  );
-}
-
 class _NoticeCard extends StatelessWidget {
   const _NoticeCard({
     required this.icon,
@@ -387,4 +367,98 @@ class _NoticeCard extends StatelessWidget {
       ),
     ),
   );
+}
+
+/// A chip under the hero for something that wants a look; filled, with ink text (white on the red of "over").
+class _HomeChip extends StatelessWidget {
+  const _HomeChip({
+    required this.label,
+    required this.fill,
+    required this.onTap,
+  });
+  final String label;
+  final Color fill;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    button: true,
+    label: label,
+    excludeSemantics: true,
+    child: CupertinoButton(
+      padding: EdgeInsets.zero,
+      minimumSize: const Size(44, 44),
+      pressedOpacity: 1,
+      onPressed: onTap,
+      child: PressShadow(
+        decoration: BoxDecoration(
+          color: fill,
+          borderRadius: BorderRadius.circular(20),
+          border: outlineOf(context, width: AppTokens.outlineThin),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+          child: Text(
+            label,
+            style: TextStyle(
+              color: swipeLabelColor(fill),
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+/// Home for a new account with nothing yet: the logo, what happens next, and the two ways to start.
+class _FirstSmsCard extends StatelessWidget {
+  const _FirstSmsCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    return AppCard(
+      padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
+      child: Column(
+        children: [
+          const HalalaLogo(width: 170),
+          const SizedBox(height: 20),
+          Text(
+            t.emptyHomeTitle,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: AppTokens.text.resolveFrom(context),
+              fontSize: 20,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            t.emptyHomeBody,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: AppTokens.muted.resolveFrom(context),
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
+              height: 1.45,
+            ),
+          ),
+          const SizedBox(height: 18),
+          PrimaryButton(
+            label: t.captureSetupTitle,
+            icon: LucideIcons.messageSquare,
+            onPressed: () => context.push(capturePath),
+          ),
+          const SizedBox(height: 10),
+          SecondaryButton(
+            label: t.homeAddByHand,
+            icon: LucideIcons.plus,
+            onPressed: () => context.push(quickAddPath),
+          ),
+        ],
+      ),
+    );
+  }
 }

@@ -135,13 +135,8 @@ class TransactionsPage extends ConsumerWidget {
             error: (_, _) => [
               SliverFillRemaining(
                 hasScrollBody: false,
-                child: EmptyState(
-                  icon: CupertinoIcons.exclamationmark_triangle,
-                  title: t.loadFailed,
-                  action: CupertinoButton(
-                    onPressed: () => ref.invalidate(transactionsProvider),
-                    child: Text(t.tryAgain),
-                  ),
+                child: LoadFailedCard(
+                  onRetry: () => ref.invalidate(transactionsProvider),
                 ),
               ),
             ],

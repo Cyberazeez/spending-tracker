@@ -79,7 +79,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get emptyHomeBody =>
-      'Set up the iOS Shortcut in More, then every bank SMS shows up here.';
+      'Set up SMS capture once and every purchase shows up here by itself.';
 
   @override
   String get comingSoon => 'Coming soon';
@@ -270,7 +270,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sar => '⃁';
 
   @override
-  String get loadFailed => 'Could not load. Pull to retry.';
+  String get loadFailed => 'Could not load';
 
   @override
   String get searchHint => 'Search merchants';
@@ -756,6 +756,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeSameShort => 'Same';
+
+  @override
+  String homeBudgetLine(String percent, String amount) {
+    return '$percent% of your $amount budget';
+  }
 
   @override
   String homeOfBudget(String amount) {
@@ -1343,7 +1348,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get kindWallet => 'Wallet';
 
   @override
-  String get welcomeTitle => 'Get started';
+  String get welcomeTitle => 'Getting started';
 
   @override
   String get welcomeHide => 'Hide';
@@ -1524,4 +1529,29 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get obAmountPending => 'amount comes with the statement';
+
+  @override
+  String get homeAddByHand => 'Add one by hand';
+
+  @override
+  String homeChipBudget(String name, String pct) {
+    return '$name at $pct%';
+  }
+
+  @override
+  String homeChipOver(String name) {
+    return '$name over budget';
+  }
+
+  @override
+  String homeChipMonthly(String pct) {
+    return 'Budget at $pct%';
+  }
+
+  @override
+  String get homeChipMonthlyOver => 'Over budget';
+
+  @override
+  String get loadFailedBody =>
+      'Check your connection. Your saved numbers are still on Home.';
 }

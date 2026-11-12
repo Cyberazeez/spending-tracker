@@ -120,7 +120,7 @@ void main() {
         find.text('Food'),
         findsOneWidget,
       ); // Dining and Groceries are one group
-      expect(find.text('Dining is at 90% of its budget'), findsOneWidget);
+      expect(find.text('Dining at 90%'), findsOneWidget);
       // only the next three, soonest first
       expect(find.text('Internet'), findsOneWidget);
       expect(find.text('Mobile'), findsOneWidget);
@@ -144,8 +144,14 @@ void main() {
     await tester.pumpWidget(await h.build());
     await tester.pumpAndSettle();
     expect(find.text('Today'), findsOneWidget);
-    expect(find.text('⃁ 45.00'), findsOneWidget);
-    expect(find.text('15%'), findsOneWidget); // 1,200 of 8,000 (the ring)
+    expect(
+      find.text('45.00'),
+      findsOneWidget,
+    ); // Today, in the hero's white panel
+    expect(
+      find.textContaining(RegExp(r'15\W*% of your')),
+      findsOneWidget,
+    ); // 1,200 of 8,000, under the bar
     expect(
       find.textContaining(RegExp(r'⃁ 8,000\.00.* budget')),
       findsOneWidget,
@@ -197,7 +203,7 @@ void main() {
       ];
     await tester.pumpWidget(await warn.build());
     await tester.pumpAndSettle();
-    expect(find.text('Monthly budget at 85%'), findsOneWidget);
+    expect(find.text('Budget at 85%'), findsOneWidget);
 
     final over = Harness(signedIn: true)
       ..data.monthlyBudget = 100000
@@ -206,7 +212,7 @@ void main() {
       ];
     await tester.pumpWidget(await over.build());
     await tester.pumpAndSettle();
-    expect(find.text('Over the monthly budget'), findsOneWidget);
+    expect(find.text('Over budget'), findsOneWidget);
   });
 
   testWidgets('no SMS for days shows a warning', (tester) async {

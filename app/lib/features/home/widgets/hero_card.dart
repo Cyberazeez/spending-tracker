@@ -69,38 +69,52 @@ class HeroCard extends StatelessWidget {
         ? null
         : math.max(0, budgetHalalas! - monthHalalas);
 
-    Widget chip(String label, String value, {bool amount = false}) =>
-        DecoratedBox(
-          decoration: BoxDecoration(
-            color: white,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: ink, width: AppTokens.outlineThin),
+    // One fact in the white panel: a small label over a bold value.
+    Widget fact(String label, String value, {bool amount = false}) => Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          label,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(
+            color: ink,
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
           ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(label, style: TextStyle(color: ink, fontSize: 12)),
-                const SizedBox(height: 2),
-                Directionality(
-                  textDirection: amount
-                      ? TextDirection.ltr
-                      : Directionality.of(context),
-                  child: Text(
-                    value,
-                    style: const TextStyle(
-                      color: ink,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-              ],
+        ),
+        const SizedBox(height: 2),
+        Directionality(
+          textDirection: amount
+              ? TextDirection.ltr
+              : Directionality.of(context),
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: AlignmentDirectional.centerStart,
+            child: Text(
+              value,
+              style: const TextStyle(
+                color: ink,
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+                fontFeatures: [FontFeature.tabularFigures()],
+              ),
             ),
           ),
-        );
+        ),
+      ],
+    );
+
+    // Left to spend (or, without a budget, the comparison with last month) and Today.
+    final facts = <Widget>[
+      if (left != null)
+        fact(t.homeLeftToSpend, formatAmountPlain(left), amount: true)
+      else
+        fact(t.homeVsLastMonth, compare),
+      if (todayHalalas != null)
+        fact(t.homeTodayShort, formatAmountPlain(todayHalalas!), amount: true),
+    ];
 
     final label = [
       '${t.homeSpentThisMonth}: ${formatSar(monthHalalas, arabic: arabic)}',
@@ -109,7 +123,8 @@ class HeroCard extends StatelessWidget {
       if (percent != null) '$percent%',
       if (todayHalalas != null)
         '${t.homeTodayShort}: ${formatSar(todayHalalas!, arabic: arabic)}',
-      '${t.homeVsLastMonth}: ${compare.replaceAll(RegExp('[\\u2066\\u2069]'), '')}',
+      if (left == null)
+        '${t.homeVsLastMonth}: ${compare.replaceAll(RegExp('[\\u2066\\u2069]'), '')}',
       if (left != null)
         '${t.homeLeftToSpend}: ${formatSar(left, arabic: arabic)}',
     ].join(', ');
@@ -127,98 +142,99 @@ class HeroCard extends StatelessWidget {
               boxShadow: hardShadowOf(context, offset: const Offset(5, 6)),
             ),
             child: Padding(
-              padding: const EdgeInsets.all(22),
+              padding: const EdgeInsets.fromLTRB(22, 20, 22, 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                  Text(
+                    t.homeSpentThisMonth,
+                    style: const TextStyle(
+                      color: ink,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  TweenAnimationBuilder<double>(
+                    tween: Tween(begin: 0, end: monthHalalas.toDouble()),
+                    duration: animate
+                        ? const Duration(milliseconds: 700)
+                        : Duration.zero,
+                    curve: Curves.easeOutCubic,
+                    builder: (_, v, _) => FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: AlignmentDirectional.centerStart,
+                      child: _ltr(
+                        Text(
+                          formatSar(v.round(), arabic: arabic),
+                          style: const TextStyle(
+                            color: ink,
+                            fontSize: 40,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -1,
+                            fontFeatures: [FontFeature.tabularFigures()],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  DecoratedBox(
+                    key: const ValueKey('hero-facts'),
+                    decoration: BoxDecoration(
+                      color: white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: ink, width: AppTokens.outline),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 18,
+                        vertical: 12,
+                      ),
+                      child: IntrinsicHeight(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            Text(
-                              t.homeSpentThisMonth,
-                              style: TextStyle(color: ink, fontSize: 14),
-                            ),
-                            const SizedBox(height: 6),
-                            TweenAnimationBuilder<double>(
-                              tween: Tween(
-                                begin: 0,
-                                end: monthHalalas.toDouble(),
-                              ),
-                              duration: animate
-                                  ? const Duration(milliseconds: 700)
-                                  : Duration.zero,
-                              curve: Curves.easeOutCubic,
-                              builder: (_, v, _) => FittedBox(
-                                fit: BoxFit.scaleDown,
-                                alignment: AlignmentDirectional.centerStart,
-                                child: _ltr(
-                                  Text(
-                                    formatSar(v.round(), arabic: arabic),
-                                    style: const TextStyle(
-                                      color: ink,
-                                      fontSize: 40,
-                                      fontWeight: FontWeight.w800,
-                                      letterSpacing: -1,
-                                      fontFeatures: [
-                                        FontFeature.tabularFigures(),
-                                      ],
-                                    ),
+                            for (var i = 0; i < facts.length; i++) ...[
+                              if (i > 0)
+                                const Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 16),
+                                  child: SizedBox(
+                                    width: 2,
+                                    child: ColoredBox(color: ink),
                                   ),
                                 ),
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            if (budgetHalalas != null)
-                              Text(
-                                t.homeOfBudget(
-                                  ltrIsolate(
-                                    formatSar(budgetHalalas!, arabic: arabic),
-                                  ),
-                                ),
-                                style: TextStyle(color: ink, fontSize: 14),
-                              )
-                            else
-                              Text(
-                                t.homeSetBudget,
-                                style: const TextStyle(
-                                  color: ink,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
+                              Expanded(child: facts[i]),
+                            ],
                           ],
                         ),
                       ),
-                      if (percent != null) ...[
-                        const SizedBox(width: 12),
-                        _Ring(percent: percent, over: over, animate: animate),
-                      ],
-                    ],
+                    ),
                   ),
-                  const SizedBox(height: 18),
-                  Wrap(
-                    spacing: 10,
-                    runSpacing: 10,
-                    children: [
-                      if (todayHalalas != null)
-                        chip(
-                          t.homeTodayShort,
-                          formatSar(todayHalalas!, arabic: arabic),
-                          amount: true,
-                        ),
-                      chip(t.homeVsLastMonth, compare),
-                      if (left != null)
-                        chip(
-                          t.homeLeftToSpend,
-                          formatSar(left, arabic: arabic),
-                          amount: true,
-                        ),
-                    ],
-                  ),
+                  const SizedBox(height: 14),
+                  if (percent != null) ...[
+                    _BudgetBar(percent: percent, over: over),
+                    const SizedBox(height: 8),
+                    Text(
+                      t.homeBudgetLine(
+                        ltrIsolate('$percent'),
+                        ltrIsolate(formatSar(budgetHalalas!, arabic: arabic)),
+                      ),
+                      style: const TextStyle(
+                        color: ink,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ] else
+                    Text(
+                      t.homeSetBudget,
+                      style: const TextStyle(
+                        color: ink,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                 ],
               ),
             ),
@@ -229,49 +245,54 @@ class HeroCard extends StatelessWidget {
   }
 }
 
-class _Ring extends StatelessWidget {
-  const _Ring({
-    required this.percent,
-    required this.over,
-    required this.animate,
-  });
+/// The budget bar under the facts: gold share of the budget on a white track (red when over), growing in each time
+/// Home comes into view.
+class _BudgetBar extends StatelessWidget {
+  const _BudgetBar({required this.percent, required this.over});
   final int percent;
   final bool over;
-  final bool animate;
 
   @override
   Widget build(BuildContext context) {
-    final fraction = math.min(percent, 100) / 100;
-    return SizedBox(
-      width: 84,
-      height: 84,
-      // The ring fills from empty with a small overshoot, and the percentage counts up with it, each time Home
-      // comes into view.
-      // A new value while Home is shown moves the ring from the old value to the new one.
-      child: TweenAnimationBuilder<double>(
-        tween: Tween(end: fraction),
-        duration: Duration(milliseconds: animate ? 600 : 0),
-        curve: Curves.easeOutCubic,
-        builder: (_, f, _) => GrowIn(
-          duration: Duration(milliseconds: animate ? 1100 : 0),
-          builder: (_, g) => CustomPaint(
-            key: const ValueKey('budget-ring'),
-            painter: _RingPainter((f * g).clamp(0.0, 1.0), over),
-            child: Center(
-              child: Padding(
-                padding: const EdgeInsets.all(18),
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: _ltr(
-                    Text(
-                      '${(percent * (fraction == 0 ? 1 : f / fraction) * g.clamp(0.0, 1.0)).round()}%',
-                      style: const TextStyle(
-                        color: Color(0xFF0D1F17),
-                        fontSize: 19,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
+    const ink = Color(0xFF0D1F17);
+    final share = math.min(percent, 100) / 100;
+    return Container(
+      key: const ValueKey('budget-bar'),
+      // Full width: inside a start-aligned column the track would otherwise shrink to the fill.
+      width: double.infinity,
+      height: 16,
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFFFFF),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: ink, width: AppTokens.outlineThin),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(6),
+        child: TweenAnimationBuilder<double>(
+          tween: Tween(end: share),
+          duration: MediaQuery.disableAnimationsOf(context)
+              ? Duration.zero
+              : const Duration(milliseconds: 600),
+          curve: Curves.easeOutCubic,
+          builder: (_, f, _) => GrowIn(
+            builder: (_, g) => FractionallySizedBox(
+              alignment: AlignmentDirectional.centerStart,
+              widthFactor: (f * g).clamp(0.0, 1.0),
+              heightFactor: 1,
+              child: DecoratedBox(
+                key: const ValueKey('budget-bar-fill'),
+                decoration: BoxDecoration(
+                  color: over
+                      ? const Color(0xFFD11A3F)
+                      : const Color(0xFFFFC93C),
+                  border: f * g > 0 && f * g < 1
+                      ? const BorderDirectional(
+                          end: BorderSide(
+                            color: ink,
+                            width: AppTokens.outlineThin,
+                          ),
+                        )
+                      : null,
                 ),
               ),
             ),
@@ -280,39 +301,4 @@ class _Ring extends StatelessWidget {
       ),
     );
   }
-}
-
-class _RingPainter extends CustomPainter {
-  _RingPainter(this.fraction, this.over);
-  final double fraction;
-  final bool over;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    const stroke = 9.0;
-    final rect = Offset.zero & size;
-    final arcRect = rect.deflate(stroke / 2 + 4);
-    final track = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = stroke
-      ..color = const Color(0xFFFFFFFF);
-    canvas.drawArc(arcRect, 0, math.pi * 2, false, track);
-    final arc = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = stroke
-      ..strokeCap = StrokeCap.round
-      ..color = over ? const Color(0xFFD11A3F) : const Color(0xFFFFC93C);
-    canvas.drawArc(arcRect, -math.pi / 2, math.pi * 2 * fraction, false, arc);
-    // Ink edges on both sides of the ring, like every other outlined shape.
-    final edge = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2
-      ..color = const Color(0xFF0D1F17);
-    canvas.drawArc(arcRect.inflate(stroke / 2), 0, math.pi * 2, false, edge);
-    canvas.drawArc(arcRect.deflate(stroke / 2), 0, math.pi * 2, false, edge);
-  }
-
-  @override
-  bool shouldRepaint(_RingPainter old) =>
-      old.fraction != fraction || old.over != over;
 }

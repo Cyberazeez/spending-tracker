@@ -71,6 +71,7 @@ void main() {
         ),
       ),
     );
+    await t.pumpAndSettle(); // it grows in from empty
     expect(t.getSize(find.byType(OutlinedBar)).width, 300);
     // Inside the 2 pt outline on each side.
     expect(

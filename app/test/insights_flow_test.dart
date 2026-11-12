@@ -192,7 +192,7 @@ void main() {
   testWidgets('a failed load shows retry', (tester) async {
     final h = Harness(signedIn: true)..data.failLoad = true;
     await open(tester, h);
-    expect(find.text('Could not load. Pull to retry.'), findsOneWidget);
+    expect(find.text('Could not load'), findsOneWidget);
   });
 
   testWidgets('arabic labels', (tester) async {

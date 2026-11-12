@@ -22,7 +22,7 @@
   "unlockReason": "Unlock Spending",
   "unlockFailed": "Could not unlock. Try again.",
   "emptyHomeTitle": "Waiting for your first SMS",
-  "emptyHomeBody": "Set up the iOS Shortcut in More, then every bank SMS shows up here.",
+  "emptyHomeBody": "Set up SMS capture once and every purchase shows up here by itself.",
   "comingSoon": "Coming soon",
   "language": "Language",
   "languageEnglish": "English",
@@ -116,7 +116,7 @@
   "reviewDismiss": "Not a transaction",
   "reviewLoadFailed": "Could not load messages.",
   "sar": "⃁",
-  "loadFailed": "Could not load. Pull to retry.",
+  "loadFailed": "Could not load",
   "searchHint": "Search merchants",
   "filterTitle": "Filter",
   "filterAll": "All categories",
@@ -479,6 +479,17 @@
   "homeSetBudget": "Set a monthly budget",
   "homeTodayShort": "Today",
   "homeSameShort": "Same",
+  "homeBudgetLine": "{percent}% of your {amount} budget",
+  "@homeBudgetLine": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "homeOfBudget": "of {amount} budget",
   "@homeOfBudget": {
     "placeholders": {
@@ -776,7 +787,7 @@
   "kindDebit": "Debit card",
   "kindCredit": "Credit card",
   "kindWallet": "Wallet",
-  "welcomeTitle": "Get started",
+  "welcomeTitle": "Getting started",
   "welcomeHide": "Hide",
   "welcomeProgress": "{done} of {total} done",
   "welcomeAccounts": "Add your bank accounts",
@@ -905,5 +916,14 @@
         "type": "String"
       }
     }
-  }
+  },
+  "homeAddByHand": "Add one by hand",
+  "homeChipBudget": "{name} at {pct}%",
+  "@homeChipBudget": {"placeholders": {"name": {"type": "String"}, "pct": {"type": "String"}}},
+  "homeChipOver": "{name} over budget",
+  "@homeChipOver": {"placeholders": {"name": {"type": "String"}}},
+  "homeChipMonthly": "Budget at {pct}%",
+  "@homeChipMonthly": {"placeholders": {"pct": {"type": "String"}}},
+  "homeChipMonthlyOver": "Over budget",
+  "loadFailedBody": "Check your connection. Your saved numbers are still on Home."
 }

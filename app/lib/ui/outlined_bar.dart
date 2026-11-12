@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 
+import 'grow_in.dart';
 import 'tokens.dart';
 
 /// A progress bar in the outlined look: track in [AppTokens.bar], a 2 pt line outline, and a fill from the
@@ -38,22 +39,32 @@ class OutlinedBar extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(height / 2 - AppTokens.outlineThin),
-        child: FractionallySizedBox(
-          alignment: AlignmentDirectional.centerStart,
-          heightFactor: 1,
-          widthFactor: share,
-          child: DecoratedBox(
-            key: fillKey,
-            decoration: BoxDecoration(
-              color: fill,
-              border: share > 0 && share < 1
-                  ? BorderDirectional(
-                      end: BorderSide(
-                        color: line,
-                        width: AppTokens.outlineThin,
-                      ),
-                    )
-                  : null,
+        // Grows from empty each time its screen comes into view, and moves to a new value when it changes.
+        child: TweenAnimationBuilder<double>(
+          tween: Tween(end: share),
+          duration: MediaQuery.disableAnimationsOf(context)
+              ? Duration.zero
+              : const Duration(milliseconds: 600),
+          curve: Curves.easeOutCubic,
+          builder: (_, f, _) => GrowIn(
+            builder: (_, g) => FractionallySizedBox(
+              alignment: AlignmentDirectional.centerStart,
+              heightFactor: 1,
+              widthFactor: (f * g).clamp(0.0, 1.0),
+              child: DecoratedBox(
+                key: fillKey,
+                decoration: BoxDecoration(
+                  color: fill,
+                  border: share > 0 && share < 1
+                      ? BorderDirectional(
+                          end: BorderSide(
+                            color: line,
+                            width: AppTokens.outlineThin,
+                          ),
+                        )
+                      : null,
+                ),
+              ),
             ),
           ),
         ),

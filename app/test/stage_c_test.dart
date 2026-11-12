@@ -32,14 +32,15 @@ void main() {
       tester,
     ) async {
       await start(tester, setup: (h) => h.data.accounts = []);
-      expect(find.text('Get started'), findsOneWidget);
+      expect(find.text('Getting started'), findsOneWidget);
       expect(find.text('0 of 2 done'), findsOneWidget);
       expect(
         find.text('Add your bank accounts'),
         findsNothing,
       ); // learned from transfers instead
+      // The empty Home offers SMS capture in its own card; the getting-started card is only its title and progress.
       expect(find.text('Set up SMS capture'), findsOneWidget);
-      expect(find.text('Set a monthly budget'), findsOneWidget);
+      expect(find.text('Add one by hand'), findsOneWidget);
     });
 
     testWidgets(
@@ -62,7 +63,7 @@ void main() {
           h.capture.last = 'HTTP 200';
         },
       );
-      expect(find.text('Get started'), findsNothing);
+      expect(find.text('Getting started'), findsNothing);
     });
 
     testWidgets(
@@ -71,14 +72,12 @@ void main() {
         await start(tester, setup: (h) => h.data.accounts = []);
         await tester.tap(find.text('Hide'));
         await tester.pumpAndSettle();
-        expect(find.text('Set up SMS capture'), findsNothing);
-        expect(
-          find.textContaining('Get started · 0 of 2 done'),
-          findsOneWidget,
-        );
-        await tester.tap(find.textContaining('Get started · 0 of 2 done'));
+        expect(find.text('Hide'), findsNothing);
+        expect(find.text('Getting started'), findsOneWidget);
+        expect(find.text('0 of 2 done'), findsOneWidget);
+        await tester.tap(find.text('Getting started'));
         await tester.pumpAndSettle();
-        expect(find.text('Set up SMS capture'), findsOneWidget);
+        expect(find.text('Hide'), findsOneWidget);
       },
     );
 
@@ -104,10 +103,7 @@ void main() {
           ),
         );
         await tester.pumpAndSettle();
-        expect(
-          find.textContaining('Get started · 0 of 2 done'),
-          findsOneWidget,
-        );
+        expect(find.text('0 of 2 done'), findsOneWidget);
         // four days later the card is gone for good
         h.now = DateTime.utc(2026, 11, 3, 12);
         await tester.pumpWidget(
@@ -123,7 +119,7 @@ void main() {
           ),
         );
         await tester.pumpAndSettle();
-        expect(find.textContaining('Get started'), findsNothing);
+        expect(find.textContaining('Getting started'), findsNothing);
       },
     );
   });
