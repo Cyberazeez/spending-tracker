@@ -134,6 +134,50 @@ void main() {
       await g.up();
     });
 
+    testWidgets('a card that disappears under the finger does not throw', (
+      t,
+    ) async {
+      final show = ValueNotifier(true);
+      await t.pumpWidget(
+        _app(
+          ValueListenableBuilder<bool>(
+            valueListenable: show,
+            builder: (_, on, _) => on
+                ? GestureDetector(
+                    onTap: () {},
+                    child: const AppCard(pressable: true, child: Text('Card')),
+                  )
+                : const SizedBox(height: 50),
+          ),
+        ),
+      );
+      final g = await t.startGesture(t.getCenter(find.text('Card')));
+      await t.pump();
+      show.value = false;
+      await t.pump();
+      await g.moveBy(const Offset(0, 40));
+      await g.up();
+      await t.pumpAndSettle();
+      expect(t.takeException(), isNull);
+    });
+
+    testWidgets("a second finger does not end the first one's press", (
+      t,
+    ) async {
+      await t.pumpWidget(_app(PrimaryButton(label: 'Go', onPressed: () {})));
+      final at = t.getCenter(find.text('Go'));
+      final one = await t.startGesture(at);
+      await t.pump();
+      await t.pump(const Duration(milliseconds: 100));
+      final two = await t.startGesture(at + const Offset(20, 0), pointer: 9);
+      await two.up();
+      await t.pumpAndSettle();
+      expect(_shift(t), const Offset(3, 4));
+      await one.up();
+      await t.pumpAndSettle();
+      expect(_shift(t).distance, lessThan(0.01));
+    });
+
     testWidgets('with Reduce Motion nothing moves: the button fades', (
       t,
     ) async {
@@ -203,6 +247,29 @@ void main() {
         expect(highestTop, greaterThan(rest - 20));
       },
     );
+
+    testWidgets('closed while still rising, it goes back down without a jump', (
+      t,
+    ) async {
+      await open(t);
+      await t.pump();
+      await t.pump(const Duration(milliseconds: 120));
+      var last = t.getTopLeft(find.byKey(const ValueKey('sheet'))).dy;
+      Navigator.of(t.element(find.byKey(const ValueKey('sheet')))).pop();
+      for (var i = 0; i < 20; i++) {
+        await t.pump(const Duration(milliseconds: 16));
+        if (find.byKey(const ValueKey('sheet')).evaluate().isEmpty) break;
+        final top = t.getTopLeft(find.byKey(const ValueKey('sheet'))).dy;
+        expect(
+          top - last,
+          lessThan(120),
+          reason: 'frame $i',
+        ); // the bug jumped 670 pt
+        last = top;
+      }
+      await t.pumpAndSettle();
+      expect(find.byKey(const ValueKey('sheet')), findsNothing);
+    });
 
     testWidgets('with Reduce Motion it fades in place', (t) async {
       await open(t, reduce: true);

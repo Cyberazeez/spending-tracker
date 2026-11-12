@@ -50,6 +50,14 @@ class AppSheetRoute<T> extends PopupRoute<T> {
     child: DisplayFeatureSubScreen(child: Builder(builder: builder)),
   );
 
+  CurvedAnimation? _rise;
+
+  @override
+  void dispose() {
+    _rise?.dispose();
+    super.dispose();
+  }
+
   @override
   Duration get transitionDuration => rise;
 
@@ -69,7 +77,9 @@ class AppSheetRoute<T> extends PopupRoute<T> {
         child: FadeTransition(opacity: animation, child: child),
       );
     }
-    final rise = CurvedAnimation(
+    // One curved animation for the route's life: a fresh one each frame would switch to the closing curve
+    // mid-rise and make the sheet jump when it is closed while still rising.
+    final rise = _rise ??= CurvedAnimation(
       parent: animation,
       curve: const SheetRiseCurve(),
       reverseCurve: Curves.easeInCubic,

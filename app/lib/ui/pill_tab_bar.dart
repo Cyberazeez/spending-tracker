@@ -93,7 +93,10 @@ class PillTabBar extends CupertinoTabBar {
                       0,
                     ),
                     duration: const Duration(milliseconds: 320),
-                    curve: const _SmallBack(),
+                    // No overshoot into the first or last slot: it would poke past the bar's rounded end.
+                    curve: currentIndex == 0 || currentIndex == items.length - 1
+                        ? Curves.easeOutCubic
+                        : const _SmallBack(),
                     child: FractionallySizedBox(
                       widthFactor: 1 / items.length,
                       heightFactor: 1,

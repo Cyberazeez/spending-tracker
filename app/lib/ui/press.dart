@@ -43,6 +43,7 @@ class _PressableState extends State<Pressable>
     vsync: this,
   );
   Offset? _start;
+  int? _pointer; // the finger that pressed; other fingers are ignored
   bool _held = false;
 
   bool get _reduce => MediaQuery.maybeDisableAnimationsOf(context) ?? false;
@@ -54,8 +55,9 @@ class _PressableState extends State<Pressable>
   }
 
   void _down(PointerDownEvent e) {
-    if (!widget.enabled) return;
+    if (!widget.enabled || _held) return;
     _start = e.position;
+    _pointer = e.pointer;
     _held = true;
     _depth.animateTo(
       1,
@@ -65,16 +67,20 @@ class _PressableState extends State<Pressable>
   }
 
   void _move(PointerMoveEvent e) {
+    if (!mounted || e.pointer != _pointer) return;
     final start = _start;
     if (start != null && (e.position - start).distance > Pressable.slop) {
       _up(); // the finger is scrolling or dragging, not pressing
     }
   }
 
-  Future<void> _up([PointerEvent? _]) async {
-    if (!_held) return;
+  Future<void> _up([PointerEvent? e]) async {
+    // The widget can be gone while a finger is still on the screen (a card that disappears mid-press).
+    if (!mounted || !_held) return;
+    if (e != null && e.pointer != _pointer) return;
     _held = false;
     _start = null;
+    _pointer = null;
     // A very quick tap still shows the press: finish going down first.
     if (_depth.value < 1 && _depth.isAnimating) {
       await _depth.animateTo(1, duration: const Duration(milliseconds: 40));
