@@ -29,7 +29,7 @@ Bottom tab bar (Cupertino): **Home, Transactions, Obligations, Insights, More**.
 - **Detail/edit** (sheet): amount type and value, frequency, due rule, lead days, match hints, active toggle, linked transactions.
 - **Match prompt**: when a transaction probably matches an open instance, a banner on Home/Obligations offers "Mark X as paid with this payment? (Confirm / Not this)".
 - Month view: committed vs discretionary bar.
-- Add (+): from templates (bill, fixed, loan, card statement) or custom.
+- Add (+): from templates (bill, fixed, loan) or custom. The card statement tile was removed 2026-11-12: card statements are not tracked on Bills.
 - Empty: "Add your first obligation" with seed suggestions.
 
 ## 5. Insights
@@ -103,3 +103,4 @@ Bottom tab bar (Cupertino): **Home, Transactions, Obligations, Insights, More**.
 
 - **Welcome card is two steps (owner, 2026-11-08):** set up SMS capture and set a monthly budget ("n of 2 done"). The "add your bank accounts" step is gone: setting up the automation is enough work for a new user. Own accounts are learned from transfers (see the design) and can still be added by hand in Account > Bank accounts.
 - **Sign-up consent and legal links (owner, 2026-11-10):** Sign up has a checkbox "I agree to the Terms of Use and the Privacy policy" (both links open the public pages in the app language); Create account and Sign in with Apple stay off until it is ticked. The agreed version (`legalVersion` in `app/lib/core/legal.dart`, today 2026-11-10) and the time are saved in the account's `user_metadata` (`terms_version`, `terms_accepted_at`; the time comes from the phone, the account's own `created_at` is the server record). Account > Privacy has rows for Privacy policy, Terms of Use and Support. Pages: `site/terms/` (English, `/ar/` Arabic). Not covered yet: accounts made before this build have no record, and Apple sign-in stores none. The Terms text is a draft for the lawyer review before publishing.
+- **Card statements dropped, hand-edited amounts kept (2026-11-12, owner):** card statements are no longer an obligation. Their obligations are stopped, their open months removed, new accounts are not seeded with one, and the app hides any old statement rows (Bills, Home, reminders). The statement SMS is still parsed but creates nothing; the card payment stays an internal transfer. Saving a bill's settings no longer resets a month whose amount was changed by hand (the server only updates months still at the old default amount).

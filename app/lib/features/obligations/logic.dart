@@ -216,10 +216,8 @@ class CycleSummary {
   int get totalHalalas => stillHalalas + paidHalalas;
 }
 
-/// The numbers of the Bills hero card. A credit card statement is left out: it already adds up the purchases and
-/// bills of the month before, so counting it would count the same money twice. Its row is still listed.
-CycleSummary summarizeCycle(List<ObligationInstance> all, DateTime today) {
-  final rows = all.where((i) => i.kind != 'card_statement').toList();
+/// The numbers of the Bills hero card.
+CycleSummary summarizeCycle(List<ObligationInstance> rows, DateTime today) {
   var still = 0;
   var paid = 0;
   var paidCount = 0;

@@ -270,39 +270,6 @@ void main() {
     expect(h.data.instances.first.status, 'paid');
   });
 
-  testWidgets('the card statement row shows only its amount', (tester) async {
-    final h = Harness(signedIn: true);
-    h.data.instances = [
-      ObligationInstance(
-        id: 'st',
-        obligationId: 'o-st',
-        name: 'Credit card 8119 statement',
-        kind: 'card_statement',
-        periodStart: DateTime.utc(2026, 11),
-        dueDate: DateTime.utc(2026, 11, 25),
-        status: 'pending',
-        expectedHalalas: 846323,
-        plan: const InstalmentPlan(
-          name: 'Autopia',
-          instalmentHalalas: 165350,
-          months: 6,
-          firstYear: 2026,
-          firstMonth: 10,
-        ),
-      ),
-    ];
-    await tester.pumpWidget(await h.build());
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Bills').last);
-    await tester.pumpAndSettle();
-    // the November statement is next month's cycle on 30 Oct: open the folded line
-    await tester.tap(find.text('1 bill'));
-    await tester.pumpAndSettle();
-    // only the amount is shown on the row, the plan note is gone
-    expect(find.textContaining('⃁ 8,463.23'), findsOneWidget);
-    expect(find.textContaining('Includes Autopia'), findsNothing);
-  });
-
   test('instalment plan numbering stays inside the plan', () {
     const plan = InstalmentPlan(
       name: 'x',

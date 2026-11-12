@@ -146,10 +146,6 @@ class PillSegments<T> extends StatelessWidget {
 /// Icon, colour and tile for each obligation kind.
 ({IconData icon, Color color}) kindStyle(String kind) => switch (kind) {
   'bill' => (icon: LucideIcons.receipt, color: const Color(0xFFFFA574)),
-  'card_statement' => (
-    icon: LucideIcons.creditCard,
-    color: const Color(0xFFFFC93C),
-  ),
   'loan' => (icon: LucideIcons.landmark, color: const Color(0xFF9CC4FF)),
   _ => (icon: LucideIcons.repeat, color: const Color(0xFFCDB4FF)),
 };

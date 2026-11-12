@@ -112,13 +112,12 @@ class _BillSheetState extends ConsumerState<_BillSheet> {
   bool _busy = false;
 
   ObligationInstance get i => widget.i;
-  bool get _editable => i.kind != 'card_statement';
   bool get _open => widget.status == 'pending' || widget.status == 'overdue';
 
   @override
   void initState() {
     super.initState();
-    if (_editable) _load();
+    _load();
   }
 
   Future<void> _load() async {
@@ -610,7 +609,7 @@ class _BillSheetState extends ConsumerState<_BillSheet> {
                               .setInstanceStatus(i.id, 'skipped'),
                         ),
                       ),
-                    if (_editable && !stopped)
+                    if (!stopped)
                       _Link(
                         key: const ValueKey('bill-edit'),
                         label: t.obEditDetails,
@@ -622,7 +621,7 @@ class _BillSheetState extends ConsumerState<_BillSheet> {
                           );
                         },
                       ),
-                    if (_editable && !stopped)
+                    if (!stopped)
                       _Link(
                         key: const ValueKey('bill-stop'),
                         label: t.bsStopBill,

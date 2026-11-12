@@ -541,7 +541,7 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
         : i.expectedHalalas;
     final amount = shown != null
         ? ltrIsolate(formatSar(shown, arabic: arabic))
-        : (i.kind == 'card_statement' ? t.obAmountPending : '');
+        : '';
     return ObligationRow(
       onTap: () => showBillSheet(
         context,

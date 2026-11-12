@@ -2774,12 +2774,6 @@ abstract class AppLocalizations {
   /// **'About {amount} · tap to see them'**
   String obNextNote(String amount);
 
-  /// No description provided for @obAmountPending.
-  ///
-  /// In en, this message translates to:
-  /// **'amount comes with the statement'**
-  String get obAmountPending;
-
   /// No description provided for @homeAddByHand.
   ///
   /// In en, this message translates to:
@@ -3133,18 +3127,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Same amount each month'**
   String get addBillLoanHint;
-
-  /// No description provided for @addBillCard.
-  ///
-  /// In en, this message translates to:
-  /// **'Card statement'**
-  String get addBillCard;
-
-  /// No description provided for @addBillCardHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Amount arrives by SMS'**
-  String get addBillCardHint;
 
   /// No description provided for @addBillScratch.
   ///

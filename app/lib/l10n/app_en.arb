@@ -872,7 +872,6 @@
   "obUnpaidBefore": "{count, plural, =1{1 unpaid from an earlier month} other{{count} unpaid from earlier months}}",
   "obNextSummary": "{count, plural, =1{1 bill} other{{count} bills}}",
   "obNextNote": "About {amount} · tap to see them",
-  "obAmountPending": "amount comes with the statement",
   "@obCycleStill": {
     "placeholders": {
       "month": {
@@ -981,8 +980,6 @@
   "addBillFixedHint": "Rent, stable, school",
   "addBillLoan": "Loan",
   "addBillLoanHint": "Same amount each month",
-  "addBillCard": "Card statement",
-  "addBillCardHint": "Amount arrives by SMS",
   "addBillScratch": "Start from scratch",
   "bsDaysLate": "{n, plural, =1{1 day late} other{{n} days late}}",
   "@bsDaysLate": {"placeholders": {"n": {"type": "int"}}},

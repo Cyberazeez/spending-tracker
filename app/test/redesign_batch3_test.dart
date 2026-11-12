@@ -30,15 +30,17 @@ Future<Harness> _bills(WidgetTester t, List<ObligationInstance> list) async {
 
 void main() {
   testWidgets(
-    '+ shows the four starting points; Bill opens the form as a bill',
+    '+ shows the three starting points; Bill opens the form as a bill',
     (t) async {
       await _bills(t, const []);
       await t.tap(find.bySemanticsLabel('Add an obligation'));
       await t.pumpAndSettle();
       expect(find.text('Add a bill'), findsOneWidget);
-      for (final k in ['bill', 'fixed', 'loan', 'card']) {
+      for (final k in ['bill', 'fixed', 'loan']) {
         expect(find.byKey(ValueKey('add-bill-$k')), findsOneWidget);
       }
+      // Card statements are not tracked on Bills (owner, 2026-11-12).
+      expect(find.byKey(const ValueKey('add-bill-card')), findsNothing);
       await t.tap(find.byKey(const ValueKey('add-bill-bill')));
       await t.pumpAndSettle();
       expect(find.text('New obligation'), findsOneWidget);
@@ -52,17 +54,25 @@ void main() {
     },
   );
 
-  testWidgets(
-    'the card statement tile starts a bill named after the statement',
-    (t) async {
-      await _bills(t, const []);
-      await t.tap(find.bySemanticsLabel('Add an obligation'));
-      await t.pumpAndSettle();
-      await t.tap(find.byKey(const ValueKey('add-bill-card')));
-      await t.pumpAndSettle();
-      expect(find.text('Card statement'), findsOneWidget); // in the name field
-    },
-  );
+  testWidgets('an old card statement from the server is not shown', (t) async {
+    await _bills(t, [
+      _inst(),
+      ObligationInstance(
+        id: 'st',
+        obligationId: 'o-st',
+        name: 'Credit card 8119 statement',
+        kind: 'card_statement',
+        periodStart: DateTime.utc(2026, 10),
+        dueDate: DateTime.utc(2026, 10, 25),
+        status: 'paid',
+        expectedHalalas: 846323,
+        actualHalalas: 846323,
+      ),
+    ]);
+    expect(find.text('Electricity'), findsWidgets);
+    expect(find.textContaining('statement'), findsNothing);
+    expect(find.textContaining('8,463.23'), findsNothing);
+  });
 
   testWidgets('the bill sheet saves a changed setting at once', (t) async {
     final h = await _bills(t, [_inst()]);

@@ -529,7 +529,6 @@
   "obUnpaidBefore": "{count, plural, =1{فاتورة واحدة غير مدفوعة من شهر سابق} other{{count} فواتير غير مدفوعة من أشهر سابقة}}",
   "obNextSummary": "{count, plural, =1{فاتورة واحدة} other{{count} فواتير}}",
   "obNextNote": "حوالي {amount} · اضغط لعرضها",
-  "obAmountPending": "المبلغ يصل مع كشف الحساب",
   "@obCycleStill": {
     "placeholders": {
       "month": {
@@ -633,8 +632,6 @@
   "addBillFixedHint": "إيجار، إسطبل، مدرسة",
   "addBillLoan": "قرض",
   "addBillLoanHint": "نفس المبلغ كل شهر",
-  "addBillCard": "كشف البطاقة",
-  "addBillCardHint": "يصل المبلغ برسالة",
   "addBillScratch": "ابدأ من الصفر",
   "bsDaysLate": "{n, plural, =1{متأخر يومًا واحدًا} other{متأخر {n} أيام}}",
   "bsEveryMonth": "كل شهر",
