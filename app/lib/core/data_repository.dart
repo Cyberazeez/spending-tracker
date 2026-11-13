@@ -359,6 +359,15 @@ class SupabaseDataRepository implements DataRepository {
         })
         .eq('id', txnId);
     if (rememberFor == null || categoryId == null) return;
+    // A rule the owner deleted on Categories and rules stays deleted: filing one purchase by hand does not
+    // bring it back (owner decision 2026-11-13).
+    final existing = await _db
+        .from('merchant_rules')
+        .select('status')
+        .eq('pattern', rememberFor)
+        .eq('match_type', 'exact')
+        .maybeSingle();
+    if (existing?['status'] == 'disabled') return;
     await _db.from('merchant_rules').upsert({
       'pattern': rememberFor,
       'match_type': 'exact',

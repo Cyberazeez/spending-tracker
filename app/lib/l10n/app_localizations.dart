@@ -3415,6 +3415,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Try asking'**
   String get aiChatTry;
+
+  /// No description provided for @reviewDismissAsk.
+  ///
+  /// In en, this message translates to:
+  /// **'Not a purchase?'**
+  String get reviewDismissAsk;
+
+  /// No description provided for @reviewDismissYes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes, hide it'**
+  String get reviewDismissYes;
 }
 
 class _AppLocalizationsDelegate

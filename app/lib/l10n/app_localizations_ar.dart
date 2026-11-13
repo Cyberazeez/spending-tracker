@@ -1892,4 +1892,10 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get aiChatTry => 'جرّب أن تسأل';
+
+  @override
+  String get reviewDismissAsk => 'ليست عملية شراء؟';
+
+  @override
+  String get reviewDismissYes => 'نعم، أخفِها';
 }

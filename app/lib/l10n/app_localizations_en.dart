@@ -1901,4 +1901,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aiChatTry => 'Try asking';
+
+  @override
+  String get reviewDismissAsk => 'Not a purchase?';
+
+  @override
+  String get reviewDismissYes => 'Yes, hide it';
 }

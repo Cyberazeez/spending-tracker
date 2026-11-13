@@ -12,6 +12,7 @@ import '../../core/money.dart';
 import '../../core/providers.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ui/app_card.dart';
+import '../../ui/confirm_sheet.dart';
 import '../../ui/app_form.dart';
 import '../../ui/empty_state.dart';
 import '../../ui/choice_sheet.dart';
@@ -24,12 +25,32 @@ import 'providers.dart';
 class ReviewPage extends ConsumerWidget {
   const ReviewPage({super.key});
 
-  /// "Not a purchase": the message leaves the list and nothing is recorded.
-  Future<void> _dismiss(WidgetRef ref, RawMessage m) async {
+  /// "Not a purchase": asks first, showing the whole SMS (the card shows only its start), then the message leaves the
+  /// list and nothing is recorded. The sheet is modal, so a second tap cannot dismiss another card meanwhile.
+  Future<void> _dismiss(
+    BuildContext context,
+    WidgetRef ref,
+    RawMessage m,
+  ) async {
+    final t = AppLocalizations.of(context);
+    final sure = await showConfirmSheet(
+      context,
+      title: t.reviewDismissAsk,
+      message: m.body,
+      confirmLabel: t.reviewDismissYes,
+      icon: LucideIcons.eyeOff,
+      iconColor: AppTokens.gold.resolveFrom(context),
+    );
+    if (sure != true || !context.mounted) return;
     try {
       await ref.read(dataRepositoryProvider).dismissRaw(m.id);
+    } catch (_) {
+      if (context.mounted) {
+        await showNoticeSheet(context, title: t.obSaveFailed);
+      }
+      return;
     } finally {
-      ref.invalidate(needsReviewProvider);
+      if (context.mounted) ref.invalidate(needsReviewProvider);
     }
   }
 
@@ -164,7 +185,7 @@ class ReviewPage extends ConsumerWidget {
                           message: m,
                           arabic: arabic,
                           onAdd: () => _convert(context, ref, m),
-                          onDismiss: () => _dismiss(ref, m),
+                          onDismiss: () => _dismiss(context, ref, m),
                         ),
                         const SizedBox(height: 14),
                       ],

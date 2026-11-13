@@ -185,6 +185,8 @@ void main() {
       expect(find.text('New message format'), findsOneWidget);
       await tester.tap(find.text('Not a purchase'));
       await tester.pumpAndSettle();
+      await tester.tap(find.text('Yes, hide it'));
+      await tester.pumpAndSettle();
       expect(h.data.dismissed, ['r1']);
       expect(find.text('Nothing to review'), findsOneWidget);
     });

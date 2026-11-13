@@ -132,13 +132,28 @@ void main() {
       expect(find.text('Could not read it'), findsOneWidget);
     });
 
-    testWidgets('Not a purchase dismisses it in one tap', (t) async {
+    testWidgets('Not a purchase shows the whole SMS and asks first', (t) async {
+      final long = RawMessage(
+        id: 'a',
+        sender: 'alinma',
+        body: List.filled(12, 'line of a long bank message').join('\n'),
+        receivedAt: DateTime.utc(2026, 11, 9, 11, 20),
+      );
       final h = await openReview(
         t,
-        Harness(signedIn: true)
-          ..data.review = [_raw('a', 'needs_review'), _raw('b', 'failed')],
+        Harness(signedIn: true)..data.review = [long, _raw('b', 'failed')],
       );
       await t.tap(find.byKey(const ValueKey('review-dismiss-a')));
+      await t.pumpAndSettle();
+      expect(find.text('Not a purchase?'), findsOneWidget);
+      // The sheet shows the full text (the card cuts it after four lines).
+      expect(find.text(long.body), findsNWidgets(2));
+      await t.tap(find.byKey(const ValueKey('confirm-no')));
+      await t.pumpAndSettle();
+      expect(h.data.dismissed, isEmpty);
+      await t.tap(find.byKey(const ValueKey('review-dismiss-a')));
+      await t.pumpAndSettle();
+      await t.tap(find.byKey(const ValueKey('confirm-yes')));
       await t.pumpAndSettle();
       expect(h.data.dismissed, ['a']);
       expect(find.byKey(const ValueKey('review-a')), findsNothing);

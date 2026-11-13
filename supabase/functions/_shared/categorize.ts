@@ -6,7 +6,8 @@ export interface Rule {
   pattern: string;
   matchType: "exact" | "contains" | "prefix";
   categoryId: string;
-  status: "confirmed" | "auto_unconfirmed";
+  /** "disabled": deleted by the owner on More > Categories and rules; never applied. */
+  status: "confirmed" | "auto_unconfirmed" | "disabled";
   source: "user" | "ai" | "seed";
 }
 
@@ -92,6 +93,7 @@ export function categorize(input: CatInput, rules: Rule[], ids: CategoryIds): Ca
   if (byType) return result(ids, byType, `type:${input.type}`);
   let best: Rule | undefined;
   for (const r of rules) {
+    if (r.status === "disabled") continue; // the owner deleted it
     if (ruleMatches(r, input) && (!best || better(r, best))) best = r;
   }
   if (best) {

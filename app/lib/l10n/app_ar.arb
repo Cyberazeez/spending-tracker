@@ -679,5 +679,7 @@
   "reviewTagNew": "صيغة رسالة جديدة",
   "reviewTagUnsure": "غير متأكد",
   "reviewTagFailed": "تعذّرت القراءة",
-  "aiChatTry": "جرّب أن تسأل"
+  "aiChatTry": "جرّب أن تسأل",
+  "reviewDismissAsk": "ليست عملية شراء؟",
+  "reviewDismissYes": "نعم، أخفِها"
 }

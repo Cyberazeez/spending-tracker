@@ -1035,5 +1035,7 @@
   "reviewTagNew": "New message format",
   "reviewTagUnsure": "Not sure",
   "reviewTagFailed": "Could not read it",
-  "aiChatTry": "Try asking"
+  "aiChatTry": "Try asking",
+  "reviewDismissAsk": "Not a purchase?",
+  "reviewDismissYes": "Yes, hide it"
 }
