@@ -36,6 +36,18 @@ Future<Harness> open(
   return h;
 }
 
+/// The switch inside the More row with [key], scrolled into view.
+Future<Finder> moreSwitch(WidgetTester tester, String key) async {
+  final row = find.byKey(ValueKey(key), skipOffstage: false);
+  await tester.scrollUntilVisible(
+    row,
+    150,
+    scrollable: find.byType(Scrollable).first,
+  );
+  await tester.pumpAndSettle();
+  return find.descendant(of: row, matching: find.byType(CupertinoSwitch));
+}
+
 void main() {
   group('aggregates', () {
     final cats = [
@@ -99,9 +111,19 @@ void main() {
     await tester.tap(find.text('More').last);
     await tester.pumpAndSettle();
     expect(find.text('AI assistant'), findsOneWidget);
-    final sw = find.byType(CupertinoSwitch).at(1);
+    final sw = await moreSwitch(tester, 'more-ai');
     expect(tester.widget<CupertinoSwitch>(sw).value, isFalse);
     await tester.tap(sw);
+    await tester.pumpAndSettle();
+    // It says what is sent, and to whom, before turning on; Cancel changes nothing.
+    expect(find.text('Turn on the AI assistant?'), findsOneWidget);
+    expect(find.textContaining("Anthropic's AI"), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('confirm-no')));
+    await tester.pumpAndSettle();
+    expect(h.data.aiOn, isFalse);
+    await tester.tap(sw);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('confirm-yes')));
     await tester.pumpAndSettle();
     expect(h.data.aiOn, isTrue);
     expect(tester.widget<CupertinoSwitch>(sw).value, isTrue);
@@ -118,9 +140,12 @@ void main() {
       expect(find.text('AI assistant'), findsOneWidget);
       expect(find.textContaining('Part of the paid plan'), findsOneWidget);
       expect(
-        find.byType(CupertinoSwitch).evaluate().length,
-        1,
-      ); // only the other switch on the page
+        find.descendant(
+          of: find.byKey(const ValueKey('more-ai')),
+          matching: find.byType(CupertinoSwitch),
+        ),
+        findsNothing,
+      ); // the row is only a note
       expect(await h.data.aiEnabled(), isFalse);
     },
   );
@@ -132,8 +157,10 @@ void main() {
     h.data.failAiSave = true;
     await tester.tap(find.text('More').last);
     await tester.pumpAndSettle();
-    final sw = find.byType(CupertinoSwitch).at(1);
+    final sw = await moreSwitch(tester, 'more-ai');
     await tester.tap(sw);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('confirm-yes')));
     await tester.pumpAndSettle();
     expect(tester.widget<CupertinoSwitch>(sw).value, isFalse);
     expect(find.textContaining('Could not save'), findsOneWidget);

@@ -1170,7 +1170,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get secSame => 'اختر كلمة مرور مختلفة.';
 
   @override
-  String get secDone => 'تم تغيير كلمة المرور.';
+  String get secDone => 'تم تغيير كلمة المرور';
 
   @override
   String get secNote =>
@@ -1414,10 +1414,10 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get deleteSureBody =>
-      'تم إغلاق حسابك الآن وسيُحذف كل شيء نهائيًا بعد 30 يومًا دون إمكانية الاستعادة. تسجيل الدخول خلال 30 يومًا يلغي الحذف.';
+      'ستفقد كل بياناتك. تسجيل الدخول خلال 30 يومًا يلغي الحذف.';
 
   @override
-  String get deleteSureConfirm => 'احذف كل شيء';
+  String get deleteSureConfirm => 'نعم، احذفه';
 
   @override
   String get reactivatedTitle => 'أهلًا بعودتك';
@@ -1774,4 +1774,98 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get bsNotThis => 'ليست هذه الدفعة';
+
+  @override
+  String get moreYourAccount => 'حسابك';
+
+  @override
+  String get moreCategoriesRules => 'الفئات والقواعد';
+
+  @override
+  String get secDoneBody =>
+      'يعيد هذا الجوال ربط التقاط الرسائل والأداة تلقائيًا.';
+
+  @override
+  String get deleteKeep => 'أبقِ حسابي';
+
+  @override
+  String get capWorking => 'يعمل';
+
+  @override
+  String get capNotSetUp => 'لم يُجهَّز بعد';
+
+  @override
+  String get capNotSetUpBody => 'اتبع الخطوات لتحويل رسائل البنك.';
+
+  @override
+  String get capWaitingFirst => 'بانتظار أول رسالة';
+
+  @override
+  String get capFailing => 'لا يرسل';
+
+  @override
+  String get capConnected => 'متصل';
+
+  @override
+  String get capNoMessages => 'لا رسائل بعد';
+
+  @override
+  String get capBills => 'رسائل الفواتير (900)';
+
+  @override
+  String get capPrivacy =>
+      'يقرأ هللة فقط رسائل البنك التي يحوّلها جوالك عبر الاختصار. لا يغادر الجوال أي شيء آخر.';
+
+  @override
+  String get rulesIntro =>
+      'المشتريات من هذه الأماكن تأخذ هذه الفئة دائمًا. احذف القاعدة لإيقافها؛ المشتريات السابقة تبقى على فئتها.';
+
+  @override
+  String get rulesEmpty =>
+      'لا قواعد بعد. عند تغيير الفئة يسألك هللة إن كنت تريد تصنيف هذا المكان هناك دائمًا.';
+
+  @override
+  String rulesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count قاعدة',
+      few: '$count قواعد',
+      two: 'قاعدتان',
+      one: 'قاعدة واحدة',
+      zero: 'لا قواعد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get rulesDeleteTitle => 'حذف هذه القاعدة؟';
+
+  @override
+  String rulesDeleteBody(String place, String category) {
+    return 'لن يذهب «$place» إلى $category تلقائيًا بعد الآن. المشتريات السابقة تبقى على فئتها.';
+  }
+
+  @override
+  String get rulesDeleteYes => 'احذف القاعدة';
+
+  @override
+  String get capOffline => 'لا يوجد اتصال';
+
+  @override
+  String get capOfflineBody =>
+      'تنتظر الرسائل على الجوال وتُرسل عند توفر الاتصال.';
+
+  @override
+  String get capQueued => 'بانتظار الإرسال';
+
+  @override
+  String get aiAskTitle => 'تشغيل المساعد الذكي؟';
+
+  @override
+  String get aiAskConfirm => 'تشغيل';
+
+  @override
+  String get aiAskBody =>
+      'للإجابة على أسئلتك واقتراح التوفير، تُرسل مجاميعك وأسماء المتاجر إلى الذكاء الاصطناعي من Anthropic، وليس نص الرسائل أو الأسماء أو أرقام الحسابات. يمكنك إيقافه في أي وقت.';
 }

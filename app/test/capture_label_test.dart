@@ -12,5 +12,10 @@ void main() {
     expect(captureLastLabel(t, '9:05 HTTP 500'), 'Last send failed (500)');
     expect(captureLastLabel(t, 'something else'), 'something else');
     expect(captureLastLabel(t, ''), '');
+    // The phone's other log entries are words too, never raw codes.
+    expect(captureLastLabel(t, '19:55:13 error -1009'), 'No connection');
+    expect(captureLastLabel(t, '19:55:13 no response'), 'No connection');
+    expect(captureLastLabel(t, '19:55:13 queued'), 'Waiting to send');
+    expect(captureLastLabel(t, '19:55:13 no token'), 'Not set up yet');
   });
 }

@@ -11,6 +11,7 @@ import 'features/auth/reset_password_page.dart';
 import 'features/auth/signup_page.dart';
 import 'features/auth/lock_page.dart';
 import 'features/more/capture_page.dart';
+import 'features/more/rules_page.dart';
 import 'features/obligations/add_bill_page.dart';
 import 'features/obligations/obligation_form_page.dart';
 import 'features/account/account_pages.dart';
@@ -40,6 +41,9 @@ const quickAddPath = '/home/quick-add';
 const txnPath = '/home/txn';
 const reviewPath = '/home/review';
 const capturePath = '/home/capture';
+
+/// More > Categories and rules.
+const rulesPath = '/home/rules';
 const obligationFormPath = '/home/obligation';
 
 /// "Add a bill": the starting-point tiles before the form.
@@ -182,6 +186,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: 'capture',
             pageBuilder: (_, state) => _page(state, const CapturePage()),
+          ),
+          GoRoute(
+            path: 'rules',
+            pageBuilder: (_, state) => _page(state, const RulesPage()),
           ),
           GoRoute(
             path: 'ai-chat',

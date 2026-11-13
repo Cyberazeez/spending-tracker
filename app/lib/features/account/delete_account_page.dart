@@ -60,7 +60,11 @@ class _DeleteAccountPageState extends ConsumerState<DeleteAccountPage> {
       title: t.deleteSureTitle,
       message: t.deleteSureBody,
       confirmLabel: t.deleteSureConfirm,
+      cancelLabel: t.deleteKeep,
       destructive: true,
+      icon: LucideIcons.triangleAlert,
+      iconColor: dangerTileColor,
+      cancelPrimary: true,
     );
     if (sure != true || !mounted) return;
     setState(() {

@@ -2183,7 +2183,7 @@ abstract class AppLocalizations {
   /// No description provided for @secDone.
   ///
   /// In en, this message translates to:
-  /// **'Password changed.'**
+  /// **'Password changed'**
   String get secDone;
 
   /// No description provided for @secNote.
@@ -2621,13 +2621,13 @@ abstract class AppLocalizations {
   /// No description provided for @deleteSureBody.
   ///
   /// In en, this message translates to:
-  /// **'Your account is closed now and everything is permanently deleted after 30 days, with no way to restore it. Signing in again within 30 days cancels the deletion.'**
+  /// **'All your data will be lost. Signing in again within 30 days cancels the deletion.'**
   String get deleteSureBody;
 
   /// No description provided for @deleteSureConfirm.
   ///
   /// In en, this message translates to:
-  /// **'Delete everything'**
+  /// **'Yes, delete it'**
   String get deleteSureConfirm;
 
   /// No description provided for @reactivatedTitle.
@@ -3217,6 +3217,156 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not this payment'**
   String get bsNotThis;
+
+  /// No description provided for @moreYourAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account'**
+  String get moreYourAccount;
+
+  /// No description provided for @moreCategoriesRules.
+  ///
+  /// In en, this message translates to:
+  /// **'Categories and rules'**
+  String get moreCategoriesRules;
+
+  /// No description provided for @secDoneBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This phone reconnects SMS capture and the widget by itself.'**
+  String get secDoneBody;
+
+  /// No description provided for @deleteKeep.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep my account'**
+  String get deleteKeep;
+
+  /// No description provided for @capWorking.
+  ///
+  /// In en, this message translates to:
+  /// **'Working'**
+  String get capWorking;
+
+  /// No description provided for @capNotSetUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Not set up yet'**
+  String get capNotSetUp;
+
+  /// No description provided for @capNotSetUpBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow the steps to forward your bank messages.'**
+  String get capNotSetUpBody;
+
+  /// No description provided for @capWaitingFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the first message'**
+  String get capWaitingFirst;
+
+  /// No description provided for @capFailing.
+  ///
+  /// In en, this message translates to:
+  /// **'Not sending'**
+  String get capFailing;
+
+  /// No description provided for @capConnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected'**
+  String get capConnected;
+
+  /// No description provided for @capNoMessages.
+  ///
+  /// In en, this message translates to:
+  /// **'No messages yet'**
+  String get capNoMessages;
+
+  /// No description provided for @capBills.
+  ///
+  /// In en, this message translates to:
+  /// **'Bill messages (900)'**
+  String get capBills;
+
+  /// No description provided for @capPrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Halala reads only bank messages your iPhone forwards with the shortcut. Nothing else leaves the phone.'**
+  String get capPrivacy;
+
+  /// No description provided for @rulesIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchases from these places always get this category. Delete a rule to stop it; past purchases keep their category.'**
+  String get rulesIntro;
+
+  /// No description provided for @rulesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No rules yet. When you change a category, Halala asks whether to always file that place there.'**
+  String get rulesEmpty;
+
+  /// No description provided for @rulesCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No rules} =1{1 rule} other{{count} rules}}'**
+  String rulesCount(int count);
+
+  /// No description provided for @rulesDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this rule?'**
+  String get rulesDeleteTitle;
+
+  /// No description provided for @rulesDeleteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'\"{place}\" will no longer go to {category} by itself. Past purchases keep their category.'**
+  String rulesDeleteBody(String place, String category);
+
+  /// No description provided for @rulesDeleteYes.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete rule'**
+  String get rulesDeleteYes;
+
+  /// No description provided for @capOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'No connection'**
+  String get capOffline;
+
+  /// No description provided for @capOfflineBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages wait on the phone and go out when it is online.'**
+  String get capOfflineBody;
+
+  /// No description provided for @capQueued.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting to send'**
+  String get capQueued;
+
+  /// No description provided for @aiAskTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on the AI assistant?'**
+  String get aiAskTitle;
+
+  /// No description provided for @aiAskConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on'**
+  String get aiAskConfirm;
+
+  /// No description provided for @aiAskBody.
+  ///
+  /// In en, this message translates to:
+  /// **'To answer questions and suggest savings, your totals and merchant names are sent to Anthropic\'s AI. Never message text, names or account numbers. You can turn this off at any time.'**
+  String get aiAskBody;
 }
 
 class _AppLocalizationsDelegate

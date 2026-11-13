@@ -14,7 +14,7 @@ Future<Harness> openAppleAccount(WidgetTester tester) async {
   await tester.pumpAndSettle();
   await tester.tap(find.text('More').last);
   await tester.pumpAndSettle();
-  await tester.tap(find.text('Account'));
+  await tester.tap(find.text('Your account'));
   await tester.pumpAndSettle();
   return h;
 }
@@ -30,7 +30,7 @@ Future<void> confirm(WidgetTester tester, {String word = 'DELETE'}) async {
   await tester.enterText(find.byType(CupertinoTextField).at(0), word);
   await tester.tap(find.widgetWithText(CupertinoButton, 'Delete my account'));
   await tester.pumpAndSettle();
-  final sure = find.text('Delete everything');
+  final sure = find.text('Yes, delete it');
   if (sure.evaluate().isNotEmpty) {
     await tester.tap(sure);
     await tester.pumpAndSettle();

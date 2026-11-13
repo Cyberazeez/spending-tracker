@@ -13,7 +13,7 @@ Future<Harness> openAccount(WidgetTester tester, {String? lang}) async {
   await tester.pumpAndSettle();
   await tester.tap(find.text('More').last);
   await tester.pumpAndSettle();
-  await tester.tap(find.text('Account'));
+  await tester.tap(find.text('Your account'));
   await tester.pumpAndSettle();
   return h;
 }
@@ -29,7 +29,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Possible gaps'), findsNothing);
     expect(find.text('Ingest token'), findsNothing);
-    expect(find.text('Account'), findsOneWidget);
+    expect(find.text('Your account'), findsOneWidget);
   });
 
   testWidgets('Account lists Profile, Security and Privacy', (tester) async {
@@ -174,7 +174,11 @@ void main() {
     final revokesBefore = h.tokens.revokedKinds.length;
     await fill(tester, 'oldpassword', 'newpassword1', 'newpassword1');
     expect(h.auth.passwordCalls, [('oldpassword', 'newpassword1')]);
-    expect(find.text('Password changed.'), findsOneWidget);
+    expect(find.text('Password changed'), findsOneWidget);
+    expect(
+      find.text('This phone reconnects SMS capture and the widget by itself.'),
+      findsOneWidget,
+    );
     // fresh tokens are stored without wiping the phone's offline queue
     await tester.pump(const Duration(milliseconds: 50));
     expect(h.capture.clears, clearsBefore);
@@ -203,7 +207,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text(lang == 'en' ? 'More' : 'المزيد').last);
       await tester.pumpAndSettle();
-      final acct = find.text(lang == 'en' ? 'Account' : 'الحساب');
+      final acct = find.text(lang == 'en' ? 'Your account' : 'حسابك');
       await tester.dragUntilVisible(
         acct,
         find.byType(CustomScrollView),

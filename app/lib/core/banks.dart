@@ -48,3 +48,34 @@ String bankDisplayName(String code, {required bool arabic}) {
   if (b == null) return code;
   return arabic ? b.ar : b.en;
 }
+
+/// The bank or wallet code a message sender belongs to (the sender IDs of `docs/07-sms-catalog.md`), or null for a
+/// sender that is not a bank (`900`, STC telecom bills) or not known. Case, spaces and dashes are ignored.
+String? bankCodeForSender(String sender) {
+  final s = sender.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), '');
+  return switch (s) {
+    'alinma' => 'alinma',
+    'barqapp' || 'barq' => 'barq',
+    'd360bank' || 'd360' => 'd360',
+    'stcbank' => 'stc',
+    'snbalahli' || 'snb' => 'snb',
+    'alrajhibank' || 'alrajhi' => 'alrajhi',
+    _ => _bankByName(s),
+  };
+}
+
+/// Another sender that spells a known bank's code or English name ("RiyadBank", "Riyad Bank"), so a bank never
+/// shows twice on the SMS capture page (once as the sender, once as an account with no messages).
+String? _bankByName(String s) {
+  if (s.isEmpty || s == '900') return null;
+  String norm(String v) => v
+      .toLowerCase()
+      .replaceAll(RegExp(r'\(.*?\)'), '')
+      .replaceAll(RegExp(r'[^a-z0-9]'), '');
+  for (final b in bankList) {
+    final code = norm(b.code);
+    final name = norm(b.en);
+    if (s == code || s == '${code}bank' || s == name) return b.code;
+  }
+  return null;
+}

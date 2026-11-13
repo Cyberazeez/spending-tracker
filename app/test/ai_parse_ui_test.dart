@@ -40,6 +40,18 @@ AiRead aiRead(String id, {String merchant = 'NEW CAFE', int amount = 4750}) =>
       ),
     );
 
+/// The switch inside the More row with [key], scrolled into view.
+Future<Finder> moreSwitch(WidgetTester tester, String key) async {
+  final row = find.byKey(ValueKey(key), skipOffstage: false);
+  await tester.scrollUntilVisible(
+    row,
+    150,
+    scrollable: find.byType(Scrollable).first,
+  );
+  await tester.pumpAndSettle();
+  return find.descendant(of: row, matching: find.byType(CupertinoSwitch));
+}
+
 void main() {
   testWidgets('free accounts do not see the AI reading switch', (tester) async {
     await openMore(tester, paid: false);
@@ -53,10 +65,7 @@ void main() {
     expect(find.text('Read unknown banks with AI'), findsOneWidget);
     expect(h.data.aiParseOn, isFalse);
 
-    final sw = find.byType(CupertinoSwitch);
-    // The reading switch is the one after the assistant switch.
-    final parse = sw.at(sw.evaluate().length - 3 >= 0 ? 2 : 0);
-    await tester.ensureVisible(parse);
+    final parse = await moreSwitch(tester, 'more-ai-parse');
     await tester.tap(parse);
     await tester.pumpAndSettle();
     expect(find.text('Let AI read unknown bank messages?'), findsOneWidget);
@@ -74,9 +83,7 @@ void main() {
 
   testWidgets('turning it off needs no question', (tester) async {
     final h = await openMore(tester, parseOn: true);
-    final sw = find.byType(CupertinoSwitch);
-    final parse = sw.at(2);
-    await tester.ensureVisible(parse);
+    final parse = await moreSwitch(tester, 'more-ai-parse');
     await tester.tap(parse);
     await tester.pumpAndSettle();
     expect(find.text('Let AI read unknown bank messages?'), findsNothing);

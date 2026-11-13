@@ -26,6 +26,18 @@ Future<Harness> openMore(WidgetTester tester, Harness h) async {
   return h;
 }
 
+/// The switch inside the More row with [key], scrolled into view.
+Future<Finder> moreSwitch(WidgetTester tester, String key) async {
+  final row = find.byKey(ValueKey(key), skipOffstage: false);
+  await tester.scrollUntilVisible(
+    row,
+    150,
+    scrollable: find.byType(Scrollable).first,
+  );
+  await tester.pumpAndSettle();
+  return find.descendant(of: row, matching: find.byType(CupertinoSwitch));
+}
+
 void main() {
   setUpAll(() => initializeDateFormatting('en'));
 
@@ -53,13 +65,15 @@ void main() {
     final h = Harness(signedIn: true)
       ..data.instances = [inst('a', 'Mobile', '2026-11-05', amount: 27893)];
     await openMore(tester, h);
-    await tester.tap(find.byType(CupertinoSwitch).first);
+    await tester.tap((await moreSwitch(tester, 'more-reminders')));
     await tester.pumpAndSettle();
     expect(h.reminders.permissionAsks, 1);
     expect(h.reminders.replaced, isNotEmpty);
     expect(h.reminders.replaced.last.single.title, 'Mobile');
     expect(
-      tester.widget<CupertinoSwitch>(find.byType(CupertinoSwitch).first).value,
+      tester
+          .widget<CupertinoSwitch>((await moreSwitch(tester, 'more-reminders')))
+          .value,
       isTrue,
     );
   });
@@ -71,14 +85,16 @@ void main() {
       ..data.instances = [inst('a', 'Mobile', '2026-11-05', amount: 27893)];
     h.reminders.grant = false;
     await openMore(tester, h);
-    await tester.tap(find.byType(CupertinoSwitch).first);
+    await tester.tap((await moreSwitch(tester, 'more-reminders')));
     await tester.pumpAndSettle();
     expect(find.textContaining('turned off for this app'), findsOneWidget);
     expect(h.reminders.replaced, isEmpty);
     await tester.tap(find.text('Done'));
     await tester.pumpAndSettle();
     expect(
-      tester.widget<CupertinoSwitch>(find.byType(CupertinoSwitch).first).value,
+      tester
+          .widget<CupertinoSwitch>((await moreSwitch(tester, 'more-reminders')))
+          .value,
       isFalse,
     );
   });
@@ -89,13 +105,15 @@ void main() {
     final h = Harness(signedIn: true)
       ..data.instances = [inst('a', 'Mobile', '2026-11-05', amount: 27893)];
     await openMore(tester, h);
-    await tester.tap(find.byType(CupertinoSwitch).first);
+    await tester.tap((await moreSwitch(tester, 'more-reminders')));
     await tester.pumpAndSettle();
-    await tester.tap(find.byType(CupertinoSwitch).first);
+    await tester.tap((await moreSwitch(tester, 'more-reminders')));
     await tester.pumpAndSettle();
     expect(h.reminders.clears, 1);
     expect(
-      tester.widget<CupertinoSwitch>(find.byType(CupertinoSwitch).first).value,
+      tester
+          .widget<CupertinoSwitch>((await moreSwitch(tester, 'more-reminders')))
+          .value,
       isFalse,
     );
   });

@@ -434,6 +434,23 @@ class FakeDataRepository implements DataRepository {
   @override
   Future<List<Category>> categories() async => cats;
 
+  List<MerchantRule> rules = [];
+  bool failRules = false;
+
+  @override
+  Future<List<MerchantRule>> merchantRules() async {
+    if (failRules) throw StateError('offline');
+    return [...rules];
+  }
+
+  @override
+  Future<void> deleteMerchantRule(String id) async {
+    rules = [
+      for (final r in rules)
+        if (r.id != id) r,
+    ];
+  }
+
   @override
   Future<int> uncategorizedSpendCount() async =>
       {

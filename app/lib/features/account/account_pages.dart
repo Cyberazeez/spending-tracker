@@ -61,13 +61,6 @@ class AccountPage extends ConsumerWidget {
                   onTap: () => context.push(profilePath),
                 ),
                 SettingsRow(
-                  icon: LucideIcons.landmark,
-                  color: const Color(0xFFFFC93C),
-                  title: t.accountBanks,
-                  subtitle: t.accountBanksShort,
-                  onTap: () => context.push(banksPath),
-                ),
-                SettingsRow(
                   icon: LucideIcons.shieldCheck,
                   color: const Color(0xFF3FD79B),
                   title: t.accountSecurity,
@@ -280,7 +273,13 @@ class _SecurityPageState extends ConsumerState<SecurityPage> {
     unawaited(renewWidgetToken(widget, tokens, () => auth.userId));
     if (!mounted) return;
     setState(() => _busy = false);
-    await showNoticeSheet(context, title: t.secDone);
+    await showNoticeSheet(
+      context,
+      title: t.secDone,
+      message: t.secDoneBody,
+      icon: LucideIcons.check,
+      iconColor: AppTokens.okBg.resolveFrom(context),
+    );
     if (mounted) popOrHome(context);
   }
 
@@ -350,6 +349,7 @@ class _SecurityPageState extends ConsumerState<SecurityPage> {
             if (_error != null) FormError(_error!),
             const SizedBox(height: 24),
             PrimaryButton(
+              key: const ValueKey('sec-save'),
               label: t.secChangePassword,
               busy: _busy,
               onPressed: _save,
