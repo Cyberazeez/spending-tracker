@@ -15,7 +15,7 @@ class DayGroup {
 }
 
 /// Splits a newest-first list into days, keeping the order. A day's total follows the month total's rule: internal and
-/// flagged rows, and rows in [excludedCategories] (Transfers, Income), do not count. It never shows below 0.
+/// flagged rows, and rows in [excludedCategories] (Income), do not count. It never shows below 0.
 List<DayGroup> groupByDay(
   List<Txn> list, {
   Set<String> excludedCategories = const {},

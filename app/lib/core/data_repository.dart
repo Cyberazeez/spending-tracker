@@ -817,7 +817,7 @@ class SupabaseDataRepository implements DataRepository {
   }
 
   /// Spending since [start], by the same rule as the Insights month total and the widget server:
-  /// outgoing money that is not internal, flagged or in an excluded category (Transfers, Income), minus refunds.
+  /// outgoing money that is not internal, flagged or in an excluded category (Income), minus refunds.
   Future<int> _spendSince(DateTime start) async {
     // Summed in the database (an API read returns at most 1000 rows, the rest would be left out).
     final v = await _db.rpc(
