@@ -101,7 +101,7 @@ void main() {
       expect(find.text('30% used'), findsOneWidget); // 900 of 3,000
       await tester.tap(find.text('Monthly budget'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Remove budget'));
+      await tester.tap(find.text('Remove the budget'));
       await tester.pumpAndSettle();
       expect(h.data.instanceCalls, contains('monthlybudget:null'));
       expect(find.text('Not set'), findsOneWidget);

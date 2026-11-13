@@ -173,7 +173,8 @@ void main() {
       expect(find.text('2 to review'), findsOneWidget);
       await tester.tap(find.text('2 to review'));
       await tester.pumpAndSettle();
-      expect(find.text('SNB-AlAhli'), findsNWidgets(2));
+      // The sender is shown as its bank's name.
+      expect(find.text('Saudi National Bank (SNB)'), findsNWidgets(2));
     });
 
     testWidgets('dismiss marks it as not a transaction', (tester) async {
@@ -181,9 +182,8 @@ void main() {
       await openTransactions(tester, h);
       await tester.tap(find.text('1 to review'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('SNB-AlAhli'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Not a transaction'));
+      expect(find.text('New message format'), findsOneWidget);
+      await tester.tap(find.text('Not a purchase'));
       await tester.pumpAndSettle();
       expect(h.data.dismissed, ['r1']);
       expect(find.text('Nothing to review'), findsOneWidget);
@@ -196,9 +196,7 @@ void main() {
         await openTransactions(tester, h);
         await tester.tap(find.text('1 to review'));
         await tester.pumpAndSettle();
-        await tester.tap(find.text('SNB-AlAhli'));
-        await tester.pumpAndSettle();
-        await tester.tap(find.text('Add as transaction'));
+        await tester.tap(find.byKey(const ValueKey('review-add-r1')));
         await tester.pumpAndSettle();
         await tester.enterText(
           find.byKey(const ValueKey('qa-amount')),

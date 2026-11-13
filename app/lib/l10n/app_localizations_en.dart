@@ -1877,4 +1877,28 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get aiAskBody =>
       'To answer questions and suggest savings, your totals and merchant names are sent to Anthropic\'s AI. Never message text, names or account numbers. You can turn this off at any time.';
+
+  @override
+  String get insBudgetRemoveThe => 'Remove the budget';
+
+  @override
+  String get reviewCouldNotRead => 'Could not read';
+
+  @override
+  String get reviewAdd => 'Add';
+
+  @override
+  String get reviewNotPurchase => 'Not a purchase';
+
+  @override
+  String get reviewTagNew => 'New message format';
+
+  @override
+  String get reviewTagUnsure => 'Not sure';
+
+  @override
+  String get reviewTagFailed => 'Could not read it';
+
+  @override
+  String get aiChatTry => 'Try asking';
 }

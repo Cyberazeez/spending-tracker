@@ -160,26 +160,21 @@ class _AiChatPageState extends ConsumerState<AiChatPage> {
       child: Container(
         constraints: BoxConstraints(maxWidth: width * 0.85),
         // The space after the bubble holds its hard shadow.
-        margin: const EdgeInsets.only(bottom: 14, right: 3),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        margin: const EdgeInsets.only(bottom: 16, right: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
         decoration: BoxDecoration(
+          // The person in emerald on the end side, the answers in white on the start side (the mockup).
           color: turn.fromUser ? accent : card,
-          // The corner nearest the speaker is tight, like a speech bubble's tail.
-          borderRadius: BorderRadiusDirectional.only(
-            topStart: const Radius.circular(20),
-            topEnd: const Radius.circular(20),
-            bottomStart: Radius.circular(turn.fromUser ? 20 : 6),
-            bottomEnd: Radius.circular(turn.fromUser ? 6 : 20),
-          ).resolve(Directionality.of(context)),
+          borderRadius: BorderRadius.circular(22),
           border: outlineOf(context),
-          boxShadow: hardShadowOf(context, offset: const Offset(3, 4)),
+          boxShadow: hardShadowOf(context, offset: const Offset(4, 5)),
         ),
         child: Text(
           turn.text,
           style: TextStyle(
             color: turn.fromUser ? onAccent : text,
-            fontSize: 15,
-            fontWeight: FontWeight.w500,
+            fontSize: 17,
+            fontWeight: FontWeight.w600,
             height: 1.45,
           ),
         ),
@@ -207,6 +202,20 @@ class _AiChatPageState extends ConsumerState<AiChatPage> {
                         child: Text(
                           t.aiChatIntro,
                           style: TextStyle(color: muted, fontSize: 14),
+                        ),
+                      ),
+                    ],
+                    for (final turn in _turns) bubble(turn),
+                    if (!_busy) ...[
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(2, 4, 2, 8),
+                        child: Text(
+                          t.aiChatTry,
+                          style: TextStyle(
+                            color: muted,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                       Wrap(
@@ -247,7 +256,6 @@ class _AiChatPageState extends ConsumerState<AiChatPage> {
                         ],
                       ),
                     ],
-                    for (final turn in _turns) bubble(turn),
                     if (_busy)
                       Padding(
                         padding: const EdgeInsets.only(bottom: 10),
@@ -310,18 +318,22 @@ class _AiChatPageState extends ConsumerState<AiChatPage> {
                         onChanged: (_) => setState(() {}),
                         onSubmitted: _ask,
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 11,
+                          horizontal: 20,
+                          vertical: 17,
                         ),
-                        style: TextStyle(color: text, fontSize: 16),
+                        style: TextStyle(color: text, fontSize: 17),
                         decoration: BoxDecoration(
                           color: card,
-                          borderRadius: BorderRadius.circular(24),
+                          borderRadius: BorderRadius.circular(30),
                           border: outlineOf(context),
+                          boxShadow: hardShadowOf(
+                            context,
+                            offset: const Offset(3, 4),
+                          ),
                         ),
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 12),
                     Semantics(
                       button: true,
                       label: t.aiChatSend,
@@ -332,22 +344,21 @@ class _AiChatPageState extends ConsumerState<AiChatPage> {
                         onPressed: canSend ? () => _ask(_input.text) : null,
                         child: PressShadow(
                           enabled: canSend,
+                          // Gold like the mockup; faded while there is nothing to send.
                           decoration: BoxDecoration(
-                            color: canSend
-                                ? AppTokens.gold.resolveFrom(context)
-                                : card,
+                            color: AppTokens.gold
+                                .resolveFrom(context)
+                                .withValues(alpha: canSend ? 1 : 0.45),
                             shape: BoxShape.circle,
                             border: outlineOf(context),
                           ),
                           child: SizedBox(
-                            width: 44,
-                            height: 44,
+                            width: 58,
+                            height: 58,
                             child: Icon(
-                              LucideIcons.arrowUp,
-                              size: 20,
-                              color: canSend
-                                  ? AppTokens.onTint.resolveFrom(context)
-                                  : muted,
+                              LucideIcons.send,
+                              size: 24,
+                              color: AppTokens.onTint.resolveFrom(context),
                             ),
                           ),
                         ),

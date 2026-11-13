@@ -1868,4 +1868,28 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get aiAskBody =>
       'للإجابة على أسئلتك واقتراح التوفير، تُرسل مجاميعك وأسماء المتاجر إلى الذكاء الاصطناعي من Anthropic، وليس نص الرسائل أو الأسماء أو أرقام الحسابات. يمكنك إيقافه في أي وقت.';
+
+  @override
+  String get insBudgetRemoveThe => 'احذف الميزانية';
+
+  @override
+  String get reviewCouldNotRead => 'تعذّرت قراءتها';
+
+  @override
+  String get reviewAdd => 'أضف';
+
+  @override
+  String get reviewNotPurchase => 'ليست عملية شراء';
+
+  @override
+  String get reviewTagNew => 'صيغة رسالة جديدة';
+
+  @override
+  String get reviewTagUnsure => 'غير متأكد';
+
+  @override
+  String get reviewTagFailed => 'تعذّرت القراءة';
+
+  @override
+  String get aiChatTry => 'جرّب أن تسأل';
 }

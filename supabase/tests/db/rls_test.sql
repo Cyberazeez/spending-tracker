@@ -697,5 +697,19 @@ begin
     if not denied then raise exception 'anon can call my_spend_since'; end if;
   end;
 
+  -- A rule the owner deleted (kept as 'disabled') is not brought back when the seeds run again (2026-11-13).
+  declare
+    rid uuid;
+  begin
+    reset role;
+    select id into rid from public.merchant_rules where user_id = a and source = 'seed' limit 1;
+    if rid is null then raise exception 'no seed rule to disable'; end if;
+    update public.merchant_rules set status = 'disabled' where id = rid;
+    perform public.seed_merchant_rules(a);
+    if (select status from public.merchant_rules where id = rid) <> 'disabled' then
+      raise exception 'a seed backfill re-enabled a deleted rule';
+    end if;
+  end;
+
   raise exception 'RLS_TESTS_OK';
 end $$;
