@@ -5,18 +5,19 @@ import '../../ui/chevron.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/banks.dart';
 import '../../core/format.dart';
 import '../../core/models.dart';
 import '../../core/money.dart';
 import '../../core/providers.dart';
 import '../../l10n/app_localizations.dart';
+import '../../ui/app_card.dart';
+import '../../ui/confirm_sheet.dart';
 import '../../ui/app_form.dart';
 import '../../ui/empty_state.dart';
 import '../../ui/choice_sheet.dart';
 import '../../ui/tokens.dart';
 import '../obligations/widgets/bills_widgets.dart';
-import '../home/category_groups.dart';
-import '../home/group_style.dart';
 import '../../ui/icon_tile.dart';
 import 'manual_form.dart';
 import 'providers.dart';
@@ -24,34 +25,32 @@ import 'providers.dart';
 class ReviewPage extends ConsumerWidget {
   const ReviewPage({super.key});
 
-  Future<void> _open(BuildContext context, WidgetRef ref, RawMessage m) async {
+  /// "Not a purchase": asks first, showing the whole SMS (the card shows only its start), then the message leaves the
+  /// list and nothing is recorded. The sheet is modal, so a second tap cannot dismiss another card meanwhile.
+  Future<void> _dismiss(
+    BuildContext context,
+    WidgetRef ref,
+    RawMessage m,
+  ) async {
     final t = AppLocalizations.of(context);
-    final choice = await showChoiceSheet<String>(
+    final sure = await showConfirmSheet(
       context,
-      title: t.reviewFrom(m.sender),
+      title: t.reviewDismissAsk,
       message: m.body,
-      options: [
-        ChoiceOption(
-          value: 'convert',
-          label: t.reviewConvert,
-          icon: LucideIcons.squarePen,
-        ),
-        ChoiceOption(
-          value: 'dismiss',
-          label: t.reviewDismiss,
-          icon: LucideIcons.trash2,
-          destructive: true,
-        ),
-      ],
+      confirmLabel: t.reviewDismissYes,
+      icon: LucideIcons.eyeOff,
+      iconColor: AppTokens.gold.resolveFrom(context),
     );
-    if (choice == 'convert') {
-      if (context.mounted) _convert(context, ref, m);
-    } else if (choice == 'dismiss') {
-      try {
-        await ref.read(dataRepositoryProvider).dismissRaw(m.id);
-      } finally {
-        ref.invalidate(needsReviewProvider);
+    if (sure != true || !context.mounted) return;
+    try {
+      await ref.read(dataRepositoryProvider).dismissRaw(m.id);
+    } catch (_) {
+      if (context.mounted) {
+        await showNoticeSheet(context, title: t.obSaveFailed);
       }
+      return;
+    } finally {
+      if (context.mounted) ref.invalidate(needsReviewProvider);
     }
   }
 
@@ -126,32 +125,34 @@ class ReviewPage extends ConsumerWidget {
     final items = ref.watch(needsReviewProvider);
     final aiRead = ref.watch(aiReadProvider).value ?? const <AiRead>[];
     final arabic = ref.watch(localeProvider).languageCode == 'ar';
-    // Past 1.3x text the amount drops under the merchant instead of squeezing it (as on Activity).
-    final stacked = MediaQuery.textScalerOf(context).scale(10) > 13;
-    Widget amountOf(AiRead a) => Directionality(
-      textDirection: TextDirection.ltr,
-      child: Text(
-        formatSar(a.txn.amountHalalas, arabic: arabic),
-        style: TextStyle(
-          color: AppTokens.text.resolveFrom(context),
-          fontSize: 15,
-          fontWeight: FontWeight.w700,
-          fontFeatures: const [FontFeature.tabularFigures()],
+    final text = AppTokens.text.resolveFrom(context);
+    final muted = AppTokens.muted.resolveFrom(context);
+
+    Widget heading(String s) => Padding(
+      padding: const EdgeInsets.fromLTRB(4, 0, 4, 10),
+      child: Semantics(
+        header: true,
+        child: Text(
+          s,
+          style: TextStyle(
+            color: text,
+            fontSize: 20,
+            fontWeight: FontWeight.w800,
+          ),
         ),
       ),
     );
+
     return CupertinoPageScaffold(
       backgroundColor: AppTokens.bg.resolveFrom(context),
       navigationBar: appNavBar(context, t.reviewTitle),
       child: SafeArea(
         child: items.when(
           loading: () => const Center(child: CupertinoActivityIndicator()),
-          error: (_, _) => EmptyState(
-            icon: CupertinoIcons.exclamationmark_triangle,
-            title: t.reviewLoadFailed,
-            action: CupertinoButton(
-              onPressed: () => ref.invalidate(needsReviewProvider),
-              child: Text(t.tryAgain),
+          error: (_, _) => Padding(
+            padding: const EdgeInsets.all(16),
+            child: LoadFailedCard(
+              onRetry: () => ref.invalidate(needsReviewProvider),
             ),
           ),
           data: (list) => list.isEmpty && aiRead.isEmpty
@@ -164,169 +165,272 @@ class ReviewPage extends ConsumerWidget {
                   padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
                   children: [
                     if (aiRead.isNotEmpty) ...[
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(4, 0, 4, 8),
-                        child: Semantics(
-                          header: true,
-                          child: Text(
-                            t.aiReadHeader,
-                            style: TextStyle(
-                              color: AppTokens.text.resolveFrom(context),
-                              fontSize: 18,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                        ),
-                      ),
+                      heading(t.aiReadHeader),
                       RowsCard(
                         children: [
                           for (final a in aiRead)
-                            Semantics(
-                              button: true,
-                              child: GestureDetector(
-                                behavior: HitTestBehavior.opaque,
-                                onTap: () => _checkAi(context, ref, a),
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 12,
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      IconTile(
-                                        color: AppTokens.gold.resolveFrom(
-                                          context,
-                                        ),
-                                        icon: LucideIcons.sparkles,
-                                        iconSize: 21,
-                                      ),
-                                      const SizedBox(width: 12),
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              a.txn.merchant ?? a.raw.sender,
-                                              style: TextStyle(
-                                                color: AppTokens.text
-                                                    .resolveFrom(context),
-                                                fontSize: 15,
-                                                fontWeight: FontWeight.w700,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 2),
-                                            Text(
-                                              formatDateTime(a.raw.receivedAt),
-                                              style: TextStyle(
-                                                color: AppTokens.muted
-                                                    .resolveFrom(context),
-                                                fontSize: 12,
-                                              ),
-                                            ),
-                                            if (stacked) ...[
-                                              const SizedBox(height: 4),
-                                              amountOf(a),
-                                            ],
-                                          ],
-                                        ),
-                                      ),
-                                      if (!stacked) ...[
-                                        amountOf(a),
-                                        const SizedBox(width: 8),
-                                      ],
-                                      ForwardChevron(
-                                        size: 14,
-                                        color: AppTokens.muted.resolveFrom(
-                                          context,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
+                            _AiReadRow(
+                              read: a,
+                              arabic: arabic,
+                              onTap: () => _checkAi(context, ref, a),
                             ),
                         ],
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 20),
                     ],
-                    RowsCard(
-                      children: [
-                        for (final m in list)
-                          Semantics(
-                            button: true,
-                            child: GestureDetector(
-                              behavior: HitTestBehavior.opaque,
-                              onTap: () => _open(context, ref, m),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 12,
-                                ),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    IconTile(
-                                      color: groupColor(CategoryGroup.other),
-                                      icon: LucideIcons.messageSquare,
-                                      iconSize: 21,
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            m.sender,
-                                            style: TextStyle(
-                                              color: AppTokens.text.resolveFrom(
-                                                context,
-                                              ),
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.w700,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 2),
-                                          Directionality(
-                                            textDirection: TextDirection.ltr,
-                                            child: Text(
-                                              m.body.replaceAll('\n', ' · '),
-                                              maxLines: 2,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: TextStyle(
-                                                color: AppTokens.muted
-                                                    .resolveFrom(context),
-                                                fontSize: 13,
-                                              ),
-                                            ),
-                                          ),
-                                          const SizedBox(height: 2),
-                                          Text(
-                                            formatDateTime(m.receivedAt),
-                                            style: TextStyle(
-                                              color: AppTokens.muted
-                                                  .resolveFrom(context),
-                                              fontSize: 12,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    ForwardChevron(
-                                      size: 14,
-                                      color: AppTokens.muted.resolveFrom(
-                                        context,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
+                    if (list.isNotEmpty) ...[
+                      heading(t.reviewCouldNotRead),
+                      for (final m in list) ...[
+                        _MessageCard(
+                          message: m,
+                          arabic: arabic,
+                          onAdd: () => _convert(context, ref, m),
+                          onDismiss: () => _dismiss(context, ref, m),
+                        ),
+                        const SizedBox(height: 14),
                       ],
-                    ),
+                    ],
+                    if (list.isEmpty && aiRead.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        child: Text(
+                          t.reviewEmptyBody,
+                          style: TextStyle(color: muted, fontSize: 14),
+                        ),
+                      ),
                   ],
                 ),
         ),
+      ),
+    );
+  }
+}
+
+/// A message the AI read: gold sparkle tile, what it found, "SAR 86.00 · 10 Nov", tap to check it.
+class _AiReadRow extends StatelessWidget {
+  const _AiReadRow({
+    required this.read,
+    required this.arabic,
+    required this.onTap,
+  });
+
+  final AiRead read;
+  final bool arabic;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final muted = AppTokens.muted.resolveFrom(context);
+    final title = read.txn.merchant ?? read.raw.sender;
+    final sub =
+        '${ltrIsolate(formatSar(read.txn.amountHalalas, arabic: arabic))} · '
+        '${formatDateTime(read.raw.receivedAt)}';
+    return Semantics(
+      button: true,
+      label: '$title, $sub',
+      onTap: onTap,
+      excludeSemantics: true,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          child: Row(
+            children: [
+              IconTile(
+                color: AppTokens.gold.resolveFrom(context),
+                icon: LucideIcons.sparkles,
+                size: 48,
+                iconSize: 22,
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: AppTokens.text.resolveFrom(context),
+                        fontSize: 17,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    Text(
+                      sub,
+                      style: TextStyle(
+                        color: muted,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              ForwardChevron(size: 14, color: muted),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A message no reader understood: the bank and time, the SMS in a box, why it is here, Add / Not a purchase.
+class _MessageCard extends StatelessWidget {
+  const _MessageCard({
+    required this.message,
+    required this.arabic,
+    required this.onAdd,
+    required this.onDismiss,
+  });
+
+  final RawMessage message;
+  final bool arabic;
+  final VoidCallback onAdd;
+  final VoidCallback onDismiss;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final text = AppTokens.text.resolveFrom(context);
+    final code = bankCodeForSender(message.sender);
+    final from = code == null
+        ? message.sender
+        : bankDisplayName(code, arabic: arabic);
+    final tag = switch (message.parseStatus) {
+      'low_confidence' => t.reviewTagUnsure,
+      'failed' => t.reviewTagFailed,
+      _ => t.reviewTagNew,
+    };
+    Widget link(String label, Color color, VoidCallback onTap, Key key) =>
+        CupertinoButton(
+          key: key,
+          padding: const EdgeInsets.symmetric(horizontal: 6),
+          minimumSize: const Size(44, 44),
+          onPressed: onTap,
+          child: Text(
+            label,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: color,
+              fontSize: 16,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        );
+    return AppCard(
+      key: ValueKey('review-${message.id}'),
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Text(
+                  from,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: text,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  formatDateTime(message.receivedAt),
+                  textAlign: TextAlign.end,
+                  style: TextStyle(
+                    color: AppTokens.muted.resolveFrom(context),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          // The SMS as it came, in a box.
+          DecoratedBox(
+            decoration: BoxDecoration(
+              color: AppTokens.bg.resolveFrom(context),
+              borderRadius: BorderRadius.circular(16),
+              border: outlineOf(context, width: AppTokens.outlineThin),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Text(
+                message.body,
+                maxLines: 4,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: text,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                  height: 1.35,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Wrap(
+            crossAxisAlignment: WrapCrossAlignment.center,
+            alignment: WrapAlignment.spaceBetween,
+            runSpacing: 4,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFA574),
+                    borderRadius: BorderRadius.circular(20),
+                    border: outlineOf(context, width: AppTokens.outlineThin),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 6,
+                    ),
+                    child: Text(
+                      tag,
+                      style: TextStyle(
+                        color: AppTokens.onTint.resolveFrom(context),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              // The two links wrap under each other with large text instead of overflowing.
+              Wrap(
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  link(
+                    t.reviewAdd,
+                    AppTokens.accentText.resolveFrom(context),
+                    onAdd,
+                    ValueKey('review-add-${message.id}'),
+                  ),
+                  link(
+                    t.reviewNotPurchase,
+                    AppTokens.muted.resolveFrom(context),
+                    onDismiss,
+                    ValueKey('review-dismiss-${message.id}'),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

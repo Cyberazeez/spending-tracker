@@ -3,12 +3,10 @@ import 'package:flutter/cupertino.dart';
 import '../../ui/confirm_sheet.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../core/providers.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ui/amount_sheet.dart';
-import '../../ui/choice_sheet.dart';
 import 'metrics.dart';
 import 'providers.dart';
 
@@ -55,7 +53,8 @@ Future<void> saveBudgetChange(
   }
 }
 
-/// Sets, changes or removes the monthly budget. With no budget yet it goes straight to the amount prompt.
+/// Sets, changes or removes the monthly budget in one sheet: the amount, presets, Save, and "Remove the budget"
+/// while one is set.
 Future<void> showMonthlyBudgetFlow(
   BuildContext context,
   WidgetRef ref, {
@@ -64,31 +63,31 @@ Future<void> showMonthlyBudgetFlow(
   final t = AppLocalizations.of(context);
   current ??= ref.read(monthlyBudgetProvider).value;
   final repo = ref.read(dataRepositoryProvider);
-  if (current != null) {
-    final choice = await showChoiceSheet<String>(
-      context,
-      title: t.insMonthlyBudget,
-      options: [
-        ChoiceOption(
-          value: 'set',
-          label: t.insBudgetSet,
-          icon: LucideIcons.pencil,
-        ),
-        ChoiceOption(
-          value: 'remove',
-          label: t.insBudgetRemove,
-          icon: LucideIcons.trash2,
-          destructive: true,
-        ),
-      ],
-    );
-    if (choice == null || !context.mounted) return;
-    if (choice == 'remove') {
-      await saveBudgetChange(context, ref, () => repo.setMonthlyBudget(null));
-      return;
-    }
+  final r = await showAmountSheetOrRemove(
+    context,
+    title: t.insMonthlyBudget,
+    initialHalalas: current,
+    suggestionsHalalas: const [400000, 500000, 600000, 800000],
+    maxHalalas: maxBudgetHalalas,
+    invalidText: t.insBudgetInvalid,
+    // Only a budget that exists can be removed.
+    removeLabel: current == null ? null : t.insBudgetRemoveThe,
+  );
+  if (!context.mounted) return;
+  switch (r) {
+    case AmountSet(:final halalas):
+      if (halalas != current) {
+        await saveBudgetChange(
+          context,
+          ref,
+          () => repo.setMonthlyBudget(halalas),
+        );
+      }
+    case AmountRemoved():
+      if (current != null) {
+        await saveBudgetChange(context, ref, () => repo.setMonthlyBudget(null));
+      }
+    case null:
+      break;
   }
-  final halalas = await askBudgetLimit(context, current);
-  if (halalas == null || !context.mounted) return;
-  await saveBudgetChange(context, ref, () => repo.setMonthlyBudget(halalas));
 }

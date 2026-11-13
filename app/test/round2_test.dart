@@ -44,8 +44,8 @@ void main() {
       expect(find.textContaining('9,000.00'), findsWidgets);
       await tester.tap(find.text('Monthly budget'));
       await tester.pumpAndSettle();
-      expect(find.text('Remove budget'), findsOneWidget);
-      await tester.tap(find.text('Remove budget'));
+      expect(find.text('Remove the budget'), findsOneWidget);
+      await tester.tap(find.text('Remove the budget'));
       await tester.pumpAndSettle();
       expect(h.data.monthlyBudget, isNull);
       expect(find.text('Not set'), findsOneWidget);

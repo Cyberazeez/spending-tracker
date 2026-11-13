@@ -1027,5 +1027,15 @@
   "capQueued": "Waiting to send",
   "aiAskTitle": "Turn on the AI assistant?",
   "aiAskConfirm": "Turn on",
-  "aiAskBody": "To answer questions and suggest savings, your totals and merchant names are sent to Anthropic's AI. Never message text, names or account numbers. You can turn this off at any time."
+  "aiAskBody": "To answer questions and suggest savings, your totals and merchant names are sent to Anthropic's AI. Never message text, names or account numbers. You can turn this off at any time.",
+  "insBudgetRemoveThe": "Remove the budget",
+  "reviewCouldNotRead": "Could not read",
+  "reviewAdd": "Add",
+  "reviewNotPurchase": "Not a purchase",
+  "reviewTagNew": "New message format",
+  "reviewTagUnsure": "Not sure",
+  "reviewTagFailed": "Could not read it",
+  "aiChatTry": "Try asking",
+  "reviewDismissAsk": "Not a purchase?",
+  "reviewDismissYes": "Yes, hide it"
 }

@@ -102,6 +102,7 @@ class RawMessage {
     required this.sender,
     required this.body,
     required this.receivedAt,
+    this.parseStatus = 'needs_review',
   });
 
   final String id;
@@ -109,11 +110,16 @@ class RawMessage {
   final String body;
   final DateTime receivedAt;
 
+  /// Why it waits for review: `needs_review` (no reader knows this format yet), `low_confidence` (read, but not
+  /// sure) or `failed` (a reader broke on it).
+  final String parseStatus;
+
   factory RawMessage.fromRow(Map<String, dynamic> r) => RawMessage(
     id: r['id'] as String,
     sender: r['sender'] as String,
     body: r['body'] as String,
     receivedAt: DateTime.parse(r['received_at'] as String).toUtc(),
+    parseStatus: (r['parse_status'] as String?) ?? 'needs_review',
   );
 }
 

@@ -197,3 +197,18 @@ Deno.test("categorize: a truncated bank merchant name still matches its seed wor
     null,
   );
 });
+
+Deno.test("a rule the owner deleted (disabled) is never applied, even the owner's own", () => {
+  const deleted: Rule = {
+    id: "u-hunger",
+    pattern: "hungerstation llc",
+    matchType: "exact",
+    categoryId: "c-shop",
+    status: "disabled",
+    source: "user",
+  };
+  // The seed rule still applies; the deleted owner rule (which would otherwise win) does not.
+  const r = categorize(tx({ merchantNorm: "hungerstation llc" }), [...RULES, deleted], IDS);
+  assert.equal(r?.ruleId, "seed-hungerstation");
+  assert.equal(categorize(tx({ merchantNorm: "hungerstation llc" }), [deleted], IDS), null);
+});

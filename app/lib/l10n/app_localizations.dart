@@ -3367,6 +3367,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'To answer questions and suggest savings, your totals and merchant names are sent to Anthropic\'s AI. Never message text, names or account numbers. You can turn this off at any time.'**
   String get aiAskBody;
+
+  /// No description provided for @insBudgetRemoveThe.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove the budget'**
+  String get insBudgetRemoveThe;
+
+  /// No description provided for @reviewCouldNotRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not read'**
+  String get reviewCouldNotRead;
+
+  /// No description provided for @reviewAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get reviewAdd;
+
+  /// No description provided for @reviewNotPurchase.
+  ///
+  /// In en, this message translates to:
+  /// **'Not a purchase'**
+  String get reviewNotPurchase;
+
+  /// No description provided for @reviewTagNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New message format'**
+  String get reviewTagNew;
+
+  /// No description provided for @reviewTagUnsure.
+  ///
+  /// In en, this message translates to:
+  /// **'Not sure'**
+  String get reviewTagUnsure;
+
+  /// No description provided for @reviewTagFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not read it'**
+  String get reviewTagFailed;
+
+  /// No description provided for @aiChatTry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try asking'**
+  String get aiChatTry;
+
+  /// No description provided for @reviewDismissAsk.
+  ///
+  /// In en, this message translates to:
+  /// **'Not a purchase?'**
+  String get reviewDismissAsk;
+
+  /// No description provided for @reviewDismissYes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes, hide it'**
+  String get reviewDismissYes;
 }
 
 class _AppLocalizationsDelegate

@@ -61,10 +61,11 @@ const deps: IngestDeps = {
   async loadCategorization(userId) {
     const [cats, rules] = await Promise.all([
       db.from("categories").select("id, name").eq("user_id", userId),
+      // A rule the owner deleted is kept as 'disabled' so nothing re-creates it; it never categorises.
       db.from("merchant_rules").select("id, pattern, match_type, category_id, status, source").eq(
         "user_id",
         userId,
-      ),
+      ).neq("status", "disabled"),
     ]);
     if (cats.error || rules.error) throw new Error("categorization_load_failed");
     return {

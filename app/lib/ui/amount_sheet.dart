@@ -8,8 +8,8 @@ import 'tokens.dart';
 import 'app_sheet.dart';
 import 'press.dart';
 
-/// Asks for an amount in the app's bottom-sheet look: a big field with the riyal sign, quick amounts to tap and a
-/// Save button. Returns halalas, or null when dismissed.
+/// Asks for an amount in the app's bottom-sheet look: a big centred amount with the riyal sign, quick amounts to tap
+/// (the one typed is highlighted) and a Save button. Returns halalas, or null when dismissed.
 Future<int?> showAmountSheet(
   BuildContext context, {
   required String title,
@@ -18,8 +18,8 @@ Future<int?> showAmountSheet(
   List<int> suggestionsHalalas = const [],
   required int maxHalalas,
   required String invalidText,
-}) {
-  return showAppSheet<int>(
+}) async {
+  final r = await showAppSheet<Object>(
     context: context,
     builder: (ctx) => _AmountSheet(
       title: title,
@@ -30,7 +30,51 @@ Future<int?> showAmountSheet(
       invalidText: invalidText,
     ),
   );
+  return r is int ? r : null;
 }
+
+/// What [showAmountSheetOrRemove] returned: a new amount, or that the person chose [removeLabel].
+sealed class AmountChoice {}
+
+class AmountSet extends AmountChoice {
+  AmountSet(this.halalas);
+  final int halalas;
+}
+
+class AmountRemoved extends AmountChoice {}
+
+/// [showAmountSheet] with a red text link under Save ([removeLabel], shown when given) that removes the amount (the
+/// monthly budget).
+Future<AmountChoice?> showAmountSheetOrRemove(
+  BuildContext context, {
+  required String title,
+  int? initialHalalas,
+  List<int> suggestionsHalalas = const [],
+  required int maxHalalas,
+  required String invalidText,
+  String? removeLabel,
+}) async {
+  final r = await showAppSheet<Object>(
+    context: context,
+    builder: (ctx) => _AmountSheet(
+      title: title,
+      subtitle: null,
+      initialHalalas: initialHalalas,
+      suggestions: suggestionsHalalas,
+      maxHalalas: maxHalalas,
+      invalidText: invalidText,
+      removeLabel: removeLabel,
+    ),
+  );
+  return switch (r) {
+    final int v => AmountSet(v),
+    _removed => AmountRemoved(),
+    _ => null,
+  };
+}
+
+/// Popped by the remove link.
+const _removed = #removed;
 
 class _AmountSheet extends StatefulWidget {
   const _AmountSheet({
@@ -40,7 +84,9 @@ class _AmountSheet extends StatefulWidget {
     required this.suggestions,
     required this.maxHalalas,
     required this.invalidText,
+    this.removeLabel,
   });
+  final String? removeLabel;
   final String title;
   final String? subtitle;
   final int? initialHalalas;
@@ -91,10 +137,11 @@ class _AmountSheetState extends State<_AmountSheet> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // The amount, centred and large on the page colour: "⃁ 6,000".
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: card,
+                color: AppTokens.bg.resolveFrom(context),
                 borderRadius: BorderRadius.circular(AppTokens.radiusCard),
                 border: Border.all(
                   color: _invalid
@@ -106,37 +153,41 @@ class _AmountSheetState extends State<_AmountSheet> {
               child: Directionality(
                 textDirection: TextDirection.ltr,
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
                       riyalSign,
                       style: TextStyle(
                         color: muted,
-                        fontSize: 26,
-                        fontWeight: FontWeight.w600,
+                        fontSize: 28,
+                        fontWeight: FontWeight.w700,
                         decoration: TextDecoration.none,
                       ),
                     ),
                     const SizedBox(width: 10),
-                    Expanded(
-                      child: CupertinoTextField(
-                        controller: _c,
-                        autofocus: true,
-                        placeholder: '0',
-                        keyboardType: const TextInputType.numberWithOptions(
-                          decimal: true,
-                        ),
-                        textInputAction: TextInputAction.done,
-                        onSubmitted: (_) => _save(),
-                        onChanged: (_) {
-                          if (_invalid) setState(() => _invalid = false);
-                        },
-                        decoration: null,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        style: TextStyle(
-                          color: text,
-                          fontSize: 32,
-                          fontWeight: FontWeight.w800,
-                          fontFeatures: const [FontFeature.tabularFigures()],
+                    Flexible(
+                      child: IntrinsicWidth(
+                        child: CupertinoTextField(
+                          key: const ValueKey('amount-field'),
+                          controller: _c,
+                          autofocus: true,
+                          placeholder: '0',
+                          textAlign: TextAlign.center,
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true,
+                          ),
+                          textInputAction: TextInputAction.done,
+                          onSubmitted: (_) => _save(),
+                          onChanged: (_) => setState(() => _invalid = false),
+                          decoration: null,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          style: TextStyle(
+                            color: text,
+                            fontSize: 44,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -0.5,
+                            fontFeatures: const [FontFeature.tabularFigures()],
+                          ),
                         ),
                       ),
                     ),
@@ -161,6 +212,7 @@ class _AmountSheetState extends State<_AmountSheet> {
               Directionality(
                 textDirection: TextDirection.ltr,
                 child: Wrap(
+                  alignment: WrapAlignment.center,
                   spacing: 8,
                   runSpacing: 8,
                   children: [
@@ -176,32 +228,39 @@ class _AmountSheetState extends State<_AmountSheet> {
                         }),
                         child: PressShadow(
                           decoration: BoxDecoration(
-                            color: card,
+                            color: parseHalalas(_c.text) == s
+                                ? AppTokens.accent.resolveFrom(context)
+                                : card,
                             borderRadius: BorderRadius.circular(22),
                             border: outlineOf(
                               context,
                               width: AppTokens.outlineThin,
                             ),
                           ),
+                          // Sized to its label (an alignment here would stretch it across the sheet).
                           child: Container(
                             constraints: const BoxConstraints(minHeight: 44),
-                            alignment: Alignment.center,
                             padding: const EdgeInsets.symmetric(
                               horizontal: 16,
                               vertical: 10,
                             ),
-                            child: Text(
-                              (s / 100)
-                                  .toStringAsFixed(0)
-                                  .replaceAllMapped(
-                                    RegExp(r'\B(?=(\d{3})+(?!\d))'),
-                                    (m) => ',',
-                                  ),
-                              style: TextStyle(
-                                color: text,
-                                fontSize: 15,
-                                fontWeight: FontWeight.w700,
-                                decoration: TextDecoration.none,
+                            child: Center(
+                              widthFactor: 1,
+                              child: Text(
+                                (s / 100)
+                                    .toStringAsFixed(0)
+                                    .replaceAllMapped(
+                                      RegExp(r'\B(?=(\d{3})+(?!\d))'),
+                                      (m) => ',',
+                                    ),
+                                style: TextStyle(
+                                  color: parseHalalas(_c.text) == s
+                                      ? AppTokens.onAccent.resolveFrom(context)
+                                      : text,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w700,
+                                  decoration: TextDecoration.none,
+                                ),
                               ),
                             ),
                           ),
@@ -212,7 +271,26 @@ class _AmountSheetState extends State<_AmountSheet> {
               ),
             ],
             const SizedBox(height: 18),
-            PrimaryButton(label: t.insSave, onPressed: _save),
+            PrimaryButton(
+              key: const ValueKey('amount-save'),
+              label: t.insSave,
+              onPressed: _save,
+            ),
+            if (widget.removeLabel != null)
+              CupertinoButton(
+                key: const ValueKey('amount-remove'),
+                minimumSize: const Size(44, 44),
+                onPressed: () => Navigator.pop(context, _removed),
+                child: Text(
+                  widget.removeLabel!,
+                  style: TextStyle(
+                    color: AppTokens.danger.resolveFrom(context),
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                    decoration: TextDecoration.none,
+                  ),
+                ),
+              ),
           ],
         ),
       ),

@@ -17,7 +17,8 @@ abstract class DataRepository {
   /// The owner's merchant rules (place → category), without the internal account rules (`acct:` / `card:`).
   Future<List<MerchantRule>> merchantRules();
 
-  /// Deletes one merchant rule. Transactions it already filed keep their category.
+  /// Deletes one merchant rule for good (kept as `disabled` so nothing re-creates it). Transactions it already filed
+  /// keep their category.
   Future<void> deleteMerchantRule(String id);
 
   /// How many other, not manually categorised, transactions share this merchant.
@@ -278,6 +279,7 @@ class SupabaseDataRepository implements DataRepository {
     final rows = await _db
         .from('merchant_rules')
         .select('id, pattern, category_id')
+        .neq('status', 'disabled')
         .not('pattern', 'like', 'acct:%')
         .not('pattern', 'like', 'card:%')
         .order('pattern')
@@ -294,7 +296,11 @@ class SupabaseDataRepository implements DataRepository {
 
   @override
   Future<void> deleteMerchantRule(String id) async {
-    await _db.from('merchant_rules').delete().eq('id', id);
+    // Kept as 'disabled' rather than removed, so a seed backfill or the AI never brings it back.
+    await _db
+        .from('merchant_rules')
+        .update({'status': 'disabled'})
+        .eq('id', id);
   }
 
   @override
@@ -353,6 +359,15 @@ class SupabaseDataRepository implements DataRepository {
         })
         .eq('id', txnId);
     if (rememberFor == null || categoryId == null) return;
+    // A rule the owner deleted on Categories and rules stays deleted: filing one purchase by hand does not
+    // bring it back (owner decision 2026-11-13).
+    final existing = await _db
+        .from('merchant_rules')
+        .select('status')
+        .eq('pattern', rememberFor)
+        .eq('match_type', 'exact')
+        .maybeSingle();
+    if (existing?['status'] == 'disabled') return;
     await _db.from('merchant_rules').upsert({
       'pattern': rememberFor,
       'match_type': 'exact',
@@ -380,7 +395,7 @@ class SupabaseDataRepository implements DataRepository {
   Future<List<RawMessage>> needsReview() async {
     final rows = await _db
         .from('raw_messages')
-        .select('id, sender, body, received_at')
+        .select('id, sender, body, received_at, parse_status')
         .inFilter('parse_status', ['needs_review', 'low_confidence', 'failed'])
         .order('received_at', ascending: false)
         .limit(100);

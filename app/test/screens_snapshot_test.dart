@@ -81,6 +81,31 @@ void _sample(Harness h) {
         body: 'Purchase 75.00 SAR card **4821 at [merchant] on 29/10',
         receivedAt: DateTime.parse('2026-10-29T11:20:00Z'),
       ),
+      RawMessage(
+        id: 'r2',
+        sender: 'barq app',
+        body: 'Your wallet was topped up with 200.00 SAR',
+        receivedAt: DateTime.parse('2026-10-28T08:05:00Z'),
+        parseStatus: 'low_confidence',
+      ),
+    ]
+    ..aiRead = [
+      AiRead(
+        raw: RawMessage(
+          id: 'a1',
+          sender: 'NewBank',
+          body: 'Purchase 86.00 SAR at Restaurant',
+          receivedAt: DateTime.parse('2026-10-27T15:00:00Z'),
+        ),
+        txn: Txn(
+          id: 't-a1',
+          type: 'purchase',
+          direction: 'out',
+          amountHalalas: 8600,
+          occurredAt: DateTime.parse('2026-10-27T15:00:00Z'),
+          merchant: 'Restaurant',
+        ),
+      ),
     ];
 }
 
@@ -275,7 +300,7 @@ void main() {
                 en ? 'How much on dining?' : 'كم صرفت على المطاعم؟',
               );
               await t.pump();
-              await t.tap(find.byIcon(LucideIcons.arrowUp));
+              await t.tap(find.byIcon(LucideIcons.send));
           }
           await t.pumpAndSettle();
           await _save(t, '${lang}_${mode.name}_s3_$screen');
@@ -303,6 +328,7 @@ void main() {
     'rules',
     'delete_sure',
     'password_done',
+    'budget',
   ];
   for (final lang in ['en', 'ar']) {
     final en = lang == 'en';
@@ -385,6 +411,12 @@ void main() {
               go(deleteAccountPath);
             case 'more':
               await t.tap(find.byKey(const ValueKey('tab-item-4')));
+            case 'budget':
+              await t.tap(find.byKey(const ValueKey('tab-item-4')));
+              await t.pumpAndSettle();
+              await t.tap(
+                find.text(en ? 'Monthly budget' : 'الميزانية الشهرية'),
+              );
             case 'rules':
               go(rulesPath);
             case 'delete_sure':
