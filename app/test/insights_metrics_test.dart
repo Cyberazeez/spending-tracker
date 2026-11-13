@@ -416,4 +416,24 @@ void trendTests() {
     expect(jan.cumulativeLastMonth.last, 100);
     expect(jan.monthTotals.map((m) => m.month).first, DateTime.utc(2026, 10));
   });
+
+  test('money sent to someone and filed under Transfers counts; an own-account move there does not', () {
+    // Owner decision 2026-11-13: the Transfers category no longer hides spending by itself (it is not in
+    // excludedCategories); internal moves stay out through their own flag.
+    Txn t(String id, int amount, {bool internal = false}) => Txn(
+      id: id,
+      type: 'transfer_out',
+      direction: 'out',
+      amountHalalas: amount,
+      occurredAt: DateTime.utc(2026, 10, 20, 9),
+      categoryId: 'c-transfers',
+      isInternal: internal,
+      excludedFromSpend: internal,
+    );
+    final ins = computeInsights([
+      t('sent', 120000),
+      t('own', 330000, internal: true),
+    ], DateTime.utc(2026, 10, 30));
+    expect(ins.monthSpend, 120000);
+  });
 }

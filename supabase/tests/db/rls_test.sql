@@ -688,6 +688,16 @@ begin
     -- 1000 + 2500 - 400 = 3100 (internal, excluded, income-direction non-refund, other user, old and excluded-category rows left out)
     spend := public.my_spend_since(now() - interval '30 days');
     if spend <> 3100 then raise exception 'my_spend_since returned %, expected 3100', spend; end if;
+    -- Transfers (owner decision 2026-11-13): money sent to someone else and filed under Transfers counts as
+    -- spending; a move between own accounts filed there stays out because it is flagged internal.
+    insert into public.transactions (user_id, direction, type, amount_halalas, occurred_at, is_internal, excluded_from_spend, category_id)
+      select su, 'out', 'transfer_out', 1200, now(), false, false, c.id from public.categories c
+      where c.user_id = su and c.name = 'Transfers'
+      union all
+      select su, 'out', 'transfer_out', 3300, now(), true, true, c.id from public.categories c
+      where c.user_id = su and c.name = 'Transfers';
+    spend := public.my_spend_since(now() - interval '30 days');
+    if spend <> 4300 then raise exception 'Transfers: my_spend_since returned %, expected 4300 (3100 + 1200 sent to someone)', spend; end if;
     reset role;
     denied := false;
     perform set_config('request.jwt.claims', '{"role":"anon"}', true);

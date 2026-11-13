@@ -39,7 +39,7 @@ Unique `(user_id, bank, last4)`. Seed: Al Rajhi 6331 (account), 1271 (mada card)
 - Index `(user_id, sender, received_at desc)` for the gaps view.
 
 ### categories
-`id`, `user_id`, `name`, `name_ar`, `kind text` (spend, income, transfer, fee). 19 seeded per user, including Loans (M3) and Car (2026-11-01: car purchase, service and insurance), `excluded_from_spend bool`, `icon`, `color`, `sort_order`.
+`id`, `user_id`, `name`, `name_ar`, `kind text` (spend, income, transfer, fee). 19 seeded per user, including Loans (M3) and Car (2026-11-01: car purchase, service and insurance), `excluded_from_spend bool` (only Income since 2026-11-13; Transfers was excluded until migration `20261113120000`, now money sent to others filed there counts as spending and own-account moves stay out through the transaction's own `is_internal` flag), `icon`, `color`, `sort_order`.
 
 ### merchant_rules
 `id`, `user_id`, `pattern text` (normalized), `match_type text` (exact, contains, prefix), `category_id`, `status text` (confirmed, auto_unconfirmed, disabled: deleted by the owner on More > Categories and rules and kept so seeds and the AI never re-create it; ingest and `categorize()` skip it, and a manual pick does not re-enable it; migration `20261113100000`), `source text` (user, ai, seed), `hit_count int`, `updated_at`. Unique `(user_id, pattern, match_type)`.
