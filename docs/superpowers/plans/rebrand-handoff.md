@@ -9,8 +9,8 @@ For the next session that picks up the Halala rebrand. Read the spec first: `doc
 | 2 | Activity | Merged (PR #105). Plan: `2026-11-12-rebrand-stage2.md`. Owner tested on TestFlight: all pass |
 | 3 | Bills and Insights | Merged (PR #106). Plan: `2026-11-12-rebrand-stage3.md`. Owner has not reported a TestFlight check yet |
 | 4 | Start and More | Merged (PR #108, TestFlight fixes PR #109). Plan: `2026-11-12-rebrand-stage4.md` |
-| 5 | Motion | Built, in review. Plan: `2026-11-12-rebrand-stage5.md` |
-| 6 | Widget, emails, website, App Store screenshots | Not started |
+| 5 | Motion | Merged. Plan: `2026-11-12-rebrand-stage5.md` |
+| 6 | Widget, emails, website, App Store screenshots | Built 2026-11-13, in review. Widget first compiles in Codemagic; Auth email templates still to be pasted into Supabase; screenshots: `docs/app-store/README.md` |
 
 ## Owner's rules for this work
 - One stage per pull request, in the spec's order. Stop after each stage and wait for the owner's go.

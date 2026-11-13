@@ -1,6 +1,6 @@
-# Halala email design (draft for owner review, 2026-11-09)
+# Halala email design (draft for owner review, 2026-11-09; rebrand colours 2026-11-13)
 
-One bilingual layout for every automatic email: wordmark "Halala · هللة", English block, Arabic block (right to left), a green button or code box, a short "if this was not you" line, and a footer with the support address and privacy link. Light and dark mode. Nothing here is live yet.
+One bilingual layout for every automatic email: wordmark "Halala · هللة", English block, Arabic block (right to left), an emerald pill button with ink text (or an outlined code box), all in an outlined white card with a hard shadow on paper,, a short "if this was not you" line, and a footer with the support address and privacy link. Light and dark mode. Nothing here is live yet.
 
 Source: `build.mjs` (one layout, all texts). Run `node docs/email-design/build.mjs` to rebuild `templates/*.html`, `subjects.json` and `preview.html` (open it in a browser to see all eight).
 
