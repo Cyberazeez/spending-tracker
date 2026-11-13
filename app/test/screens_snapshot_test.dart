@@ -495,7 +495,7 @@ void main() {
 
   // App Store screenshots (rebrand stage 6): the four main tabs in light mode, English and Arabic, at 1206x2622
   // (logical 402x874 at 3x). Fake sample data only. Off by default; run with
-  // `flutter test test/screens_snapshot_test.dart --dart-define=STORE_SHOTS=true --plain-name store`, then
+  // `flutter test test/screens_snapshot_test.dart --dart-define=STORE_SHOTS=true --plain-name "store screenshot"`, then
   // `node ../docs/app-store/frame.mjs` adds the captions and writes the upload sizes (docs/app-store/README.md).
   const storeShots = bool.fromEnvironment('STORE_SHOTS');
   for (final lang in ['en', 'ar']) {

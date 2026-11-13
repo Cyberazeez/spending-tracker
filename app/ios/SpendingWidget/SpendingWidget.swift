@@ -156,7 +156,7 @@ private extension Color {
     }
 }
 
-/// Light and dark colours. Text on the emerald or mint fill is always ink, as in the app (`onAccent`).
+/// Light and dark colours. Text on the emerald or mint fill is ink, as in the app (`onAccent`).
 private struct Palette {
     let card: Color    // white / moss
     let text: Color    // ink / paper
@@ -205,21 +205,44 @@ private struct BudgetBar: View {
 
 // MARK: - Views
 
-/// Small: the emerald (mint in dark mode) tile from the mockup, ink text.
+/// Small: the emerald (mint in dark mode) tile from the mockup, ink text. Where iOS removes the widget's background
+/// (StandBy on iOS 17+) the text switches to the normal text colour, so it never sits as ink on black.
 struct SmallView: View {
     let entry: SpendingEntry
+
+    var body: some View {
+        if #available(iOS 17.0, *) {
+            BackgroundAware { shown in SmallContent(entry: entry, onFill: shown) }
+        } else {
+            SmallContent(entry: entry, onFill: true)
+        }
+    }
+}
+
+@available(iOS 17.0, *)
+private struct BackgroundAware<Content: View>: View {
+    @Environment(\.showsWidgetContainerBackground) private var shown
+    let content: (Bool) -> Content
+
+    var body: some View { content(shown) }
+}
+
+private struct SmallContent: View {
+    let entry: SpendingEntry
+    let onFill: Bool
     @Environment(\.colorScheme) private var scheme
 
     var body: some View {
         let w = words(entry.arabic)
         let p = Palette(scheme)
+        let ink = onFill ? p.ink : p.text
         VStack(alignment: .leading, spacing: 4) {
-            Text(w.today).font(rounded(13, .bold)).foregroundColor(p.ink)
+            Text(w.today).font(rounded(13, .bold)).foregroundColor(ink)
             Text(sar(entry.today, arabic: entry.arabic))
-                .font(rounded(26, .heavy)).foregroundColor(p.ink)
+                .font(rounded(26, .heavy)).foregroundColor(ink)
                 .minimumScaleFactor(0.6).lineLimit(1)
             if entry.today == nil {
-                Text(w.openApp).font(rounded(11, .semibold)).foregroundColor(p.ink)
+                Text(w.openApp).font(rounded(11, .semibold)).foregroundColor(ink)
             }
             Spacer(minLength: 0)
         }
@@ -259,13 +282,11 @@ struct MediumView: View {
 
             VStack(alignment: .leading, spacing: 8) {
                 if let percent = entry.percent {
-                    Text("\(percent)% \(w.budget)")
-                        .font(rounded(15, .heavy)).foregroundColor(p.text)
-                        .minimumScaleFactor(0.7).lineLimit(1)
+                    // same text as before the rebrand: "N% of budget (SAR X)"
+                    Text("\(percent)% \(w.budget) (\(sar(entry.budget, arabic: entry.arabic)))")
+                        .font(rounded(14, .heavy)).foregroundColor(p.text)
+                        .minimumScaleFactor(0.7).lineLimit(2)
                     BudgetBar(percent: percent, palette: p)
-                    Text(sar(entry.budget, arabic: entry.arabic))
-                        .font(rounded(12, .semibold)).foregroundColor(p.muted)
-                        .lineLimit(1)
                 } else if entry.month != nil {
                     Text(w.setBudget).font(rounded(13, .bold)).foregroundColor(p.muted)
                 } else {

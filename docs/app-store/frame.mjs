@@ -5,6 +5,7 @@
 // Run from the repo root: node docs/app-store/frame.mjs   (needs Playwright with Chromium)
 import { mkdirSync, readFileSync } from "node:fs";
 import { createRequire } from "node:module";
+import { fileURLToPath } from "node:url";
 const { chromium } = createRequire(import.meta.url)("playwright");
 
 const root = new URL("../../", import.meta.url);
@@ -42,7 +43,7 @@ for (const [w, h] of SIZES) {
     for (let i = 0; i < 4; i++) {
       await p.setContent(page(lang, i, w, h));
       await p.evaluate(() => document.fonts.ready);
-      await p.screenshot({ path: new URL(`${lang}_${i + 1}.jpg`, dir).pathname, type: "jpeg", quality: 92 });
+      await p.screenshot({ path: fileURLToPath(new URL(`${lang}_${i + 1}.jpg`, dir)), type: "jpeg", quality: 92 });
     }
   }
   await p.close();
