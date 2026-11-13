@@ -132,7 +132,8 @@ Insights computeInsights(
   DateTime now, {
   int baseSalary = 0,
 
-  /// Categories flagged "excluded from spend" (Transfers, Income): their money is not spending.
+  /// Categories flagged "excluded from spend" (Income; Transfers no longer, owner 2026-11-13): their money is not
+  /// spending.
   Set<String> excludedCategories = const {},
 }) {
   final today = riyadhToday(now);

@@ -50,7 +50,7 @@ As the owner, every bank SMS I receive reaches the app without my touching it.
 - Unknown merchants: batched to Claude (if AI on), result cached as a rule flagged "auto, unconfirmed". Planned: merchants other users already categorised are applied automatically for paying accounts (`docs/superpowers/specs/2026-11-05-shared-merchant-categories-design.md`).
 - Correcting a category creates/updates a rule and offers to recategorize past matches.
 - Seed categories (editable): Groceries, Dining, Fuel, Utilities, Rent/Housing, Horse (boarding, feed, farrier, vet, equipment), Transport, Shopping, Subscriptions, Health, Entertainment, Travel, Transfers, Fees, Income, Other. Plus House Card (wife's household spend, tag via card 8920).
-- Transfers and own-account moves excluded from spend totals.
+- Own-account moves (detected automatically: wallet top-ups, card payoffs, matched transfer pairs, transfers to a saved own account) are excluded from spend totals. Money sent to other people counts as spending, also when filed under Transfers (owner decision 2026-11-13).
 - With AI off, unknown merchants stay "Uncategorized" and show in a review list.
 
 ### F4. Transactions list
