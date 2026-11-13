@@ -16,7 +16,7 @@ Single-user personal finance app for Azeez (Riyadh, iPhone, no Mac). Captures ev
 - Flutter: `cd app && flutter pub get`, `flutter analyze`, `flutter test`
 - Edge Functions: `cd supabase/functions && deno test --allow-read` and `deno lint`
 - Supabase local: `supabase start`, `supabase db reset`, `supabase db lint` (needs Docker; not available in cloud sessions)
-- Deploy: functions and migrations deploy from CI on merge to `main`. iOS builds are started by hand in Codemagic.
+- Deploy: Edge Functions deploy from CI on merge to `main` (`.github/workflows/deploy-functions.yml`). **Database migrations do NOT deploy on merge:** after a PR with a new file in `supabase/migrations/` is merged, a session applies it to production with the Supabase connector (`apply_migration`, exact SQL from `main`), after Azeez's go, and checks it on the live data. Say so in the PR and after the merge. iOS builds are started by hand in Codemagic.
 
 ## How we work (rules for Claude)
 1. **Read `docs/` first** (01 to 07). They are the source of truth. `docs/07-sms-catalog.md` lists every known SMS format.
