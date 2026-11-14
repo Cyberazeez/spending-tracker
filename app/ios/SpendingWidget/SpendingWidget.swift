@@ -144,19 +144,105 @@ private func words(_ arabic: Bool) -> (today: String, month: String, budget: Str
     return ("Spent today", "Spent this month", "of budget", "Set a monthly budget", "Open the app to refresh")
 }
 
+// MARK: - Look (Halala rebrand, docs/superpowers/specs/2026-11-11-rebrand-design.md; same values as app/lib/ui/tokens.dart)
+
+private extension Color {
+    init(hex: UInt32) {
+        self.init(
+            red: Double((hex >> 16) & 0xFF) / 255,
+            green: Double((hex >> 8) & 0xFF) / 255,
+            blue: Double(hex & 0xFF) / 255
+        )
+    }
+}
+
+/// Light and dark colours. Text on the emerald or mint fill is ink, as in the app (`onAccent`).
+private struct Palette {
+    let card: Color    // white / moss
+    let text: Color    // ink / paper
+    let muted: Color
+    let accent: Color  // emerald / mint
+    let line: Color    // outlines and hard shadows: ink / paper
+    let track: Color
+    let gold = Color(hex: 0xFFC93C)
+    let ink = Color(hex: 0x0D1F17)
+    let danger: Color
+
+    init(_ scheme: ColorScheme) {
+        let dark = scheme == .dark
+        card = Color(hex: dark ? 0x173326 : 0xFFFFFF)
+        text = Color(hex: dark ? 0xF0F5E6 : 0x0D1F17)
+        muted = Color(hex: dark ? 0xA9BBAF : 0x45564B)
+        accent = Color(hex: dark ? 0x3FD79B : 0x00A86B)
+        line = Color(hex: dark ? 0xF0F5E6 : 0x0D1F17)
+        track = Color(hex: dark ? 0x2B4C3D : 0xDCE5CC)
+        danger = Color(hex: dark ? 0xFF9DB0 : 0xD11A3F)
+    }
+}
+
+private func rounded(_ size: CGFloat, _ weight: Font.Weight) -> Font {
+    .system(size: size, weight: weight, design: .rounded)
+}
+
+/// The budget bar: gold share on a track with an outline, red when over budget (like the Home hero).
+private struct BudgetBar: View {
+    let percent: Int
+    let palette: Palette
+
+    var body: some View {
+        GeometryReader { geo in
+            ZStack(alignment: .leading) {
+                Capsule().fill(palette.track)
+                Capsule()
+                    .fill(percent > 100 ? palette.danger : palette.gold)
+                    .frame(width: max(geo.size.width * CGFloat(min(percent, 100)) / 100, percent > 0 ? 10 : 0))
+                Capsule().strokeBorder(palette.line, lineWidth: 2)
+            }
+        }
+        .frame(height: 12)
+    }
+}
+
 // MARK: - Views
 
+/// Small: the emerald (mint in dark mode) tile from the mockup, ink text. Where iOS removes the widget's background
+/// (StandBy on iOS 17+) the text switches to the normal text colour, so it never sits as ink on black.
 struct SmallView: View {
     let entry: SpendingEntry
+
+    var body: some View {
+        if #available(iOS 17.0, *) {
+            BackgroundAware { shown in SmallContent(entry: entry, onFill: shown) }
+        } else {
+            SmallContent(entry: entry, onFill: true)
+        }
+    }
+}
+
+@available(iOS 17.0, *)
+private struct BackgroundAware<Content: View>: View {
+    @Environment(\.showsWidgetContainerBackground) private var shown
+    let content: (Bool) -> Content
+
+    var body: some View { content(shown) }
+}
+
+private struct SmallContent: View {
+    let entry: SpendingEntry
+    let onFill: Bool
+    @Environment(\.colorScheme) private var scheme
+
     var body: some View {
         let w = words(entry.arabic)
-        VStack(alignment: .leading, spacing: 6) {
-            Text(w.today).font(.caption).foregroundColor(.secondary)
+        let p = Palette(scheme)
+        let ink = onFill ? p.ink : p.text
+        VStack(alignment: .leading, spacing: 4) {
+            Text(w.today).font(rounded(13, .bold)).foregroundColor(ink)
             Text(sar(entry.today, arabic: entry.arabic))
-                .font(.title2).fontWeight(.semibold)
+                .font(rounded(26, .heavy)).foregroundColor(ink)
                 .minimumScaleFactor(0.6).lineLimit(1)
             if entry.today == nil {
-                Text(w.openApp).font(.caption2).foregroundColor(.secondary)
+                Text(w.openApp).font(rounded(11, .semibold)).foregroundColor(ink)
             }
             Spacer(minLength: 0)
         }
@@ -164,27 +250,52 @@ struct SmallView: View {
     }
 }
 
+/// Medium: a white (moss) card with the month total on an emerald tile that has an outline and a hard shadow, and
+/// the budget beside it.
 struct MediumView: View {
     let entry: SpendingEntry
+    @Environment(\.colorScheme) private var scheme
+
     var body: some View {
         let w = words(entry.arabic)
-        VStack(alignment: .leading, spacing: 8) {
-            Text(w.month).font(.caption).foregroundColor(.secondary)
-            Text(sar(entry.month, arabic: entry.arabic))
-                .font(.title).fontWeight(.semibold)
-                .minimumScaleFactor(0.6).lineLimit(1)
-            if let percent = entry.percent {
-                ProgressView(value: Double(min(percent, 100)), total: 100)
-                Text("\(percent)% \(w.budget) (\(sar(entry.budget, arabic: entry.arabic)))")
-                    .font(.caption).foregroundColor(.secondary)
-            } else if entry.month != nil {
-                Text(w.setBudget).font(.caption).foregroundColor(.secondary)
-            } else {
-                Text(w.openApp).font(.caption).foregroundColor(.secondary)
+        let p = Palette(scheme)
+        HStack(alignment: .center, spacing: 14) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(w.month).font(rounded(12, .bold)).foregroundColor(p.ink)
+                Spacer(minLength: 0)
+                Text(sar(entry.month, arabic: entry.arabic))
+                    .font(rounded(22, .heavy)).foregroundColor(p.ink)
+                    .minimumScaleFactor(0.5).lineLimit(1)
             }
-            Spacer(minLength: 0)
+            .padding(10)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            // Fill first, then the hard shadow behind it (a later .background sits further back).
+            .background(RoundedRectangle(cornerRadius: 18, style: .continuous).fill(p.accent))
+            .background(
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .fill(p.line)
+                    .offset(x: 3, y: 4)
+            )
+            .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).strokeBorder(p.line, lineWidth: 2))
+            .padding(.trailing, 3)
+            .padding(.bottom, 4)
+
+            VStack(alignment: .leading, spacing: 8) {
+                if let percent = entry.percent {
+                    // same text as before the rebrand: "N% of budget (SAR X)"
+                    Text("\(percent)% \(w.budget) (\(sar(entry.budget, arabic: entry.arabic)))")
+                        .font(rounded(14, .heavy)).foregroundColor(p.text)
+                        .minimumScaleFactor(0.7).lineLimit(2)
+                    BudgetBar(percent: percent, palette: p)
+                } else if entry.month != nil {
+                    Text(w.setBudget).font(rounded(13, .bold)).foregroundColor(p.muted)
+                } else {
+                    Text(w.openApp).font(rounded(13, .bold)).foregroundColor(p.muted)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 
@@ -233,31 +344,51 @@ struct InlineView: View {
 
 struct SpendingWidgetView: View {
     @Environment(\.widgetFamily) var family
+    @Environment(\.colorScheme) private var scheme
     let entry: SpendingEntry
 
     var body: some View {
+        let p = Palette(scheme)
         switch family {
         case .systemMedium:
-            MediumView(entry: entry)
+            MediumView(entry: entry).widgetBackground(fill: p.card, line: p.line)
         case .accessoryCircular:
-            CircularView(entry: entry)
+            CircularView(entry: entry).widgetBackground(fill: nil, line: nil)
         case .accessoryRectangular:
-            RectangularView(entry: entry)
+            RectangularView(entry: entry).widgetBackground(fill: nil, line: nil)
         case .accessoryInline:
-            InlineView(entry: entry)
+            InlineView(entry: entry).widgetBackground(fill: nil, line: nil)
         default:
-            SmallView(entry: entry)
+            SmallView(entry: entry).widgetBackground(fill: p.accent, line: p.line)
         }
     }
 }
 
 extension View {
+    /// Home screen widgets get the brand fill and an outline along the system's own corner shape (iOS clips the
+    /// widget, so the mockup's outer hard shadow cannot be drawn). Lock screen widgets keep the system background.
     @ViewBuilder
-    func widgetBackground() -> some View {
+    func widgetBackground(fill: Color?, line: Color?) -> some View {
         if #available(iOS 17.0, *) {
-            self.containerBackground(for: .widget) { Color(UIColor.systemBackground) }
+            self.containerBackground(for: .widget) {
+                if let fill = fill, let line = line {
+                    ZStack {
+                        fill
+                        ContainerRelativeShape().strokeBorder(line, lineWidth: 2.5)
+                    }
+                } else {
+                    Color(UIColor.systemBackground)
+                }
+            }
         } else {
-            self.padding().background(Color(UIColor.systemBackground))
+            if let fill = fill, let line = line {
+                self.padding()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(fill)
+                    .overlay(ContainerRelativeShape().strokeBorder(line, lineWidth: 2.5))
+            } else {
+                self.padding().background(Color(UIColor.systemBackground))
+            }
         }
     }
 }
@@ -269,7 +400,6 @@ struct SpendingTrackerWidget: Widget {
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: SpendingProvider()) { entry in
             SpendingWidgetView(entry: entry)
-                .widgetBackground()
         }
         .configurationDisplayName("Halala")
         .description("Spent today, spent this month and your monthly budget.")

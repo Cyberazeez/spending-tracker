@@ -109,6 +109,51 @@ void _sample(Harness h) {
     ];
 }
 
+/// [_sample] plus three earlier months, so Insights has something to compare (App Store screenshots only).
+void _storeSample(Harness h) {
+  _sample(h);
+  final earlier = [
+    for (final (m, scale) in [('07', 9), ('08', 11), ('09', 10)]) ...[
+      _tx(
+        'h$m-1',
+        '2026-$m-03T10:00:00',
+        21000 * scale ~/ 10,
+        'c-gro',
+        'Supermarket',
+      ),
+      _tx(
+        'h$m-2',
+        '2026-$m-09T19:30:00',
+        14500 * scale ~/ 10,
+        'c-din',
+        'Restaurant',
+      ),
+      _tx(
+        'h$m-3',
+        '2026-$m-14T08:15:00',
+        2400 * scale ~/ 10,
+        'c-din',
+        'Coffee',
+      ),
+      _tx(
+        'h$m-4',
+        '2026-$m-21T12:00:00',
+        98000 * scale ~/ 10,
+        'c-gro',
+        'Wholesale',
+      ),
+      _tx(
+        'h$m-5',
+        '2026-$m-26T20:00:00',
+        26000 * scale ~/ 10,
+        'c-din',
+        'Grill house',
+      ),
+    ],
+  ];
+  h.data.history = [...h.data.txns, ...earlier];
+}
+
 Future<void> _save(WidgetTester t, String name) async {
   expect(t.takeException(), isNull);
   final dir = Directory('build/snapshots')..createSync(recursive: true);
@@ -445,6 +490,45 @@ void main() {
           await _save(t, '${lang}_${mode.name}_s4_$screen');
         });
       }
+    }
+  }
+
+  // App Store screenshots (rebrand stage 6): the four main tabs in light mode, English and Arabic, at 1206x2622
+  // (logical 402x874 at 3x). Fake sample data only. Off by default; run with
+  // `flutter test test/screens_snapshot_test.dart --dart-define=STORE_SHOTS=true --plain-name "store screenshot"`, then
+  // `node ../docs/app-store/frame.mjs` adds the captions and writes the upload sizes (docs/app-store/README.md).
+  const storeShots = bool.fromEnvironment('STORE_SHOTS');
+  for (final lang in ['en', 'ar']) {
+    for (var i = 0; i < 4; i++) {
+      testWidgets('store screenshot $i ($lang)', skip: !storeShots, (t) async {
+        t.view.physicalSize = const Size(402 * 3, 874 * 3);
+        t.view.devicePixelRatio = 3;
+        t.platformDispatcher.platformBrightnessTestValue = Brightness.light;
+        addTearDown(t.view.reset);
+        addTearDown(t.platformDispatcher.clearAllTestValues);
+        // An iPhone's safe areas (status bar, home indicator) and no debug banner.
+        t.view.padding = const FakeViewPadding(top: 62 * 3, bottom: 34 * 3);
+        t.view.viewPadding = const FakeViewPadding(top: 62 * 3, bottom: 34 * 3);
+        WidgetsApp.debugAllowBannerOverride = false;
+        addTearDown(() => WidgetsApp.debugAllowBannerOverride = true);
+        final h = Harness(signedIn: true);
+        _storeSample(h);
+        await t.pumpWidget(
+          await h.build(
+            prefs: {
+              'locale': lang,
+              // an account past its first days: no Getting started card
+              'welcome_first_user-1': '2026-01-01T00:00:00Z',
+            },
+          ),
+        );
+        await t.pumpAndSettle();
+        if (i != 0) {
+          await t.tap(find.byKey(ValueKey('tab-item-$i')));
+          await t.pumpAndSettle();
+        }
+        await _save(t, 'store/${lang}_$i');
+      });
     }
   }
 }

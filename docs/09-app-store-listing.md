@@ -123,7 +123,9 @@ Sizes: iPhone 6.9-inch **1320x2868** (required; Apple scales it for smaller iPho
 | 6 | Home screen with the widget (small + medium) | "Your budget at a glance" / "ميزانيتك بنظرة" |
 | 7 | Arabic RTL home | "Full Arabic, right to left" / "عربي كامل من اليمين لليسار" |
 
-Capture method: run the app on the TestFlight build with the demo account and take screenshots on a 6.9-inch iPhone (the owner's phone is smaller, so capture on the closest size available, or use the simulator route in Codemagic later). Keep captions short, put the device frame optional, and no text smaller than 28 px on the 1320 px width.
+Made 2026-11-13 (rebrand stage 6) from the app's own screens with fake data, items 1 to 4 in both languages, at 1206x2622, 1179x2556 and 1320x2868: `docs/app-store/README.md`. Items 5 to 7 are not made yet (the Arabic screens cover item 7).
+
+Original capture method: run the app on the TestFlight build with the demo account and take screenshots on a 6.9-inch iPhone (the owner's phone is smaller, so capture on the closest size available, or use the simulator route in Codemagic later). Keep captions short, put the device frame optional, and no text smaller than 28 px on the 1320 px width.
 
 ## 9. Submission checklist
 1. Decide items 1-8 above.

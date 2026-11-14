@@ -6,35 +6,36 @@ const SUPPORT = "halala-support@rawafiddata.com";
 const PRIVACY_URL = "https://halala.rawafiddata.com/privacy/";
 
 const css = `
-  body{margin:0;padding:0;background:#f4f1ea}
+  body{margin:0;padding:0;background:#F0F5E6}
   a[x-apple-data-detectors]{color:inherit!important;text-decoration:none!important;font-size:inherit!important;font-family:inherit!important;font-weight:inherit!important;line-height:inherit!important}
-  .card{background:#ffffff;border-radius:16px}
-  .t{color:#1d1d1b}.m{color:#66665f}
+  .card{background:#ffffff;border-radius:20px}
+  .t{color:#0D1F17}.m{color:#45564B}
   @media (prefers-color-scheme:dark){
-    body,.bg{background:#14161a!important}
-    .card{background:#1c1f25!important}
-    .t{color:#ecece6!important}.m{color:#9c9c94!important}
-    .line{border-color:#2c3038!important}
-    .code{background:#14161a!important}
-    .acc{color:#4fc3a1!important}
+    body,.bg{background:#0D1F17!important}
+    .card{background:#173326!important;border-color:#F0F5E6!important;box-shadow:4px 5px 0 #F0F5E6!important}
+    .t{color:#F0F5E6!important}.m{color:#A9BBAF!important}
+    .line{border-color:#2B4C3D!important}
+    .code{background:#0D1F17!important;border-color:#F0F5E6!important}
+    .acc{color:#3FD79B!important}
+    .btn{background:#3FD79B!important;border-color:#F0F5E6!important;box-shadow:3px 4px 0 #F0F5E6!important}
   }`;
 
 function block(c, dir) {
   const align = dir === "rtl" ? "right" : "left";
   const font = "-apple-system,'Segoe UI',Tahoma,'Geeza Pro',Arial,sans-serif";
   const lh = dir === "rtl" ? "1.9" : "1.6";
-  const ps = c.p.map((x) => `<p class="t" style="margin:0 0 12px;font-size:16px;line-height:${lh};color:#1d1d1b">${x}</p>`).join("");
+  const ps = c.p.map((x) => `<p class="t" style="margin:0 0 12px;font-size:16px;line-height:${lh};color:#0D1F17">${x}</p>`).join("");
   const code = c.code
-    ? `<div class="code acc" style="margin:16px 0;padding:16px;background:#f4f1ea;border-radius:12px;text-align:center;font-size:28px;letter-spacing:6px;font-weight:700;color:#1f6f5c;font-family:'SF Mono',Menlo,Consolas,monospace" dir="ltr">${c.code}</div>`
+    ? `<div class="code acc" style="margin:16px 0;padding:16px;background:#F0F5E6;border:2px solid #0D1F17;border-radius:14px;text-align:center;font-size:28px;letter-spacing:6px;font-weight:700;color:#00704A;font-family:'SF Mono',Menlo,Consolas,monospace" dir="ltr">${c.code}</div>`
     : "";
   const btn = c.button
-    ? `<p style="margin:20px 0"><a href="${c.href}" style="display:inline-block;background:#1f6f5c;color:#ffffff;text-decoration:none;font-weight:600;font-size:16px;padding:14px 26px;border-radius:12px">${c.button}</a></p>`
+    ? `<p style="margin:20px 0"><a href="${c.href}" class="btn" style="display:inline-block;background:#00A86B;color:#0D1F17;text-decoration:none;font-weight:700;font-size:16px;padding:14px 26px;border:2px solid #0D1F17;border-radius:999px;box-shadow:3px 4px 0 #0D1F17">${c.button}</a></p>`
     : "";
   const note = c.note
-    ? `<p class="m" style="margin:16px 0 0;font-size:14px;line-height:${lh};color:#66665f">${c.note}</p>`
+    ? `<p class="m" style="margin:16px 0 0;font-size:14px;line-height:${lh};color:#45564B">${c.note}</p>`
     : "";
   return `<tr><td dir="${dir}" style="text-align:${align};padding:8px 28px;font-family:${font}">
-  <h1 class="t" style="margin:16px 0 12px;font-size:24px;line-height:1.3;color:#1d1d1b">${c.h}</h1>${ps}${code}${btn}${note}</td></tr>`;
+  <h1 class="t" style="margin:16px 0 12px;font-size:24px;line-height:1.3;color:#0D1F17">${c.h}</h1>${ps}${code}${btn}${note}</td></tr>`;
 }
 
 function html(en, ar, { automated = true } = {}) {
@@ -43,18 +44,18 @@ function html(en, ar, { automated = true } = {}) {
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="format-detection" content="telephone=no,date=no,address=no,email=no"><meta name="color-scheme" content="light dark"><meta name="supported-color-schemes" content="light dark">
 <title>${en.h}</title><style>${css}</style></head>
-<body><table role="presentation" class="bg" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f1ea"><tr><td align="center" style="padding:24px 12px">
-<table role="presentation" class="card" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:16px">
-<tr><td align="center" style="padding:28px 28px 8px;font-family:${font}"><span class="acc" style="font-size:22px;font-weight:700;color:#1f6f5c">Halala &nbsp;·&nbsp; هللة</span></td></tr>
+<body><table role="presentation" class="bg" width="100%" cellpadding="0" cellspacing="0" style="background:#F0F5E6"><tr><td align="center" style="padding:24px 12px">
+<table role="presentation" class="card" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border:2.5px solid #0D1F17;border-radius:20px;box-shadow:4px 5px 0 #0D1F17">
+<tr><td align="center" style="padding:28px 28px 8px;font-family:${font}"><span class="acc" style="font-size:22px;font-weight:800;color:#00704A">Halala &nbsp;·&nbsp; هللة</span></td></tr>
 ${block(en, "ltr")}
-<tr><td style="padding:8px 28px"><div class="line" style="border-top:1px solid #e4e1d8"></div></td></tr>
+<tr><td style="padding:8px 28px"><div class="line" style="border-top:2px solid #DCE5CC"></div></td></tr>
 ${block(ar, "rtl")}
 <tr><td align="center" style="padding:20px 28px 28px;font-family:${font}">
-${automated ? `<p class="m" style="margin:0 0 4px;font-size:13px;line-height:1.6;color:#66665f">This is an automated message, please do not reply.</p>
-<p class="m" dir="rtl" style="margin:0 0 10px;font-size:13px;line-height:1.8;color:#66665f">هذه رسالة آلية، يرجى عدم الرد عليها.</p>` : ""}
-<p class="m" style="margin:0 0 4px;font-size:13px;line-height:1.6;color:#66665f">Questions? <a href="mailto:${SUPPORT}" class="acc" style="color:#1f6f5c">${SUPPORT}</a></p>
-<p class="m" dir="rtl" style="margin:0 0 10px;font-size:13px;line-height:1.8;color:#66665f">للاستفسار: <a href="mailto:${SUPPORT}" dir="ltr" class="acc" style="color:#1f6f5c">${SUPPORT}</a></p>
-<p class="m" style="margin:0;font-size:13px;line-height:1.6;color:#66665f"><a href="${PRIVACY_URL}" class="acc" style="color:#1f6f5c">Privacy policy</a> &nbsp;|&nbsp; <a href="${PRIVACY_URL}ar/" class="acc" style="color:#1f6f5c">سياسة الخصوصية</a></p>
+${automated ? `<p class="m" style="margin:0 0 4px;font-size:13px;line-height:1.6;color:#45564B">This is an automated message, please do not reply.</p>
+<p class="m" dir="rtl" style="margin:0 0 10px;font-size:13px;line-height:1.8;color:#45564B">هذه رسالة آلية، يرجى عدم الرد عليها.</p>` : ""}
+<p class="m" style="margin:0 0 4px;font-size:13px;line-height:1.6;color:#45564B">Questions? <a href="mailto:${SUPPORT}" class="acc" style="color:#00704A">${SUPPORT}</a></p>
+<p class="m" dir="rtl" style="margin:0 0 10px;font-size:13px;line-height:1.8;color:#45564B">للاستفسار: <a href="mailto:${SUPPORT}" dir="ltr" class="acc" style="color:#00704A">${SUPPORT}</a></p>
+<p class="m" style="margin:0;font-size:13px;line-height:1.6;color:#45564B"><a href="${PRIVACY_URL}" class="acc" style="color:#00704A">Privacy policy</a> &nbsp;|&nbsp; <a href="${PRIVACY_URL}ar/" class="acc" style="color:#00704A">سياسة الخصوصية</a></p>
 </td></tr></table></td></tr></table></body></html>`;
 }
 
