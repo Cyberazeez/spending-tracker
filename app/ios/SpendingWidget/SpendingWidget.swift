@@ -231,6 +231,14 @@ private func corner(_ arabic: Bool, top: Bool) -> Alignment {
     }
 }
 
+/// A line that mixes a number with Arabic words ("58% من الميزانية") needs a right-to-left paragraph, or the number
+/// lands on the wrong side. The views themselves stay left to right (they mirror by hand).
+private extension View {
+    func paragraph(arabic: Bool) -> some View {
+        environment(\.layoutDirection, arabic ? .rightToLeft : .leftToRight)
+    }
+}
+
 /// The budget bar: gold share on a track with an outline, red when over budget (like the Home hero). In Arabic it
 /// fills from the right.
 private struct BudgetBar: View {
@@ -297,6 +305,7 @@ private struct SmallContent: View {
                 Text(w.openApp).font(rubik(11)).foregroundColor(ink).lineLimit(2)
             } else if let percent = entry.percent {
                 Text("\(percent)% \(w.budget)").font(rubik(12)).foregroundColor(ink).lineLimit(1)
+                    .paragraph(arabic: entry.arabic)
             } else {
                 Text(w.setBudget).font(rubik(11)).foregroundColor(ink).lineLimit(1).minimumScaleFactor(0.8)
             }
@@ -348,8 +357,8 @@ struct MediumView: View {
                 .offset(x: 3, y: 4)
         )
         .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).strokeBorder(p.line, lineWidth: 2))
-        .padding(EdgeInsets(top: 0, leading: 0, bottom: 4, trailing: 0))
-        .padding(entry.arabic ? .leading : .trailing, 3)
+        // room for the hard shadow, which always falls to the right and down
+        .padding(EdgeInsets(top: 0, leading: 0, bottom: 4, trailing: 3))
     }
 
     @ViewBuilder
@@ -360,6 +369,7 @@ struct MediumView: View {
                 Text("\(percent)% \(w.budget)")
                     .font(rubik(15, heavy: true)).foregroundColor(p.text)
                     .minimumScaleFactor(0.7).lineLimit(1)
+                    .paragraph(arabic: entry.arabic)
                 BudgetBar(percent: percent, palette: p, arabic: entry.arabic)
                 facts(p, month: month, budget: budget)
             } else if entry.month != nil {
