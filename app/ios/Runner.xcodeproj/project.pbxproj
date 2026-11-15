@@ -7,10 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		07ECD29BA734FAB6B678605D /* HalalaLogo@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = AEB4F3D03150671094A76DBF /* HalalaLogo@2x.png */; };
+		0A4E51E5992B8AD572D1421E /* Rubik-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C34C2D8224792F7A4E742027 /* Rubik-Bold.ttf */; };
 		0B14795DEAF1A84015E415A9 /* SpendingWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 0116D66CB05850F557124E57 /* SpendingWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */ = {isa = PBXBuildFile; fileRef = 1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */; };
 		331C808B294A63AB00263BE5 /* RunnerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 331C807B294A618700263BE5 /* RunnerTests.swift */; };
 		3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */; };
+		3CF4FCC88A58772991846B2B /* SaudiRiyal-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D08CFE3B4FC2DB68768ECE13 /* SaudiRiyal-Bold.ttf */; };
 		40C50A9CCF8ED550B51D4E96 /* CaptureStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2236C03B7930DD2A92D15749 /* CaptureStore.swift */; };
 		74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74858FAE1ED2DC5600515810 /* AppDelegate.swift */; };
 		7884E8682EC3CC0700C636F2 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7884E8672EC3CC0400C636F2 /* SceneDelegate.swift */; };
@@ -19,6 +22,8 @@
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
 		D166954CAEAD99346B12835B /* AddBankMessageIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20AF6BCB9ADFEB0D7779DDCB /* AddBankMessageIntent.swift */; };
+		DF2D657C5F0F8A91A7F2D0FE /* HalalaLogo@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 5FEEA9265EA7B01EB769F751 /* HalalaLogo@3x.png */; };
+		F12891E69C6668064F00C389 /* Rubik-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7A2FB734A73B23018DEBECE2 /* Rubik-ExtraBold.ttf */; };
 		F66045315B33BAB34C962ABC /* SpendingWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94E10AB21ADE3ED8C0BE34EA /* SpendingWidget.swift */; };
 /* End PBXBuildFile section */
 
@@ -75,10 +80,12 @@
 		36E329A4ACF7E4C41FD35BCB /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = AppFrameworkInfo.plist; path = Flutter/AppFrameworkInfo.plist; sourceTree = "<group>"; };
 		4A52ACE4E826E34F623E5E89 /* Runner.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = Runner.entitlements; sourceTree = "<group>"; };
+		5FEEA9265EA7B01EB769F751 /* HalalaLogo@3x.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; path = "HalalaLogo@3x.png"; sourceTree = "<group>"; };
 		74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Runner-Bridging-Header.h"; sourceTree = "<group>"; };
 		74858FAE1ED2DC5600515810 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		7884E8672EC3CC0400C636F2 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		78E0A7A72DC9AD7400C4905E /* FlutterGeneratedPluginSwiftPackage */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = FlutterGeneratedPluginSwiftPackage; path = Flutter/ephemeral/Packages/FlutterGeneratedPluginSwiftPackage; sourceTree = "<group>"; };
+		7A2FB734A73B23018DEBECE2 /* Rubik-ExtraBold.ttf */ = {isa = PBXFileReference; includeInIndex = 1; path = "Rubik-ExtraBold.ttf"; sourceTree = "<group>"; };
 		7AFA3C8E1D35360C0083082E /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Release.xcconfig; path = Flutter/Release.xcconfig; sourceTree = "<group>"; };
 		94E10AB21ADE3ED8C0BE34EA /* SpendingWidget.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SpendingWidget.swift; sourceTree = "<group>"; };
 		9740EEB21CF90195004384FC /* Debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Debug.xcconfig; path = Flutter/Debug.xcconfig; sourceTree = "<group>"; };
@@ -88,6 +95,9 @@
 		97C146FD1CF9000F007C117D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		97C147001CF9000F007C117D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		AEB4F3D03150671094A76DBF /* HalalaLogo@2x.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; path = "HalalaLogo@2x.png"; sourceTree = "<group>"; };
+		C34C2D8224792F7A4E742027 /* Rubik-Bold.ttf */ = {isa = PBXFileReference; includeInIndex = 1; path = "Rubik-Bold.ttf"; sourceTree = "<group>"; };
+		D08CFE3B4FC2DB68768ECE13 /* SaudiRiyal-Bold.ttf */ = {isa = PBXFileReference; includeInIndex = 1; path = "SaudiRiyal-Bold.ttf"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -176,6 +186,11 @@
 				94E10AB21ADE3ED8C0BE34EA /* SpendingWidget.swift */,
 				36E329A4ACF7E4C41FD35BCB /* Info.plist */,
 				03B5DE06794CDEB8188A416E /* SpendingWidget.entitlements */,
+				AEB4F3D03150671094A76DBF /* HalalaLogo@2x.png */,
+				5FEEA9265EA7B01EB769F751 /* HalalaLogo@3x.png */,
+				C34C2D8224792F7A4E742027 /* Rubik-Bold.ttf */,
+				7A2FB734A73B23018DEBECE2 /* Rubik-ExtraBold.ttf */,
+				D08CFE3B4FC2DB68768ECE13 /* SaudiRiyal-Bold.ttf */,
 			);
 			name = SpendingWidget;
 			path = SpendingWidget;
@@ -324,6 +339,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				07ECD29BA734FAB6B678605D /* HalalaLogo@2x.png in Resources */,
+				DF2D657C5F0F8A91A7F2D0FE /* HalalaLogo@3x.png in Resources */,
+				0A4E51E5992B8AD572D1421E /* Rubik-Bold.ttf in Resources */,
+				F12891E69C6668064F00C389 /* Rubik-ExtraBold.ttf in Resources */,
+				3CF4FCC88A58772991846B2B /* SaudiRiyal-Bold.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
