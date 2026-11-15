@@ -15,7 +15,19 @@ create table auth.users (
   role text,
   email text,
   last_sign_in_at timestamptz,
-  encrypted_password text
+  encrypted_password text,
+  -- as in Supabase Auth (checked on production 2026-11-15); created_at has no default there, here it does so the
+  -- older test rows are "just created"
+  created_at timestamptz default now(),
+  email_confirmed_at timestamptz,
+  phone_confirmed_at timestamptz,
+  is_anonymous boolean not null default false
+);
+
+create table auth.identities (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users (id) on delete cascade,
+  provider text not null
 );
 
 create table auth.sessions (

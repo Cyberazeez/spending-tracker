@@ -721,5 +721,69 @@ begin
     end if;
   end;
 
+  -- Unconfirmed sign-ups are deleted after 7 days, and nothing else is (2026-11-15).
+  declare
+    old_u uuid := '00000000-0000-0000-0000-0000000000e1';  -- unconfirmed, 8 days old: deleted
+    new_u uuid := '00000000-0000-0000-0000-0000000000e2';  -- unconfirmed, 6 days old: kept
+    conf_u uuid := '00000000-0000-0000-0000-0000000000e3'; -- confirmed: kept
+    apple_u uuid := '00000000-0000-0000-0000-0000000000e4';-- Apple sign-in without a confirmed email: kept
+    seen_u uuid := '00000000-0000-0000-0000-0000000000e5'; -- signed in once: kept
+    data_u uuid := '00000000-0000-0000-0000-0000000000e6'; -- has a transaction: kept
+    grace_u uuid := '00000000-0000-0000-0000-0000000000e7';-- waiting in the deletion grace period: kept
+    nul_u uuid := '00000000-0000-0000-0000-0000000000e8';  -- no created_at: kept
+    ph_u uuid := '00000000-0000-0000-0000-0000000000e9';   -- phone confirmed: kept
+    an_u uuid := '00000000-0000-0000-0000-0000000000ea';   -- anonymous: kept
+    msg_u uuid := '00000000-0000-0000-0000-0000000000eb';  -- has a saved bank message: kept
+    denied boolean;
+  begin
+    reset role;
+    insert into auth.users (id, aud, role, email, created_at, email_confirmed_at, last_sign_in_at) values
+      (old_u, 'authenticated', 'authenticated', 'rls-unconf-old@example.test', now() - interval '8 days', null, null),
+      (new_u, 'authenticated', 'authenticated', 'rls-unconf-new@example.test', now() - interval '6 days', null, null),
+      (conf_u, 'authenticated', 'authenticated', 'rls-conf@example.test', now() - interval '30 days', now() - interval '30 days', null),
+      (apple_u, 'authenticated', 'authenticated', 'rls-apple@example.test', now() - interval '30 days', null, null),
+      (seen_u, 'authenticated', 'authenticated', 'rls-seen@example.test', now() - interval '30 days', null, now() - interval '29 days'),
+      (data_u, 'authenticated', 'authenticated', 'rls-data@example.test', now() - interval '30 days', null, null),
+      (grace_u, 'authenticated', 'authenticated', 'rls-gr@example.test', now() - interval '30 days', null, null),
+      (nul_u, 'authenticated', 'authenticated', 'rls-nul@example.test', null, null, null),
+      (msg_u, 'authenticated', 'authenticated', 'rls-msg@example.test', now() - interval '30 days', null, null);
+    insert into auth.users (id, aud, role, email, created_at, phone_confirmed_at) values
+      (ph_u, 'authenticated', 'authenticated', 'rls-ph@example.test', now() - interval '30 days', now() - interval '30 days');
+    insert into auth.users (id, aud, role, email, created_at, is_anonymous) values
+      (an_u, 'authenticated', 'authenticated', null, now() - interval '30 days', true);
+    insert into public.raw_messages (user_id, sender, body, received_at, dedupe_hash)
+      values (msg_u, 'Bank', 'test', now(), 'rls-purge-msg');
+    insert into auth.identities (user_id, provider) values (old_u, 'email'), (apple_u, 'apple');
+    insert into public.transactions (user_id, direction, type, amount_halalas, occurred_at)
+      values (data_u, 'out', 'purchase', 100, now());
+    insert into public.account_deletions (user_id, requested_at) values (grace_u, now());
+    perform public.seed_defaults(old_u);
+    if not exists (select 1 from public.categories where user_id = old_u) then
+      raise exception 'unconfirmed test account has no seeded rows to remove';
+    end if;
+
+    if public.purge_unconfirmed_signups() <> 1 then
+      raise exception 'purge_unconfirmed_signups did not delete exactly the one 8-day-old unconfirmed account';
+    end if;
+    if exists (select 1 from auth.users where id = old_u) then raise exception 'old unconfirmed account still exists'; end if;
+    if exists (select 1 from public.categories where user_id = old_u) then raise exception 'its seeded rows were left behind'; end if;
+    if (select count(*) from auth.users
+        where id in (new_u, conf_u, apple_u, seen_u, data_u, grace_u, nul_u, ph_u, an_u, msg_u)) <> 10 then
+      raise exception 'purge_unconfirmed_signups deleted an account it must keep';
+    end if;
+    if (select count(*) from auth.users where id in (a, b)) <> 2 then
+      raise exception 'purge_unconfirmed_signups touched the main test accounts';
+    end if;
+
+    denied := false;
+    perform set_config('request.jwt.claims', json_build_object('sub', a)::text, true);
+    set local role authenticated;
+    begin perform public.purge_unconfirmed_signups(); exception when insufficient_privilege then denied := true; end;
+    reset role;
+    if not denied then raise exception 'a client can run purge_unconfirmed_signups'; end if;
+
+    delete from auth.users where id in (new_u, conf_u, apple_u, seen_u, data_u, grace_u, nul_u, ph_u, an_u, msg_u);
+  end;
+
   raise exception 'RLS_TESTS_OK';
 end $$;
