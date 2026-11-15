@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:spending_tracker/features/obligations/widgets/bills_widgets.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:spending_tracker/core/models.dart';
 import 'package:spending_tracker/features/home/category_groups.dart';
@@ -238,6 +239,12 @@ void main() {
     expect(find.text('Due tomorrow'), findsOneWidget);
     expect(find.text('~⃁ 1,994.00'), findsOneWidget);
     expect(find.text('—'), findsOneWidget);
+    // the same outlined status pill as the Bills tab, never colour alone
+    final tones = [
+      for (final e in find.byType(StatusPill).evaluate())
+        (e.widget as StatusPill).tone,
+    ];
+    expect(tones, [PillTone.danger, PillTone.warn, PillTone.ok, PillTone.warn]);
   });
 
   testWidgets('week bars: Arabic days have different letters', (t) async {

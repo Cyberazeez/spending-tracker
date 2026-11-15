@@ -116,7 +116,7 @@ class _WelcomeCardState extends ConsumerState<WelcomeCard> {
                 child: Row(
                   children: [
                     header(),
-                    Icon(CupertinoIcons.chevron_down, size: 16, color: muted),
+                    Icon(LucideIcons.chevronDown, size: 16, color: muted),
                   ],
                 ),
               ),

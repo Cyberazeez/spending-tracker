@@ -158,11 +158,11 @@ class TransactionsPage extends ConsumerWidget {
                               ? EmptyState(
                                   art: EmptyArtKind.partial,
                                   title: t.noMatches,
-                                  action: CupertinoButton(
+                                  action: SecondaryButton(
+                                    label: t.filterClear,
                                     onPressed: () => ref
                                         .read(txFilterProvider.notifier)
                                         .clear(),
-                                    child: Text(t.filterClear),
                                   ),
                                 )
                               : EmptyState(

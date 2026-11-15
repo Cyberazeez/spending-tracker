@@ -21,6 +21,7 @@ import '../obligations/widgets/bills_widgets.dart';
 import '../../ui/icon_tile.dart';
 import 'manual_form.dart';
 import 'providers.dart';
+import '../../ui/skeleton.dart';
 
 class ReviewPage extends ConsumerWidget {
   const ReviewPage({super.key});
@@ -60,11 +61,7 @@ class ReviewPage extends ConsumerWidget {
       CupertinoPageRoute<void>(
         builder: (ctx) => CupertinoPageScaffold(
           backgroundColor: AppTokens.bg.resolveFrom(ctx),
-          navigationBar: CupertinoNavigationBar(
-            backgroundColor: AppTokens.bg.resolveFrom(ctx),
-            border: null,
-            middle: Text(t.reviewConvert),
-          ),
+          navigationBar: appNavBar(ctx, t.reviewConvert),
           child: SafeArea(
             child: ManualTxnForm(
               showDirection: true,
@@ -148,7 +145,7 @@ class ReviewPage extends ConsumerWidget {
       navigationBar: appNavBar(context, t.reviewTitle),
       child: SafeArea(
         child: items.when(
-          loading: () => const Center(child: CupertinoActivityIndicator()),
+          loading: () => const SkeletonList(heights: [150, 200]),
           error: (_, _) => Padding(
             padding: const EdgeInsets.all(16),
             child: LoadFailedCard(
