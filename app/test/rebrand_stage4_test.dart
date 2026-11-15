@@ -182,12 +182,38 @@ void main() {
     });
   });
 
-  testWidgets('empty and failed states use the neutral sand tile', (t) async {
-    await t.pumpWidget(
-      _app(const EmptyState(icon: LucideIcons.triangleAlert, title: 'Failed')),
+  testWidgets('empty states show the brand picture, waiting by default', (
+    t,
+  ) async {
+    await t.pumpWidget(_app(const EmptyState(title: 'Nothing yet')));
+    expect(
+      t.widget<EmptyArt>(find.byType(EmptyArt)).kind,
+      EmptyArtKind.waiting,
     );
-    expect(t.widget<IconTile>(find.byType(IconTile)).color, emptyTileColor);
+    await t.pumpAndSettle(); // the coins' fall ends; nothing keeps animating
+    expect(find.text('Nothing yet'), findsOneWidget);
   });
+
+  testWidgets(
+    'the falling coins move once, and not at all with Reduce Motion',
+    (t) async {
+      await t.pumpWidget(_app(const EmptyArt()));
+      expect(t.hasRunningAnimations, isTrue);
+      // pumpAndSettle fails if anything keeps animating, so this proves the fall ends
+      await t.pumpAndSettle();
+      expect(t.hasRunningAnimations, isFalse);
+
+      await t.pumpWidget(
+        _app(
+          const MediaQuery(
+            data: MediaQueryData(disableAnimations: true),
+            child: EmptyArt(key: ValueKey('still')),
+          ),
+        ),
+      );
+      expect(t.hasRunningAnimations, isFalse);
+    },
+  );
 
   group('app screens', () {
     Future<Harness> signedIn(WidgetTester t, String path) async {

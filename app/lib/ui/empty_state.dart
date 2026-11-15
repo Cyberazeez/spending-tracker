@@ -5,22 +5,24 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../l10n/app_localizations.dart';
 import 'app_card.dart';
 import 'app_form.dart';
+import 'empty_art.dart';
 import 'icon_tile.dart';
 import 'tokens.dart';
 
-/// The neutral sand tile of an empty or failed state (no colour that would call it good or bad).
-const emptyTileColor = Color(0xFFDDE3CC);
+export 'empty_art.dart' show EmptyArt, EmptyArtKind;
 
+/// An empty screen: the brand picture ([EmptyArt]: the logo waiting for its coins, or whole for good news), a title,
+/// an optional line of help and an optional action.
 class EmptyState extends StatelessWidget {
   const EmptyState({
     super.key,
-    required this.icon,
+    this.art = EmptyArtKind.waiting,
     required this.title,
     this.body,
     this.action,
   });
 
-  final IconData icon;
+  final EmptyArtKind art;
   final String title;
   final String? body;
   final Widget? action;
@@ -35,8 +37,8 @@ class EmptyState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            IconTile(color: emptyTileColor, icon: icon, size: 64, iconSize: 30),
-            const SizedBox(height: 16),
+            EmptyArt(kind: art),
+            const SizedBox(height: 18),
             Text(
               title,
               textAlign: TextAlign.center,

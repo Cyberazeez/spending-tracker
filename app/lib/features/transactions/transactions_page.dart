@@ -141,7 +141,7 @@ class TransactionsPage extends ConsumerWidget {
                                       false)
                               // An empty month for an account that has older rows: offer last month.
                               ? EmptyState(
-                                  icon: CupertinoIcons.calendar,
+                                  art: EmptyArtKind.partial,
                                   title: t.txEmptyMonth,
                                   action: SecondaryButton(
                                     label: t.filterLastMonth,
@@ -156,7 +156,7 @@ class TransactionsPage extends ConsumerWidget {
                                 )
                               : filter.isActive
                               ? EmptyState(
-                                  icon: CupertinoIcons.search,
+                                  art: EmptyArtKind.partial,
                                   title: t.noMatches,
                                   action: CupertinoButton(
                                     onPressed: () => ref
@@ -166,7 +166,7 @@ class TransactionsPage extends ConsumerWidget {
                                   ),
                                 )
                               : EmptyState(
-                                  icon: CupertinoIcons.tray,
+                                  art: EmptyArtKind.waiting,
                                   title: t.txEmptyTitle,
                                   body: t.txEmptyBody,
                                   action: PrimaryButton(

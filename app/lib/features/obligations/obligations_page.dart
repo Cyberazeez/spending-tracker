@@ -263,7 +263,10 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
                     SliverFillRemaining(
                       hasScrollBody: false,
                       child: EmptyState(
-                        icon: CupertinoIcons.calendar,
+                        // nothing overdue is good news; an empty history is still waiting
+                        art: _section == ObSection.overdue
+                            ? EmptyArtKind.done
+                            : EmptyArtKind.waiting,
                         title: _section == ObSection.overdue
                             ? t.obEmptyOverdue
                             : t.obEmptyHistory,
@@ -427,7 +430,10 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
                   SliverFillRemaining(
                     hasScrollBody: false,
                     child: EmptyState(
-                      icon: CupertinoIcons.calendar,
+                      // good news only when bills exist; a new account with none is still waiting
+                      art: all.any((i) => !i.isSuggestion)
+                          ? EmptyArtKind.done
+                          : EmptyArtKind.waiting,
                       title: t.obEmptyUpcoming,
                     ),
                   )

@@ -156,7 +156,7 @@ class _InsightsPageState extends ConsumerState<InsightsPage> {
                   SliverFillRemaining(
                     hasScrollBody: false,
                     child: EmptyState(
-                      icon: CupertinoIcons.chart_pie,
+                      art: EmptyArtKind.partial,
                       title: t.insEmpty,
                       body: t.insEmptyBody,
                     ),
