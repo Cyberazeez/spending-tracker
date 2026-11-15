@@ -731,6 +731,9 @@ begin
     data_u uuid := '00000000-0000-0000-0000-0000000000e6'; -- has a transaction: kept
     grace_u uuid := '00000000-0000-0000-0000-0000000000e7';-- waiting in the deletion grace period: kept
     nul_u uuid := '00000000-0000-0000-0000-0000000000e8';  -- no created_at: kept
+    ph_u uuid := '00000000-0000-0000-0000-0000000000e9';   -- phone confirmed: kept
+    an_u uuid := '00000000-0000-0000-0000-0000000000ea';   -- anonymous: kept
+    msg_u uuid := '00000000-0000-0000-0000-0000000000eb';  -- has a saved bank message: kept
     denied boolean;
   begin
     reset role;
@@ -742,7 +745,14 @@ begin
       (seen_u, 'authenticated', 'authenticated', 'rls-seen@example.test', now() - interval '30 days', null, now() - interval '29 days'),
       (data_u, 'authenticated', 'authenticated', 'rls-data@example.test', now() - interval '30 days', null, null),
       (grace_u, 'authenticated', 'authenticated', 'rls-gr@example.test', now() - interval '30 days', null, null),
-      (nul_u, 'authenticated', 'authenticated', 'rls-nul@example.test', null, null, null);
+      (nul_u, 'authenticated', 'authenticated', 'rls-nul@example.test', null, null, null),
+      (msg_u, 'authenticated', 'authenticated', 'rls-msg@example.test', now() - interval '30 days', null, null);
+    insert into auth.users (id, aud, role, email, created_at, phone_confirmed_at) values
+      (ph_u, 'authenticated', 'authenticated', 'rls-ph@example.test', now() - interval '30 days', now() - interval '30 days');
+    insert into auth.users (id, aud, role, email, created_at, is_anonymous) values
+      (an_u, 'authenticated', 'authenticated', null, now() - interval '30 days', true);
+    insert into public.raw_messages (user_id, sender, body, received_at, dedupe_hash)
+      values (msg_u, 'Bank', 'test', now(), 'rls-purge-msg');
     insert into auth.identities (user_id, provider) values (old_u, 'email'), (apple_u, 'apple');
     insert into public.transactions (user_id, direction, type, amount_halalas, occurred_at)
       values (data_u, 'out', 'purchase', 100, now());
@@ -757,10 +767,11 @@ begin
     end if;
     if exists (select 1 from auth.users where id = old_u) then raise exception 'old unconfirmed account still exists'; end if;
     if exists (select 1 from public.categories where user_id = old_u) then raise exception 'its seeded rows were left behind'; end if;
-    if (select count(*) from auth.users where id in (new_u, conf_u, apple_u, seen_u, data_u, grace_u, nul_u)) <> 7 then
+    if (select count(*) from auth.users
+        where id in (new_u, conf_u, apple_u, seen_u, data_u, grace_u, nul_u, ph_u, an_u, msg_u)) <> 10 then
       raise exception 'purge_unconfirmed_signups deleted an account it must keep';
     end if;
-    if exists (select 1 from auth.users where id in (a, b)) is not true then
+    if (select count(*) from auth.users where id in (a, b)) <> 2 then
       raise exception 'purge_unconfirmed_signups touched the main test accounts';
     end if;
 
@@ -771,7 +782,7 @@ begin
     reset role;
     if not denied then raise exception 'a client can run purge_unconfirmed_signups'; end if;
 
-    delete from auth.users where id in (new_u, conf_u, apple_u, seen_u, data_u, grace_u, nul_u);
+    delete from auth.users where id in (new_u, conf_u, apple_u, seen_u, data_u, grace_u, nul_u, ph_u, an_u, msg_u);
   end;
 
   raise exception 'RLS_TESTS_OK';

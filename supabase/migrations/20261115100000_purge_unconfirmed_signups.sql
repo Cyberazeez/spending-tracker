@@ -34,8 +34,11 @@ begin
       and not exists (select 1 from public.account_deletions d where d.user_id = u.id)
   loop
     begin
-      delete from auth.users where id = r.id;
-      n := n + 1;
+      -- the delete repeats the account's own conditions, so one that confirms or signs in after the select is kept
+      delete from auth.users u
+      where u.id = r.id
+        and u.email_confirmed_at is null and u.phone_confirmed_at is null and u.last_sign_in_at is null;
+      if found then n := n + 1; end if;
     exception when others then
       raise warning 'purge_unconfirmed_signups: could not delete %: %', r.id, sqlerrm;
     end;
