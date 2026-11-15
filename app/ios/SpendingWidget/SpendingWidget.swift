@@ -127,21 +127,42 @@ private func fetchRemote(completion: @escaping (Remote?) -> Void) {
 
 // MARK: - Text
 
-private func sar(_ halalas: Int?, arabic: Bool) -> String {
-    guard let halalas = halalas else { return "--" }
+/// The riyal sign (U+20C1) comes from the bundled SaudiRiyal font, as in the app: no iOS system font has it yet.
+/// If the font did not load, amounts fall back to "SAR" / "ر.س" rather than an empty box.
+private let riyalFontName = "saudi_riyalbold"
+private let riyalFontLoaded = UIFont(name: riyalFontName, size: 12) != nil
+
+/// "1,234.50": Western digits and halalas in both languages, like `formatAmountPlain` in the app.
+private func plain(_ halalas: Int) -> String {
     let formatter = NumberFormatter()
     formatter.locale = Locale(identifier: "en_US")
     formatter.numberStyle = .decimal
     formatter.maximumFractionDigits = 0
-    let number = formatter.string(from: NSNumber(value: halalas / 100)) ?? "0"
-    return arabic ? "\(number) ر.س" : "SAR \(number)"
+    let whole = formatter.string(from: NSNumber(value: abs(halalas) / 100)) ?? "0"
+    let frac = String(format: "%02d", abs(halalas) % 100)
+    return "\(halalas < 0 ? "-" : "")\(whole).\(frac)"
 }
 
-private func words(_ arabic: Bool) -> (today: String, month: String, budget: String, setBudget: String, openApp: String) {
-    if arabic {
-        return ("المصروف اليوم", "مصروف الشهر", "من الميزانية", "حدد ميزانية شهرية", "افتح التطبيق للتحديث")
+/// An amount with the riyal sign: before the number in English, after it in Arabic (`formatSar` in the app).
+private func amount(_ halalas: Int?, arabic: Bool, size: CGFloat) -> Text {
+    guard let halalas = halalas else { return Text("--").font(rubik(size, heavy: true)) }
+    let number = Text(plain(halalas)).font(rubik(size, heavy: true))
+    guard riyalFontLoaded else {
+        return arabic ? number + Text(" ر.س").font(rubik(size * 0.7, heavy: true))
+            : Text("SAR ").font(rubik(size * 0.7, heavy: true)) + number
     }
-    return ("Spent today", "Spent this month", "of budget", "Set a monthly budget", "Open the app to refresh")
+    let sign = Text("\u{20C1}").font(.custom(riyalFontName, size: size * 0.85))
+    return arabic ? number + Text(" ") + sign : sign + Text(" ") + number
+}
+
+private func words(_ arabic: Bool) -> (today: String, month: String, budget: String, setBudget: String, openApp: String,
+                                       left: String, over: String, todayShort: String) {
+    if arabic {
+        return ("المصروف اليوم", "مصروف الشهر", "من الميزانية", "حدد ميزانية شهرية", "افتح التطبيق للتحديث",
+                "المتبقي للصرف", "فوق الميزانية", "اليوم")
+    }
+    return ("Spent today", "Spent this month", "of budget", "Set a monthly budget", "Open the app to refresh",
+            "Left to spend", "Over by", "Today")
 }
 
 // MARK: - Look (Halala rebrand, docs/superpowers/specs/2026-11-11-rebrand-design.md; same values as app/lib/ui/tokens.dart)
@@ -180,18 +201,54 @@ private struct Palette {
     }
 }
 
-private func rounded(_ size: CGFloat, _ weight: Font.Weight) -> Font {
-    .system(size: size, weight: weight, design: .rounded)
+/// Rubik, bundled in the widget (renamed copies of the app's files, see docs/brand/README.md). If it did not load,
+/// iOS falls back to the system font, so text never disappears.
+private func rubik(_ size: CGFloat, heavy: Bool = false) -> Font {
+    .custom(heavy ? "Rubik-ExtraBold" : "Rubik-Bold", size: size)
 }
 
-/// The budget bar: gold share on a track with an outline, red when over budget (like the Home hero).
+/// The هللة logo (paper letters, gold coins, ink outline and shadow), drawn from docs/brand/logo.svg as
+/// HalalaLogo@2x/@3x.png. Nothing is shown if the image is missing.
+private struct Logo: View {
+    let width: CGFloat
+
+    var body: some View {
+        if let image = UIImage(named: "HalalaLogo") {
+            Image(uiImage: image).resizable().scaledToFit().frame(width: width).accessibilityHidden(true)
+        }
+    }
+}
+
+/// Alignment for the language of the text. The widget follows the phone's layout direction, so Arabic text is
+/// aligned to the right by hand; hard shadows stay to the right and down in both languages, as in the mockup.
+private func lead(_ arabic: Bool) -> HorizontalAlignment { arabic ? .trailing : .leading }
+private func corner(_ arabic: Bool, top: Bool) -> Alignment {
+    switch (arabic, top) {
+    case (true, true): return .topTrailing
+    case (true, false): return .bottomTrailing
+    case (false, true): return .topLeading
+    case (false, false): return .bottomLeading
+    }
+}
+
+/// A line that mixes a number with Arabic words ("58% من الميزانية") needs a right-to-left paragraph, or the number
+/// lands on the wrong side. The views themselves stay left to right (they mirror by hand).
+private extension View {
+    func paragraph(arabic: Bool) -> some View {
+        environment(\.layoutDirection, arabic ? .rightToLeft : .leftToRight)
+    }
+}
+
+/// The budget bar: gold share on a track with an outline, red when over budget (like the Home hero). In Arabic it
+/// fills from the right.
 private struct BudgetBar: View {
     let percent: Int
     let palette: Palette
+    let arabic: Bool
 
     var body: some View {
         GeometryReader { geo in
-            ZStack(alignment: .leading) {
+            ZStack(alignment: arabic ? .trailing : .leading) {
                 Capsule().fill(palette.track)
                 Capsule()
                     .fill(percent > 100 ? palette.danger : palette.gold)
@@ -205,8 +262,9 @@ private struct BudgetBar: View {
 
 // MARK: - Views
 
-/// Small: the emerald (mint in dark mode) tile from the mockup, ink text. Where iOS removes the widget's background
-/// (StandBy on iOS 17+) the text switches to the normal text colour, so it never sits as ink on black.
+/// Small: the emerald (mint in dark mode) tile from the mockup: logo on top, then spent today and the share of the
+/// month's budget at the bottom, in ink. Where iOS removes the widget's background (StandBy on iOS 17+) the text
+/// switches to the normal text colour, so it never sits as ink on black.
 struct SmallView: View {
     let entry: SpendingEntry
 
@@ -236,66 +294,120 @@ private struct SmallContent: View {
         let w = words(entry.arabic)
         let p = Palette(scheme)
         let ink = onFill ? p.ink : p.text
-        VStack(alignment: .leading, spacing: 4) {
-            Text(w.today).font(rounded(13, .bold)).foregroundColor(ink)
-            Text(sar(entry.today, arabic: entry.arabic))
-                .font(rounded(26, .heavy)).foregroundColor(ink)
-                .minimumScaleFactor(0.6).lineLimit(1)
+        VStack(alignment: lead(entry.arabic), spacing: 2) {
+            Logo(width: 56)
+            Spacer(minLength: 4)
+            Text(w.today).font(rubik(13)).foregroundColor(ink).lineLimit(1)
+            amount(entry.today, arabic: entry.arabic, size: 26)
+                .foregroundColor(ink)
+                .minimumScaleFactor(0.5).lineLimit(1)
             if entry.today == nil {
-                Text(w.openApp).font(rounded(11, .semibold)).foregroundColor(ink)
+                Text(w.openApp).font(rubik(11)).foregroundColor(ink).lineLimit(2)
+            } else if let percent = entry.percent {
+                Text("\(percent)% \(w.budget)").font(rubik(12)).foregroundColor(ink).lineLimit(1)
+                    .paragraph(arabic: entry.arabic)
+            } else {
+                Text(w.setBudget).font(rubik(11)).foregroundColor(ink).lineLimit(1).minimumScaleFactor(0.8)
             }
-            Spacer(minLength: 0)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .multilineTextAlignment(entry.arabic ? .trailing : .leading)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: corner(entry.arabic, top: true))
     }
 }
 
-/// Medium: a white (moss) card with the month total on an emerald tile that has an outline and a hard shadow, and
-/// the budget beside it.
+/// Medium: a white (moss) card. The month total sits on an emerald tile with the logo, an outline and a hard shadow;
+/// beside it the share of the budget, the bar, and the two facts of the Home hero: left to spend (or how far over)
+/// and today. In Arabic the tile is on the right.
 struct MediumView: View {
     let entry: SpendingEntry
     @Environment(\.colorScheme) private var scheme
 
     var body: some View {
-        let w = words(entry.arabic)
         let p = Palette(scheme)
         HStack(alignment: .center, spacing: 14) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(w.month).font(rounded(12, .bold)).foregroundColor(p.ink)
-                Spacer(minLength: 0)
-                Text(sar(entry.month, arabic: entry.arabic))
-                    .font(rounded(22, .heavy)).foregroundColor(p.ink)
-                    .minimumScaleFactor(0.5).lineLimit(1)
+            if entry.arabic {
+                details(p)
+                tile(p)
+            } else {
+                tile(p)
+                details(p)
             }
-            .padding(10)
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            // Fill first, then the hard shadow behind it (a later .background sits further back).
-            .background(RoundedRectangle(cornerRadius: 18, style: .continuous).fill(p.accent))
-            .background(
-                RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .fill(p.line)
-                    .offset(x: 3, y: 4)
-            )
-            .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).strokeBorder(p.line, lineWidth: 2))
-            .padding(.trailing, 3)
-            .padding(.bottom, 4)
-
-            VStack(alignment: .leading, spacing: 8) {
-                if let percent = entry.percent {
-                    // same text as before the rebrand: "N% of budget (SAR X)"
-                    Text("\(percent)% \(w.budget) (\(sar(entry.budget, arabic: entry.arabic)))")
-                        .font(rounded(14, .heavy)).foregroundColor(p.text)
-                        .minimumScaleFactor(0.7).lineLimit(2)
-                    BudgetBar(percent: percent, palette: p)
-                } else if entry.month != nil {
-                    Text(w.setBudget).font(rounded(13, .bold)).foregroundColor(p.muted)
-                } else {
-                    Text(w.openApp).font(rounded(13, .bold)).foregroundColor(p.muted)
-                }
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private func tile(_ p: Palette) -> some View {
+        let w = words(entry.arabic)
+        return VStack(alignment: lead(entry.arabic), spacing: 1) {
+            Logo(width: 48)
+            Spacer(minLength: 2)
+            Text(w.month).font(rubik(11)).foregroundColor(p.ink).lineLimit(1).minimumScaleFactor(0.8)
+            amount(entry.month, arabic: entry.arabic, size: 20)
+                .foregroundColor(p.ink)
+                .minimumScaleFactor(0.5).lineLimit(1)
+        }
+        .padding(10)
+        .frame(width: 136)
+        .frame(maxHeight: .infinity, alignment: corner(entry.arabic, top: true))
+        // Fill first, then the hard shadow behind it (a later .background sits further back).
+        .background(RoundedRectangle(cornerRadius: 18, style: .continuous).fill(p.accent))
+        .background(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(p.line)
+                .offset(x: 3, y: 4)
+        )
+        .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).strokeBorder(p.line, lineWidth: 2))
+        // room for the hard shadow, which always falls to the right and down
+        .padding(EdgeInsets(top: 0, leading: 0, bottom: 4, trailing: 3))
+    }
+
+    @ViewBuilder
+    private func details(_ p: Palette) -> some View {
+        let w = words(entry.arabic)
+        VStack(alignment: lead(entry.arabic), spacing: 8) {
+            if let percent = entry.percent, let budget = entry.budget, let month = entry.month {
+                Text("\(percent)% \(w.budget)")
+                    .font(rubik(15, heavy: true)).foregroundColor(p.text)
+                    .minimumScaleFactor(0.7).lineLimit(1)
+                    .paragraph(arabic: entry.arabic)
+                BudgetBar(percent: percent, palette: p, arabic: entry.arabic)
+                facts(p, month: month, budget: budget)
+            } else if entry.month != nil {
+                Text(w.setBudget).font(rubik(13)).foregroundColor(p.muted)
+            } else {
+                Text(w.openApp).font(rubik(13)).foregroundColor(p.muted)
+            }
+        }
+        .multilineTextAlignment(entry.arabic ? .trailing : .leading)
+        .frame(maxWidth: .infinity, alignment: entry.arabic ? .trailing : .leading)
+    }
+
+    /// The Home hero's white panel: left to spend (red "over by" past the budget) | today.
+    private func facts(_ p: Palette, month: Int, budget: Int) -> some View {
+        let w = words(entry.arabic)
+        let over = month > budget
+        let left = fact(p, label: over ? w.over : w.left, value: over ? month - budget : budget - month,
+                        color: over ? p.danger : p.text)
+        let today = fact(p, label: w.todayShort, value: entry.today, color: p.text)
+        return HStack(spacing: 0) {
+            if entry.arabic { today } else { left }
+            Rectangle().fill(p.line).frame(width: 2).padding(.vertical, 6)
+            if entry.arabic { left } else { today }
+        }
+        .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(p.card))
+        .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(p.line, lineWidth: 2))
+    }
+
+    private func fact(_ p: Palette, label: String, value: Int?, color: Color) -> some View {
+        VStack(alignment: lead(entry.arabic), spacing: 1) {
+            Text(label).font(rubik(10)).foregroundColor(p.muted).lineLimit(1).minimumScaleFactor(0.7)
+            Text(value.map(plain) ?? "--")
+                .font(rubik(14, heavy: true)).foregroundColor(color)
+                .lineLimit(1).minimumScaleFactor(0.5)
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 6)
+        .frame(maxWidth: .infinity, alignment: entry.arabic ? .trailing : .leading)
     }
 }
 
@@ -350,8 +462,12 @@ struct SpendingWidgetView: View {
     var body: some View {
         let p = Palette(scheme)
         switch family {
+        // Home screen widgets are laid out left to right whatever the phone's language: the views mirror themselves
+        // for Arabic text, so an Arabic phone does not flip them a second time.
         case .systemMedium:
-            MediumView(entry: entry).widgetBackground(fill: p.card, line: p.line)
+            MediumView(entry: entry)
+                .environment(\.layoutDirection, .leftToRight)
+                .widgetBackground(fill: p.card, line: p.line)
         case .accessoryCircular:
             CircularView(entry: entry).widgetBackground(fill: nil, line: nil)
         case .accessoryRectangular:
@@ -359,7 +475,9 @@ struct SpendingWidgetView: View {
         case .accessoryInline:
             InlineView(entry: entry).widgetBackground(fill: nil, line: nil)
         default:
-            SmallView(entry: entry).widgetBackground(fill: p.accent, line: p.line)
+            SmallView(entry: entry)
+                .environment(\.layoutDirection, .leftToRight)
+                .widgetBackground(fill: p.accent, line: p.line)
         }
     }
 }

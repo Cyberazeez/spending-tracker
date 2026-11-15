@@ -25,6 +25,12 @@
 		<key>NSExtensionPointIdentifier</key>
 		<string>com.apple.widgetkit-extension</string>
 	</dict>
+	<key>UIAppFonts</key>
+	<array>
+		<string>Rubik-Bold.ttf</string>
+		<string>Rubik-ExtraBold.ttf</string>
+		<string>SaudiRiyal-Bold.ttf</string>
+	</array>
 	<key>SharedKeychainGroup</key>
 	<string>$(AppIdentifierPrefix)com.cyberazeez.spendingtracker.shared</string>
 </dict>
