@@ -80,7 +80,7 @@ void main() {
       expect(border.top.width, AppTokens.outlineThin);
       expect(
         _v(border.top.color),
-        _v(b == Brightness.dark ? const Color(0xFFF0F5E6) : _ink),
+        _v(b == Brightness.dark ? const Color(0xFFDCDAD2) : _ink),
       );
       final icon = t.widget<Icon>(find.byIcon(LucideIcons.coffee));
       final color =
@@ -110,7 +110,7 @@ void main() {
           _v(text.style!.color),
           _v(
             b == Brightness.dark
-                ? const Color(0xFFFF9DB0)
+                ? const Color(0xFFFF8A9B)
                 : const Color(0xFFD11A3F),
           ),
         );
@@ -121,7 +121,7 @@ void main() {
   test(
     'swipe Delete label reads at least 4.5:1 on the danger fill in both modes',
     () {
-      for (final fill in [const Color(0xFFD11A3F), const Color(0xFFFF9DB0)]) {
+      for (final fill in [const Color(0xFFD11A3F), const Color(0xFFFF8A9B)]) {
         expect(
           _contrast(swipeLabelColor(fill), fill),
           greaterThanOrEqualTo(4.5),

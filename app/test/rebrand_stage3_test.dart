@@ -205,7 +205,7 @@ void main() {
                       .decoration!
                   as BoxDecoration)
               .color!;
-      expect(fill.toARGB32(), b == Brightness.dark ? 0xFFFF9DB0 : 0xFFD11A3F);
+      expect(fill.toARGB32(), b == Brightness.dark ? 0xFFFF8A9B : 0xFFD11A3F);
       expect(_contrast(label.style!.color!, fill), greaterThanOrEqualTo(4.5));
     });
   }

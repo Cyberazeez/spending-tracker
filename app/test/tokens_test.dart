@@ -36,14 +36,14 @@ void main() {
       );
       Color r(CupertinoDynamicColor c) => Color(c.resolveFrom(ctx).toARGB32());
       Color hex(int light, int darkV) => Color(dark ? darkV : light);
-      expect(r(AppTokens.bg), hex(0xFFF0F5E6, 0xFF0D1F17));
-      expect(r(AppTokens.card), hex(0xFFFFFFFF, 0xFF173326));
-      expect(r(AppTokens.text), hex(0xFF0D1F17, 0xFFF0F5E6));
-      expect(r(AppTokens.accent), hex(0xFF00A86B, 0xFF3FD79B));
-      expect(r(AppTokens.accentText), hex(0xFF00704A, 0xFF3FD79B));
-      expect(r(AppTokens.line), hex(0xFF0D1F17, 0xFFF0F5E6));
+      expect(r(AppTokens.bg), hex(0xFFF0F5E6, 0xFF121513));
+      expect(r(AppTokens.card), hex(0xFFFFFFFF, 0xFF1D211F));
+      expect(r(AppTokens.text), hex(0xFF0D1F17, 0xFFF3F2EC));
+      expect(r(AppTokens.accent), hex(0xFF00A86B, 0xFF22C384));
+      expect(r(AppTokens.accentText), hex(0xFF00704A, 0xFF5FD8A6));
+      expect(r(AppTokens.line), hex(0xFF0D1F17, 0xFFDCDAD2));
       expect(r(AppTokens.gold), hex(0xFFFFC93C, 0xFFFFC93C));
-      expect(r(AppTokens.danger), hex(0xFFD11A3F, 0xFFFF9DB0));
+      expect(r(AppTokens.danger), hex(0xFFD11A3F, 0xFFFF8A9B));
       final pairs = {
         'text on card': (AppTokens.text, AppTokens.card),
         'text on bg': (AppTokens.text, AppTokens.bg),
@@ -67,10 +67,14 @@ void main() {
         );
       }
       final shadow = hardShadowOf(ctx);
-      expect(shadow, hasLength(1));
-      expect(shadow.single.blurRadius, 0);
-      expect(shadow.single.offset, const Offset(4, 5));
-      expect(shadow.single.color.toARGB32(), r(AppTokens.line).toARGB32());
+      if (dark) {
+        expect(shadow, isEmpty); // outline only in dark mode
+      } else {
+        expect(shadow, hasLength(1));
+        expect(shadow.single.blurRadius, 0);
+        expect(shadow.single.offset, const Offset(4, 5));
+        expect(shadow.single.color.toARGB32(), r(AppTokens.line).toARGB32());
+      }
       expect(outlineOf(ctx).top.width, 2.5);
     });
   }

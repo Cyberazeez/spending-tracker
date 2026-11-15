@@ -40,7 +40,7 @@ BoxDecoration _decorationIn(WidgetTester t, Finder scope) => t
 void main() {
   for (final b in Brightness.values) {
     final line = b == Brightness.dark
-        ? const Color(0xFFF0F5E6)
+        ? const Color(0xFFDCDAD2)
         : const Color(0xFF0D1F17);
 
     testWidgets('AppCard: ink outline and hard shadow (${b.name})', (t) async {
@@ -51,10 +51,14 @@ void main() {
       final border = d.border! as Border;
       expect(border.top.width, 2.5);
       expect(border.top.color.toARGB32(), line.toARGB32());
-      expect(d.boxShadow, hasLength(1));
-      expect(d.boxShadow!.single.blurRadius, 0);
-      expect(d.boxShadow!.single.offset, const Offset(4, 5));
-      expect(d.boxShadow!.single.color.toARGB32(), line.toARGB32());
+      if (b == Brightness.dark) {
+        expect(d.boxShadow, isEmpty); // dark mode: outline only, no shadow
+      } else {
+        expect(d.boxShadow, hasLength(1));
+        expect(d.boxShadow!.single.blurRadius, 0);
+        expect(d.boxShadow!.single.offset, const Offset(4, 5));
+        expect(d.boxShadow!.single.color.toARGB32(), line.toARGB32());
+      }
       // The shadow lies inside the card's own box, so a clip at its edge cannot cut it.
       final card = t.getRect(find.byType(AppCard));
       final box = t.getRect(
@@ -98,7 +102,11 @@ void main() {
       );
       final on = _decorationIn(t, find.byType(PrimaryButton).first);
       final off = _decorationIn(t, find.byType(PrimaryButton).last);
-      expect(on.boxShadow!.single.offset, const Offset(3, 4));
+      if (b == Brightness.dark) {
+        expect(on.boxShadow, isEmpty);
+      } else {
+        expect(on.boxShadow!.single.offset, const Offset(3, 4));
+      }
       expect(on.border, isNotNull);
       expect(off.boxShadow, isNull);
       expect(off.color, isNot(on.color));
@@ -187,7 +195,7 @@ void main() {
       // The outer pill carries the outline and the hard shadow.
       final outer = _decorationIn(t, find.byType(PillTabBar));
       expect(outer.border, isNotNull);
-      expect(outer.boxShadow!.single.blurRadius, 0);
+      expect(outer.boxShadow!.single.blurRadius, 0); // light mode only
     });
   }
 }

@@ -19,12 +19,12 @@ const CSS = `
   .card{background:#ffffff;border-radius:20px}
   .t{color:#0D1F17}.m{color:#45564B}
   @media (prefers-color-scheme:dark){
-    body,.bg{background:#0D1F17!important}
-    .card{background:#173326!important;border-color:#F0F5E6!important;box-shadow:4px 5px 0 #F0F5E6!important}
-    .t{color:#F0F5E6!important}.m{color:#A9BBAF!important}
-    .line{border-color:#2B4C3D!important}
-    .acc{color:#3FD79B!important}
-    .btn{background:#3FD79B!important;border-color:#F0F5E6!important;box-shadow:3px 4px 0 #F0F5E6!important}
+    body,.bg{background:#121513!important}
+    .card{background:#1D211F!important;border-color:#DCDAD2!important;box-shadow:none!important}
+    .t{color:#F3F2EC!important}.m{color:#A4A9A3!important}
+    .line{border-color:#2E3330!important}
+    .acc{color:#5FD8A6!important}
+    .btn{background:#22C384!important;border-color:#DCDAD2!important;box-shadow:none!important}
   }`;
 
 function block(c: EmailBlock, dir: "ltr" | "rtl"): string {

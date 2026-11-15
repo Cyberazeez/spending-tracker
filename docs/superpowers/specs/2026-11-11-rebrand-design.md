@@ -1,6 +1,6 @@
 # Rebrand: Emerald, outlined cards, hard shadows
 
-Status: approved by the owner 2026-11-11 ("Go with recommendations": bundle Rubik, derive dark mode, start after PR #103). Stage 1 built (plan: `docs/superpowers/plans/2026-11-11-rebrand-stage1.md`). Stage 2 built (plan: `docs/superpowers/plans/2026-11-12-rebrand-stage2.md`). Stage 3 built (plan: `docs/superpowers/plans/2026-11-12-rebrand-stage3.md`). Stage 4 built (plan: `docs/superpowers/plans/2026-11-12-rebrand-stage4.md`). Stage 5 built (plan: `docs/superpowers/plans/2026-11-12-rebrand-stage5.md`). Stage 6 built 2026-11-13 (widget, emails, website, App Store screenshots; summary in `docs/04-design-brief.md`, section "Brand"). Approved in chat (2026-11-11): the logo, the Emerald palette and the look of the mockups ("I like the rebrand, use it"). Mockups: https://claude.ai/artifact/SKu3Y19HmGqcn19UDyb1KS (31 boards, private to the owner). Logo and palette: `docs/04-design-brief.md`, section "Brand", and `docs/brand/`.
+Status: approved by the owner 2026-11-11 ("Go with recommendations": bundle Rubik, derive dark mode, start after PR #103). Stage 1 built (plan: `docs/superpowers/plans/2026-11-11-rebrand-stage1.md`). Stage 2 built (plan: `docs/superpowers/plans/2026-11-12-rebrand-stage2.md`). Stage 3 built (plan: `docs/superpowers/plans/2026-11-12-rebrand-stage3.md`). Stage 4 built (plan: `docs/superpowers/plans/2026-11-12-rebrand-stage4.md`). Stage 5 built (plan: `docs/superpowers/plans/2026-11-12-rebrand-stage5.md`). Dark mode changed to "Charcoal" on 2026-11-15 (values in `docs/04-design-brief.md`, section "Brand"; no hard shadow in dark mode). Stage 6 built 2026-11-13 (widget, emails, website, App Store screenshots; summary in `docs/04-design-brief.md`, section "Brand"). Approved in chat (2026-11-11): the logo, the Emerald palette and the look of the mockups ("I like the rebrand, use it"). Mockups: https://claude.ai/artifact/SKu3Y19HmGqcn19UDyb1KS (31 boards, private to the owner). Logo and palette: `docs/04-design-brief.md`, section "Brand", and `docs/brand/`.
 
 ## Goal
 Make the whole app look like the mockups: paper background, white cards with a 2.5 pt ink outline and a hard offset shadow (no blur), a flat emerald hero, gold highlights, pastel category tiles, pill buttons that press into their shadow. English and Arabic, light and dark.
@@ -18,17 +18,17 @@ Most of the look lives in the shared layer, so stage 1 changes every screen at o
 
 | Token | Light | Dark |
 |---|---|---|
-| `bg` | `#F0F5E6` paper | `#0D1F17` |
-| `card`, `tab` | `#FFFFFF` | `#173326` moss |
-| `text` | `#0D1F17` ink | `#F0F5E6` |
-| `muted` | `#45564B` | `#A9BBAF` |
-| `accent` (fills, buttons) | `#00A86B` emerald | `#3FD79B` mint |
+| `bg` | `#F0F5E6` paper | `#121513` charcoal (was `#0D1F17`) |
+| `card`, `tab` | `#FFFFFF` | `#1D211F` (was `#173326` moss) |
+| `text` | `#0D1F17` ink | `#F3F2EC` warm white (was `#F0F5E6`) |
+| `muted` | `#45564B` | `#A4A9A3` (was `#A9BBAF`) |
+| `accent` (fills, buttons) | `#00A86B` emerald | `#22C384` (was `#3FD79B` mint) |
 | `onAccent` | `#0D1F17` | `#0D1F17` |
-| new `accentText` (links, income amounts) | `#00704A` | `#3FD79B` |
-| new `line` (outlines, shadows) | `#0D1F17` | `#F0F5E6` |
+| new `accentText` (links, income amounts) | `#00704A` | `#5FD8A6` (was `#3FD79B`) |
+| new `line` (outlines; shadows in light mode only) | `#0D1F17` | `#DCDAD2` (was `#F0F5E6`) |
 | new `gold` | `#FFC93C` | `#FFC93C` |
-| `danger` | `#D11A3F` | `#FF9DB0` |
-| `bar` (tracks) | `#DCE5CC` | `#2B4C3D` |
+| `danger` | `#D11A3F` | `#FF8A9B` (was `#FF9DB0`) |
+| `bar` (tracks) | `#DCE5CC` | `#2E3330` (was `#2B4C3D`) |
 
   `heroFrom` / `heroTo` are removed (the hero is flat emerald). Warning uses gold with ink text; "ok" uses mint with ink text. Radii: card 20, hero 26, sheet 28, tile 13, pills fully round. Outline 2.5 pt (2 pt on small elements). Shadow offset 4 x 5 pt (3 x 4 on buttons), no blur.
 - **Category group colours** (`group_style.dart`): food gold `#FFC93C`, transport sky `#9CC4FF`, home and bills coral `#FFA574`, lifestyle lilac `#CDB4FF`, subscriptions lilac, health and care pink `#FF9DB0`, money and fees mint `#3FD79B`, family aqua `#9BE7E0`, horse and other sand `#DDE3CC`. Tiles are a filled rounded square with an ink outline and an ink icon. Never colour alone: icon and label stay.

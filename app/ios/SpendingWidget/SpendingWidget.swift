@@ -188,16 +188,19 @@ private struct Palette {
     let gold = Color(hex: 0xFFC93C)
     let ink = Color(hex: 0x0D1F17)
     let danger: Color
+    let shadow: Color  // hard shadow: ink in light mode, none in dark mode (outline only)
 
     init(_ scheme: ColorScheme) {
         let dark = scheme == .dark
-        card = Color(hex: dark ? 0x173326 : 0xFFFFFF)
-        text = Color(hex: dark ? 0xF0F5E6 : 0x0D1F17)
-        muted = Color(hex: dark ? 0xA9BBAF : 0x45564B)
-        accent = Color(hex: dark ? 0x3FD79B : 0x00A86B)
-        line = Color(hex: dark ? 0xF0F5E6 : 0x0D1F17)
-        track = Color(hex: dark ? 0x2B4C3D : 0xDCE5CC)
-        danger = Color(hex: dark ? 0xFF9DB0 : 0xD11A3F)
+        // dark mode "Charcoal" (owner's pick 2026-11-15), same values as app/lib/ui/tokens.dart
+        card = Color(hex: dark ? 0x1D211F : 0xFFFFFF)
+        text = Color(hex: dark ? 0xF3F2EC : 0x0D1F17)
+        muted = Color(hex: dark ? 0xA4A9A3 : 0x45564B)
+        accent = Color(hex: dark ? 0x22C384 : 0x00A86B)
+        line = Color(hex: dark ? 0xDCDAD2 : 0x0D1F17)
+        track = Color(hex: dark ? 0x2E3330 : 0xDCE5CC)
+        danger = Color(hex: dark ? 0xFF8A9B : 0xD11A3F)
+        shadow = dark ? .clear : Color(hex: 0x0D1F17)
     }
 }
 
@@ -353,7 +356,7 @@ struct MediumView: View {
         .background(RoundedRectangle(cornerRadius: 18, style: .continuous).fill(p.accent))
         .background(
             RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .fill(p.line)
+                .fill(p.shadow)
                 .offset(x: 3, y: 4)
         )
         .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).strokeBorder(p.line, lineWidth: 2))

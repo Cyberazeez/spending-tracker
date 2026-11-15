@@ -9,11 +9,11 @@
 :root {
   color-scheme: light dark;
   --bg: #F0F5E6; --card: #FFFFFF; --text: #0D1F17; --muted: #45564B;
-  --accent: #00A86B; --on-accent: #0D1F17; --link: #00704A; --line: #0D1F17; --gold: #FFC93C; --bar: #DCE5CC;
+  --accent: #00A86B; --on-accent: #0D1F17; --link: #00704A; --line: #0D1F17; --gold: #FFC93C; --bar: #DCE5CC; --shadow: #0D1F17;
 }
 @media (prefers-color-scheme: dark) {
-  :root { --bg: #0D1F17; --card: #173326; --text: #F0F5E6; --muted: #A9BBAF;
-          --accent: #3FD79B; --link: #3FD79B; --line: #F0F5E6; --bar: #2B4C3D; }
+  :root { --bg: #121513; --card: #1D211F; --text: #F3F2EC; --muted: #A4A9A3;
+          --accent: #22C384; --link: #5FD8A6; --line: #DCDAD2; --bar: #2E3330; --shadow: transparent; }
 }
 body { font: 16px/1.6 "Rubik", -apple-system, system-ui, "Segoe UI", Tahoma, sans-serif; max-width: 720px; margin: 0 auto; padding: 32px 16px 64px; background: var(--bg); color: var(--text); }
 [lang="ar"] { line-height: 1.8; font-family: "Rubik", -apple-system, system-ui, "Segoe UI", "Geeza Pro", Tahoma, sans-serif; }
@@ -25,18 +25,18 @@ a { color: var(--link); font-weight: 700; }
 [lang="ar"] a { unicode-bidi: plaintext; }
 
 nav { display: flex; gap: 10px; margin: 0 0 20px; flex-wrap: wrap; }
-nav a { color: var(--text); text-decoration: none; padding: 6px 14px; background: var(--card); border: 2px solid var(--line); border-radius: 999px; box-shadow: 3px 4px 0 var(--line); }
+nav a { color: var(--text); text-decoration: none; padding: 6px 14px; background: var(--card); border: 2px solid var(--line); border-radius: 999px; box-shadow: 3px 4px 0 var(--shadow); }
 nav a:first-child { background: var(--accent); color: var(--on-accent); }
 
-.logo { display: inline-block; padding: 14px 18px; margin: 0 0 16px; background: #F0F5E6; border: 2.5px solid var(--line); border-radius: 20px; box-shadow: 4px 5px 0 var(--line); }
+.logo { display: inline-block; padding: 14px 18px; margin: 0 0 16px; background: #F0F5E6; border: 2.5px solid var(--line); border-radius: 20px; box-shadow: 4px 5px 0 var(--shadow); }
 .logo img { display: block; width: 150px; height: auto; }
 
 .tag { font-size: 18px; color: var(--muted); margin: 0 0 20px; }
-.soon { display: inline-block; padding: 8px 16px; background: var(--gold); color: #0D1F17; border: 2px solid var(--line); border-radius: 999px; box-shadow: 3px 4px 0 var(--line); font-weight: 700; }
+.soon { display: inline-block; padding: 8px 16px; background: var(--gold); color: #0D1F17; border: 2px solid var(--line); border-radius: 999px; box-shadow: 3px 4px 0 var(--shadow); font-weight: 700; }
 .muted { color: var(--muted); font-size: 14px; }
 
 /* Each language block is a card: ink outline, hard shadow that stays right and down in both directions. */
-section { background: var(--card); border: 2.5px solid var(--line); border-radius: 20px; box-shadow: 4px 5px 0 var(--line); padding: 24px 22px; }
+section { background: var(--card); border: 2.5px solid var(--line); border-radius: 20px; box-shadow: 4px 5px 0 var(--shadow); padding: 24px 22px; }
 section + section { margin-top: 32px; }
 section > h1:first-child, section > h2:first-child { margin-top: 0; }
 
