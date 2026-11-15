@@ -25,6 +25,7 @@ import 'logic.dart' show riyadhToday;
 import 'providers.dart';
 import 'widgets/bills_widgets.dart';
 import '../../ui/press.dart';
+import '../../ui/skeleton.dart';
 
 /// Create ([obligationId] null) or edit one bill, fixed payment or loan by hand.
 class ObligationFormPage extends ConsumerStatefulWidget {
@@ -286,7 +287,7 @@ class _ObligationFormPageState extends ConsumerState<ObligationFormPage> {
       ),
       child: SafeArea(
         child: _loading
-            ? const Center(child: CupertinoActivityIndicator())
+            ? const SkeletonList(heights: [220, 180, 160])
             : _loadFailed
             ? Center(child: Text(t.loadFailed))
             : ListView(

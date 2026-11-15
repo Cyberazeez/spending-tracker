@@ -15,6 +15,7 @@ import '../../ui/tokens.dart';
 import '../home/category_groups.dart';
 import '../home/group_style.dart';
 import '../transactions/providers.dart';
+import '../../ui/skeleton.dart';
 
 /// The owner's merchant rules (place → category), newest data on every open.
 final merchantRulesProvider = FutureProvider.autoDispose<List<MerchantRule>>(
@@ -73,9 +74,9 @@ class RulesPage extends ConsumerWidget {
         },
       );
     } else if (!rules.hasValue || !cats.hasValue) {
-      body = const Padding(
-        padding: EdgeInsets.only(top: 40),
-        child: CupertinoActivityIndicator(),
+      body = const SizedBox(
+        height: 420,
+        child: SkeletonList(heights: [180, 180]),
       );
     } else {
       final byCat = <String, List<MerchantRule>>{};

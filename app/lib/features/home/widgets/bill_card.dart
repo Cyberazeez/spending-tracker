@@ -6,6 +6,7 @@ import '../../../core/money.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/tokens.dart';
 import '../../../ui/press.dart';
+import '../../obligations/widgets/bills_widgets.dart';
 
 /// One upcoming or overdue bill: a status pill, its name, the amount (with "~" when it is an estimate) and the due date.
 class BillCard extends StatelessWidget {
@@ -32,16 +33,11 @@ class BillCard extends StatelessWidget {
     final days = bill.dueDate.difference(today).inDays;
     final overdue = days < 0;
     final soon = !overdue && days <= 7;
-    final bg = overdue
-        ? AppTokens.danger.resolveFrom(context).withValues(alpha: 0.16)
+    final tone = overdue
+        ? PillTone.danger
         : soon
-        ? AppTokens.warnBg.resolveFrom(context)
-        : AppTokens.okBg.resolveFrom(context);
-    final fg = overdue
-        ? AppTokens.danger.resolveFrom(context)
-        : soon
-        ? AppTokens.onTint.resolveFrom(context)
-        : AppTokens.okText.resolveFrom(context);
+        ? PillTone.warn
+        : PillTone.ok;
     final pill = overdue
         ? t.obStatusOverdue
         : days == 0
@@ -80,26 +76,7 @@ class BillCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: bg,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
-                      ),
-                      child: Text(
-                        pill,
-                        style: TextStyle(
-                          color: fg,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
+                  StatusPill(label: pill, tone: tone),
                   const SizedBox(height: 10),
                   Text(
                     bill.name,

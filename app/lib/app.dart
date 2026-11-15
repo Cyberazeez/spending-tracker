@@ -10,6 +10,8 @@ import 'core/providers.dart';
 import 'l10n/app_localizations.dart';
 import 'router.dart';
 import 'ui/theme.dart';
+import 'ui/halala_logo.dart';
+import 'ui/tokens.dart';
 
 class SpendingTrackerApp extends ConsumerStatefulWidget {
   const SpendingTrackerApp({super.key});
@@ -67,9 +69,11 @@ class _SpendingTrackerAppState extends ConsumerState<SpendingTrackerApp> {
           children: [
             ?child,
             if (_covered)
+              // like the launch screen: the page colour with the logo
               Positioned.fill(
                 child: ColoredBox(
-                  color: CupertinoColors.systemBackground.resolveFrom(context),
+                  color: AppTokens.bg.resolveFrom(context),
+                  child: const Center(child: HalalaLogo(width: 160)),
                 ),
               ),
           ],

@@ -269,7 +269,7 @@ class HomePage extends ConsumerWidget {
                           children: [
                             AttentionChip(
                               label: t.captureStatus,
-                              dot: const Color(0xFFFF6B66),
+                              dot: AppTokens.danger.resolveFrom(context),
                               onTap: () => context.push(capturePath),
                             ),
                           ],

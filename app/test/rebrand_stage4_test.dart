@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:spending_tracker/l10n/app_localizations.dart';
 import 'package:spending_tracker/router.dart';
+import 'package:spending_tracker/ui/app_form.dart';
 import 'package:spending_tracker/ui/choice_sheet.dart';
 import 'package:spending_tracker/ui/empty_state.dart';
 import 'package:spending_tracker/ui/halala_logo.dart';
@@ -212,6 +213,24 @@ void main() {
         ),
       );
       expect(t.hasRunningAnimations, isFalse);
+    },
+  );
+
+  testWidgets(
+    'add and edit bank account use the outlined back button and a red pill to remove',
+    (t) async {
+      final h = Harness(signedIn: true);
+      await t.pumpWidget(await h.build());
+      await t.pumpAndSettle();
+      GoRouter.of(t.element(find.byType(CupertinoPageScaffold).last))
+          .push(banksPath);
+      await t.pumpAndSettle();
+      expect(find.byType(CupertinoActivityIndicator), findsNothing);
+      await t.tap(find.textContaining('6000').first);
+      await t.pumpAndSettle();
+      expect(find.text('Edit account'), findsOneWidget);
+      expect(find.byKey(const ValueKey('nav-back')), findsWidgets);
+      expect(find.widgetWithText(SecondaryButton, 'Remove'), findsOneWidget);
     },
   );
 

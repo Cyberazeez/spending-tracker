@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'sheet_frame.dart';
-import 'theme.dart';
 import 'tokens.dart';
 import 'press.dart';
 import 'app_sheet.dart';
@@ -89,7 +88,7 @@ class _Row<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = option.destructive
-        ? AppColors.danger.resolveFrom(context)
+        ? AppTokens.danger.resolveFrom(context)
         : AppTokens.text.resolveFrom(context);
     final line = AppTokens.line.resolveFrom(context);
     final selected = option.selected;

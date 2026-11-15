@@ -134,7 +134,7 @@ class _GroupRow extends StatelessWidget {
               child: Icon(
                 groupIcon(spend.group),
                 size: 20,
-                color: const Color(0xFF0B0F14),
+                color: AppTokens.onTint.resolveFrom(context),
               ),
             ),
             const SizedBox(width: 12),

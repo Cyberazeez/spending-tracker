@@ -3,6 +3,20 @@ import 'package:flutter/cupertino.dart';
 import 'app_card.dart';
 import 'tokens.dart';
 
+/// [SkeletonSliver] for screens whose body is a plain widget (a form or a list page): the same placeholder cards in
+/// a scroll view that does not scroll.
+class SkeletonList extends StatelessWidget {
+  const SkeletonList({super.key, required this.heights});
+
+  final List<double> heights;
+
+  @override
+  Widget build(BuildContext context) => CustomScrollView(
+    physics: const NeverScrollableScrollPhysics(),
+    slivers: [SkeletonSliver(heights: heights)],
+  );
+}
+
 /// Placeholder cards shown while the first data loads (no spinner): outlined cards holding grey rows shaped like
 /// the list rows that will replace them.
 class SkeletonSliver extends StatelessWidget {

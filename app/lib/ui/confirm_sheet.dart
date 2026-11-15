@@ -283,12 +283,12 @@ class _SheetButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final bg = primary
         ? (destructive
-              ? AppColors.danger.resolveFrom(context)
+              ? AppTokens.danger.resolveFrom(context)
               : AppTokens.accent.resolveFrom(context))
         : AppTokens.card.resolveFrom(context);
     final fg = primary
         ? (destructive
-              ? swipeLabelColor(AppColors.danger.resolveFrom(context))
+              ? swipeLabelColor(AppTokens.danger.resolveFrom(context))
               : AppTokens.onAccent.resolveFrom(context))
         : AppTokens.text.resolveFrom(context);
     return Semantics(

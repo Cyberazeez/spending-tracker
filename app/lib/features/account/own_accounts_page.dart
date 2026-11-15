@@ -20,6 +20,7 @@ import '../../ui/choice_sheet.dart';
 import '../../ui/tokens.dart';
 import 'account_providers.dart';
 import '../../ui/app_sheet.dart';
+import '../../ui/skeleton.dart';
 
 String bankName(BuildContext context, String bank) => bankDisplayName(
   bank,
@@ -69,7 +70,7 @@ class OwnAccountsPage extends ConsumerWidget {
       navigationBar: appNavBar(context, t.accountBanks),
       child: SafeArea(
         child: list.when(
-          loading: () => const Center(child: CupertinoActivityIndicator()),
+          loading: () => const SkeletonList(heights: [120, 200]),
           error: (_, _) => LoadFailedCard(
             onRetry: () => ref.invalidate(ownAccountsProvider),
           ),
@@ -306,13 +307,15 @@ class _AccountSheetState extends ConsumerState<_AccountSheet> {
         GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: onTap,
+          // the same outlined field look as AppField and FieldButton
           child: DecoratedBox(
             decoration: BoxDecoration(
               color: AppTokens.card.resolveFrom(context),
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(14),
+              border: outlineOf(context),
             ),
             child: ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: 52),
+              constraints: const BoxConstraints(minHeight: 50),
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Row(
@@ -334,7 +337,7 @@ class _AccountSheetState extends ConsumerState<_AccountSheet> {
                       ),
                     ),
                     const SizedBox(width: 6),
-                    Icon(CupertinoIcons.chevron_down, size: 14, color: muted),
+                    Icon(LucideIcons.chevronDown, size: 16, color: muted),
                   ],
                 ),
               ),
@@ -343,16 +346,7 @@ class _AccountSheetState extends ConsumerState<_AccountSheet> {
         );
     return CupertinoPageScaffold(
       backgroundColor: AppTokens.bg.resolveFrom(context),
-      navigationBar: CupertinoNavigationBar(
-        backgroundColor: AppTokens.bg.resolveFrom(context),
-        border: null,
-        middle: Text(_editing ? t.bankEdit : t.bankAdd),
-        leading: CupertinoButton(
-          padding: EdgeInsets.zero,
-          onPressed: () => Navigator.pop(context),
-          child: Text(t.cancel),
-        ),
-      ),
+      navigationBar: appNavBar(context, _editing ? t.bankEdit : t.bankAdd),
       child: SafeArea(
         child: ListView(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
@@ -410,12 +404,10 @@ class _AccountSheetState extends ConsumerState<_AccountSheet> {
             ),
             if (_editing) ...[
               const SizedBox(height: 12),
-              CupertinoButton(
+              SecondaryButton(
+                label: t.bankRemove,
+                danger: true,
                 onPressed: _busy ? null : _remove,
-                child: Text(
-                  t.bankRemove,
-                  style: const TextStyle(color: CupertinoColors.destructiveRed),
-                ),
               ),
             ],
           ],

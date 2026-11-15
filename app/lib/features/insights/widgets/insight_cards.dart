@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/cupertino.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../ui/trailing_box.dart';
 import '../../../ui/chevron.dart';
@@ -229,7 +230,7 @@ class SummaryCard extends StatelessWidget {
             Row(
               children: [
                 Icon(
-                  CupertinoIcons.exclamationmark_triangle,
+                  LucideIcons.triangleAlert,
                   size: 16,
                   color: AppTokens.warnText.resolveFrom(context),
                 ),
