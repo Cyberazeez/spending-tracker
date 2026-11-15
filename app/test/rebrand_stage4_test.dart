@@ -15,7 +15,7 @@ import 'package:spending_tracker/ui/settings_group.dart';
 import 'support/fakes.dart';
 
 const _ink = Color(0xFF0D1F17);
-const _paper = Color(0xFFF0F5E6);
+const _darkLine = Color(0xFFDCDAD2); // dark mode outline (Charcoal)
 
 Widget _app(Widget child, {Brightness brightness = Brightness.light}) =>
     CupertinoApp(
@@ -61,7 +61,7 @@ void main() {
       (t) async {
         for (final (mode, line) in [
           (Brightness.light, _ink),
-          (Brightness.dark, _paper),
+          (Brightness.dark, _darkLine),
         ]) {
           await t.pumpWidget(_app(const HalalaLogo(), brightness: mode));
           final paint = t.widget<CustomPaint>(
@@ -124,7 +124,10 @@ void main() {
         ),
       );
       final sw = t.widget<CupertinoSwitch>(find.byType(CupertinoSwitch));
-      expect(sw.trackOutlineColor!.resolve({})!.toARGB32(), _paper.toARGB32());
+      expect(
+        sw.trackOutlineColor!.resolve({})!.toARGB32(),
+        _darkLine.toARGB32(),
+      );
       expect(sw.trackOutlineWidth!.resolve({}), 2);
     });
   });

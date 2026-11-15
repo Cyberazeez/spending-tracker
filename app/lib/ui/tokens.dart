@@ -6,31 +6,36 @@ class AppTokens {
   static const _ink = Color(0xFF0D1F17);
   static const _paper = Color(0xFFF0F5E6);
 
+  // Dark mode "Charcoal" (owner's pick 2026-11-15): a near-black with a hint of green, warm white text, the brand's
+  // emerald and gold on top. No hard shadow in dark mode (see [hardShadowOf]).
+  static const _charcoal = Color(0xFF121513);
+  static const _warmWhite = Color(0xFFF3F2EC);
+
   static const bg = CupertinoDynamicColor.withBrightness(
     color: _paper,
-    darkColor: _ink,
+    darkColor: _charcoal,
   );
   static const card = CupertinoDynamicColor.withBrightness(
     color: Color(0xFFFFFFFF),
-    darkColor: Color(0xFF173326),
+    darkColor: Color(0xFF1D211F),
   );
   static const tab = CupertinoDynamicColor.withBrightness(
     color: Color(0xFFFFFFFF),
-    darkColor: Color(0xFF173326),
+    darkColor: Color(0xFF1D211F),
   );
   static const text = CupertinoDynamicColor.withBrightness(
     color: _ink,
-    darkColor: _paper,
+    darkColor: _warmWhite,
   );
   static const muted = CupertinoDynamicColor.withBrightness(
     color: Color(0xFF45564B),
-    darkColor: Color(0xFFA9BBAF),
+    darkColor: Color(0xFFA4A9A3),
   );
 
   /// Brand fill: buttons, the hero, selected states. Text on it is [onAccent].
   static const accent = CupertinoDynamicColor.withBrightness(
     color: Color(0xFF00A86B),
-    darkColor: Color(0xFF3FD79B),
+    darkColor: Color(0xFF22C384),
   );
   static const onAccent = CupertinoDynamicColor.withBrightness(
     color: _ink,
@@ -40,13 +45,13 @@ class AppTokens {
   /// Brand colour for text on a card or on the page: links and income amounts.
   static const accentText = CupertinoDynamicColor.withBrightness(
     color: Color(0xFF00704A),
-    darkColor: Color(0xFF3FD79B),
+    darkColor: Color(0xFF5FD8A6),
   );
 
   /// Outlines and hard shadows.
   static const line = CupertinoDynamicColor.withBrightness(
     color: _ink,
-    darkColor: _paper,
+    darkColor: Color(0xFFDCDAD2),
   );
   static const gold = CupertinoDynamicColor.withBrightness(
     color: Color(0xFFFFC93C),
@@ -62,7 +67,7 @@ class AppTokens {
   /// Tracks of bars and skeleton blocks.
   static const bar = CupertinoDynamicColor.withBrightness(
     color: Color(0xFFDCE5CC),
-    darkColor: Color(0xFF2B4C3D),
+    darkColor: Color(0xFF2E3330),
   );
 
   /// Warning pill fill (text on it: [onTint]).
@@ -83,7 +88,7 @@ class AppTokens {
   static const income = accentText;
   static const danger = CupertinoDynamicColor.withBrightness(
     color: Color(0xFFD11A3F),
-    darkColor: Color(0xFFFF9DB0),
+    darkColor: Color(0xFFFF8A9B),
   );
 
   static const double radiusCard = 20;
@@ -98,8 +103,11 @@ class AppTokens {
 Border outlineOf(BuildContext context, {double width = AppTokens.outline}) =>
     Border.all(color: AppTokens.line.resolveFrom(context), width: width);
 
-/// The hard offset shadow of the look: no blur, to the right and down in both text directions.
+/// The hard offset shadow of the look: no blur, to the right and down in both text directions. Light mode only:
+/// in dark mode a light shadow read as a silver smear (owner, 2026-11-15), so cards keep just their outline.
 List<BoxShadow> hardShadowOf(
   BuildContext context, {
   Offset offset = const Offset(4, 5),
-}) => [BoxShadow(color: AppTokens.line.resolveFrom(context), offset: offset)];
+}) => CupertinoTheme.brightnessOf(context) == Brightness.dark
+    ? const []
+    : [BoxShadow(color: AppTokens.line.resolveFrom(context), offset: offset)];

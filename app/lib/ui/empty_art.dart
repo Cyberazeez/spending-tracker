@@ -21,7 +21,7 @@ enum EmptyArtKind {
 /// The letters of the "empty" logo: sand in light mode, the dark track colour in dark mode.
 const emptyArtFill = CupertinoDynamicColor.withBrightness(
   color: Color(0xFFDDE3CC),
-  darkColor: Color(0xFF2B4C3D),
+  darkColor: Color(0xFF2E3330), // AppTokens.bar in dark mode
 );
 
 /// The picture above an empty state's title. Decorative: the title says the same thing, so VoiceOver skips it.
