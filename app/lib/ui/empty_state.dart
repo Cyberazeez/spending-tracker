@@ -6,10 +6,10 @@ import '../l10n/app_localizations.dart';
 import 'app_card.dart';
 import 'app_form.dart';
 import 'empty_art.dart';
-
-export 'empty_art.dart' show EmptyArt, EmptyArtKind;
 import 'icon_tile.dart';
 import 'tokens.dart';
+
+export 'empty_art.dart' show EmptyArt, EmptyArtKind;
 
 /// An empty screen: the brand picture ([EmptyArt]: the logo waiting for its coins, or whole for good news), a title,
 /// an optional line of help and an optional action.

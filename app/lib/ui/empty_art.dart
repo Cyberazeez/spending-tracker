@@ -30,7 +30,7 @@ class EmptyArt extends StatefulWidget {
   const EmptyArt({
     super.key,
     this.kind = EmptyArtKind.waiting,
-    this.width = 150,
+    this.width = 180,
   });
 
   final EmptyArtKind kind;
@@ -59,6 +59,18 @@ class _EmptyArtState extends State<EmptyArt>
         widget.kind != EmptyArtKind.done &&
         !MediaQuery.disableAnimationsOf(context)) {
       _played = true;
+      _fall.forward(from: 0);
+    }
+  }
+
+  /// The same picture can change kind in place (Bills: Overdue to History); a newly waiting picture drops its coins
+  /// too.
+  @override
+  void didUpdateWidget(EmptyArt old) {
+    super.didUpdateWidget(old);
+    if (old.kind != widget.kind &&
+        widget.kind != EmptyArtKind.done &&
+        !MediaQuery.disableAnimationsOf(context)) {
       _fall.forward(from: 0);
     }
   }

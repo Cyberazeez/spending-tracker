@@ -156,10 +156,18 @@ class ReviewPage extends ConsumerWidget {
             ),
           ),
           data: (list) => list.isEmpty && aiRead.isEmpty
-              ? EmptyState(
-                  art: EmptyArtKind.done,
-                  title: t.reviewEmpty,
-                  body: t.reviewEmptyBody,
+              ? CustomScrollView(
+                  // scrolls only when large text makes it taller than the screen
+                  slivers: [
+                    SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: EmptyState(
+                        art: EmptyArtKind.done,
+                        title: t.reviewEmpty,
+                        body: t.reviewEmptyBody,
+                      ),
+                    ),
+                  ],
                 )
               : ListView(
                   padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),

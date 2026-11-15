@@ -430,7 +430,10 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
                   SliverFillRemaining(
                     hasScrollBody: false,
                     child: EmptyState(
-                      art: EmptyArtKind.done,
+                      // good news only when bills exist; a new account with none is still waiting
+                      art: all.any((i) => !i.isSuggestion)
+                          ? EmptyArtKind.done
+                          : EmptyArtKind.waiting,
                       title: t.obEmptyUpcoming,
                     ),
                   )
