@@ -157,7 +157,7 @@ class ReviewPage extends ConsumerWidget {
           ),
           data: (list) => list.isEmpty && aiRead.isEmpty
               ? EmptyState(
-                  icon: CupertinoIcons.checkmark_circle,
+                  art: EmptyArtKind.done,
                   title: t.reviewEmpty,
                   body: t.reviewEmptyBody,
                 )
