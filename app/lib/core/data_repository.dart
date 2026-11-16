@@ -21,6 +21,13 @@ abstract class DataRepository {
   /// keep their category.
   Future<void> deleteMerchantRule(String id);
 
+  /// The rules the owner deleted (kept as `disabled`), so one can be brought back.
+  Future<List<MerchantRule>> deletedMerchantRules();
+
+  /// Brings a deleted rule back: future purchases from that place go to its category again. Past purchases are not
+  /// changed.
+  Future<void> restoreMerchantRule(String id);
+
   /// How many other, not manually categorised, transactions share this merchant.
   /// Spending (purchases and refunds with a merchant, not internal) that has no category yet, across all history,
   /// the same set the AI suggestion works on.
@@ -301,6 +308,36 @@ class SupabaseDataRepository implements DataRepository {
         .from('merchant_rules')
         .update({'status': 'disabled'})
         .eq('id', id);
+  }
+
+  @override
+  Future<List<MerchantRule>> deletedMerchantRules() async {
+    final rows = await _db
+        .from('merchant_rules')
+        .select('id, pattern, category_id')
+        .eq('status', 'disabled')
+        .not('pattern', 'like', 'acct:%')
+        .not('pattern', 'like', 'card:%')
+        .order('pattern')
+        .limit(500);
+    return [
+      for (final r in rows)
+        MerchantRule(
+          id: r['id'] as String,
+          pattern: r['pattern'] as String,
+          categoryId: r['category_id'] as String,
+        ),
+    ];
+  }
+
+  @override
+  Future<void> restoreMerchantRule(String id) async {
+    // Back as the owner's own confirmed rule (RLS limits the update to the owner's rows).
+    await _db
+        .from('merchant_rules')
+        .update({'status': 'confirmed'})
+        .eq('id', id)
+        .eq('status', 'disabled');
   }
 
   @override

@@ -210,6 +210,8 @@ void main() {
     await t.tap(find.byKey(const ValueKey('confirm-yes')));
     await t.pumpAndSettle();
     expect(h.data.rules, isEmpty);
-    expect(find.text('otten'), findsNothing);
+    // gone from its category; it only shows in Deleted rules, ready to restore
+    expect(find.byKey(const ValueKey('rule-delete-r1')), findsNothing);
+    expect(find.byKey(const ValueKey('rule-restore-r1')), findsOneWidget);
   });
 }

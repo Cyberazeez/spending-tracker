@@ -443,10 +443,39 @@ class FakeDataRepository implements DataRepository {
     return [...rules];
   }
 
+  /// Rules the owner deleted (status `disabled` on the server).
+  List<MerchantRule> deletedRules = [];
+  final restoreCalls = <String>[];
+
   @override
   Future<void> deleteMerchantRule(String id) async {
+    deletedRules = [
+      ...deletedRules,
+      for (final r in rules)
+        if (r.id == id) r,
+    ];
     rules = [
       for (final r in rules)
+        if (r.id != id) r,
+    ];
+  }
+
+  @override
+  Future<List<MerchantRule>> deletedMerchantRules() async {
+    if (failRules) throw StateError('offline');
+    return [...deletedRules];
+  }
+
+  @override
+  Future<void> restoreMerchantRule(String id) async {
+    restoreCalls.add(id);
+    rules = [
+      ...rules,
+      for (final r in deletedRules)
+        if (r.id == id) r,
+    ];
+    deletedRules = [
+      for (final r in deletedRules)
         if (r.id != id) r,
     ];
   }

@@ -129,8 +129,22 @@ void main() {
       await t.tap(find.byKey(const ValueKey('confirm-yes')));
       await t.pumpAndSettle();
       expect(h.data.rules.map((r) => r.id), ['r2', 'r3']);
-      expect(find.text('otten'), findsNothing);
       expect(find.text('1 rule'), findsNWidgets(2));
+      // It now waits in Deleted rules, the only place the page still shows it.
+      final deleted = find.byKey(const ValueKey('rules-deleted'));
+      expect(find.text('otten'), findsOneWidget);
+      expect(
+        find.descendant(of: deleted, matching: find.text('otten')),
+        findsOneWidget,
+      );
+      // Undo: Restore puts it back in its category and empties the deleted list.
+      await t.ensureVisible(find.byKey(const ValueKey('rule-restore-r1')));
+      await t.tap(find.byKey(const ValueKey('rule-restore-r1')));
+      await t.pumpAndSettle();
+      expect(h.data.restoreCalls, ['r1']);
+      expect(h.data.rules.map((r) => r.id), containsAll(['r1', 'r2', 'r3']));
+      expect(deleted, findsNothing);
+      expect(find.byKey(const ValueKey('rule-delete-r1')), findsOneWidget);
     });
 
     testWidgets('a failed load offers to try again', (t) async {
