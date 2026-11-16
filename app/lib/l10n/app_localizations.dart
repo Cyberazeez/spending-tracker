@@ -3332,6 +3332,30 @@ abstract class AppLocalizations {
   /// **'Delete rule'**
   String get rulesDeleteYes;
 
+  /// No description provided for @rulesDeletedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted rules'**
+  String get rulesDeletedTitle;
+
+  /// No description provided for @rulesDeletedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore a rule to file new purchases from that place under its category again. Past purchases are not changed.'**
+  String get rulesDeletedHint;
+
+  /// No description provided for @rulesRestore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore'**
+  String get rulesRestore;
+
+  /// No description provided for @rulesRestoreA11y.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore the rule for {place}'**
+  String rulesRestoreA11y(String place);
+
   /// No description provided for @capOffline.
   ///
   /// In en, this message translates to:

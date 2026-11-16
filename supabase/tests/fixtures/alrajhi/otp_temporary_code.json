@@ -1,0 +1,9 @@
+{
+  "sender": "AlRajhiBank",
+  "receivedAt": "2026-11-13T17:41:36.000Z",
+  "body": "رمز مؤقت:1234\nلـ :تحويل محلي - التطبيق\nالمبلغ:SAR 1,500.00",
+  "expected": {
+    "kind": "ignored",
+    "reason": "otp"
+  }
+}

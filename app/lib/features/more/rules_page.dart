@@ -9,6 +9,7 @@ import '../../ui/app_card.dart';
 import '../../ui/app_form.dart';
 import '../../ui/confirm_sheet.dart';
 import '../../ui/empty_state.dart';
+import '../../ui/empty_art.dart' show emptyArtFill;
 import '../../ui/icon_tile.dart';
 import '../../ui/settings_group.dart' show dangerTileColor;
 import '../../ui/tokens.dart';
@@ -20,6 +21,12 @@ import '../../ui/skeleton.dart';
 /// The owner's merchant rules (place → category), newest data on every open.
 final merchantRulesProvider = FutureProvider.autoDispose<List<MerchantRule>>(
   (ref) => ref.watch(dataRepositoryProvider).merchantRules(),
+  retry: (_, _) => null,
+);
+
+/// The rules the owner deleted, so one can be restored (2026-11-16).
+final deletedRulesProvider = FutureProvider.autoDispose<List<MerchantRule>>(
+  (ref) => ref.watch(dataRepositoryProvider).deletedMerchantRules(),
   retry: (_, _) => null,
 );
 
@@ -53,7 +60,29 @@ class RulesPage extends ConsumerWidget {
       }
       return;
     }
-    ref.invalidate(merchantRulesProvider);
+    ref
+      ..invalidate(merchantRulesProvider)
+      ..invalidate(deletedRulesProvider);
+  }
+
+  /// Undo for a deleted rule: it goes back into its category's list.
+  Future<void> _restore(
+    BuildContext context,
+    WidgetRef ref,
+    MerchantRule r,
+  ) async {
+    final t = AppLocalizations.of(context);
+    try {
+      await ref.read(dataRepositoryProvider).restoreMerchantRule(r.id);
+    } catch (_) {
+      if (context.mounted) {
+        await showNoticeSheet(context, title: t.obSaveFailed);
+      }
+      return;
+    }
+    ref
+      ..invalidate(merchantRulesProvider)
+      ..invalidate(deletedRulesProvider);
   }
 
   @override
@@ -61,6 +90,8 @@ class RulesPage extends ConsumerWidget {
     final t = AppLocalizations.of(context);
     final arabic = ref.watch(localeProvider).languageCode == 'ar';
     final rules = ref.watch(merchantRulesProvider);
+    // Deleted rules are extra: if they fail to load the page still works, just without the restore list.
+    final deleted = ref.watch(deletedRulesProvider).value ?? const [];
     final cats = ref.watch(categoriesProvider);
     final text = AppTokens.text.resolveFrom(context);
     final muted = AppTokens.muted.resolveFrom(context);
@@ -142,6 +173,19 @@ class RulesPage extends ConsumerWidget {
                 ],
               ),
             ),
+          if (deleted.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            _DeletedCard(
+              rules: deleted,
+              categoryLabel: (id) {
+                for (final c in cats.value!) {
+                  if (c.id == id) return c.label(arabic: arabic);
+                }
+                return '';
+              },
+              onRestore: (r) => _restore(context, ref, r),
+            ),
+          ],
         ],
       );
     }
@@ -289,4 +333,128 @@ class _CategoryChip extends StatelessWidget {
       ),
     ),
   );
+}
+
+/// Deleted rules with a Restore link each: the undo for a delete, any time later.
+class _DeletedCard extends StatelessWidget {
+  const _DeletedCard({
+    required this.rules,
+    required this.categoryLabel,
+    required this.onRestore,
+  });
+
+  final List<MerchantRule> rules;
+  final String Function(String categoryId) categoryLabel;
+  final ValueChanged<MerchantRule> onRestore;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final text = AppTokens.text.resolveFrom(context);
+    final muted = AppTokens.muted.resolveFrom(context);
+    final line = AppTokens.bar.resolveFrom(context);
+    final link = AppTokens.accentText.resolveFrom(context);
+    return AppCard(
+      key: const ValueKey('rules-deleted'),
+      padding: const EdgeInsets.fromLTRB(14, 12, 6, 6),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              const IconTile(
+                color: emptyArtFill,
+                icon: LucideIcons.archiveRestore,
+                size: 38,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  t.rulesDeletedTitle,
+                  style: TextStyle(
+                    color: text,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Padding(
+            padding: const EdgeInsetsDirectional.fromSTEB(0, 8, 8, 4),
+            child: Text(
+              t.rulesDeletedHint,
+              style: TextStyle(
+                color: muted,
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                height: 1.4,
+              ),
+            ),
+          ),
+          for (var i = 0; i < rules.length; i++) ...[
+            if (i > 0)
+              Padding(
+                padding: const EdgeInsetsDirectional.only(end: 8),
+                child: SizedBox(height: 2, child: ColoredBox(color: line)),
+              ),
+            Row(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 6),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          rules[i].pattern,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: text,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        if (categoryLabel(rules[i].categoryId).isNotEmpty)
+                          Text(
+                            categoryLabel(rules[i].categoryId),
+                            style: TextStyle(
+                              color: muted,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+                Semantics(
+                  key: ValueKey('rule-restore-${rules[i].id}'),
+                  container: true,
+                  button: true,
+                  label: t.rulesRestoreA11y(rules[i].pattern),
+                  onTap: () => onRestore(rules[i]),
+                  excludeSemantics: true,
+                  child: CupertinoButton(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    minimumSize: const Size(44, 44),
+                    onPressed: () => onRestore(rules[i]),
+                    child: Text(
+                      t.rulesRestore,
+                      style: TextStyle(
+                        color: link,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
 }

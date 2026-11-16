@@ -80,6 +80,8 @@ Source: the owner's screenshots (2026-10-30). Names, phone and account numbers a
 | حوالة محلية (مصرف:SAB/SNB, الرسوم, مرجع) | transfer_out | `HH:mm d-M-yy` |
 | حوالة داخلية صادرة / واردة / محلية واردة | transfer_out / transfer_in | `HH:mm d-M-yy` or **`yy-M-d HH:mm`** |
 | **Compact transfer layout (2026-11-08, from a tester):** `حوالة صادرة داخلية ب384 SAR` / `ل0102* <name>` / `08/11/26 17:49`: number before SAR, no label words, destination as `ل<last4>* <name>` | transfer_out | `dd/MM/yy HH:mm` |
+| **PoS purchase layout (2026-11-16, from a tester's stored messages):** `شراء PoS` / `عبر:<card>;مدى-ابل باي` / `بـSAR <amount>` / `لـ<merchant>` / `dd/MM/yy HH:mm`. In every sample (10 so far) the printed **date is one day after the real one** while the clock time is right, so the parser never places the purchase after the SMS arrival: it keeps the printed time on the arrival's Riyadh day (or the day before when that time is still ahead). Fixtures `purchase_pos_apple_pay`, `purchase_pos_date_one_day_ahead` | purchase | `dd/MM/yy HH:mm` (date unreliable) |
+| `رمز مؤقت:<code>` (temporary code for an app transfer, with the amount) | ignored (otp) | |
 | OTP for Apple Pay, card added/removed, beneficiary added/activated, card approval/decline, card-expiry, tariff notices | ignored | |
 
 Two numeric orders appear for dates (`d-M-yy` and `yy-M-d`). Resolve with `received_at` proximity.
@@ -94,7 +96,7 @@ ATM withdrawal (any bank); salary from a bank other than Alinma; electricity bil
 One loan, just started. A month's installment can be collected in more than one deduction (an 87 SAR deduction on the 28th with 227,641.48 remaining, then 3,858.33 on the 29th once salary landed). The `المبلغ المتبقي` figure on a deduction is what is still owed for that period: `0.00` means the month is fully collected. The obligation instance for the month therefore sums all `خصم قسط تمويل` deductions until the expected installment is covered.
 
 ## Fixtures
-Every template above has a redacted fixture in `supabase/tests/fixtures/<sender>/` (67 files). They were transcribed from the owner's screenshots in **logical** (stored) order, with names replaced by `PERSON X` and one-time codes by `000000`. The first real Arabic SMS the ingest function stores is the check that the transcription matches the bytes the phone sends: if a parser misses one, it lands in Needs review and its stored `raw_messages.body` becomes the corrected fixture.
+Every template above has a redacted fixture in `supabase/tests/fixtures/<sender>/` (80 files on 2026-11-16, statements included). They were transcribed from the owner's screenshots in **logical** (stored) order, with names replaced by `PERSON X` and one-time codes by `000000`. The first real Arabic SMS the ingest function stores is the check that the transcription matches the bytes the phone sends: if a parser misses one, it lands in Needs review and its stored `raw_messages.body` becomes the corrected fixture.
 Known gaps: Al Rajhi reversal ("عكس عملية") and SNB `رصيد غير كافي لشراء نقاط البيع` are only partly captured.
 
 **Confirmed on a real message (2026-10-31):** an Alinma purchase arrived as `في 26-10-31 15:59` (year first), while the screenshot showed `29-10-26` day first. Iphone screenshots can display digit groups in a different order than the stored text, so the date reader tries every plausible order and picks the one closest to the arrival time. `purchase_pos_real_year_first_date` is a fixture copied from a real stored message.

@@ -1850,6 +1850,21 @@ class AppLocalizationsAr extends AppLocalizations {
   String get rulesDeleteYes => 'احذف القاعدة';
 
   @override
+  String get rulesDeletedTitle => 'القواعد المحذوفة';
+
+  @override
+  String get rulesDeletedHint =>
+      'استعد القاعدة لتُصنَّف المشتريات الجديدة من هذا المكان في فئتها مرة أخرى. المشتريات السابقة لا تتغير.';
+
+  @override
+  String get rulesRestore => 'استعادة';
+
+  @override
+  String rulesRestoreA11y(String place) {
+    return 'استعادة قاعدة $place';
+  }
+
+  @override
   String get capOffline => 'لا يوجد اتصال';
 
   @override

@@ -1859,6 +1859,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get rulesDeleteYes => 'Delete rule';
 
   @override
+  String get rulesDeletedTitle => 'Deleted rules';
+
+  @override
+  String get rulesDeletedHint =>
+      'Restore a rule to file new purchases from that place under its category again. Past purchases are not changed.';
+
+  @override
+  String get rulesRestore => 'Restore';
+
+  @override
+  String rulesRestoreA11y(String place) {
+    return 'Restore the rule for $place';
+  }
+
+  @override
   String get capOffline => 'No connection';
 
   @override
