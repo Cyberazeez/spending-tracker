@@ -123,9 +123,9 @@ function appleSetup(over: Partial<DeleteDeps> = {}, providers = ["apple"]) {
         a === "Bearer good" ? { id: "u1", email: "relay@privaterelay.test", providers } : null,
       ),
     verifyPassword: () => Promise.resolve(false),
-    verifyApple: (t, n) => {
+    verifyApple: (t, n, uid) => {
       verified.push([t, n]);
-      return Promise.resolve(t === "good-token" ? "u1" : t === "other-users-token" ? "u2" : null);
+      return Promise.resolve(t === "good-token" && uid === "u1");
     },
     revokeApple: (code) => {
       revoked.push(code);

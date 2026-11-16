@@ -17,10 +17,10 @@ export interface DeleteDeps {
   /** Marks the account for deletion in GRACE_DAYS; idempotent. */
   requestDeletion(userId: string): Promise<void>;
   /**
-   * Fresh proof for accounts with no password: a new Apple identity token (and its raw nonce) that Supabase accepts.
-   * Returns the user id it belongs to, or null.
+   * Fresh proof for accounts with no password: true when the Apple identity token is valid, freshly issued for this
+   * raw nonce and belongs to the Apple sign-in of [userId]. Must not sign anyone in.
    */
-  verifyApple?(idToken: string, nonce: string): Promise<string | null>;
+  verifyApple?(idToken: string, nonce: string, userId: string): Promise<boolean>;
   /**
    * Fresh proof for accounts that sign in with Google: true when the Google ID token is valid, freshly issued and
    * belongs to the Google sign-in of [userId]. Must not sign anyone in.
@@ -96,8 +96,9 @@ export async function handleDeleteAccount(req: Request, deps: DeleteDeps): Promi
     if (await deps.bumpRateLimit(user.id) > DELETE_LIMIT_PER_DAY) {
       return json(429, { error: "rate_limited" });
     }
-    const who = await deps.verifyApple(apple.id_token, apple.nonce);
-    if (who !== user.id) return json(403, { error: "wrong_apple_account" });
+    if (!(await deps.verifyApple(apple.id_token, apple.nonce, user.id))) {
+      return json(403, { error: "wrong_apple_account" });
+    }
   } else {
     const password = b.password;
     if (typeof password !== "string" || password === "" || password.length > 200) {
