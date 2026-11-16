@@ -44,9 +44,8 @@ const deps: DeleteDeps = {
   // Apple ID or Google account, or start a session for someone else's (which also cancels their pending deletion).
   // The token's account must then be this user's own Apple or Google sign-in.
   async verifyApple(idToken, nonce, userId) {
-    // The bundle ID always; APPLE_CLIENT_ID too if it is set to something else (it defaults to the bundle ID).
-    const clientIds = [BUNDLE_ID, Deno.env.get("APPLE_CLIENT_ID") || BUNDLE_ID];
-    const sub = await verifyAppleIdToken(tokenDeps, idToken, nonce, clientIds);
+    // Native Sign in with Apple issues the token to the app's bundle ID, and the app has no web Apple sign-in.
+    const sub = await verifyAppleIdToken(tokenDeps, idToken, nonce, [BUNDLE_ID]);
     return sub !== null && await hasIdentity(userId, "apple", sub);
   },
   async verifyGoogle(idToken, userId) {
