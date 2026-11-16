@@ -2276,6 +2276,18 @@ abstract class AppLocalizations {
   /// **'Could not sign in with Apple. Try again.'**
   String get appleFailed;
 
+  /// No description provided for @googleSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with Google'**
+  String get googleSignIn;
+
+  /// No description provided for @googleFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not sign in with Google. Try again.'**
+  String get googleFailed;
+
   /// No description provided for @linkExpiredTitle.
   ///
   /// In en, this message translates to:
@@ -2588,10 +2600,22 @@ abstract class AppLocalizations {
   /// **'That Apple ID is not the one for this account.'**
   String get deleteWrongApple;
 
+  /// No description provided for @deleteGoogle.
+  ///
+  /// In en, this message translates to:
+  /// **'You signed in with Google, so there is no password. After you confirm, Google asks you to choose your account once more to prove it is you.'**
+  String get deleteGoogle;
+
+  /// No description provided for @deleteWrongGoogle.
+  ///
+  /// In en, this message translates to:
+  /// **'That Google account is not the one for this account.'**
+  String get deleteWrongGoogle;
+
   /// No description provided for @secNoPassword.
   ///
   /// In en, this message translates to:
-  /// **'You sign in with Apple, so this account has no password to change.'**
+  /// **'You sign in with Apple or Google, so this account has no password to change.'**
   String get secNoPassword;
 
   /// No description provided for @deleteWrongPassword.

@@ -91,6 +91,43 @@ class FakeAuthRepository implements AuthRepository {
     _controller.add(false);
   }
 
+  SocialProvider proofProviderValue = SocialProvider.apple;
+  String? googleProof = 'google-token';
+  final deleteGoogleCalls = <String>[];
+
+  @override
+  SocialProvider get proofProvider => proofProviderValue;
+
+  @override
+  Future<String?> proveWithGoogle() async => googleProof;
+
+  @override
+  Future<void> deleteAccountWithGoogle(String idToken) async {
+    if (deleteFailWith != null) throw DeleteAccountException(deleteFailWith!);
+    deleteGoogleCalls.add(idToken);
+    _signedIn = false;
+    _controller.add(false);
+  }
+
+  bool googleSupported = true;
+  SocialFailure? googleFailWith;
+  SocialResult googleResult = SocialResult.signedIn;
+  int googleCalls = 0;
+
+  @override
+  bool get googleSignInSupported => googleSupported;
+
+  @override
+  Future<SocialResult> signInWithGoogle() async {
+    googleCalls++;
+    if (googleFailWith != null) throw SocialSignInException(googleFailWith!);
+    if (googleResult != SocialResult.cancelled) {
+      _signedIn = true;
+      _controller.add(true);
+    }
+    return googleResult;
+  }
+
   bool appleSupported = true;
   SocialFailure? appleFailWith;
   SocialResult appleResult = SocialResult.signedIn;

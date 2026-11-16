@@ -1224,6 +1224,12 @@ class AppLocalizationsAr extends AppLocalizations {
   String get appleFailed => 'تعذّر تسجيل الدخول عبر Apple. حاول مرة أخرى.';
 
   @override
+  String get googleSignIn => 'تسجيل الدخول عبر Google';
+
+  @override
+  String get googleFailed => 'تعذّر تسجيل الدخول عبر Google. حاول مرة أخرى.';
+
+  @override
   String get linkExpiredTitle => 'انتهت صلاحية هذا الرابط';
 
   @override
@@ -1397,8 +1403,16 @@ class AppLocalizationsAr extends AppLocalizations {
       'حساب Apple هذا ليس حساب Apple الخاص بهذا الحساب.';
 
   @override
+  String get deleteGoogle =>
+      'سجّلت الدخول عبر Google، لذلك لا توجد كلمة مرور. بعد التأكيد سيطلب منك Google اختيار حسابك مرة أخرى للتحقق أنك أنت.';
+
+  @override
+  String get deleteWrongGoogle =>
+      'حساب Google هذا ليس الحساب المرتبط بهذا الحساب.';
+
+  @override
   String get secNoPassword =>
-      'تسجّل الدخول عبر Apple، لذلك لا توجد كلمة مرور لهذا الحساب لتغييرها.';
+      'تسجّل الدخول عبر Apple أو Google، لذلك لا توجد كلمة مرور لهذا الحساب لتغييرها.';
 
   @override
   String get deleteWrongPassword => 'كلمة المرور غير صحيحة.';

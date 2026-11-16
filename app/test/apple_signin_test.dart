@@ -8,12 +8,17 @@ import 'package:spending_tracker/core/auth_repository.dart';
 
 import 'support/fakes.dart';
 
-Future<Harness> openLogin(WidgetTester tester, {bool supported = true}) async {
+Future<Harness> openLogin(
+  WidgetTester tester, {
+  bool supported = true,
+  bool google = true,
+}) async {
   tester.view.physicalSize = const Size(800, 2400);
   tester.view.devicePixelRatio = 2;
   addTearDown(tester.view.reset);
   final h = Harness();
   h.auth.appleSupported = supported;
+  h.auth.googleSupported = google;
   await tester.pumpWidget(await h.build());
   await tester.pumpAndSettle();
   return h;
@@ -57,6 +62,9 @@ void main() {
     (tester) async {
       await openLogin(tester, supported: false);
       expect(find.byType(SignInWithAppleButton), findsNothing);
+      expect(find.text('Sign in with Google'), findsOneWidget);
+      expect(find.text('or'), findsOneWidget);
+      await openLogin(tester, supported: false, google: false);
       expect(find.text('or'), findsNothing);
     },
   );

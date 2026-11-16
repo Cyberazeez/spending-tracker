@@ -98,12 +98,12 @@ Tracking: **No** (no advertising, no analytics SDK, no data broker). All items b
 | Identifiers: User ID | Yes | Account id, capture and widget tokens |
 | Location, Contacts, Photos, Health, Browsing, Search, Diagnostics, Usage Data, Advertising data | No | Not collected |
 
-Data processors to keep in step with the policy: Supabase (Mumbai), Resend (email), Apple (sign-in), Anthropic (optional AI; only when the user turns it on). Age rating questionnaire: no objectionable content, no gambling, no unrestricted web access → **4+**. Export compliance: `ITSAppUsesNonExemptEncryption = false` is already set (HTTPS only). Account deletion: in the app (Account > Privacy > Delete my account), satisfies the review rule on deletion; Sign in with Apple is offered next to email + password.
+Data processors to keep in step with the policy: Supabase (Mumbai), Resend (email), Apple (sign-in), Google (sign-in, since 2026-11-16), Anthropic (optional AI; only when the user turns it on). Age rating questionnaire: no objectionable content, no gambling, no unrestricted web access → **4+**. Export compliance: `ITSAppUsesNonExemptEncryption = false` is already set (HTTPS only). Account deletion: in the app (Account > Privacy > Delete my account), satisfies the review rule on deletion; Sign in with Apple and Sign in with Google are offered next to email + password.
 
 ## 6. Notes for App Review (paste into "Notes")
 > Halala records the user's spending from bank SMS. The SMS capture is optional: a user sets up an iOS Shortcut that forwards bank messages to the app; all features also work with purchases added by hand (Quick add). To review without a bank, sign in with the demo account below and use Quick add to create a purchase.
 > Demo account: email halala-review@rawafiddata.com / password <OWNER: enter it in App Store Connect, not in git>. It is already email-confirmed and has sample data (6 purchases, a 6,000 SAR monthly budget). Creating a new account needs a confirmation link sent by email, so please use the demo account.
-> Sign in with Apple is also offered. Account deletion is under Account > Privacy > Delete my account.
+> Sign in with Apple and Sign in with Google are also offered. Account deletion is under Account > Privacy > Delete my account.
 > AI features are optional, off by default, and send only redacted text to Anthropic's API; they are not needed to review the app.
 > The app does not read SMS directly; it receives only messages the user's own Shortcut sends.
 
