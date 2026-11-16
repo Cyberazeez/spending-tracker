@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { FROM_DEFAULT, sendAccountEmail } from "../_shared/account_email.ts";
 import { appleConfigFromEnv, revokeAppleAccess } from "../_shared/apple_auth.ts";
+import { verifyAppleIdToken } from "../_shared/apple_id_token.ts";
 import { verifyGoogleIdToken } from "../_shared/google_id_token.ts";
 import { type DeleteDeps, handleDeleteAccount } from "./handler.ts";
 
@@ -9,6 +10,17 @@ const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
 const noSession = { auth: { persistSession: false, autoRefreshToken: false } };
 const admin = createClient(url, serviceKey, noSession);
+const tokenDeps = { fetch, now: () => Date.now() / 1000 };
+const BUNDLE_ID = "com.cyberazeez.spendingtracker";
+
+/** True when [userId] signs in with [provider] as the provider's account [sub]. */
+async function hasIdentity(userId: string, provider: string, sub: string): Promise<boolean> {
+  const { data, error } = await admin.auth.admin.getUserById(userId);
+  if (error || !data.user) return false;
+  return (data.user.identities ?? []).some((i) =>
+    i.provider === provider && (i.id === sub || i.identity_data?.sub === sub)
+  );
+}
 
 const deps: DeleteDeps = {
   async getUser(authorization) {
@@ -28,26 +40,17 @@ const deps: DeleteDeps = {
     const { error } = await probe.auth.signInWithPassword({ email, password });
     return !error;
   },
-  async verifyApple(idToken, nonce) {
-    // A throwaway client: a fresh Apple identity token is exchanged for a session that is never stored or used.
-    const probe = createClient(url, anonKey, noSession);
-    const { data, error } = await probe.auth.signInWithIdToken({
-      provider: "apple",
-      token: idToken,
-      nonce,
-    });
-    return error ? null : (data.user?.id ?? null);
+  // Apple and Google proofs are read, never used to sign in: signing in would create an account for an unknown
+  // Apple ID or Google account, or start a session for someone else's (which also cancels their pending deletion).
+  // The token's account must then be this user's own Apple or Google sign-in.
+  async verifyApple(idToken, nonce, userId) {
+    // Native Sign in with Apple issues the token to the app's bundle ID, and the app has no web Apple sign-in.
+    const sub = await verifyAppleIdToken(tokenDeps, idToken, nonce, [BUNDLE_ID]);
+    return sub !== null && await hasIdentity(userId, "apple", sub);
   },
   async verifyGoogle(idToken, userId) {
-    // Read the token, never sign in with it: signing in would create an account for an unknown Google user or start
-    // a session for someone else's. Then the token's Google account must be this user's Google sign-in.
-    const sub = await verifyGoogleIdToken({ fetch, now: () => Date.now() / 1000 }, idToken);
-    if (!sub) return false;
-    const { data, error } = await admin.auth.admin.getUserById(userId);
-    if (error || !data.user) return false;
-    return (data.user.identities ?? []).some((i) =>
-      i.provider === "google" && (i.id === sub || i.identity_data?.sub === sub)
-    );
+    const sub = await verifyGoogleIdToken(tokenDeps, idToken);
+    return sub !== null && await hasIdentity(userId, "google", sub);
   },
   async revokeApple(authorizationCode) {
     const cfg = appleConfigFromEnv((k) => Deno.env.get(k));

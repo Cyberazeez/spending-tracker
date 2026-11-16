@@ -116,16 +116,16 @@ Deno.test("the deletion mail goes to the caller, and a mail failure does not und
 function appleSetup(over: Partial<DeleteDeps> = {}, providers = ["apple"]) {
   const deleted: string[] = [];
   const revoked: string[] = [];
-  const verified: [string, string][] = [];
+  const verified: [string, string, string][] = [];
   const deps: DeleteDeps = {
     getUser: (a) =>
       Promise.resolve(
         a === "Bearer good" ? { id: "u1", email: "relay@privaterelay.test", providers } : null,
       ),
     verifyPassword: () => Promise.resolve(false),
-    verifyApple: (t, n) => {
-      verified.push([t, n]);
-      return Promise.resolve(t === "good-token" ? "u1" : t === "other-users-token" ? "u2" : null);
+    verifyApple: (t, n, uid) => {
+      verified.push([t, n, uid]);
+      return Promise.resolve(t === "good-token" && uid === "u1");
     },
     revokeApple: (code) => {
       revoked.push(code);
@@ -159,7 +159,7 @@ Deno.test("an Apple account deletes with a fresh Apple proof and Apple's token i
   assert.deepEqual(await res.json(), { ok: true, grace_days: 30, apple_revoked: true });
   assert.deepEqual(deleted, ["u1"]);
   assert.deepEqual(revoked, ["code1"]);
-  assert.deepEqual(verified, [["good-token", "n1"]]);
+  assert.deepEqual(verified, [["good-token", "n1", "u1"]]); // checked against the caller's own account
 });
 
 Deno.test("an Apple token for another account or a bad token deletes nothing", async () => {
