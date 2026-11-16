@@ -22,10 +22,10 @@ export interface DeleteDeps {
    */
   verifyApple?(idToken: string, nonce: string): Promise<string | null>;
   /**
-   * Fresh proof for accounts that sign in with Google: a new Google ID token that Supabase accepts. Returns the user id
-   * it belongs to, or null.
+   * Fresh proof for accounts that sign in with Google: true when the Google ID token is valid, freshly issued and
+   * belongs to the Google sign-in of [userId]. Must not sign anyone in.
    */
-  verifyGoogle?(idToken: string): Promise<string | null>;
+  verifyGoogle?(idToken: string, userId: string): Promise<boolean>;
   /** Best-effort: revoke the person's Apple token (Apple's rule for account deletion). True when Apple accepted. */
   revokeApple?(authorizationCode: string): Promise<boolean>;
   /** Counts this try; returns how many today. */
@@ -78,8 +78,9 @@ export async function handleDeleteAccount(req: Request, deps: DeleteDeps): Promi
     if (await deps.bumpRateLimit(user.id) > DELETE_LIMIT_PER_DAY) {
       return json(429, { error: "rate_limited" });
     }
-    const who = await deps.verifyGoogle(google.id_token);
-    if (who !== user.id) return json(403, { error: "wrong_google_account" });
+    if (!(await deps.verifyGoogle(google.id_token, user.id))) {
+      return json(403, { error: "wrong_google_account" });
+    }
   } else if (apple !== undefined) {
     if (
       typeof apple !== "object" || apple === null || !providers.includes("apple") ||

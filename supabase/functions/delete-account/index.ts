@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { FROM_DEFAULT, sendAccountEmail } from "../_shared/account_email.ts";
 import { appleConfigFromEnv, revokeAppleAccess } from "../_shared/apple_auth.ts";
+import { verifyGoogleIdToken } from "../_shared/google_id_token.ts";
 import { type DeleteDeps, handleDeleteAccount } from "./handler.ts";
 
 const url = Deno.env.get("SUPABASE_URL")!;
@@ -37,15 +38,16 @@ const deps: DeleteDeps = {
     });
     return error ? null : (data.user?.id ?? null);
   },
-  async verifyGoogle(idToken) {
-    // A throwaway client, as for Apple. Google's token has no nonce we set ("Skip nonce checks" is on); Supabase
-    // checks its signature and that it was issued to one of our Google client IDs.
-    const probe = createClient(url, anonKey, noSession);
-    const { data, error } = await probe.auth.signInWithIdToken({
-      provider: "google",
-      token: idToken,
-    });
-    return error ? null : (data.user?.id ?? null);
+  async verifyGoogle(idToken, userId) {
+    // Read the token, never sign in with it: signing in would create an account for an unknown Google user or start
+    // a session for someone else's. Then the token's Google account must be this user's Google sign-in.
+    const sub = await verifyGoogleIdToken({ fetch, now: () => Date.now() / 1000 }, idToken);
+    if (!sub) return false;
+    const { data, error } = await admin.auth.admin.getUserById(userId);
+    if (error || !data.user) return false;
+    return (data.user.identities ?? []).some((i) =>
+      i.provider === "google" && (i.id === sub || i.identity_data?.sub === sub)
+    );
   },
   async revokeApple(authorizationCode) {
     const cfg = appleConfigFromEnv((k) => Deno.env.get(k));

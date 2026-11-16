@@ -433,10 +433,15 @@ class SupabaseAuthRepository implements AuthRepository {
   /// Opens Google's sheet and returns the account's ID token. Null when the person closes it.
   Future<String?> _googleSheet() async {
     try {
-      await (_googleReady ??= GoogleSignIn.instance.initialize(
-        clientId: AppConfig.googleIosClientId,
-        serverClientId: AppConfig.googleWebClientId,
-      ));
+      await (_googleReady ??= GoogleSignIn.instance
+          .initialize(
+            clientId: AppConfig.googleIosClientId,
+            serverClientId: AppConfig.googleWebClientId,
+          )
+          .catchError((Object e) {
+            _googleReady = null; // a failed setup is tried again next time
+            throw e;
+          }));
       final account = await GoogleSignIn.instance.authenticate();
       final token = account.authentication.idToken;
       if (token == null) {
@@ -455,6 +460,14 @@ class SupabaseAuthRepository implements AuthRepository {
 
   @override
   Future<String?> proveWithGoogle() => _googleSheet();
+
+  /// Best effort: makes the Google SDK forget the account on this phone after sign-out or account deletion.
+  Future<void> _forgetGoogle() async {
+    if (_googleReady == null) return;
+    try {
+      await GoogleSignIn.instance.signOut();
+    } catch (_) {}
+  }
 
   @override
   Future<SocialResult> signInWithGoogle() async {
@@ -512,7 +525,10 @@ class SupabaseAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<void> signOut() => _client.auth.signOut();
+  Future<void> signOut() async {
+    await _forgetGoogle();
+    await _client.auth.signOut();
+  }
 
   @override
   String? get email => _client.auth.currentUser?.email;
@@ -572,6 +588,7 @@ class SupabaseAuthRepository implements AuthRepository {
       throw const DeleteAccountException(DeleteFailure.network);
     }
     // The account is gone; the session is already useless, so a failing sign-out here is harmless.
+    await _forgetGoogle();
     try {
       await _client.auth.signOut(scope: SignOutScope.local);
     } catch (_) {}

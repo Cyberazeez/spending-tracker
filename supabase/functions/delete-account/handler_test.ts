@@ -224,9 +224,9 @@ Deno.test("Apple deletions are rate limited like password ones", async () => {
 function googleSetup(over: Partial<DeleteDeps> = {}, providers = ["google"]) {
   const verified: string[] = [];
   const s = appleSetup({
-    verifyGoogle: (t) => {
+    verifyGoogle: (t, uid) => {
       verified.push(t);
-      return Promise.resolve(t === "good-google" ? "u1" : t === "other-users-google" ? "u2" : null);
+      return Promise.resolve(t === "good-google" && uid === "u1");
     },
     ...over,
   }, providers);
