@@ -1,0 +1,14 @@
+{
+  "sender": "AlRajhiBank",
+  "receivedAt": "2026-11-10T17:31:06.000Z",
+  "body": "شراء PoS\nعبر:4821;مدى-ابل باي\nبـSAR 21\nلـSTEAM TEA\n؜11/11/26 20:31",
+  "expected": {
+    "kind": "transaction",
+    "type": "purchase",
+    "direction": "out",
+    "amountHalalas": 2100,
+    "merchant": "STEAM TEA",
+    "cardLast4": "4821",
+    "occurredAt": "2026-11-10T17:31:00.000Z"
+  }
+}

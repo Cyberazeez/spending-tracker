@@ -6,6 +6,7 @@ import {
   lines,
   normalizeText,
   pickDate,
+  riyadhToIso,
   toHalalas,
 } from "./util.ts";
 import { strip } from "./alinma.ts";
@@ -21,7 +22,9 @@ export function parseAlRajhi(rawBody: string, receivedAt: Date): ParseResult {
   const at = pickDate(body, receivedAt);
   const tx = (t: ParsedTxn): ParseResult => ({ kind: "transaction", parser: P, txn: strip(t) });
 
-  if (/رمز التحقق|رمز التفعيل/.test(body)) return { kind: "ignored", parser: P, reason: "otp" };
+  if (/رمز التحقق|رمز التفعيل|رمز مؤقت/.test(body)) {
+    return { kind: "ignored", parser: P, reason: "otp" };
+  }
   if (/successfully (added|removed)/i.test(body) || /طلب (إضافة|اضافة)|بطاقة منتهية/.test(body)) {
     return { kind: "ignored", parser: P, reason: "wallet_event" };
   }
@@ -54,6 +57,23 @@ export function parseAlRajhi(rawBody: string, receivedAt: Date): ParseResult {
       merchant,
       cardLast4: card,
       accountLast4: last4(one(/^من\s*:\s*(\d{4})$/m)),
+      occurredAt: at,
+    });
+  }
+
+  // Card purchase, layout seen from Nov 2026: "شراء PoS / عبر:NNNN;مدى-ابل باي / بـSAR 21 / لـMERCHANT / dd/MM/yy HH:mm"
+  if (/^شراء/.test(head) && /^عبر\s*:/m.test(body)) {
+    const amt = one(new RegExp(`^بـ\\s*SAR\\s*${NUM}`, "m"));
+    const merchant = cleanMerchant(one(/^لـ\s*(.+)$/m) ?? "");
+    const at = purchaseTime(body, receivedAt);
+    if (!amt || !merchant || !at) return { kind: "unparsed" };
+    return tx({
+      bank: "alrajhi",
+      type: isWalletMerchant(merchant) ? "wallet_topup" : "purchase",
+      direction: "out",
+      amountHalalas: toHalalas(amt),
+      merchant,
+      cardLast4: last4(one(/^عبر\s*:\s*(\d{4})/m)),
       occurredAt: at,
     });
   }
@@ -95,4 +115,29 @@ export function parseAlRajhi(rawBody: string, receivedAt: Date): ParseResult {
     });
   }
   return { kind: "unparsed" };
+}
+
+/**
+ * When a card purchase happened. In the "شراء PoS" layout the date printed in the SMS has been a day after the real
+ * one (every sample so far, while the clock time matched the arrival to the minute), so a purchase is never placed
+ * after the SMS arrived: if the printed date is later, keep its clock time on the arrival's Riyadh day, or the day
+ * before when that time is still ahead of the arrival.
+ */
+function purchaseTime(body: string, receivedAt: Date): string | null {
+  const printed = pickDate(body, receivedAt);
+  const grace = 10 * 60 * 1000;
+  if (printed && new Date(printed).getTime() <= receivedAt.getTime() + grace) return printed;
+  const clock = body.match(/(\d{1,2}):(\d{2})(?!\d)/);
+  if (!clock) return printed;
+  const local = new Date(receivedAt.getTime() + 3 * 3600 * 1000); // Riyadh is UTC+3, no daylight saving
+  const at = (dayOffset: number) =>
+    riyadhToIso(
+      local.getUTCFullYear(),
+      local.getUTCMonth() + 1,
+      local.getUTCDate() + dayOffset,
+      +clock[1],
+      +clock[2],
+    );
+  const today = at(0);
+  return new Date(today).getTime() <= receivedAt.getTime() + grace ? today : at(-1);
 }

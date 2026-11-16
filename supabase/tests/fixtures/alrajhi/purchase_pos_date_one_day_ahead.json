@@ -1,0 +1,14 @@
+{
+  "sender": "AlRajhiBank",
+  "receivedAt": "2026-11-13T19:06:12.000Z",
+  "body": "شراء PoS\nعبر:4821;مدى-ابل باي\nبـSAR 129\nلـCaramel B\n؜14/11/26 22:06",
+  "expected": {
+    "kind": "transaction",
+    "type": "purchase",
+    "direction": "out",
+    "amountHalalas": 12900,
+    "merchant": "Caramel B",
+    "cardLast4": "4821",
+    "occurredAt": "2026-11-13T19:06:00.000Z"
+  }
+}
