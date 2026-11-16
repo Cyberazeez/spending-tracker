@@ -1229,6 +1229,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appleFailed => 'Could not sign in with Apple. Try again.';
 
   @override
+  String get googleSignIn => 'Sign in with Google';
+
+  @override
+  String get googleFailed => 'Could not sign in with Google. Try again.';
+
+  @override
   String get linkExpiredTitle => 'This link has expired';
 
   @override
@@ -1405,8 +1411,16 @@ class AppLocalizationsEn extends AppLocalizations {
       'That Apple ID is not the one for this account.';
 
   @override
+  String get deleteGoogle =>
+      'You signed in with Google, so there is no password. After you confirm, Google asks you to choose your account once more to prove it is you.';
+
+  @override
+  String get deleteWrongGoogle =>
+      'That Google account is not the one for this account.';
+
+  @override
   String get secNoPassword =>
-      'You sign in with Apple, so this account has no password to change.';
+      'You sign in with Apple or Google, so this account has no password to change.';
 
   @override
   String get deleteWrongPassword => 'The password is wrong.';

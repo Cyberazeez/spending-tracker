@@ -72,6 +72,7 @@ class _DeleteAccountPageState extends ConsumerState<DeleteAccountPage> {
       _error = null;
     });
     final auth = ref.read(authRepositoryProvider);
+    final google = !usesPassword && auth.proofProvider == SocialProvider.google;
     final capture = ref.read(captureBridgeProvider);
     final widget = ref.read(widgetBridgeProvider);
     final lock = ref.read(lockProvider.notifier);
@@ -82,6 +83,14 @@ class _DeleteAccountPageState extends ConsumerState<DeleteAccountPage> {
     try {
       if (usesPassword) {
         await auth.deleteAccount(_password.text);
+      } else if (google) {
+        // No password: Google's sheet proves it is the owner, and the server checks the token is for this account.
+        final token = await auth.proveWithGoogle();
+        if (token == null) {
+          if (mounted) setState(() => _busy = false);
+          return;
+        }
+        await auth.deleteAccountWithGoogle(token);
       } else {
         // No password: Apple's sheet proves it is the owner, and the server checks the proof is for this account.
         final proof = await auth.proveWithApple();
@@ -95,7 +104,7 @@ class _DeleteAccountPageState extends ConsumerState<DeleteAccountPage> {
       if (mounted) {
         setState(() {
           _busy = false;
-          _error = t.appleFailed;
+          _error = google ? t.googleFailed : t.appleFailed;
         });
       }
       return;
@@ -106,6 +115,7 @@ class _DeleteAccountPageState extends ConsumerState<DeleteAccountPage> {
           _error = switch (e.failure) {
             DeleteFailure.wrongPassword => t.deleteWrongPassword,
             DeleteFailure.wrongApple => t.deleteWrongApple,
+            DeleteFailure.wrongGoogle => t.deleteWrongGoogle,
             DeleteFailure.tooMany => t.deleteTooMany,
             DeleteFailure.network => t.deleteFailed,
           };
@@ -133,6 +143,7 @@ class _DeleteAccountPageState extends ConsumerState<DeleteAccountPage> {
     final danger = AppTokens.danger.resolveFrom(context);
     final onDanger = swipeLabelColor(danger);
     final ink = AppTokens.onTint.resolveFrom(context);
+    final auth = ref.watch(authRepositoryProvider);
     return CupertinoPageScaffold(
       backgroundColor: AppTokens.bg.resolveFrom(context),
       navigationBar: appNavBar(context, t.deleteTitle),
@@ -170,7 +181,7 @@ class _DeleteAccountPageState extends ConsumerState<DeleteAccountPage> {
               textInputAction: TextInputAction.next,
             ),
             const SizedBox(height: 16),
-            if (ref.watch(authRepositoryProvider).hasPassword)
+            if (auth.hasPassword)
               AppField(
                 controller: _password,
                 label: t.deletePassword,
@@ -180,7 +191,9 @@ class _DeleteAccountPageState extends ConsumerState<DeleteAccountPage> {
               )
             else
               Text(
-                t.deleteApple,
+                auth.proofProvider == SocialProvider.google
+                    ? t.deleteGoogle
+                    : t.deleteApple,
                 style: TextStyle(
                   color: AppTokens.muted.resolveFrom(context),
                   fontSize: 14,

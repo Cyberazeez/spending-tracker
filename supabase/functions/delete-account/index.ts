@@ -37,6 +37,16 @@ const deps: DeleteDeps = {
     });
     return error ? null : (data.user?.id ?? null);
   },
+  async verifyGoogle(idToken) {
+    // A throwaway client, as for Apple. Google's token has no nonce we set ("Skip nonce checks" is on); Supabase
+    // checks its signature and that it was issued to one of our Google client IDs.
+    const probe = createClient(url, anonKey, noSession);
+    const { data, error } = await probe.auth.signInWithIdToken({
+      provider: "google",
+      token: idToken,
+    });
+    return error ? null : (data.user?.id ?? null);
+  },
   async revokeApple(authorizationCode) {
     const cfg = appleConfigFromEnv((k) => Deno.env.get(k));
     if (!cfg) return false;

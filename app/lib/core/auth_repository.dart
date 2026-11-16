@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, TargetPlatform;
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -10,7 +11,7 @@ import 'apple_nonce.dart';
 
 enum SignInFailure { invalidCredentials, emailNotConfirmed, network }
 
-/// How a Sign in with Apple attempt ended. Closing Apple's sheet is not an error.
+/// How a Sign in with Apple or Google attempt ended. Closing the sheet is not an error.
 enum SocialResult { cancelled, signedIn, reactivated }
 
 enum SocialFailure { failed, network }
@@ -38,7 +39,10 @@ class SignUpException implements Exception {
 /// follow the confirmation link emailed to them (only when the project asks for email confirmation).
 enum SignUpResult { signedIn, confirmEmail }
 
-enum DeleteFailure { wrongPassword, wrongApple, tooMany, network }
+/// The sign-in an account without a password uses to prove it is the owner again.
+enum SocialProvider { apple, google }
+
+enum DeleteFailure { wrongPassword, wrongApple, wrongGoogle, tooMany, network }
 
 /// Fresh proof from Apple's sheet, sent to the server to delete an account that has no password.
 class AppleProof {
@@ -114,14 +118,24 @@ abstract class AuthRepository {
   /// Throws [DeleteAccountException].
   Future<void> deleteAccount(String password);
 
-  /// False for an account that only signs in with Apple: there is no password to re-enter or change.
+  /// False for an account that only signs in with Apple or Google: there is no password to re-enter or change.
   bool get hasPassword;
+
+  /// For an account without a password: Apple when the account has an Apple sign-in, otherwise Google.
+  SocialProvider get proofProvider;
 
   /// Opens Apple's sheet and returns fresh proof, or null when the person closes it. Throws [SocialSignInException].
   Future<AppleProof?> proveWithApple();
 
   /// Like [deleteAccount] for an account without a password. Throws [DeleteAccountException].
   Future<void> deleteAccountWithApple(AppleProof proof);
+
+  /// Opens Google's sheet and returns a fresh Google ID token, or null when the person closes it.
+  /// Throws [SocialSignInException].
+  Future<String?> proveWithGoogle();
+
+  /// Like [deleteAccountWithApple] with a Google ID token. Throws [DeleteAccountException].
+  Future<void> deleteAccountWithGoogle(String idToken);
 
   /// Checks [current] first, then sets [next]. Throws [PasswordException].
   Future<void> changePassword({required String current, required String next});
@@ -145,6 +159,12 @@ abstract class AuthRepository {
 
   /// Signs in (or creates the account) with the person's Apple ID. Throws [SocialSignInException].
   Future<SocialResult> signInWithApple();
+
+  /// True where the Sign in with Google button is shown (iPhone and iPad builds).
+  bool get googleSignInSupported;
+
+  /// Signs in (or creates the account) with the person's Google account. Throws [SocialSignInException].
+  Future<SocialResult> signInWithGoogle();
 
   /// Fires when an emailed link was opened but is expired, already used, or otherwise refused by the server.
   Stream<void> get linkFailed;
@@ -343,6 +363,16 @@ class SupabaseAuthRepository implements AuthRepository {
   }
 
   @override
+  SocialProvider get proofProvider {
+    final providers = _client.auth.currentUser?.appMetadata['providers'];
+    return providers is List &&
+            !providers.contains('apple') &&
+            providers.contains('google')
+        ? SocialProvider.google
+        : SocialProvider.apple;
+  }
+
+  @override
   Future<AppleProof?> proveWithApple() async {
     final sheet = await _appleSheet();
     if (sheet == null) return null;
@@ -388,6 +418,59 @@ class SupabaseAuthRepository implements AuthRepository {
       try {
         await updateName(name);
       } catch (_) {}
+    }
+    return await reactivateIfPending()
+        ? SocialResult.reactivated
+        : SocialResult.signedIn;
+  }
+
+  @override
+  bool get googleSignInSupported => defaultTargetPlatform == TargetPlatform.iOS;
+
+  /// The Google SDK may be set up only once per app run.
+  static Future<void>? _googleReady;
+
+  /// Opens Google's sheet and returns the account's ID token. Null when the person closes it.
+  Future<String?> _googleSheet() async {
+    try {
+      await (_googleReady ??= GoogleSignIn.instance.initialize(
+        clientId: AppConfig.googleIosClientId,
+        serverClientId: AppConfig.googleWebClientId,
+      ));
+      final account = await GoogleSignIn.instance.authenticate();
+      final token = account.authentication.idToken;
+      if (token == null) {
+        throw const SocialSignInException(SocialFailure.failed);
+      }
+      return token;
+    } on GoogleSignInException catch (e) {
+      if (e.code == GoogleSignInExceptionCode.canceled) return null;
+      throw const SocialSignInException(SocialFailure.failed);
+    } on SocialSignInException {
+      rethrow;
+    } catch (_) {
+      throw const SocialSignInException(SocialFailure.failed);
+    }
+  }
+
+  @override
+  Future<String?> proveWithGoogle() => _googleSheet();
+
+  @override
+  Future<SocialResult> signInWithGoogle() async {
+    final token = await _googleSheet();
+    if (token == null) return SocialResult.cancelled;
+    try {
+      // Google's token carries no nonce we control here ("Skip nonce checks" is on in Supabase); Supabase checks the
+      // token's signature and that it was issued to one of our client IDs. The name comes from the token itself.
+      await _client.auth.signInWithIdToken(
+        provider: OAuthProvider.google,
+        idToken: token,
+      );
+    } on AuthException {
+      throw const SocialSignInException(SocialFailure.failed);
+    } catch (_) {
+      throw const SocialSignInException(SocialFailure.network);
     }
     return await reactivateIfPending()
         ? SocialResult.reactivated
@@ -457,6 +540,11 @@ class SupabaseAuthRepository implements AuthRepository {
       'authorization_code': ?proof.authorizationCode,
     },
   }, DeleteFailure.wrongApple);
+
+  @override
+  Future<void> deleteAccountWithGoogle(String idToken) => _deleteWith({
+    'google': {'id_token': idToken},
+  }, DeleteFailure.wrongGoogle);
 
   Future<void> _deleteWith(
     Map<String, Object> body,

@@ -220,3 +220,73 @@ Deno.test("Apple deletions are rate limited like password ones", async () => {
   assert.equal((await call({ apple: { id_token: "good-token", nonce: "n" } })).status, 429);
   assert.deepEqual(deleted, []);
 });
+
+function googleSetup(over: Partial<DeleteDeps> = {}, providers = ["google"]) {
+  const verified: string[] = [];
+  const s = appleSetup({
+    verifyGoogle: (t) => {
+      verified.push(t);
+      return Promise.resolve(t === "good-google" ? "u1" : t === "other-users-google" ? "u2" : null);
+    },
+    ...over,
+  }, providers);
+  return { ...s, verified };
+}
+
+Deno.test("a Google account deletes with a fresh Google token for the same account", async () => {
+  const { call, deleted, revoked, verified } = googleSetup();
+  const res = await call({ google: { id_token: "good-google" } });
+  assert.equal(res.status, 200);
+  assert.deepEqual(await res.json(), { ok: true, grace_days: 30, apple_revoked: false });
+  assert.deepEqual(deleted, ["u1"]);
+  assert.deepEqual(verified, ["good-google"]);
+  assert.deepEqual(revoked, []);
+});
+
+Deno.test("a Google token for another account or a bad token deletes nothing", async () => {
+  const { call, deleted } = googleSetup();
+  const res = await call({ google: { id_token: "other-users-google" } });
+  assert.equal(res.status, 403);
+  assert.deepEqual(await res.json(), { error: "wrong_google_account" });
+  assert.equal((await call({ google: { id_token: "garbage" } })).status, 403);
+  assert.deepEqual(deleted, []);
+});
+
+Deno.test("the Google path is only for accounts that signed in with Google", async () => {
+  for (const providers of [["email"], ["apple"]]) {
+    const s = googleSetup({}, providers);
+    assert.equal((await s.call({ google: { id_token: "good-google" } })).status, 400);
+    assert.deepEqual(s.verified, []);
+    assert.deepEqual(s.deleted, []);
+  }
+});
+
+Deno.test("malformed Google proofs, or Apple and Google proofs together, are refused", async () => {
+  const { call, deleted, verified } = googleSetup({}, ["google", "apple"]);
+  for (
+    const google of [null, "x", {}, { id_token: "" }, { id_token: 5 }, {
+      id_token: "x".repeat(5000),
+    }]
+  ) {
+    assert.equal((await call({ google })).status, 400);
+  }
+  assert.equal(
+    (await call({
+      google: { id_token: "good-google" },
+      apple: { id_token: "good-token", nonce: "n" },
+    }))
+      .status,
+    400,
+  );
+  assert.deepEqual(verified, []);
+  assert.deepEqual(deleted, []);
+});
+
+Deno.test("Google deletions are rate limited before the token is checked", async () => {
+  const { call, deleted, verified } = googleSetup({
+    bumpRateLimit: () => Promise.resolve(DELETE_LIMIT_PER_DAY + 1),
+  });
+  assert.equal((await call({ google: { id_token: "good-google" } })).status, 429);
+  assert.deepEqual(verified, []);
+  assert.deepEqual(deleted, []);
+});

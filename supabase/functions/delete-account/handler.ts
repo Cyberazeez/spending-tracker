@@ -21,6 +21,11 @@ export interface DeleteDeps {
    * Returns the user id it belongs to, or null.
    */
   verifyApple?(idToken: string, nonce: string): Promise<string | null>;
+  /**
+   * Fresh proof for accounts that sign in with Google: a new Google ID token that Supabase accepts. Returns the user id
+   * it belongs to, or null.
+   */
+  verifyGoogle?(idToken: string): Promise<string | null>;
   /** Best-effort: revoke the person's Apple token (Apple's rule for account deletion). True when Apple accepted. */
   revokeApple?(authorizationCode: string): Promise<boolean>;
   /** Counts this try; returns how many today. */
@@ -50,14 +55,32 @@ export async function handleDeleteAccount(req: Request, deps: DeleteDeps): Promi
     return json(400, { error: "invalid_json" });
   }
   const providers = user.providers ?? ["email"];
-  const b = (body ?? {}) as { password?: unknown; apple?: unknown };
+  const b = (body ?? {}) as { password?: unknown; apple?: unknown; google?: unknown };
 
   // Accounts that signed up with Apple have no password: they prove themselves with a fresh Apple sign-in instead.
   const apple = b.apple as
     | { id_token?: unknown; nonce?: unknown; authorization_code?: unknown }
     | undefined;
+  const google = b.google as { id_token?: unknown } | undefined;
   let authorizationCode: string | undefined;
-  if (apple !== undefined) {
+  if (apple !== undefined && google !== undefined) {
+    return json(400, { error: "invalid_proof" });
+  }
+  if (google !== undefined) {
+    // Accounts that signed up with Google have no password either: a fresh Google sign-in proves who they are.
+    if (
+      typeof google !== "object" || google === null || !providers.includes("google") ||
+      typeof google.id_token !== "string" || google.id_token === "" ||
+      google.id_token.length > 4000 || !deps.verifyGoogle
+    ) {
+      return json(400, { error: "invalid_google_proof" });
+    }
+    if (await deps.bumpRateLimit(user.id) > DELETE_LIMIT_PER_DAY) {
+      return json(429, { error: "rate_limited" });
+    }
+    const who = await deps.verifyGoogle(google.id_token);
+    if (who !== user.id) return json(403, { error: "wrong_google_account" });
+  } else if (apple !== undefined) {
     if (
       typeof apple !== "object" || apple === null || !providers.includes("apple") ||
       typeof apple.id_token !== "string" || apple.id_token === "" ||
