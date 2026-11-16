@@ -430,18 +430,20 @@ class SupabaseAuthRepository implements AuthRepository {
   /// The Google SDK may be set up only once per app run.
   static Future<void>? _googleReady;
 
+  static Future<void> _setUpGoogle() => _googleReady ??= GoogleSignIn.instance
+      .initialize(
+        clientId: AppConfig.googleIosClientId,
+        serverClientId: AppConfig.googleWebClientId,
+      )
+      .catchError((Object e) {
+        _googleReady = null; // a failed setup is tried again next time
+        throw e;
+      });
+
   /// Opens Google's sheet and returns the account's ID token. Null when the person closes it.
   Future<String?> _googleSheet() async {
     try {
-      await (_googleReady ??= GoogleSignIn.instance
-          .initialize(
-            clientId: AppConfig.googleIosClientId,
-            serverClientId: AppConfig.googleWebClientId,
-          )
-          .catchError((Object e) {
-            _googleReady = null; // a failed setup is tried again next time
-            throw e;
-          }));
+      await _setUpGoogle();
       final account = await GoogleSignIn.instance.authenticate();
       final token = account.authentication.idToken;
       if (token == null) {
@@ -463,8 +465,9 @@ class SupabaseAuthRepository implements AuthRepository {
 
   /// Best effort: makes the Google SDK forget the account on this phone after sign-out or account deletion.
   Future<void> _forgetGoogle() async {
-    if (_googleReady == null) return;
+    if (!googleSignInSupported) return;
     try {
+      await _setUpGoogle(); // also after a relaunch, when Google's sheet was not opened in this run
       await GoogleSignIn.instance.signOut();
     } catch (_) {}
   }

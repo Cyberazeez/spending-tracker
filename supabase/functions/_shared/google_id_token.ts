@@ -52,7 +52,7 @@ export async function verifyGoogleIdToken(
   const claims = b64urlJson(parts[1]);
   if (!header || !claims || header.alg !== "RS256" || typeof header.kid !== "string") return null;
 
-  const res = await deps.fetch(GOOGLE_CERTS_URL);
+  const res = await deps.fetch(GOOGLE_CERTS_URL, { signal: AbortSignal.timeout(5000) });
   if (!res.ok) throw new Error("google_certs_unavailable");
   const { keys } = await res.json() as { keys?: Array<JsonWebKey & { kid?: string }> };
   const jwk = (keys ?? []).find((k) => k.kid === header.kid && k.kty === "RSA");
