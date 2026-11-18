@@ -531,14 +531,11 @@ class SupabaseAuthRepository implements AuthRepository {
   Future<void> signOut() async {
     await _forgetGoogle().timeout(const Duration(seconds: 3), onTimeout: () {});
     try {
-      // Ends the session on the server too; capped so a slow connection cannot hold the button.
+      // The SDK clears this phone's session at once and only then tells the server; the wait for the server is capped
+      // so a slow connection cannot hold the button. No local "sign out again" afterwards: by then someone may have
+      // signed back in, and that would end their new session.
       await _client.auth.signOut().timeout(const Duration(seconds: 5));
-    } catch (_) {
-      // No answer or no connection: sign this phone out anyway (the server session expires on its own).
-      try {
-        await _client.auth.signOut(scope: SignOutScope.local);
-      } catch (_) {}
-    }
+    } catch (_) {}
   }
 
   @override

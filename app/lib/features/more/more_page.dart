@@ -439,9 +439,14 @@ class _SignOutButtonState extends ConsumerState<_SignOutButton> {
         releaseWidget(widgetBridge, tokens),
       ]);
     } catch (_) {}
-    await auth.signOut();
-    lock.lockNow();
-    if (mounted) setState(() => _busy = false);
+    try {
+      await auth.signOut();
+      // Not if someone already signed back in while the server was slow to answer.
+      if (!auth.hasSession) lock.lockNow();
+    } finally {
+      // Normally this screen is gone by now; if signing out failed, the button must not stay on "Signing out…".
+      if (mounted) setState(() => _busy = false);
+    }
   }
 
   @override

@@ -4,8 +4,16 @@ import '../../core/models.dart';
 import '../../core/providers.dart';
 
 class TxFilterController extends Notifier<TxFilter> {
+  /// Kept while the app runs, but not across accounts: a sign-in or sign-out starts the next person on no filter.
   @override
-  TxFilter build() => const TxFilter();
+  TxFilter build() {
+    ref.listen(signedInProvider, (prev, next) {
+      final now = next.value;
+      if (now != null && prev?.value != now) state = const TxFilter();
+    });
+    return const TxFilter();
+  }
+
   void set(TxFilter f) => state = f;
   void clear() => state = const TxFilter();
 }

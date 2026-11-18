@@ -1,7 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
+import 'package:spending_tracker/l10n/app_localizations.dart';
+import 'package:spending_tracker/ui/amount_sheet.dart';
+import 'package:spending_tracker/ui/keyboard.dart';
 import 'package:spending_tracker/features/home/home_page.dart';
 import 'package:spending_tracker/features/more/more_page.dart';
 
@@ -130,4 +135,73 @@ void main() {
       expect(tester.testTextInput.isVisible, isFalse);
     });
   });
+
+  testWidgets('signing back in as someone else with Apple also opens on Home', (
+    tester,
+  ) async {
+    final h = await openMore(tester);
+    await tapSignOut(tester);
+    await tester.pumpAndSettle();
+    h.auth.fakeEmail = 'someone.else@example.test';
+    await tester.tap(find.byType(SignInWithAppleButton));
+    await tester.pumpAndSettle();
+
+    expect(h.auth.appleCalls, 1);
+    expect(find.byType(HomePage), findsOneWidget);
+    expect(find.byType(MorePage), findsNothing);
+  });
+
+  testWidgets(
+    'a sheet with its own field still gets the keyboard, and the field under it does not get it back',
+    (tester) async {
+      final under = FocusNode();
+      addTearDown(under.dispose);
+      await tester.pumpWidget(
+        CupertinoApp(
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+          ],
+          supportedLocales: AppLocalizations.supportedLocales,
+          navigatorObservers: [KeyboardDismissObserver()],
+          home: Builder(
+            builder: (context) => CupertinoPageScaffold(
+              child: Column(
+                children: [
+                  const SizedBox(height: 80),
+                  CupertinoTextField(focusNode: under),
+                  CupertinoButton(
+                    child: const Text('open'),
+                    onPressed: () => showAmountSheet(
+                      context,
+                      title: 'Budget',
+                      maxHalalas: 100000000,
+                      invalidText: 'bad',
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.showKeyboard(find.byType(CupertinoTextField));
+      expect(under.hasFocus, isTrue);
+
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+      expect(under.hasFocus, isFalse);
+      expect(
+        tester.testTextInput.isVisible,
+        isTrue,
+      ); // the sheet's own amount field
+
+      Navigator.of(tester.element(find.text('Budget'))).pop();
+      await tester.pumpAndSettle();
+      expect(under.hasFocus, isFalse);
+      expect(tester.testTextInput.isVisible, isFalse);
+    },
+  );
 }
