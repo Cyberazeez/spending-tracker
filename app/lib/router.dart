@@ -22,6 +22,7 @@ import 'features/transactions/review_page.dart';
 import 'features/shell/shell_page.dart';
 import 'core/models.dart' show Txn;
 import 'features/transactions/transaction_page.dart';
+import 'ui/keyboard.dart';
 
 const loginPath = '/login';
 const lockPath = '/lock';
@@ -113,6 +114,7 @@ final routerProvider = Provider<GoRouter>((ref) {
   final router = GoRouter(
     initialLocation: homePath,
     refreshListenable: refresh,
+    observers: [KeyboardDismissObserver()],
     redirect: (context, state) => redirectFor(
       hasSession: ref.read(authRepositoryProvider).hasSession,
       locked: ref.read(lockProvider).locked,

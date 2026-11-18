@@ -29,6 +29,7 @@ import '../more/more_page.dart';
 import '../more/shortcut_guide.dart';
 import '../obligations/obligations_page.dart';
 import '../transactions/transactions_page.dart';
+import '../../ui/keyboard.dart';
 
 class ShellPage extends ConsumerStatefulWidget {
   const ShellPage({super.key});
@@ -186,6 +187,7 @@ class _ShellPageState extends ConsumerState<ShellPage>
       ),
       tabBuilder: (context, index) {
         return CupertinoTabView(
+          navigatorObservers: [KeyboardDismissObserver()],
           builder: (context) => switch (index) {
             0 => const HomePage(),
             1 => const TransactionsPage(),

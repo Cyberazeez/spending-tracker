@@ -1,21 +1,26 @@
 import 'package:flutter/cupertino.dart';
 
 import 'tokens.dart';
+import 'keyboard.dart';
 
 /// Opens a bottom sheet the app's way: like [showCupertinoModalPopup] (root navigator, dimmed barrier that closes it
 /// on tap), but the sheet rises with a small overshoot and settles. With Reduce Motion on it fades in instead.
 Future<T?> showAppSheet<T>({
   required BuildContext context,
   required WidgetBuilder builder,
-}) => Navigator.of(context, rootNavigator: true).push(
-  AppSheetRoute<T>(
-    builder: builder,
-    barrierColor: CupertinoDynamicColor.resolve(
-      kCupertinoModalBarrierColor,
-      context,
+}) {
+  // A sheet opened over a focused field would hand the focus back to it on close and bring the keyboard back up.
+  hideKeyboard();
+  return Navigator.of(context, rootNavigator: true).push(
+    AppSheetRoute<T>(
+      builder: builder,
+      barrierColor: CupertinoDynamicColor.resolve(
+        kCupertinoModalBarrierColor,
+        context,
+      ),
     ),
-  ),
-);
+  );
+}
 
 /// The same route as the system's [CupertinoModalPopupRoute] (barrier, labels, elevated level), with its own rise.
 /// It is a [PopupRoute] of its own because the system one is driven by a spring, which stops at the end position

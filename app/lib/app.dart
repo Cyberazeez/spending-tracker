@@ -12,6 +12,7 @@ import 'router.dart';
 import 'ui/theme.dart';
 import 'ui/halala_logo.dart';
 import 'ui/tokens.dart';
+import 'ui/keyboard.dart';
 
 class SpendingTrackerApp extends ConsumerStatefulWidget {
   const SpendingTrackerApp({super.key});
@@ -67,7 +68,7 @@ class _SpendingTrackerAppState extends ConsumerState<SpendingTrackerApp> {
         ),
         child: Stack(
           children: [
-            ?child,
+            if (child != null) TapOutsideToDismissKeyboard(child: child),
             if (_covered)
               // like the launch screen: the page colour with the logo
               Positioned.fill(

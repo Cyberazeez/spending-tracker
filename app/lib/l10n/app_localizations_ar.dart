@@ -46,6 +46,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get signOut => 'تسجيل الخروج';
 
   @override
+  String get signingOut => 'جاري تسجيل الخروج…';
+
+  @override
   String get fieldRequired => 'مطلوب';
 
   @override

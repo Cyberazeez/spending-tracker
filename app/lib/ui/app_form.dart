@@ -143,11 +143,15 @@ class SecondaryButton extends StatelessWidget {
     required this.onPressed,
     this.danger = false,
     this.icon,
+    this.busy = false,
   });
 
   final String label;
   final VoidCallback? onPressed;
   final bool danger;
+
+  /// Shows a spinner before the label (pass a "…ing" label and no [onPressed] while it runs).
+  final bool busy;
 
   /// Drawn before the label, in the label's colour.
   final IconData? icon;
@@ -202,7 +206,13 @@ class SecondaryButton extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        if (icon != null) ...[
+                        if (busy) ...[
+                          CupertinoActivityIndicator(
+                            key: const ValueKey('secondary-busy'),
+                            color: color,
+                          ),
+                          const SizedBox(width: 8),
+                        ] else if (icon != null) ...[
                           Icon(icon, size: 18, color: color),
                           const SizedBox(width: 8),
                         ],
