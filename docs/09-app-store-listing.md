@@ -54,6 +54,9 @@ Status: DRAFT for the owner (2026-11-08). Nothing here is submitted. Items marke
 (Do not claim "all Saudi banks" or "bank-grade security": neither is true or provable. Keep the supported-bank list in step with `docs/07-sms-catalog.md`.)
 
 ## 4. Arabic listing
+**Entered in App Store Connect on 2026-11-18 (owner's wording wins over the draft below):** name **هلله** ("هللة" is taken by another app; "هلله" reads the same and is how many people type it), subtitle **اعرف وين تروح فلوسك** (owner chose a local, informal Saudi tone), keywords `ميزانية,مصروفات,مصاريف,فواتير,ريال,السعودية,رسائل,توفير,ادخار,مال,راتب,تتبع,ودجت,بنك,إنفاق,هللة`, support URL with `#ar`, the promotional text below, and the description below with the bank list and the riyal/week/24-hour sentence removed ("كل رسالة من البنوك المدعومة"). The Arabic screenshots and header use the same local tone (`docs/app-store/store-shots.cjs`).
+**Follow-up (owner, 2026-11-18):** revise the app's Arabic text to the same local, informal tone, so the store page and the app sound alike.
+
 - **الاسم** [4]: هللة
 - **العنوان الفرعي** [18]: اعرف أين يذهب مالك
 - **النص الترويجي** [158]: رسائل البنك تتحول إلى مصروفات وفواتير وميزانيات واضحة. بالعربية والإنجليزية، مصمم للبنوك السعودية، مع ودجت للشاشة الرئيسية ومساعدة اختيارية بالذكاء الاصطناعي.
