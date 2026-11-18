@@ -239,8 +239,14 @@ class FakeAuthRepository implements AuthRepository {
     return false;
   }
 
+  /// Set to hold sign-out open (to see the "Signing out…" state); complete it to finish.
+  Completer<void>? signOutGate;
+  int signOutCalls = 0;
+
   @override
   Future<void> signOut() async {
+    signOutCalls++;
+    if (signOutGate != null) await signOutGate!.future;
     _signedIn = false;
     _controller.add(false);
   }

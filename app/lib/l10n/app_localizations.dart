@@ -170,6 +170,12 @@ abstract class AppLocalizations {
   /// **'Sign out'**
   String get signOut;
 
+  /// No description provided for @signingOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Signing out…'**
+  String get signingOut;
+
   /// No description provided for @fieldRequired.
   ///
   /// In en, this message translates to:

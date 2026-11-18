@@ -46,6 +46,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get signOut => 'Sign out';
 
   @override
+  String get signingOut => 'Signing out…';
+
+  @override
   String get fieldRequired => 'Required';
 
   @override

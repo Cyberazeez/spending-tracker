@@ -12,6 +12,7 @@
   "signIn": "Sign in",
   "signingIn": "Signing in…",
   "signOut": "Sign out",
+  "signingOut": "Signing out…",
   "fieldRequired": "Required",
   "invalidCredentials": "Wrong email or password.",
   "emailNotConfirmed": "Confirm your email first. Open the link we sent to your inbox.",

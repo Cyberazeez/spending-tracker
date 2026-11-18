@@ -159,21 +159,7 @@ class MorePage extends ConsumerWidget {
                   ],
                 ),
                 const SizedBox(height: 16),
-                SecondaryButton(
-                  label: t.signOut,
-                  onPressed: () async {
-                    await releaseCapture(
-                      ref.read(captureBridgeProvider),
-                      ref.read(tokenRepositoryProvider),
-                    );
-                    await releaseWidget(
-                      ref.read(widgetBridgeProvider),
-                      ref.read(tokenRepositoryProvider),
-                    );
-                    await ref.read(authRepositoryProvider).signOut();
-                    ref.read(lockProvider.notifier).lockNow();
-                  },
-                ),
+                const _SignOutButton(),
               ],
             ),
           ),
@@ -422,6 +408,50 @@ class _CaptureStatusRow extends ConsumerWidget {
       title: t.captureStatus,
       value: value == null || value.isEmpty ? null : value,
       onTap: () => context.push(capturePath),
+    );
+  }
+}
+
+/// Sign out says so at once ("Signing out…" with a spinner) and cannot be tapped twice. The two token revokes run side
+/// by side, and the server sign-out is capped, so a slow or missing connection never leaves the button looking dead:
+/// the phone is signed out locally whatever the server answers.
+class _SignOutButton extends ConsumerStatefulWidget {
+  const _SignOutButton();
+
+  @override
+  ConsumerState<_SignOutButton> createState() => _SignOutButtonState();
+}
+
+class _SignOutButtonState extends ConsumerState<_SignOutButton> {
+  bool _busy = false;
+
+  Future<void> _signOut() async {
+    if (_busy) return;
+    setState(() => _busy = true);
+    final tokens = ref.read(tokenRepositoryProvider);
+    final capture = ref.read(captureBridgeProvider);
+    final widgetBridge = ref.read(widgetBridgeProvider);
+    final auth = ref.read(authRepositoryProvider);
+    final lock = ref.read(lockProvider.notifier);
+    try {
+      await Future.wait([
+        releaseCapture(capture, tokens),
+        releaseWidget(widgetBridge, tokens),
+      ]);
+    } catch (_) {}
+    await auth.signOut();
+    lock.lockNow();
+    if (mounted) setState(() => _busy = false);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    return SecondaryButton(
+      key: const ValueKey('more-sign-out'),
+      label: _busy ? t.signingOut : t.signOut,
+      busy: _busy,
+      onPressed: _busy ? null : _signOut,
     );
   }
 }
