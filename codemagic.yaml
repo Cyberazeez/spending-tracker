@@ -16,7 +16,7 @@ workflows:
       app_store_connect: spending_tracker_asc
     environment:
       flutter: 3.47.9
-      xcode: latest
+      xcode: 27.2 # pinned 2026-11-18: "latest" built with the iOS 26.5 SDK (ITMS-90725); Apple requires the iOS 27 SDK from April 2027
       cocoapods: default
       groups:
         - signing # Codemagic variable group holding CERTIFICATE_PRIVATE_KEY (secure), never in git
