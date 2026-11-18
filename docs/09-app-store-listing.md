@@ -135,6 +135,7 @@ Made 2026-11-13 (rebrand stage 6) from the app's own screens with fake data, ite
 Original capture method: run the app on the TestFlight build with the demo account and take screenshots on a 6.9-inch iPhone (the owner's phone is smaller, so capture on the closest size available, or use the simulator route in Codemagic later). Keep captions short, put the device frame optional, and no text smaller than 28 px on the 1320 px width.
 
 ## 9. Submission checklist
+0. **App version is 1.0.0** (`app/pubspec.yaml`, 2026-11-18; it was 0.1.0, so builds did not match the App Store Connect version and could not be selected). The App Store Connect version name must be the same string: **1.0.0**. The widget takes its version from the app. **Before April 2027:** Apple requires builds made with the iOS 27 SDK (Xcode 27; ITMS-90725 warning on build 63). `codemagic.yaml` now pins `xcode: 27.2` (Codemagic's `latest` still built with 26.5). If a build fails because of Xcode 27, go back to 26.5 until it is fixed, before April 2027.
 1. Decide items 1-8 above.
 2. Add the privacy-policy row to the app (section 2) and rebuild.
 3. Create the reviewer account and sample data.
