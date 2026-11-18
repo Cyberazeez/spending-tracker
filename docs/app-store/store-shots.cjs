@@ -181,11 +181,11 @@ function banner(lang) {
   const m = (s) => mir(ar, s);
   return `<div style="width:1280px;height:549px;position:relative;overflow:hidden;background:#E2F2DC">
     <div class="bub" style="${m('left:520px')};top:40px;width:70px;height:70px;background:#FFC93C;box-shadow:3px 4px 0 ${INK}"></div>
-    <div class="bub" style="${m('left:60px')};top:440px;width:56px;height:56px;background:#CFE6FA"></div>
+    <div class="bub" style="${m('left:120px')};top:440px;width:56px;height:56px;background:#CFE6FA"></div>
     <div class="bub" style="${m('right:40px')};top:420px;width:86px;height:86px;background:#F8E1E7"></div>
-    <div class="abs" style="${m('left:110px')};top:130px;width:460px;display:flex;flex-direction:column;gap:18px;text-align:${ar ? 'right' : 'left'}">
+    <div class="abs" style="${m('left:200px')};top:130px;width:420px;display:flex;flex-direction:column;gap:18px;text-align:${ar ? 'right' : 'left'}">
       <img src="${f('app-icon.svg')}" style="width:72px;height:72px;border-radius:18px">
-      <h1 style="font-size:60px">${t.banner[0]}</h1><p class="sub" style="font-size:19px;max-width:420px">${t.banner[1]}</p></div>
+      <h1 style="font-size:56px">${t.banner[0]}</h1><p class="sub" style="font-size:18px;max-width:400px">${t.banner[1]}</p></div>
     ${phone(t, 'home', `${m('left:660px')};top:110px;transform:rotate(${ar ? 8 : -8}deg)`)}
     ${phone(t, 'bills', `${m('left:910px')};top:60px;transform:rotate(${ar ? -6 : 6}deg)`)}
     ${tx(t.tx1, '#FFE7A3', `${m('left:720px')};top:380px;transform:rotate(${ar ? 3 : -3}deg)`)}</div>`;
