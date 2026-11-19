@@ -6,6 +6,7 @@ import '../../ui/confirm_sheet.dart';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
 
@@ -13,6 +14,7 @@ import '../../core/banks.dart';
 import '../../core/models.dart';
 import '../../core/providers.dart';
 import '../../l10n/app_localizations.dart';
+import '../../router.dart';
 import '../../ui/app_card.dart';
 import '../../ui/app_form.dart';
 import '../../ui/empty_state.dart';
@@ -42,35 +44,104 @@ String kindName(AppLocalizations t, String kind) => switch (kind) {
   _ => t.kindAccount,
 };
 
+/// The two boxes of Bank accounts (owner's pick 2026-11-19): bank accounts, and cards (credit, debit / mada and
+/// wallets, which the owner wanted with the cards).
+enum OwnAccountGroup {
+  accounts(['account']),
+  cards(['credit_card', 'debit_card', 'wallet']);
+
+  const OwnAccountGroup(this.kinds);
+  final List<String> kinds;
+
+  /// Cards hold the card and wallet kinds; Accounts hold everything else, so an unknown kind is never hidden.
+  bool holds(OwnAccount a) =>
+      this == accounts ? !cards.kinds.contains(a.kind) : kinds.contains(a.kind);
+}
+
 /// Account > Bank accounts: the accounts, cards and wallets that are yours, so a move between them is not counted
-/// as spending or income.
+/// as spending or income. Two boxes, Accounts and Cards, like "Add a bill"; each opens its own list.
 class OwnAccountsPage extends ConsumerWidget {
   const OwnAccountsPage({super.key});
-
-  /// Opens the form to add an account, or to edit [existing].
-  Future<void> _open(
-    BuildContext context,
-    WidgetRef ref, [
-    OwnAccount? existing,
-  ]) async {
-    await showAppSheet<void>(
-      context: context,
-      builder: (_) => _AccountSheet(existing: existing),
-    );
-    ref.invalidate(ownAccountsProvider);
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = AppLocalizations.of(context);
     final list = ref.watch(ownAccountsProvider);
+    final text = AppTokens.text.resolveFrom(context);
     final muted = AppTokens.muted.resolveFrom(context);
+
+    Widget box(OwnAccountGroup g, List<OwnAccount> all) {
+      final n = all.where(g.holds).length;
+      final (title, hint, color, icon) = switch (g) {
+        OwnAccountGroup.accounts => (
+          t.banksAccounts,
+          t.banksAccountsHint,
+          const Color(0xFF9CC4FF),
+          LucideIcons.landmark,
+        ),
+        OwnAccountGroup.cards => (
+          t.banksCards,
+          t.banksCardsHint,
+          const Color(0xFFFFC93C),
+          LucideIcons.creditCard,
+        ),
+      };
+      return Semantics(
+        button: true,
+        label: '$title, $hint, ${t.banksCount(n)}',
+        excludeSemantics: true,
+        child: GestureDetector(
+          key: ValueKey('banks-${g.name}'),
+          behavior: HitTestBehavior.opaque,
+          onTap: () => context.push('$banksPath/${g.name}'),
+          child: AppCard(
+            pressable: true,
+            padding: const EdgeInsets.all(18),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                IconTile(color: color, icon: icon, size: 48, iconSize: 22),
+                const SizedBox(height: 14),
+                Text(
+                  title,
+                  style: TextStyle(
+                    color: text,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  hint,
+                  style: TextStyle(
+                    color: muted,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    height: 1.35,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  t.banksCount(n),
+                  style: TextStyle(
+                    color: text,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
     return CupertinoPageScaffold(
       backgroundColor: AppTokens.bg.resolveFrom(context),
       navigationBar: appNavBar(context, t.accountBanks),
       child: SafeArea(
         child: list.when(
-          loading: () => const SkeletonList(heights: [120, 200]),
+          loading: () => const SkeletonList(heights: [120, 160]),
           error: (_, _) => LoadFailedCard(
             onRetry: () => ref.invalidate(ownAccountsProvider),
           ),
@@ -78,7 +149,7 @@ class OwnAccountsPage extends ConsumerWidget {
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(4, 0, 4, 12),
+                padding: const EdgeInsets.fromLTRB(4, 0, 4, 14),
                 child: Text(
                   t.accountBanksHint,
                   style: TextStyle(
@@ -88,95 +159,15 @@ class OwnAccountsPage extends ConsumerWidget {
                   ),
                 ),
               ),
-              if (accounts.isEmpty)
-                AppCard(
-                  child: Text(
-                    t.banksEmpty,
-                    style: TextStyle(
-                      color: AppTokens.text.resolveFrom(context),
-                      fontSize: 16,
-                    ),
-                  ),
-                )
-              else
-                AppCard(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 2,
-                  ),
-                  child: Column(
-                    children: [
-                      for (var i = 0; i < accounts.length; i++) ...[
-                        if (i > 0)
-                          Container(
-                            height: 2,
-                            color: AppTokens.bar.resolveFrom(context),
-                          ),
-                        Semantics(
-                          button: true,
-                          child: GestureDetector(
-                            behavior: HitTestBehavior.opaque,
-                            onTap: () => _open(context, ref, accounts[i]),
-                            child: ConstrainedBox(
-                              constraints: const BoxConstraints(minHeight: 56),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 12,
-                                ),
-                                child: Row(
-                                  children: [
-                                    IconTile(
-                                      color: kindTile(accounts[i].kind).$1,
-                                      icon: kindTile(accounts[i].kind).$2,
-                                      iconSize: 21,
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            '${bankName(context, accounts[i].bank)} ${accounts[i].last4}',
-                                            style: TextStyle(
-                                              color: AppTokens.text.resolveFrom(
-                                                context,
-                                              ),
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.w700,
-                                            ),
-                                          ),
-                                          Text(
-                                            [
-                                              kindName(t, accounts[i].kind),
-                                              if ((accounts[i].label ?? '')
-                                                  .isNotEmpty)
-                                                accounts[i].label!,
-                                            ].join(' · '),
-                                            style: TextStyle(
-                                              color: muted,
-                                              fontSize: 13,
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    ForwardChevron(size: 18, color: muted),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
+              IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(child: box(OwnAccountGroup.accounts, accounts)),
+                    const SizedBox(width: 10),
+                    Expanded(child: box(OwnAccountGroup.cards, accounts)),
+                  ],
                 ),
-              const SizedBox(height: 20),
-              PrimaryButton(
-                label: t.bankAdd,
-                onPressed: () => _open(context, ref),
               ),
             ],
           ),
@@ -186,10 +177,170 @@ class OwnAccountsPage extends ConsumerWidget {
   }
 }
 
+/// One box of Bank accounts: its accounts grouped by bank (wallets in a group of their own, last), each opening the
+/// edit form, and one button to add another of this type.
+class OwnAccountsGroupPage extends ConsumerWidget {
+  const OwnAccountsGroupPage({super.key, required this.group});
+
+  final OwnAccountGroup group;
+
+  Future<void> _open(
+    BuildContext context,
+    WidgetRef ref, [
+    OwnAccount? existing,
+  ]) async {
+    await showAppSheet<void>(
+      context: context,
+      builder: (_) => _AccountSheet(existing: existing, group: group),
+    );
+    ref.invalidate(ownAccountsProvider);
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = AppLocalizations.of(context);
+    final list = ref.watch(ownAccountsProvider);
+    final muted = AppTokens.muted.resolveFrom(context);
+    final text = AppTokens.text.resolveFrom(context);
+    final cards = group == OwnAccountGroup.cards;
+
+    Widget row(OwnAccount a) => Semantics(
+      button: true,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => _open(context, ref, a),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 56),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: Row(
+              children: [
+                IconTile(
+                  color: kindTile(a.kind).$1,
+                  icon: kindTile(a.kind).$2,
+                  iconSize: 21,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${bankName(context, a.bank)} ${a.last4}',
+                        style: TextStyle(
+                          color: text,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      Text(
+                        [
+                          kindName(t, a.kind),
+                          if ((a.label ?? '').isNotEmpty) a.label!,
+                        ].join(' · '),
+                        style: TextStyle(
+                          color: muted,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                ForwardChevron(size: 18, color: muted),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+
+    Widget section(String title, List<OwnAccount> items) => Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(4, 6, 4, 8),
+          child: Text(
+            title,
+            style: TextStyle(
+              color: muted,
+              fontSize: 14,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ),
+        AppCard(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
+          child: Column(
+            children: [
+              for (var i = 0; i < items.length; i++) ...[
+                if (i > 0)
+                  Container(
+                    height: 2,
+                    color: AppTokens.bar.resolveFrom(context),
+                  ),
+                row(items[i]),
+              ],
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+      ],
+    );
+
+    return CupertinoPageScaffold(
+      backgroundColor: AppTokens.bg.resolveFrom(context),
+      navigationBar: appNavBar(context, cards ? t.banksCards : t.banksAccounts),
+      child: SafeArea(
+        child: list.when(
+          loading: () => const SkeletonList(heights: [120, 200]),
+          error: (_, _) => LoadFailedCard(
+            onRetry: () => ref.invalidate(ownAccountsProvider),
+          ),
+          data: (all) {
+            final mine = all.where(group.holds).toList();
+            // Bank by bank in the order they were added; wallets together at the end.
+            final byBank = <String, List<OwnAccount>>{};
+            final wallets = <OwnAccount>[];
+            for (final a in mine) {
+              if (a.kind == 'wallet') {
+                wallets.add(a);
+              } else {
+                (byBank[a.bank] ??= []).add(a);
+              }
+            }
+            return ListView(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+              children: [
+                if (mine.isEmpty)
+                  AppCard(
+                    child: Text(
+                      cards ? t.banksCardsEmpty : t.banksEmpty,
+                      style: TextStyle(color: text, fontSize: 16),
+                    ),
+                  ),
+                for (final e in byBank.entries)
+                  section(bankName(context, e.key), e.value),
+                if (wallets.isNotEmpty) section(t.banksWallets, wallets),
+                const SizedBox(height: 8),
+                PrimaryButton(
+                  label: cards ? t.bankAddCard : t.bankAdd,
+                  onPressed: () => _open(context, ref),
+                ),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
 class _AccountSheet extends ConsumerStatefulWidget {
-  const _AccountSheet({this.existing});
+  const _AccountSheet({this.existing, required this.group});
 
   final OwnAccount? existing;
+  final OwnAccountGroup group;
 
   @override
   ConsumerState<_AccountSheet> createState() => _AccountSheetState();
@@ -198,8 +349,24 @@ class _AccountSheet extends ConsumerStatefulWidget {
 class _AccountSheetState extends ConsumerState<_AccountSheet> {
   late final _last4 = TextEditingController(text: widget.existing?.last4);
   late final _label = TextEditingController(text: widget.existing?.label);
-  late String _bank = widget.existing?.bank ?? bankList.first.code;
-  late String _kind = widget.existing?.kind ?? OwnAccount.kinds.first;
+  late String _bank = widget.existing?.bank ?? _banks.first.code;
+  late String _kind = widget.existing?.kind ?? widget.group.kinds.first;
+
+  /// Wallets only make sense as cards: the Accounts box offers banks only.
+  List<BankInfo> get _banks => widget.group == OwnAccountGroup.cards
+      ? bankList
+      : [
+          for (final b in bankList)
+            if (!b.wallet) b,
+        ];
+
+  /// The types this box holds, plus the one an older entry already has.
+  List<String> get _kinds => [
+    ...widget.group.kinds,
+    if (widget.existing != null &&
+        !widget.group.kinds.contains(widget.existing!.kind))
+      widget.existing!.kind,
+  ];
   bool _busy = false;
   String? _error;
 
@@ -346,7 +513,14 @@ class _AccountSheetState extends ConsumerState<_AccountSheet> {
         );
     return CupertinoPageScaffold(
       backgroundColor: AppTokens.bg.resolveFrom(context),
-      navigationBar: appNavBar(context, _editing ? t.bankEdit : t.bankAdd),
+      navigationBar: appNavBar(
+        context,
+        _editing
+            ? t.bankEdit
+            : widget.group == OwnAccountGroup.cards
+            ? t.bankAddCard
+            : t.bankAdd,
+      ),
       child: SafeArea(
         child: ListView(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
@@ -356,12 +530,16 @@ class _AccountSheetState extends ConsumerState<_AccountSheet> {
               bankName(context, _bank),
               () => _pick(
                 t.bankPick,
-                [for (final b in bankList) b.code],
+                [for (final b in _banks) b.code],
                 _bank,
                 (c) => bankName(context, c),
                 (v) {
                   _bank = v;
-                  if (bankInfo(v)?.wallet ?? false) _kind = 'wallet';
+                  if (bankInfo(v)?.wallet ?? false) {
+                    _kind = 'wallet';
+                  } else if (_kind == 'wallet') {
+                    _kind = widget.group.kinds.first;
+                  }
                 },
               ),
             ),
@@ -371,7 +549,7 @@ class _AccountSheetState extends ConsumerState<_AccountSheet> {
               kindName(t, _kind),
               () => _pick(
                 t.bankKind,
-                OwnAccount.kinds,
+                _kinds,
                 _kind,
                 (k) => kindName(t, k),
                 (v) => _kind = v,

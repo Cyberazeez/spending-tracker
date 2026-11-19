@@ -239,3 +239,53 @@ CycleSummary summarizeCycle(List<ObligationInstance> rows, DateTime today) {
     count: rows.length,
   );
 }
+
+/// How many days before its due date a bill from next month joins the Bills list (owner's pick 2026-11-19).
+const billsSoonDays = 7;
+
+/// Days from [today] to [i]'s due date (negative when past).
+int daysUntilDue(ObligationInstance i, DateTime today) =>
+    i.dueDate.difference(today).inDays;
+
+/// The one Bills list (owner's design 2026-11-19, no tabs): this month's bills with their status, anything still open
+/// from an earlier month, and next month's open bills once they are [billsSoonDays] or fewer days away. Skipped bills
+/// are left out (a bill with a payment waiting for confirmation stays, as pending). Order: overdue (oldest first), then open bills by due date, then paid ones.
+List<ObligationInstance> billsList(
+  List<ObligationInstance> all,
+  DateTime today,
+) {
+  final cycle = currentCycle(today);
+  final next = nextCycle(today);
+  final out = all.where((i) {
+    if (i.status == 'skipped') return false;
+    final c = cycleOf(i);
+    final s = effectiveStatus(i, today);
+    if (c == cycle) return true;
+    if (c.isBefore(cycle)) return s == 'pending' || s == 'overdue';
+    return !c.isAfter(next) &&
+        s != 'paid' &&
+        daysUntilDue(i, today) <= billsSoonDays;
+  }).toList();
+  int rank(ObligationInstance i) {
+    final s = effectiveStatus(i, today);
+    if (s == 'overdue' || isLeftover(i, today)) return 0;
+    return s == 'paid' ? 2 : 1;
+  }
+
+  out.sort((a, b) {
+    final r = rank(a).compareTo(rank(b));
+    return r != 0 ? r : a.dueDate.compareTo(b.dueDate);
+  });
+  return out;
+}
+
+/// Bill history: every bill from a month before this one, paid, skipped or still open, newest month first.
+List<ObligationInstance> billsHistory(
+  List<ObligationInstance> all,
+  DateTime today,
+) {
+  final cycle = currentCycle(today);
+  final out = all.where((i) => cycleOf(i).isBefore(cycle)).toList();
+  out.sort((a, b) => b.dueDate.compareTo(a.dueDate));
+  return out;
+}

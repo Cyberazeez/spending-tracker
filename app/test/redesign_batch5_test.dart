@@ -182,7 +182,7 @@ void main() {
     await t.pumpAndSettle();
     await t.tap(find.text('Insights').last);
     await t.pumpAndSettle();
-    await t.tap(find.text('Ask a question'));
+    await t.tap(find.byKey(const ValueKey('ai-tips-row')));
     await t.pumpAndSettle();
     expect(find.text('Try asking'), findsOneWidget);
     await t.tap(find.text('Where can I cut spending?'));

@@ -237,7 +237,7 @@ void main() {
     await tester.tap(find.text('النشاط').last);
     await tester.pumpAndSettle();
     expect(find.text('− 19.00 ⃁'), findsOneWidget);
-    expect(find.textContaining('بدون فئة'), findsWidgets);
+    expect(find.text('هذا الشهر'), findsOneWidget); // the filter summary
   });
 
   testWidgets('swipe a row, Delete asks first, and only a confirm removes it', (

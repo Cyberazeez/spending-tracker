@@ -226,7 +226,7 @@ void main() {
       await t.pumpWidget(await h.build());
       await t.pumpAndSettle();
       GoRouter.of(t.element(find.byType(CupertinoPageScaffold).last))
-          .push(banksPath);
+          .push('$banksPath/accounts');
       await t.pumpAndSettle();
       expect(find.byType(CupertinoActivityIndicator), findsNothing);
       await t.tap(find.textContaining('6000').first);
@@ -285,7 +285,7 @@ void main() {
       await t.pumpWidget(await h.build());
       await t.pumpAndSettle();
       GoRouter.of(t.element(find.byType(CupertinoPageScaffold).last))
-          .push(banksPath);
+          .push('$banksPath/accounts');
       await t.pumpAndSettle();
       expect(find.byType(IconTile), findsOneWidget);
       expect(find.byIcon(LucideIcons.landmark), findsOneWidget);

@@ -67,33 +67,43 @@ void main() {
     },
   );
 
-  testWidgets('the No category chip switches the filter on and off', (
-    tester,
-  ) async {
-    final h = Harness(signedIn: true)
-      ..data.txns = [
-        tx('1', '2026-10-30T10:00:00', 1000, cat: 'c-din', merchant: 'Otten'),
-        tx('2', '2026-10-30T10:01:00', 500, merchant: 'XYZ'),
-      ];
-    await open(tester, h);
-    expect(find.text('No category · 1'), findsOneWidget);
-    await tester.tap(find.text('No category · 1'));
-    await tester.pumpAndSettle();
-    expect(h.data.lastFilter.uncategorizedOnly, isTrue);
-    expect(find.text('Otten'), findsNothing);
-    await tester.tap(find.text('No category · 1'));
-    await tester.pumpAndSettle();
-    expect(h.data.lastFilter.uncategorizedOnly, isFalse);
-    expect(find.text('Otten'), findsOneWidget);
-  });
+  testWidgets(
+    'no quick chips: one summary line and a count on the filter button',
+    (tester) async {
+      final h = Harness(signedIn: true)
+        ..data.txns = [
+          tx('1', '2026-10-30T10:00:00', 1000, cat: 'c-din', merchant: 'Otten'),
+          tx('2', '2026-10-30T10:01:00', 500, merchant: 'XYZ'),
+        ];
+      await open(tester, h);
+      expect(find.text('No category · 1'), findsNothing);
+      expect(find.text('All banks'), findsNothing);
+      expect(find.text('This month'), findsOneWidget);
+      expect(find.byKey(const ValueKey('header-badge')), findsNothing);
+      await tester.tap(find.byKey(const ValueKey('tx-filter')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byType(CupertinoSwitch).first); // No category only
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('filter-show')));
+      await tester.pumpAndSettle();
+      expect(h.data.lastFilter.uncategorizedOnly, isTrue);
+      expect(find.text('Otten'), findsNothing);
+      expect(find.text('This month · 1 filter on'), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byKey(const ValueKey('header-badge')),
+          matching: find.text('1'),
+        ),
+        findsOneWidget,
+      );
+    },
+  );
 
-  testWidgets('the period and bank chips open the filter sheet', (
-    tester,
-  ) async {
+  testWidgets('the summary line opens the filter sheet', (tester) async {
     final h = Harness(signedIn: true)
       ..data.txns = [tx('1', '2026-10-30T10:00:00', 1000, cat: 'c-din')];
     await open(tester, h);
-    await tester.tap(find.text('All banks'));
+    await tester.tap(find.byKey(const ValueKey('filter-summary')));
     await tester.pumpAndSettle();
     expect(find.text('Bank or card'), findsOneWidget);
     await tester.tap(find.text('•••• 6000'));
@@ -104,8 +114,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(h.data.lastFilter.accountLast4, '6000');
     expect(h.data.lastFilter.period, TxPeriod.lastMonth);
-    expect(find.text('•••• 6000'), findsOneWidget); // the chip shows the card
-    expect(find.text('Last month'), findsOneWidget);
+    expect(find.text('Last month · 1 filter on'), findsOneWidget);
   });
 
   testWidgets(
@@ -218,16 +227,14 @@ void main() {
     expect(find.text('1 to review'), findsOneWidget);
   });
 
-  testWidgets('chips are buttons for VoiceOver and can be activated', (
-    tester,
-  ) async {
+  testWidgets('the summary line is a button for VoiceOver', (tester) async {
     final handle = tester.ensureSemantics();
     final h = Harness(signedIn: true)
       ..data.txns = [tx('1', '2026-10-30T10:00:00', 1000)];
     await open(tester, h);
-    await tester.tap(find.bySemanticsLabel(RegExp('^No category')));
+    await tester.tap(find.bySemanticsLabel(RegExp('^This month, Filter')));
     await tester.pumpAndSettle();
-    expect(h.data.lastFilter.uncategorizedOnly, isTrue);
+    expect(find.byKey(const ValueKey('filter-show')), findsOneWidget);
     handle.dispose();
   });
 }

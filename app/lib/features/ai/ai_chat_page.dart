@@ -9,6 +9,7 @@ import '../../l10n/app_localizations.dart';
 import '../../ui/app_form.dart';
 import '../../ui/tokens.dart';
 import '../insights/providers.dart';
+import '../../core/format.dart' show monthName;
 import '../obligations/logic.dart' show riyadhToday;
 import '../transactions/providers.dart' show categoriesProvider;
 import 'ai_aggregates.dart';
@@ -18,16 +19,22 @@ import '../../ui/press.dart';
 /// Chat about the month's totals: dig into a category or a budget. The assistant only ever sees the same totals the
 /// tips use (never merchants or messages), and the conversation lives on this screen only.
 class AiChatPage extends ConsumerStatefulWidget {
-  const AiChatPage({super.key});
+  const AiChatPage({super.key, this.withTips = false});
+
+  /// Opened from Get tips: ask for the month's tips first and show them as the first answer.
+  final bool withTips;
 
   @override
   ConsumerState<AiChatPage> createState() => _AiChatPageState();
 }
 
 class _Turn {
-  const _Turn(this.fromUser, this.text);
+  const _Turn(this.fromUser, this.text, {this.note});
   final bool fromUser;
   final String text;
+
+  /// A small line under an answer (the tips' "based on totals only"); not sent back to the AI.
+  final String? note;
 }
 
 class _AiChatPageState extends ConsumerState<AiChatPage> {
@@ -36,6 +43,82 @@ class _AiChatPageState extends ConsumerState<AiChatPage> {
   final _turns = <_Turn>[];
   bool _busy = false;
   String? _error;
+
+  /// What Try again repeats: the tips request, or the last question.
+  bool _retryTips = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.withTips) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _tips(fresh: false);
+      });
+    }
+  }
+
+  String get _month {
+    final d = riyadhToday(ref.read(clockProvider)());
+    return '${d.year}-${d.month.toString().padLeft(2, '0')}';
+  }
+
+  /// The month's tips as an answer in the chat: saved ones first (no AI call), else new ones. The question and the
+  /// answer join the conversation, so a follow-up ("why is dining up?") has them as context.
+  Future<void> _tips({required bool fresh}) async {
+    if (_busy) return;
+    final t = AppLocalizations.of(context);
+    final arabic = ref.read(localeProvider).languageCode == 'ar';
+    final lang = ref.read(localeProvider).languageCode;
+    final repo = ref.read(dataRepositoryProvider);
+    setState(() {
+      if (_turns.isEmpty || !_turns.last.fromUser) {
+        _turns.add(_Turn(true, t.aiTipsAsk));
+      }
+      _busy = true;
+      _error = null;
+      _retryTips = true;
+    });
+    _toEnd();
+    var tips = const <String>[];
+    String? error;
+    if (!fresh) {
+      try {
+        tips = await repo.savedAiTips(_month, language: lang);
+      } catch (_) {
+        // Saved tips are a convenience; ask for new ones.
+      }
+    }
+    if (tips.isEmpty) {
+      final agg = _aggregates();
+      if (agg == null) {
+        error = t.aiChatNoData;
+      } else {
+        final out = await repo.aiTips(agg, lang);
+        if (out.ok) {
+          tips = out.tips;
+          if (tips.isEmpty) error = t.aiTipsNone;
+        } else {
+          error = aiReasonText(t, out.reason);
+        }
+      }
+    }
+    if (!mounted) return;
+    final today = riyadhToday(ref.read(clockProvider)());
+    setState(() {
+      _busy = false;
+      if (tips.isNotEmpty) {
+        _retryTips = false;
+        final lines = [
+          t.aiTipsFor(monthName(today, arabic: arabic)),
+          for (var i = 0; i < tips.length; i++) '${i + 1}. ${tips[i]}',
+        ];
+        _turns.add(_Turn(false, lines.join('\n'), note: t.aiTipsNote));
+      } else {
+        _error = error;
+      }
+    });
+    _toEnd();
+  }
 
   /// The keyboard must not outlive this screen (it stayed up on the page behind after a swipe back).
   void _hideKeyboard() {
@@ -80,7 +163,10 @@ class _AiChatPageState extends ConsumerState<AiChatPage> {
     final q = question.trim();
     if (q.isEmpty || _busy) return;
     _input.clear();
-    setState(() => _turns.add(_Turn(true, q)));
+    setState(() {
+      _turns.add(_Turn(true, q));
+      _retryTips = false;
+    });
     await _run();
   }
 
@@ -169,14 +255,24 @@ class _AiChatPageState extends ConsumerState<AiChatPage> {
           border: outlineOf(context),
           boxShadow: hardShadowOf(context, offset: const Offset(4, 5)),
         ),
-        child: Text(
-          turn.text,
-          style: TextStyle(
-            color: turn.fromUser ? onAccent : text,
-            fontSize: 17,
-            fontWeight: FontWeight.w600,
-            height: 1.45,
-          ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              turn.text,
+              style: TextStyle(
+                color: turn.fromUser ? onAccent : text,
+                fontSize: 17,
+                fontWeight: FontWeight.w600,
+                height: 1.45,
+              ),
+            ),
+            if (turn.note != null) ...[
+              const SizedBox(height: 8),
+              Text(turn.note!, style: TextStyle(color: muted, fontSize: 13)),
+            ],
+          ],
         ),
       ),
     );
@@ -222,12 +318,16 @@ class _AiChatPageState extends ConsumerState<AiChatPage> {
                         spacing: 8,
                         runSpacing: 8,
                         children: [
-                          for (final p in _prompts(t))
+                          for (final (p, tap) in [
+                            if (widget.withTips)
+                              (t.aiTipsNew, () => _tips(fresh: true)),
+                            for (final p in _prompts(t)) (p, () => _ask(p)),
+                          ])
                             CupertinoButton(
                               pressedOpacity: 1,
                               padding: EdgeInsets.zero,
                               minimumSize: const Size(44, 44),
-                              onPressed: () => _ask(p),
+                              onPressed: tap,
                               child: PressShadow(
                                 decoration: BoxDecoration(
                                   color: card,
@@ -285,7 +385,9 @@ class _AiChatPageState extends ConsumerState<AiChatPage> {
                               CupertinoButton(
                                 padding: EdgeInsets.zero,
                                 minimumSize: const Size(44, 44),
-                                onPressed: _run,
+                                onPressed: _retryTips
+                                    ? () => _tips(fresh: true)
+                                    : _run,
                                 child: Text(
                                   t.aiChatRetry,
                                   style: TextStyle(
