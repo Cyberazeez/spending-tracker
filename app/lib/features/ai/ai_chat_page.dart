@@ -71,7 +71,10 @@ class _AiChatPageState extends ConsumerState<AiChatPage> {
     final lang = ref.read(localeProvider).languageCode;
     final repo = ref.read(dataRepositoryProvider);
     setState(() {
-      if (_turns.isEmpty || !_turns.last.fromUser) {
+      // A retry reuses the ask that failed; after any other question the ask is added again.
+      if (_turns.isEmpty ||
+          !_turns.last.fromUser ||
+          _turns.last.text != t.aiTipsAsk) {
         _turns.add(_Turn(true, t.aiTipsAsk));
       }
       _busy = true;
@@ -87,8 +90,16 @@ class _AiChatPageState extends ConsumerState<AiChatPage> {
       } catch (_) {
         // Saved tips are a convenience; ask for new ones.
       }
+      if (!mounted) return;
     }
     if (tips.isEmpty) {
+      // Opened before Insights finished loading: wait for the totals instead of saying there is no data.
+      await Future.wait([
+        ref.read(insightsProvider.future),
+        ref.read(categoriesProvider.future),
+        ref.read(budgetsProvider.future),
+      ]).catchError((_) => <Object>[]);
+      if (!mounted) return;
       final agg = _aggregates();
       if (agg == null) {
         error = t.aiChatNoData;
@@ -171,6 +182,7 @@ class _AiChatPageState extends ConsumerState<AiChatPage> {
   }
 
   Future<void> _run() async {
+    if (_busy) return;
     final agg = _aggregates();
     final t = AppLocalizations.of(context);
     if (agg == null) {

@@ -146,6 +146,34 @@ void main() {
     expect(find.textContaining('AI budget is used up'), findsNothing);
   });
 
+  testWidgets('New tips after a failed question asks for tips as a new turn', (
+    tester,
+  ) async {
+    final h = await openInsights(tester);
+    h.data.chatResult = const AiOutcome.fail('cap_reached');
+    await openTips(tester);
+    await tester.tap(find.text('Where can I cut spending?'));
+    await tester.pumpAndSettle();
+    h.data.saved = [];
+    await tester.tap(find.text('New tips'));
+    await tester.pumpAndSettle();
+    expect(h.data.tipCalls, hasLength(1));
+    // the failed question keeps its place; the tips answer a fresh ask
+    expect(find.text('Give me savings tips for this month'), findsNWidgets(2));
+    h.data.chatResult = const AiOutcome.ok(reply: 'ok');
+    await tester.enterText(find.byType(CupertinoTextField), 'more?');
+    await tester.pump();
+    await tester.tap(find.bySemanticsLabel('Send'));
+    await tester.pumpAndSettle();
+    final roles = h.data.chatCalls.last.$2.map((t) => t['role']).toList();
+    expect(roles.last, 'user');
+    expect(h.data.chatCalls.last.$2[roles.length - 2]['role'], 'assistant');
+    expect(
+      h.data.chatCalls.last.$2[roles.length - 3]['content'],
+      'Give me savings tips for this month',
+    );
+  });
+
   testWidgets('the send button is off for an empty box', (tester) async {
     final h = await openInsights(tester);
     await openTips(tester);

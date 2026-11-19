@@ -291,6 +291,22 @@ void main() {
       expect(h.data.accountCalls, isEmpty);
     });
 
+    testWidgets(
+      'in Cards, a wallet bank offers only Wallet and a bank never does',
+      (tester) async {
+        await start(tester);
+        await openBanks(tester, box: 'cards');
+        await tester.pumpAndSettle();
+        await tester.tap(find.widgetWithText(CupertinoButton, 'Add card'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Credit card'));
+        await tester.pumpAndSettle();
+        expect(find.text('Wallet'), findsNothing);
+        await tester.tapAt(const Offset(10, 10));
+        await tester.pumpAndSettle();
+      },
+    );
+
     testWidgets('a duplicate is explained', (tester) async {
       final h = await start(tester);
       h.data.accountDuplicate = true;

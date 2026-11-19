@@ -285,6 +285,7 @@ class _FilterSheetState extends ConsumerState<_FilterSheet> {
                 _f.copyWith(
                   uncategorizedOnly: v,
                   categoryId: v ? null : _f.categoryId,
+                  categoryIds: v ? null : _f.categoryIds,
                   aiOnly: v ? false : _f.aiOnly,
                 ),
               ),

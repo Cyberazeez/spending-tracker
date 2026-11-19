@@ -216,8 +216,8 @@ void main() {
       expect(find.text('Old one'), findsOneWidget);
       expect(find.text('Overdue'), findsOneWidget);
       await tester.ensureVisible(find.byKey(const ValueKey('bills-history')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const ValueKey('bills-history')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('bills-history')));
       await tester.pumpAndSettle();
       expect(find.text('Old one'), findsOneWidget);
       expect(find.text('Overdue'), findsOneWidget);

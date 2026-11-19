@@ -352,21 +352,28 @@ class _AccountSheetState extends ConsumerState<_AccountSheet> {
   late String _bank = widget.existing?.bank ?? _banks.first.code;
   late String _kind = widget.existing?.kind ?? widget.group.kinds.first;
 
-  /// Wallets only make sense as cards: the Accounts box offers banks only.
+  /// Wallets only make sense as cards: the Accounts box offers banks only (plus the bank an older entry already has).
   List<BankInfo> get _banks => widget.group == OwnAccountGroup.cards
       ? bankList
       : [
           for (final b in bankList)
-            if (!b.wallet) b,
+            if (!b.wallet || b.code == widget.existing?.bank) b,
         ];
 
-  /// The types this box holds, plus the one an older entry already has.
-  List<String> get _kinds => [
-    ...widget.group.kinds,
-    if (widget.existing != null &&
-        !widget.group.kinds.contains(widget.existing!.kind))
-      widget.existing!.kind,
-  ];
+  /// The types this box holds that fit the bank (a wallet bank is a wallet, a bank is never one), plus the one an
+  /// older entry already has.
+  List<String> get _kinds {
+    final wallet = bankInfo(_bank)?.wallet ?? false;
+    return [
+      for (final k in widget.group.kinds)
+        if ((k == 'wallet') == wallet || !widget.group.kinds.contains('wallet'))
+          k,
+      if (widget.existing != null &&
+          !widget.group.kinds.contains(widget.existing!.kind))
+        widget.existing!.kind,
+    ];
+  }
+
   bool _busy = false;
   String? _error;
 
@@ -535,7 +542,9 @@ class _AccountSheetState extends ConsumerState<_AccountSheet> {
                 (c) => bankName(context, c),
                 (v) {
                   _bank = v;
-                  if (bankInfo(v)?.wallet ?? false) {
+                  // Only the Cards box turns an entry into a wallet; an older Accounts entry keeps its type.
+                  if ((bankInfo(v)?.wallet ?? false) &&
+                      widget.group == OwnAccountGroup.cards) {
                     _kind = 'wallet';
                   } else if (_kind == 'wallet') {
                     _kind = widget.group.kinds.first;
