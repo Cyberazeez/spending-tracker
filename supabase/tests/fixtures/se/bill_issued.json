@@ -1,0 +1,13 @@
+{
+  "parserCode": "se",
+  "sender": "",
+  "receivedAt": "2026-11-20T09:00:00.000Z",
+  "body": "مرحبا PERSON X،\nصدرت فاتورة حسابك 00000004579 بمبلغ 500.16 ريال.\n \nللاطلاع والسداد عبر تطبيق السعودية للطاقة:\nhttps://www.se.com.sa/app\n \nيمكنك دفع فاتورتك بنقاط قطاف من stc أو مكافأة من الراجحي عبر التطبيق.",
+  "expected": {
+    "kind": "notice",
+    "notice": "bill_issued",
+    "biller": "se",
+    "lineLast4": "4579",
+    "totalHalalas": 50016
+  }
+}

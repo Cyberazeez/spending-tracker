@@ -12,6 +12,9 @@ export type TxType =
   | "fee";
 
 /** "other" is a bank without a parser, read by the AI fallback (see _shared/ai_parse.ts). */
+/** Billers whose bill notices are read. A saved bill without one is an STC bill (the two seeded lines). */
+export type Biller = "stc" | "se";
+
 export type Bank = "alrajhi" | "snb" | "alinma" | "barq" | "d360" | "stc" | "other";
 
 export interface ParsedTxn {
@@ -53,7 +56,9 @@ export type ParseResult =
     kind: "notice";
     parser: string;
     notice: "bill_issued";
-    /** Last 4 digits of the phone line the bill is for. */
+    /** Who sent the bill: STC (sender 900) or Saudi Electricity. */
+    biller: Biller;
+    /** Last 4 digits of the phone line (STC) or the electricity account the bill is for. */
     lineLast4: string;
     totalHalalas: number;
   }

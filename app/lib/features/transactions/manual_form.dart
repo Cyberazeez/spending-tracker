@@ -36,7 +36,11 @@ class ManualTxnForm extends ConsumerStatefulWidget {
     this.initialMerchant,
     this.initialAmount,
     this.showDirection = false,
+    this.header,
   });
+
+  /// Shown above the form (Add a transaction: the Paste a bank message row).
+  final Widget? header;
 
   final Future<void> Function(ManualTxn txn) onSave;
   final DateTime? initialTime;
@@ -282,6 +286,7 @@ class _ManualTxnFormState extends ConsumerState<ManualTxnForm> {
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
       children: [
+        ?widget.header,
         if (widget.showDirection) ...[
           PillSegments<String>(
             value: _direction,

@@ -269,3 +269,21 @@ Deno.test("provider failures, truncation and non-JSON replies fail closed", asyn
     )) as unknown as typeof fetch;
   assert.deepEqual(await parseWithAi(cut, "x", PURCHASE, NOW), { ok: false, reason: "failed" });
 });
+
+Deno.test("redactForAi drops the name after a greeting, keeps the amount", () => {
+  const ar = redactForAi("مرحبا PERSON NAME،\nصدرت فاتورة حسابك 00000004579 بمبلغ 500.16 ريال.");
+  assert.ok(!ar.includes("PERSON NAME"), ar);
+  assert.ok(ar.includes("مرحبا [name]"), ar);
+  assert.ok(ar.includes("500.16"), ar);
+  const en = redactForAi("Dear Jane Doe,\nYou paid 25.00 SAR at SHOP");
+  assert.ok(!en.includes("Jane"), en);
+  assert.ok(en.includes("25.00 SAR"), en);
+  // a one-line message keeps everything after the name
+  const one = redactForAi("Dear Jane Doe, you paid 25.00 SAR at SHOP");
+  assert.ok(one.startsWith("Dear [name], you paid 25.00 SAR at SHOP"), one);
+  const ar1 = redactForAi("عزيزي العميل، تم خصم 50.00 ريال من بطاقتك");
+  assert.ok(ar1.includes("تم خصم 50.00 ريال"), ar1);
+  // merchant lines that start like a title are left alone
+  assert.ok(redactForAi("Mr. Coffee 15.00 SAR").includes("Mr. Coffee 15.00 SAR"));
+  assert.ok(redactForAi("Purchase at Hi-Fi Store 10.00 SAR").includes("Hi-Fi Store"));
+});

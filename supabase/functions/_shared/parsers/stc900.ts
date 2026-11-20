@@ -20,6 +20,7 @@ export function parseStc900(rawBody: string): ParseResult {
     kind: "notice",
     parser: P,
     notice: "bill_issued",
+    biller: "stc",
     lineLast4: line,
     totalHalalas: toHalalas(m[2]),
   };

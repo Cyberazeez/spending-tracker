@@ -403,3 +403,12 @@ Deno.test("a card payment from the account marks the statement paid", () => {
   );
   assert.equal(other, null);
 });
+
+Deno.test("a bill notice matches its own biller: an STC line never takes an electricity account's bill", () => {
+  const stc: Ob = { ...NET, id: "stc", match: { line: "4579" } };
+  const se: Ob = { ...NET, id: "se", match: { line: "4579", biller: "se" } };
+  assert.equal(obligationForBill([stc, se], "4579")?.id, "stc");
+  assert.equal(obligationForBill([stc, se], "4579", "stc")?.id, "stc");
+  assert.equal(obligationForBill([stc, se], "4579", "se")?.id, "se");
+  assert.equal(obligationForBill([stc], "4579", "se"), undefined);
+});

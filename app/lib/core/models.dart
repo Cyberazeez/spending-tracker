@@ -336,6 +336,9 @@ class ObligationDef {
     this.tolerancePct = 10,
     this.autoMerchant = false,
     this.active = true,
+    this.line,
+    this.biller,
+    this.nextMonth,
   });
 
   final String? id;
@@ -355,6 +358,14 @@ class ObligationDef {
 
   /// False once the bill was stopped. Not sent: saving always (re)activates on the server.
   final bool active;
+
+  /// A bill made from a pasted bill message: the line or account's last 4 and who sends the notices (`stc` or
+  /// `se`). Sent only when set; the bill form never sends it, so a later save keeps the bill's line.
+  final String? line;
+  final String? biller;
+
+  /// Due the month after it is issued. Sent only when set.
+  final bool? nextMonth;
 
   factory ObligationDef.fromRow(Map<String, dynamic> r) {
     final rule = (r['due_rule'] as Map?)?.cast<String, dynamic>() ?? const {};
@@ -396,6 +407,9 @@ class ObligationDef {
     'merchant': merchantWords,
     'tolerance_pct': tolerancePct,
     'auto_merchant': autoMerchant,
+    if (line != null) 'line': line,
+    if (line != null) 'biller': biller ?? 'stc',
+    'next_month': ?nextMonth,
   };
 }
 
@@ -603,5 +617,160 @@ class OwnAccount {
     last4: r['last4'] as String,
     kind: r['kind'] as String,
     label: r['label'] as String?,
+  );
+}
+
+/// A stored purchase that looks the same as a pasted one (same amount and card, within 10 minutes).
+class PasteDuplicate {
+  const PasteDuplicate({
+    required this.id,
+    required this.amountHalalas,
+    required this.occurredAt,
+    this.merchant,
+    this.categoryId,
+  });
+
+  final String id;
+  final String? merchant;
+  final int amountHalalas;
+  final DateTime occurredAt;
+  final String? categoryId;
+
+  factory PasteDuplicate.fromJson(Map<String, dynamic> j) => PasteDuplicate(
+    id: j['id'] as String,
+    merchant: j['merchant'] as String?,
+    amountHalalas: (j['amountHalalas'] as num).toInt(),
+    occurredAt: DateTime.parse(j['occurredAt'] as String),
+    categoryId: j['categoryId'] as String?,
+  );
+}
+
+/// What a pasted message says, before anything is saved (the `paste-sms` function's preview).
+class PastePreview {
+  const PastePreview({
+    required this.kind,
+    this.reader,
+    this.detected = false,
+    this.type,
+    this.direction,
+    this.bank,
+    this.amountHalalas,
+    this.merchant,
+    this.cardLast4,
+    this.accountLast4,
+    this.occurredAt,
+    this.isInternal = false,
+    this.categoryId,
+    this.duplicates = const [],
+    this.aiAvailable = false,
+    this.biller,
+    this.lineLast4,
+    this.issuedAt,
+    this.billId,
+    this.billName,
+    this.billExpectedHalalas,
+    this.billPeriodStart,
+    this.billDueDate,
+    this.receivedAt,
+    this.ambiguous = false,
+  });
+
+  /// The time the server read it with: sent back on commit, so the same message always has the same fingerprint.
+  final DateTime? receivedAt;
+
+  /// Not read because several banks' readers understood it: the person picks the bank.
+  final bool ambiguous;
+
+  /// transaction | bill | statement | ignored | unparsed
+  final String kind;
+
+  /// The reader that understood it (a bank code, `stc900` or `se`), or null when none or several did.
+  final String? reader;
+
+  /// The reader was found from the text (not picked by the person).
+  final bool detected;
+
+  // A purchase or other transaction.
+  final String? type;
+  final String? direction;
+  final String? bank;
+  final int? amountHalalas;
+  final String? merchant;
+  final String? cardLast4;
+  final String? accountLast4;
+  final DateTime? occurredAt;
+  final bool isInternal;
+  final String? categoryId;
+  final List<PasteDuplicate> duplicates;
+
+  /// Not read: Read with AI can be offered (the AI switch is on).
+  final bool aiAvailable;
+
+  // A bill notice.
+  final String? biller;
+  final String? lineLast4;
+  final DateTime? issuedAt;
+  final String? billId;
+  final String? billName;
+  final int? billExpectedHalalas;
+  final DateTime? billPeriodStart;
+  final DateTime? billDueDate;
+
+  factory PastePreview.fromJson(Map<String, dynamic> j) {
+    final r = (j['result'] as Map?)?.cast<String, dynamic>() ?? const {};
+    final bill = (r['bill'] as Map?)?.cast<String, dynamic>();
+    int? n(Object? v) => (v as num?)?.toInt();
+    DateTime? d(Object? v) => v is String ? DateTime.parse(v) : null;
+    return PastePreview(
+      kind: (r['kind'] as String?) ?? 'unparsed',
+      reader: j['reader'] as String?,
+      detected: j['detected'] == true,
+      type: r['type'] as String?,
+      direction: r['direction'] as String?,
+      bank: r['bank'] as String?,
+      // a bill notice's total comes as totalHalalas
+      amountHalalas: n(r['amountHalalas'] ?? r['totalHalalas']),
+      merchant: r['merchant'] as String?,
+      cardLast4: r['cardLast4'] as String?,
+      accountLast4: r['accountLast4'] as String?,
+      occurredAt: d(r['occurredAt']),
+      isInternal: r['isInternal'] == true,
+      categoryId: r['categoryId'] as String?,
+      duplicates: [
+        for (final x in (j['duplicates'] as List?) ?? const [])
+          PasteDuplicate.fromJson((x as Map).cast<String, dynamic>()),
+      ],
+      aiAvailable: r['aiAvailable'] == true,
+      biller: r['biller'] as String?,
+      lineLast4: r['lineLast4'] as String?,
+      issuedAt: d(r['issuedAt']),
+      billId: bill?['id'] as String?,
+      billName: bill?['name'] as String?,
+      billExpectedHalalas: n(bill?['expectedHalalas']),
+      billPeriodStart: d(bill?['periodStart']),
+      billDueDate: d(bill?['dueDate']),
+      receivedAt: d(j['receivedAt']),
+      ambiguous: r['ambiguous'] == true,
+    );
+  }
+}
+
+/// What saving a pasted message did: parsed (saved), review (an AI reading waits for a check), notice (a bill was
+/// updated), ignored, unparsed (kept in Needs review). [duplicate]: the very same message was already stored.
+class PasteResult {
+  const PasteResult({
+    required this.outcome,
+    this.duplicate = false,
+    this.same = const [],
+  });
+
+  /// parsed | review | notice | ignored | unparsed, or `same`: not saved, a stored purchase looks the same ([same]).
+  final String outcome;
+  final bool duplicate;
+  final List<PasteDuplicate> same;
+
+  factory PasteResult.fromJson(Map<String, dynamic> j) => PasteResult(
+    outcome: (j['outcome'] as String?) ?? 'unparsed',
+    duplicate: j['duplicate'] == true,
   );
 }

@@ -146,10 +146,19 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.textContaining('6000'));
     await tester.pumpAndSettle();
-    await tester.enterText(
-      find.widgetWithText(CupertinoTextField, 'Optional'),
-      'Team lunch',
+    // The Paste row sits above the form now: scroll the note field into view first.
+    final note = find.widgetWithText(CupertinoTextField, 'Optional');
+    await tester.scrollUntilVisible(
+      note,
+      200,
+      scrollable: find
+          .descendant(
+            of: find.byType(ManualTxnForm),
+            matching: find.byType(Scrollable),
+          )
+          .first,
     );
+    await tester.enterText(note, 'Team lunch');
     await tapSave(tester);
     await tester.pumpAndSettle();
     final a = h.data.added.single;

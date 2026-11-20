@@ -68,6 +68,12 @@ void main() {
       await t.pumpAndSettle();
       await t.tap(find.byKey(const ValueKey('obligations-add')));
       await t.pumpAndSettle();
+      // The Paste row sits above the tiles now: the last tile may be below the fold at 2x text.
+      await t.scrollUntilVisible(
+        find.byKey(const ValueKey('add-bill-loan')),
+        200,
+        scrollable: find.byType(Scrollable).last,
+      );
       expect(find.byKey(const ValueKey('add-bill-loan')), findsOneWidget);
       expect(t.takeException(), isNull);
     });

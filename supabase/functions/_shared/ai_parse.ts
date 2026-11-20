@@ -90,6 +90,14 @@ export function eligibleForAi(body: string): Eligibility {
   return { ok: true };
 }
 
+/**
+ * A greeting and the name after it, up to the first comma or the end of the line, with no digits in the name. Only the
+ * name is replaced, so a one-line SMS ("Dear Customer, you paid 25.00 SAR") keeps the rest. No "Hi"/"Mr"/"Ms": a
+ * merchant line like "Mr. Coffee" would lose its content.
+ */
+const GREETING_LINE =
+  /^((?:مرحب(?:ا|اً)|أهل(?:ا|اً)|اهلا|عزيزي|عزيزتي|السيد|السيدة|الأستاذ|مساء الخير|صباح الخير|Dear|Hello))[ \t]+[^,،\n\d]{1,40}(?=[,،]|$)/gim
+
 const CURRENCY_NEAR = /(?:SAR|SR|USD|EUR|AED|ريال|ر\.?\s?س|﷼)/i;
 
 /**
@@ -99,6 +107,8 @@ const CURRENCY_NEAR = /(?:SAR|SR|USD|EUR|AED|ريال|ر\.?\s?س|﷼)/i;
  */
 export function redactForAi(body: string): string {
   let t = stripBalances(normalizeText(body));
+  // A greeting line names the person ("مرحبا <name>،", "Dear <name>"): keep the greeting, drop the name (rule 10).
+  t = t.replace(GREETING_LINE, "$1 [name]");
   t = t
     .replace(/\b[A-Za-z]{2}\d{2}[A-Za-z0-9]{10,}\b/g, "[iban]")
     .replace(/\S+@\S+/g, "[email]")

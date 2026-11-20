@@ -39,7 +39,7 @@ export async function applyNotice(
 ): Promise<void> {
   const { obs } = await deps.loadObligations(userId);
   if (n.notice === "bill_issued") {
-    const ob = obligationForBill(obs, n.lineLast4);
+    const ob = obligationForBill(obs, n.lineLast4, n.biller);
     if (!ob) return;
     await deps.upsertNoticeInstance({
       userId,
