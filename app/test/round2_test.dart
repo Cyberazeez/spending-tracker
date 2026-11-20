@@ -110,7 +110,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Insights').last);
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Ask a question'));
+    await tester.tap(find.byKey(const ValueKey('ai-tips-row')));
     await tester.pumpAndSettle();
     await tester.showKeyboard(find.byType(CupertinoTextField));
     await tester.pumpAndSettle();
@@ -121,34 +121,24 @@ void main() {
     expect(tester.testTextInput.isVisible, isFalse);
   });
 
-  testWidgets('the tips follow the app language', (tester) async {
+  testWidgets('the tips in the chat use the app language', (tester) async {
     tester.view.physicalSize = const Size(800, 3000);
     tester.view.devicePixelRatio = 2;
     addTearDown(tester.view.reset);
     final h = Harness(signedIn: true);
     h.data.aiOn = true;
-    h.data.saved = ['Cut dining: ⃁ 900 is 20% over its average.'];
     h.data.history = [spend('1', 90000, cat: 'c-din')];
     h.data.txns = h.data.history;
-    await tester.pumpWidget(await h.build());
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Insights').last);
-    await tester.pumpAndSettle();
-    expect(find.textContaining('Cut dining'), findsOneWidget);
-    h.data.saved = []; // nothing saved in Arabic yet
     h.data.tipsResult = const AiOutcome.ok(tips: ['قلل المطاعم: ⃁ 900']);
-    await tester.tap(find.text('More').last);
+    await tester.pumpWidget(await h.build(prefs: {'locale': 'ar'}));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Language'));
+    await tester.tap(find.text('التحليلات').last);
     await tester.pumpAndSettle();
-    await tester.tap(find.text('العربية').last);
+    await tester.tap(find.byKey(const ValueKey('ai-tips-row')));
     await tester.pumpAndSettle();
     expect(h.data.tipCalls, hasLength(1));
     expect(h.data.tipCalls.single.$2, 'ar');
-    await tester.tap(find.text('التحليلات').last);
-    await tester.pumpAndSettle();
     expect(find.textContaining('قلل المطاعم'), findsOneWidget);
-    expect(find.textContaining('Cut dining'), findsNothing);
   });
 
   testWidgets(

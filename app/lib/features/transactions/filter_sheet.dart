@@ -15,6 +15,7 @@ import '../../ui/settings_group.dart' show appSwitch;
 import '../../ui/sheet_frame.dart';
 import '../../ui/tokens.dart';
 import '../account/account_providers.dart';
+import '../ai/providers.dart' show aiEnabledProvider;
 import '../home/category_groups.dart';
 import '../home/group_style.dart';
 import '../obligations/widgets/bills_widgets.dart' show PillSegments;
@@ -284,10 +285,23 @@ class _FilterSheetState extends ConsumerState<_FilterSheet> {
                 _f.copyWith(
                   uncategorizedOnly: v,
                   categoryId: v ? null : _f.categoryId,
+                  categoryIds: v ? null : _f.categoryIds,
                   aiOnly: v ? false : _f.aiOnly,
                 ),
               ),
             ),
+            // Was a quick chip on Activity; the chips are gone (owner's design 2026-11-19), so it lives here.
+            if (_f.aiOnly || ref.watch(aiEnabledProvider).value == true)
+              switchRow(
+                t.filterAiOnly,
+                _f.aiOnly,
+                (v) => _change(
+                  _f.copyWith(
+                    aiOnly: v,
+                    uncategorizedOnly: v ? false : _f.uncategorizedOnly,
+                  ),
+                ),
+              ),
             switchRow(
               t.filterIncludeTransfers,
               !_f.hideInternal,

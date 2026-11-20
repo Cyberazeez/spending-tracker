@@ -234,7 +234,22 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.textContaining('Dining · AI'), findsOneWidget);
     expect(find.textContaining('Groceries · AI'), findsNothing);
-    await tester.tap(find.text('AI suggested'));
+    // The quick chip is gone; "AI suggested only" is in the filter sheet.
+    await tester.tap(find.byKey(const ValueKey('tx-filter')));
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.descendant(
+        of: find
+            .ancestor(
+              of: find.text('AI suggested only'),
+              matching: find.byType(Row),
+            )
+            .first,
+        matching: find.byType(CupertinoSwitch),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filter-show')));
     await tester.pumpAndSettle();
     expect(find.text('Cafe One'), findsOneWidget);
     expect(find.text('Market Two'), findsNothing);
@@ -250,46 +265,21 @@ void main() {
     expect(find.textContaining('AI budget is used up'), findsOneWidget);
   });
 
-  testWidgets('AI tips card asks for tips and shows them', (tester) async {
+  testWidgets('Get tips is one row on Insights, no tips inline', (
+    tester,
+  ) async {
     final h = await open(
       tester,
       aiOn: true,
       txns: [spend('1', 90000, cat: 'c-din')],
     );
-    h.data.saved = [];
-    await tester.tap(find.text('Insights').last);
-    await tester.pumpAndSettle();
-    expect(find.text('AI tips'), findsOneWidget);
-    await tester.tap(find.text('Get tips'));
-    await tester.pumpAndSettle();
-    expect(h.data.tipCalls, hasLength(1));
-    expect(h.data.tipCalls.single.$2, 'en');
-    expect(h.data.tipCalls.single.$1['categories'], isNotEmpty);
-    expect(find.textContaining('Cut dining'), findsOneWidget);
-    expect(find.text('Refresh tips'), findsOneWidget);
-  });
-
-  testWidgets('saved tips show without asking again', (tester) async {
-    final h = Harness(signedIn: true);
-    h.data.aiOn = true;
-    h.data.history = [spend('1', 90000, cat: 'c-din')];
     h.data.saved = ['Saved tip: ⃁ 900 on dining.'];
-    tester.view.physicalSize = const Size(800, 3000);
-    tester.view.devicePixelRatio = 2;
-    addTearDown(tester.view.reset);
-    await tester.pumpWidget(await h.build());
-    await tester.pumpAndSettle();
     await tester.tap(find.text('Insights').last);
     await tester.pumpAndSettle();
-    expect(find.textContaining('Saved tip'), findsOneWidget);
+    expect(find.byKey(const ValueKey('ai-tips-row')), findsOneWidget);
+    expect(find.text('Get tips'), findsOneWidget);
+    expect(find.textContaining('Saved tip'), findsNothing);
     expect(h.data.tipCalls, isEmpty);
-  });
-
-  testWidgets('the AI tips card is hidden while AI is off', (tester) async {
-    await open(tester, txns: [spend('1', 90000, cat: 'c-din')]);
-    await tester.tap(find.text('Insights').last);
-    await tester.pumpAndSettle();
-    expect(find.text('AI tips'), findsNothing);
   });
 
   for (final lang in ['en', 'ar']) {

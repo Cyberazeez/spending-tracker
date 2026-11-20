@@ -265,6 +265,16 @@ class TxFilter {
   }
 
   /// Anything narrowed beyond the default (this month, every category and account).
+  /// How many filters the sheet has on (the search box shows its own text, so it is not counted).
+  int get count => [
+    categoryId != null || categoryIds != null,
+    uncategorizedOnly,
+    hideInternal,
+    aiOnly,
+    period != TxPeriod.thisMonth,
+    accountLast4 != null,
+  ].where((on) => on).length;
+
   bool get isActive =>
       query.isNotEmpty ||
       categoryId != null ||

@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:spending_tracker/core/auth_repository.dart';
+import 'package:spending_tracker/core/models.dart';
 
 import 'support/fakes.dart';
 
@@ -27,13 +28,16 @@ Future<void> openAccountPage(WidgetTester tester) async {
 }
 
 /// More > Bank accounts (the row moved from Account to More in the redesign).
-Future<void> openBanks(WidgetTester tester) async {
+/// More > Bank accounts, then one of its two boxes (Accounts by default, or Cards).
+Future<void> openBanks(WidgetTester tester, {String box = 'accounts'}) async {
   await tester.tap(find.text('More').last);
   await tester.pumpAndSettle();
   final row = find.text('Bank accounts');
   await tester.ensureVisible(row);
   await tester.pumpAndSettle();
   await tester.tap(row);
+  await tester.pumpAndSettle();
+  await tester.tap(find.byKey(ValueKey('banks-$box')));
 }
 
 void main() {
@@ -234,9 +238,10 @@ void main() {
       tester,
     ) async {
       final h = await start(tester);
-      await openBanks(tester);
+      // Wallets live in the Cards box (owner's pick 2026-11-19).
+      await openBanks(tester, box: 'cards');
       await tester.pumpAndSettle();
-      await tester.tap(find.widgetWithText(CupertinoButton, 'Add account'));
+      await tester.tap(find.widgetWithText(CupertinoButton, 'Add card'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Saudi National Bank (SNB)'));
       await tester.pumpAndSettle();
@@ -251,6 +256,56 @@ void main() {
       await tester.pumpAndSettle();
       expect(h.data.accountCalls, ['add:mobilypay:5555:wallet:']);
     });
+
+    testWidgets('the Accounts box offers no wallets; Cards lists them last', (
+      tester,
+    ) async {
+      final h = await start(
+        tester,
+        setup: (h) => h.data.accounts = [
+          ...h.data.accounts,
+          const OwnAccount(
+            id: 'w1',
+            bank: 'mobilypay',
+            last4: '0912',
+            kind: 'wallet',
+          ),
+          const OwnAccount(
+            id: 'c1',
+            bank: 'alinma',
+            last4: '7730',
+            kind: 'credit_card',
+          ),
+        ],
+      );
+      await openBanks(tester);
+      await tester.pumpAndSettle();
+      expect(find.text('Alinma Bank 6000'), findsOneWidget);
+      expect(find.text('Mobily Pay 0912'), findsNothing);
+      expect(find.text('Alinma Bank 7730'), findsNothing);
+      await tester.tap(find.widgetWithText(CupertinoButton, 'Add account'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Saudi National Bank (SNB)'));
+      await tester.pumpAndSettle();
+      expect(find.text('Mobily Pay'), findsNothing);
+      expect(h.data.accountCalls, isEmpty);
+    });
+
+    testWidgets(
+      'in Cards, a wallet bank offers only Wallet and a bank never does',
+      (tester) async {
+        await start(tester);
+        await openBanks(tester, box: 'cards');
+        await tester.pumpAndSettle();
+        await tester.tap(find.widgetWithText(CupertinoButton, 'Add card'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Credit card'));
+        await tester.pumpAndSettle();
+        expect(find.text('Wallet'), findsNothing);
+        await tester.tapAt(const Offset(10, 10));
+        await tester.pumpAndSettle();
+      },
+    );
 
     testWidgets('a duplicate is explained', (tester) async {
       final h = await start(tester);
@@ -363,6 +418,9 @@ void main() {
       await start(tester);
       await openBanks(tester);
       await tester.pumpAndSettle();
+      await tester.dragFrom(const Offset(3, 300), const Offset(700, 0));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('banks-cards')), findsOneWidget);
       await tester.dragFrom(const Offset(3, 300), const Offset(700, 0));
       await tester.pumpAndSettle();
       expect(find.text('Your account'), findsOneWidget); // back on More

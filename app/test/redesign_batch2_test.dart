@@ -80,7 +80,7 @@ void main() {
         _tx('2', 'Other shop', account: '2222'),
       ];
     await _activity(t, h);
-    await t.tap(find.text('All banks'));
+    await t.tap(find.byKey(const ValueKey('tx-filter')));
     await t.pumpAndSettle();
     await t.tap(find.text('•••• 7705'));
     await t.pumpAndSettle();
@@ -96,9 +96,12 @@ void main() {
       final h = Harness(signedIn: true)
         ..data.txns = [_tx('1', 'OTTEN'), _tx('2', 'XYZ', cat: 'c-gro')];
       await _activity(t, h);
-      await t.tap(
-        find.textContaining('No category'),
-      ); // only uncategorised rows
+      // only uncategorised rows
+      await t.tap(find.byKey(const ValueKey('tx-filter')));
+      await t.pumpAndSettle();
+      await t.tap(find.byType(CupertinoSwitch).first);
+      await t.pumpAndSettle();
+      await t.tap(find.byKey(const ValueKey('filter-show')));
       await t.pumpAndSettle();
       await t.tap(find.text('OTTEN'));
       await t.pumpAndSettle();

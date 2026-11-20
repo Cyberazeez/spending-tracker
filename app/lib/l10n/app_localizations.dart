@@ -812,6 +812,36 @@ abstract class AppLocalizations {
   /// **'No history yet'**
   String get obEmptyHistory;
 
+  /// No description provided for @obHistoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bill history'**
+  String get obHistoryTitle;
+
+  /// No description provided for @obDueToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Due today'**
+  String get obDueToday;
+
+  /// No description provided for @obDueTomorrow.
+  ///
+  /// In en, this message translates to:
+  /// **'Due tomorrow'**
+  String get obDueTomorrow;
+
+  /// No description provided for @obDueInDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Due in {count} days'**
+  String obDueInDays(int count);
+
+  /// No description provided for @obOverdueCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} overdue'**
+  String obOverdueCount(int count);
+
   /// No description provided for @obMonthTitle.
   ///
   /// In en, this message translates to:
@@ -1934,6 +1964,30 @@ abstract class AppLocalizations {
   /// **'No tips this time.'**
   String get aiTipsNone;
 
+  /// No description provided for @aiTipsRowHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Savings tips for this month, in the AI chat'**
+  String get aiTipsRowHint;
+
+  /// No description provided for @aiTipsAsk.
+  ///
+  /// In en, this message translates to:
+  /// **'Give me savings tips for this month'**
+  String get aiTipsAsk;
+
+  /// No description provided for @aiTipsFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Tips for {month}'**
+  String aiTipsFor(String month);
+
+  /// No description provided for @aiTipsNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New tips'**
+  String get aiTipsNew;
+
   /// No description provided for @aiSuggestTitle.
   ///
   /// In en, this message translates to:
@@ -2408,6 +2462,54 @@ abstract class AppLocalizations {
   /// **'No accounts yet.'**
   String get banksEmpty;
 
+  /// No description provided for @banksAccounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Accounts'**
+  String get banksAccounts;
+
+  /// No description provided for @banksAccountsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Current and savings'**
+  String get banksAccountsHint;
+
+  /// No description provided for @banksCards.
+  ///
+  /// In en, this message translates to:
+  /// **'Cards'**
+  String get banksCards;
+
+  /// No description provided for @banksCardsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Credit, debit, mada and wallets'**
+  String get banksCardsHint;
+
+  /// No description provided for @banksCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} added'**
+  String banksCount(int count);
+
+  /// No description provided for @banksWallets.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallets'**
+  String get banksWallets;
+
+  /// No description provided for @banksCardsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No cards yet.'**
+  String get banksCardsEmpty;
+
+  /// No description provided for @bankAddCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Add card'**
+  String get bankAddCard;
+
   /// No description provided for @bankAdd.
   ///
   /// In en, this message translates to:
@@ -2852,6 +2954,12 @@ abstract class AppLocalizations {
   /// **'This month'**
   String get filterThisMonth;
 
+  /// No description provided for @filterOnCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 filter on} other{{count} filters on}}'**
+  String filterOnCount(int count);
+
   /// No description provided for @filterLastMonth.
   ///
   /// In en, this message translates to:
@@ -2893,6 +3001,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No category only'**
   String get filterNoCategoryOnly;
+
+  /// No description provided for @filterAiOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'AI suggested only'**
+  String get filterAiOnly;
 
   /// No description provided for @filterIncludeTransfers.
   ///

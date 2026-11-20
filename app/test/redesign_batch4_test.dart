@@ -82,7 +82,25 @@ void main() {
     );
     await t.tap(find.byKey(const ValueKey('more-banks')));
     await t.pumpAndSettle();
+    // Two boxes, each with its own count; the wallet is under Cards.
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey('banks-accounts')),
+        matching: find.text('2 added'),
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey('banks-cards')),
+        matching: find.text('1 added'),
+      ),
+      findsOneWidget,
+    );
+    await t.tap(find.byKey(const ValueKey('banks-accounts')));
+    await t.pumpAndSettle();
     expect(find.text('Alinma Bank 6000'), findsOneWidget);
+    expect(find.text('barq 2222'), findsNothing);
   });
 
   group('Categories and rules', () {

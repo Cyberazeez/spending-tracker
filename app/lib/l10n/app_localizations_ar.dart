@@ -398,6 +398,25 @@ class AppLocalizationsAr extends AppLocalizations {
   String get obEmptyHistory => 'لا يوجد سجل بعد';
 
   @override
+  String get obHistoryTitle => 'سجل الفواتير';
+
+  @override
+  String get obDueToday => 'تستحق اليوم';
+
+  @override
+  String get obDueTomorrow => 'تستحق غدًا';
+
+  @override
+  String obDueInDays(int count) {
+    return 'تستحق بعد $count أيام';
+  }
+
+  @override
+  String obOverdueCount(int count) {
+    return '$count متأخرة';
+  }
+
+  @override
   String get obMonthTitle => 'هذا الشهر';
 
   @override
@@ -1039,6 +1058,21 @@ class AppLocalizationsAr extends AppLocalizations {
   String get aiTipsNone => 'لا نصائح هذه المرة.';
 
   @override
+  String get aiTipsRowHint =>
+      'نصائح توفير لهذا الشهر في محادثة الذكاء الاصطناعي';
+
+  @override
+  String get aiTipsAsk => 'أعطني نصائح توفير لهذا الشهر';
+
+  @override
+  String aiTipsFor(String month) {
+    return 'نصائح $month';
+  }
+
+  @override
+  String get aiTipsNew => 'نصائح جديدة';
+
+  @override
   String aiSuggestTitle(String n) {
     return '$n عمليات بدون تصنيف';
   }
@@ -1294,6 +1328,32 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get banksEmpty => 'لا توجد حسابات بعد.';
+
+  @override
+  String get banksAccounts => 'الحسابات';
+
+  @override
+  String get banksAccountsHint => 'جاري وتوفير';
+
+  @override
+  String get banksCards => 'البطاقات';
+
+  @override
+  String get banksCardsHint => 'ائتمان ومدى ومحافظ';
+
+  @override
+  String banksCount(int count) {
+    return '$count مضافة';
+  }
+
+  @override
+  String get banksWallets => 'المحافظ';
+
+  @override
+  String get banksCardsEmpty => 'لا توجد بطاقات بعد.';
+
+  @override
+  String get bankAddCard => 'إضافة بطاقة';
 
   @override
   String get bankAdd => 'إضافة حساب';
@@ -1567,6 +1627,19 @@ class AppLocalizationsAr extends AppLocalizations {
   String get filterThisMonth => 'هذا الشهر';
 
   @override
+  String filterOnCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count فلتر مفعّل',
+      few: '$count فلاتر مفعّلة',
+      two: 'فلتران مفعّلان',
+      one: 'فلتر واحد مفعّل',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get filterLastMonth => 'الشهر الماضي';
 
   @override
@@ -1586,6 +1659,9 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get filterNoCategoryOnly => 'بدون فئة فقط';
+
+  @override
+  String get filterAiOnly => 'اقتراحات الذكاء الاصطناعي فقط';
 
   @override
   String get filterIncludeTransfers => 'تضمين التحويلات بين حساباتي';

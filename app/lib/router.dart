@@ -17,6 +17,7 @@ import 'features/obligations/obligation_form_page.dart';
 import 'features/account/account_pages.dart';
 import 'features/account/delete_account_page.dart';
 import 'features/account/own_accounts_page.dart';
+import 'features/obligations/bills_history_page.dart';
 import 'features/transactions/quick_add_page.dart';
 import 'features/transactions/review_page.dart';
 import 'features/shell/shell_page.dart';
@@ -49,7 +50,11 @@ const obligationFormPath = '/home/obligation';
 
 /// "Add a bill": the starting-point tiles before the form.
 const addBillPath = '/home/add-bill';
+const billsHistoryPath = '/home/bills-history';
 const aiChatPath = '/home/ai-chat';
+
+/// The AI chat opened from Get tips: the month's tips are its first answer.
+const aiTipsChatPath = '$aiChatPath?tips=1';
 
 /// Back from a sub-screen: pops it (animated, same as the swipe), or goes Home if it was opened directly.
 void popOrHome(BuildContext context) {
@@ -153,6 +158,14 @@ final routerProvider = Provider<GoRouter>((ref) {
                 path: 'banks',
                 pageBuilder: (_, state) =>
                     _page(state, const OwnAccountsPage()),
+                routes: [
+                  for (final g in OwnAccountGroup.values)
+                    GoRoute(
+                      path: g.name,
+                      pageBuilder: (_, state) =>
+                          _page(state, OwnAccountsGroupPage(group: g)),
+                    ),
+                ],
               ),
               GoRoute(
                 path: 'privacy',
@@ -166,6 +179,10 @@ final routerProvider = Provider<GoRouter>((ref) {
                 ],
               ),
             ],
+          ),
+          GoRoute(
+            path: 'bills-history',
+            pageBuilder: (_, state) => _page(state, const BillsHistoryPage()),
           ),
           GoRoute(
             path: 'txn',
@@ -195,7 +212,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: 'ai-chat',
-            pageBuilder: (_, state) => _page(state, const AiChatPage()),
+            pageBuilder: (_, state) => _page(
+              state,
+              AiChatPage(withTips: state.uri.queryParameters['tips'] == '1'),
+            ),
           ),
           GoRoute(
             path: 'add-bill',

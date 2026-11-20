@@ -143,33 +143,6 @@ void main() {
   });
 
   for (final b in Brightness.values) {
-    testWidgets('AI tips card: ink text on gold, 4.5:1 or more (${b.name})', (
-      t,
-    ) async {
-      t.platformDispatcher.platformBrightnessTestValue = b;
-      t.view.physicalSize = const Size(390 * 2, 1600 * 2);
-      t.view.devicePixelRatio = 2;
-      addTearDown(t.view.reset);
-      addTearDown(t.platformDispatcher.clearAllTestValues);
-      final h = Harness(signedIn: true);
-      h.data
-        ..aiOn = true
-        ..aiPaid = true
-        ..saved = ['Dining is up this month.']
-        ..txns = [_spend]
-        ..history = [_spend];
-      await t.pumpWidget(await h.build());
-      await t.pumpAndSettle();
-      await t.tap(find.text('Insights').last);
-      await t.pumpAndSettle();
-      final tip = t.widget<Text>(find.text('Dining is up this month.'));
-      expect(tip.style!.color!.toARGB32(), _ink.toARGB32());
-      expect(
-        _contrast(tip.style!.color!, const Color(0xFFFFC93C)),
-        greaterThanOrEqualTo(4.5),
-      );
-    });
-
     testWidgets('a destructive confirm button label is readable (${b.name})', (
       t,
     ) async {

@@ -69,6 +69,7 @@ class TransactionsPage extends ConsumerWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     HeaderIconButton(
+                      key: const ValueKey('tx-filter'),
                       onPressed: () => showTxFilterSheet(context, ref),
                       fill: filter.isActive
                           ? AppTokens.accent.resolveFrom(context)
@@ -78,7 +79,10 @@ class TransactionsPage extends ConsumerWidget {
                       iconColor: filter.isActive
                           ? AppTokens.onAccent.resolveFrom(context)
                           : AppTokens.text.resolveFrom(context),
-                      semanticLabel: t.filterTitle,
+                      semanticLabel: filter.count > 0
+                          ? '${t.filterTitle}, ${t.filterOnCount(filter.count)}'
+                          : t.filterTitle,
+                      badge: filter.count,
                     ),
                   ],
                 ),
@@ -107,13 +111,10 @@ class TransactionsPage extends ConsumerWidget {
                     children: [
                       const _SearchBox(),
                       const SizedBox(height: 8),
-                      FilterChips(
+                      FilterSummary(
                         onOpenFilter: () => showTxFilterSheet(context, ref),
                         reviewCount: ref.watch(reviewCountProvider),
                         onReview: () => context.push(reviewPath),
-                        showAi:
-                            txns.value?.any((x) => x.categorySource == 'ai') ??
-                            false,
                       ),
                     ],
                   ),

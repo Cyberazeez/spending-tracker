@@ -31,39 +31,87 @@ Future<Harness> openInsights(WidgetTester tester) async {
   return h;
 }
 
+Future<void> openTips(WidgetTester tester) async {
+  await tester.tap(find.byKey(const ValueKey('ai-tips-row')));
+  await tester.pumpAndSettle();
+}
+
 void main() {
-  testWidgets('the tips card opens the chat, from the button and the card', (
+  testWidgets(
+    'Get tips opens the chat with the saved tips as the first answer',
+    (tester) async {
+      final h = await openInsights(tester);
+      expect(find.text('Get tips'), findsOneWidget);
+      // The tips themselves are no longer on Insights.
+      expect(find.textContaining('Cut dining'), findsNothing);
+      await openTips(tester);
+      expect(find.text('Ask about your spending'), findsOneWidget);
+      expect(find.text('Give me savings tips for this month'), findsOneWidget);
+      expect(find.textContaining('1. Cut dining'), findsOneWidget);
+      expect(find.textContaining('Tips for '), findsOneWidget);
+      expect(
+        find.text('Based on totals only. Check the numbers before acting.'),
+        findsOneWidget,
+      );
+      expect(h.data.tipCalls, isEmpty, reason: 'saved tips need no AI call');
+      expect(find.text('New tips'), findsOneWidget);
+      expect(find.text('Why is Dining so high?'), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    'with no saved tips, the chat asks for them; New tips asks again',
+    (tester) async {
+      final h = await openInsights(tester);
+      h.data.saved = [];
+      await openTips(tester);
+      expect(h.data.tipCalls, hasLength(1));
+      expect(h.data.tipCalls.single.$1.toString(), isNot(contains('ACME')));
+      expect(find.textContaining('1. '), findsOneWidget);
+      await tester.tap(find.text('New tips'));
+      await tester.pumpAndSettle();
+      expect(h.data.tipCalls, hasLength(2));
+    },
+  );
+
+  testWidgets('failed tips say why and Try again asks for tips again', (
     tester,
   ) async {
-    await openInsights(tester);
-    expect(find.textContaining('Cut dining'), findsOneWidget);
-    await tester.tap(find.text('Ask a question'));
+    final h = await openInsights(tester);
+    h.data.saved = [];
+    final ok = h.data.tipsResult;
+    h.data.tipsResult = const AiOutcome.fail('cap_reached');
+    await openTips(tester);
+    expect(find.textContaining('AI budget is used up'), findsOneWidget);
+    h.data.tipsResult = ok;
+    await tester.tap(find.text('Try again'));
     await tester.pumpAndSettle();
-    expect(find.text('Ask about your spending'), findsOneWidget);
-    expect(find.text('Where can I cut spending?'), findsOneWidget);
-    expect(find.text('Why is Dining so high?'), findsOneWidget);
-    await tester.tap(find.byKey(const ValueKey('nav-back')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('AI tips'));
-    await tester.pumpAndSettle();
-    expect(find.text('Ask about your spending'), findsOneWidget);
+    expect(h.data.tipCalls, hasLength(2));
+    expect(h.data.chatCalls, isEmpty);
+    expect(find.text('Give me savings tips for this month'), findsOneWidget);
+    expect(find.textContaining('AI budget is used up'), findsNothing);
   });
 
   testWidgets(
-    'a question sends only totals and the conversation, and shows the answer',
+    'a follow-up sends only totals and the conversation, tips included',
     (tester) async {
       final h = await openInsights(tester);
-      await tester.tap(find.text('Ask a question'));
-      await tester.pumpAndSettle();
+      await openTips(tester);
       await tester.tap(find.text('Why is Dining so high?'));
       await tester.pumpAndSettle();
       expect(h.data.chatCalls, hasLength(1));
       final (agg, turns) = h.data.chatCalls.single;
       expect(agg['categories'], isNotEmpty);
       expect(agg.toString(), isNot(contains('ACME')));
-      expect(turns, [
-        {'role': 'user', 'content': 'Why is Dining so high?'},
+      expect(turns.map((t) => t['role']).toList(), [
+        'user',
+        'assistant',
+        'user',
       ]);
+      expect(turns.first['content'], 'Give me savings tips for this month');
+      expect(turns[1]['content'], contains('1. Cut dining'));
+      expect(turns[1]['content'], isNot(contains('Based on totals')));
+      expect(turns.last['content'], 'Why is Dining so high?');
       expect(find.text('Dining is 900.00 SAR.'), findsOneWidget);
 
       await tester.enterText(
@@ -74,11 +122,7 @@ void main() {
       await tester.tap(find.bySemanticsLabel('Send'));
       await tester.pumpAndSettle();
       expect(h.data.chatCalls, hasLength(2));
-      expect(h.data.chatCalls.last.$2.map((t) => t['role']).toList(), [
-        'user',
-        'assistant',
-        'user',
-      ]);
+      expect(h.data.chatCalls.last.$2, hasLength(5));
       expect(find.text('and my budgets?'), findsOneWidget);
     },
   );
@@ -88,8 +132,7 @@ void main() {
   ) async {
     final h = await openInsights(tester);
     h.data.chatResult = const AiOutcome.fail('cap_reached');
-    await tester.tap(find.text('Ask a question'));
-    await tester.pumpAndSettle();
+    await openTips(tester);
     await tester.tap(find.text('Where can I cut spending?'));
     await tester.pumpAndSettle();
     expect(find.textContaining('AI budget is used up'), findsOneWidget);
@@ -97,18 +140,60 @@ void main() {
     await tester.tap(find.text('Try again'));
     await tester.pumpAndSettle();
     expect(h.data.chatCalls, hasLength(2));
-    expect(h.data.chatCalls.last.$2, hasLength(1));
+    expect(h.data.chatCalls.last.$2, hasLength(3));
+    expect(h.data.tipCalls, isEmpty);
     expect(find.text('Trim dining.'), findsOneWidget);
     expect(find.textContaining('AI budget is used up'), findsNothing);
   });
 
+  testWidgets('New tips after a failed question asks for tips as a new turn', (
+    tester,
+  ) async {
+    final h = await openInsights(tester);
+    h.data.chatResult = const AiOutcome.fail('cap_reached');
+    await openTips(tester);
+    await tester.tap(find.text('Where can I cut spending?'));
+    await tester.pumpAndSettle();
+    h.data.saved = [];
+    await tester.tap(find.text('New tips'));
+    await tester.pumpAndSettle();
+    expect(h.data.tipCalls, hasLength(1));
+    // the failed question keeps its place; the tips answer a fresh ask
+    expect(find.text('Give me savings tips for this month'), findsNWidgets(2));
+    h.data.chatResult = const AiOutcome.ok(reply: 'ok');
+    await tester.enterText(find.byType(CupertinoTextField), 'more?');
+    await tester.pump();
+    await tester.tap(find.bySemanticsLabel('Send'));
+    await tester.pumpAndSettle();
+    final roles = h.data.chatCalls.last.$2.map((t) => t['role']).toList();
+    expect(roles.last, 'user');
+    expect(h.data.chatCalls.last.$2[roles.length - 2]['role'], 'assistant');
+    expect(
+      h.data.chatCalls.last.$2[roles.length - 3]['content'],
+      'Give me savings tips for this month',
+    );
+  });
+
   testWidgets('the send button is off for an empty box', (tester) async {
     final h = await openInsights(tester);
-    await tester.tap(find.text('Ask a question'));
-    await tester.pumpAndSettle();
+    await openTips(tester);
     await tester.tap(find.bySemanticsLabel('Send'));
     await tester.pumpAndSettle();
     expect(h.data.chatCalls, isEmpty);
+  });
+
+  testWidgets('no Get tips row while AI is off', (tester) async {
+    tester.view.physicalSize = const Size(800, 3000);
+    tester.view.devicePixelRatio = 2;
+    addTearDown(tester.view.reset);
+    final h = Harness(signedIn: true);
+    h.data.history = [spend('1', 90000, cat: 'c-din')];
+    h.data.txns = h.data.history;
+    await tester.pumpWidget(await h.build());
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Insights').last);
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('ai-tips-row')), findsNothing);
   });
 
   for (final lang in ['en', 'ar']) {
@@ -132,7 +217,7 @@ void main() {
       await tester.tap(find.text(lang == 'en' ? 'Insights' : 'التحليلات').last);
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
-      final ask = find.text(lang == 'en' ? 'Ask a question' : 'اطرح سؤالًا');
+      final ask = find.byKey(const ValueKey('ai-tips-row'));
       await Scrollable.ensureVisible(tester.element(ask), alignment: 0.3);
       await tester.pumpAndSettle();
       await tester.tap(ask);

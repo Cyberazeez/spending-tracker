@@ -14,12 +14,12 @@ import '../../core/providers.dart';
 import '../../l10n/app_localizations.dart';
 import '../../router.dart';
 import '../../ui/app_card.dart';
+import '../../ui/app_form.dart';
 import '../../ui/bottom_inset.dart';
 import '../../ui/empty_state.dart';
 import '../../ui/grow_in.dart';
 import '../../ui/header_button.dart';
 import '../../ui/skeleton.dart';
-import '../../ui/chevron.dart';
 import '../../ui/tokens.dart';
 import 'bill_sheet.dart';
 import 'logic.dart';
@@ -34,9 +34,6 @@ class ObligationsPage extends ConsumerStatefulWidget {
 }
 
 class _ObligationsPageState extends ConsumerState<ObligationsPage> {
-  ObSection _section = ObSection.upcoming;
-  bool _nextOpen = false;
-
   Future<void> _run(Future<void> Function() action) async {
     final t = AppLocalizations.of(context);
     try {
@@ -58,12 +55,9 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
     final arabic = ref.watch(localeProvider).languageCode == 'ar';
     final today = riyadhToday(ref.watch(clockProvider)());
     final data = ref.watch(obligationsProvider);
-    final overdueCount = data.value == null
-        ? 0
-        : overdueRows(data.value!, today).length;
     final repo = ref.read(dataRepositoryProvider);
     final muted = AppTokens.muted.resolveFrom(context);
-    // Text on the gold hero and the gold notice: ink in both modes.
+    // Text on the gold hero: ink in both modes.
     final ink = AppTokens.onTint.resolveFrom(context);
 
     return CupertinoPageScaffold(
@@ -95,21 +89,6 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
                   .catchError((_) => <ObligationInstance>[]);
             },
           ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
-              child: PillSegments<ObSection>(
-                value: _section,
-                onChanged: (v) => setState(() => _section = v),
-                badges: {ObSection.overdue: overdueCount},
-                labels: {
-                  ObSection.upcoming: t.obSegUpcoming,
-                  ObSection.overdue: t.obSegOverdue,
-                  ObSection.history: t.obSegHistory,
-                },
-              ),
-            ),
-          ),
           ...data.when(
             loading: () => [
               const SkeletonSliver(heights: [150, 200, 150]),
@@ -124,74 +103,20 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
             ],
             data: (all) {
               final suggestions = all.where((i) => i.isSuggestion).toList();
-              final cycle = currentCycle(today);
-              final thisRows = cycleRows(all, cycle, today);
-              final nextRows = cycleRows(
-                all,
-                nextCycle(today),
-                today,
-              ).where((i) => effectiveStatus(i, today) != 'paid').toList();
-              final late = overdueRows(all, today);
-              final before = late.where((i) => isLeftover(i, today)).toList();
-              final summary = summarizeCycle(thisRows, today);
-              final rows = _section == ObSection.overdue
-                  ? late
-                  : inSection(all, ObSection.history, today);
+              // One screen (owner's design 2026-11-19): the hero, then one list with each bill's status.
+              final rows = billsList(all, today);
+              final overdue = rows
+                  .where(
+                    (i) =>
+                        effectiveStatus(i, today) == 'overdue' ||
+                        isLeftover(i, today),
+                  )
+                  .length;
+              final summary = summarizeCycle(rows, today);
               Widget pad(Widget child) => SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
                   child: child,
-                ),
-              );
-              Widget heading(String title) => SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 4, 20, 8),
-                  child: Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      color: muted,
-                    ),
-                  ),
-                ),
-              );
-              // "Next month" can be opened and closed again: the heading is the button, with a chevron that shows the state.
-              Widget collapsibleHeading(String title) => SliverToBoxAdapter(
-                child: Semantics(
-                  button: true,
-                  expanded: _nextOpen,
-                  label: title,
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: () => setState(() => _nextOpen = !_nextOpen),
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 4, 20, 8),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: ExcludeSemantics(
-                              child: Text(
-                                title,
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w700,
-                                  color: muted,
-                                ),
-                              ),
-                            ),
-                          ),
-                          Icon(
-                            _nextOpen
-                                ? LucideIcons.chevronUp
-                                : LucideIcons.chevronDown,
-                            size: 16,
-                            color: muted,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
                 ),
               );
               final suggestionCards = [
@@ -256,49 +181,36 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
                     ),
                   ),
               ];
-              if (_section != ObSection.upcoming) {
+              final historyButton = pad(
+                SecondaryButton(
+                  key: const ValueKey('bills-history'),
+                  label: t.obSegHistory,
+                  icon: LucideIcons.history,
+                  onPressed: () => context.push(billsHistoryPath),
+                ),
+              );
+              if (rows.isEmpty) {
                 return [
                   ...suggestionCards,
-                  if (rows.isEmpty)
-                    SliverFillRemaining(
-                      hasScrollBody: false,
-                      child: EmptyState(
-                        // nothing overdue is good news; an empty history is still waiting
-                        art: _section == ObSection.overdue
-                            ? EmptyArtKind.done
-                            : EmptyArtKind.waiting,
-                        title: _section == ObSection.overdue
-                            ? t.obEmptyOverdue
-                            : t.obEmptyHistory,
-                      ),
-                    )
-                  else if (_section == ObSection.history)
-                    for (final g in groupByCycle(rows)) ...[
-                      heading(
-                        '${monthName(g.monthStart, arabic: arabic)} ${ltrIsolate(g.monthStart.year.toString())}',
-                      ),
-                      pad(
-                        RowsCard(
-                          children: [
-                            for (final i in g.items) _row(i, today, arabic, t),
-                          ],
-                        ),
-                      ),
-                    ]
-                  else
-                    pad(
-                      RowsCard(
-                        children: [
-                          for (final i in rows) _row(i, today, arabic, t),
-                        ],
-                      ),
+                  SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: EmptyState(
+                      // good news only when bills exist; a new account with none is still waiting
+                      art: all.any((i) => !i.isSuggestion)
+                          ? EmptyArtKind.done
+                          : EmptyArtKind.waiting,
+                      title: t.obEmptyUpcoming,
                     ),
+                  ),
+                  historyButton,
                 ];
               }
-              final monthLabel = monthName(cycle, arabic: arabic);
-              final nextTotal = nextRows.fold<int>(
-                0,
-                (sum, i) => sum + (i.expectedHalalas ?? 0),
+              final monthLabel = monthName(currentCycle(today), arabic: arabic);
+              final paidLine = t.obCyclePaid(
+                ltrIsolate(formatSar(summary.paidHalalas, arabic: arabic)),
+                ltrIsolate(formatSar(summary.totalHalalas, arabic: arabic)),
+                summary.paidCount.toString(),
+                summary.count.toString(),
               );
               return [
                 ...suggestionCards,
@@ -323,16 +235,18 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
                         FittedBox(
                           fit: BoxFit.scaleDown,
                           alignment: AlignmentDirectional.centerStart,
-                          child: _amount(
-                            summary.stillHalalas,
-                            arabic,
-                            TextStyle(
-                              fontSize: 34,
-                              fontWeight: FontWeight.w800,
-                              color: ink,
-                              fontFeatures: const [
-                                FontFeature.tabularFigures(),
-                              ],
+                          child: Directionality(
+                            textDirection: TextDirection.ltr,
+                            child: Text(
+                              formatSar(summary.stillHalalas, arabic: arabic),
+                              style: TextStyle(
+                                fontSize: 34,
+                                fontWeight: FontWeight.w800,
+                                color: ink,
+                                fontFeatures: const [
+                                  FontFeature.tabularFigures(),
+                                ],
+                              ),
                             ),
                           ),
                         ),
@@ -342,172 +256,30 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
                           total: summary.totalHalalas,
                         ),
                         const SizedBox(height: 10),
-                        Directionality(
-                          textDirection: Directionality.of(context),
-                          child: Text(
-                            t.obCyclePaid(
-                              ltrIsolate(
-                                formatSar(summary.paidHalalas, arabic: arabic),
-                              ),
-                              ltrIsolate(
-                                formatSar(summary.totalHalalas, arabic: arabic),
-                              ),
-                              summary.paidCount.toString(),
-                              summary.count.toString(),
-                            ),
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700,
-                              color: ink,
-                            ),
+                        Text(
+                          overdue > 0
+                              ? '$paidLine · ${t.obOverdueCount(overdue)}'
+                              : paidLine,
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: ink,
                           ),
                         ),
                       ],
                     ),
                   ),
                 ),
-                if (before.isNotEmpty)
-                  pad(
-                    GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () => setState(() => _section = ObSection.overdue),
-                      child: AppCard(
-                        pressable: true,
-                        color: AppTokens.warnBg.resolveFrom(context),
-                        padding: EdgeInsets.zero,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 14,
-                            vertical: 12,
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(
-                                LucideIcons.triangleAlert,
-                                size: 20,
-                                color: AppTokens.onTint.resolveFrom(context),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      t.obUnpaidBefore(before.length),
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w700,
-                                        color: AppTokens.onTint.resolveFrom(
-                                          context,
-                                        ),
-                                      ),
-                                    ),
-                                    Text(
-                                      before.map((i) => i.name).join(', '),
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        color: AppTokens.onTint.resolveFrom(
-                                          context,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              ForwardChevron(
-                                size: 16,
-                                color: AppTokens.onTint.resolveFrom(context),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
+                pad(
+                  RowsCard(
+                    key: const ValueKey('bills-list'),
+                    children: [
+                      for (final i in rows)
+                        billRow(context, i, today, arabic, t),
+                    ],
                   ),
-                if (thisRows.isEmpty && nextRows.isEmpty)
-                  SliverFillRemaining(
-                    hasScrollBody: false,
-                    child: EmptyState(
-                      // good news only when bills exist; a new account with none is still waiting
-                      art: all.any((i) => !i.isSuggestion)
-                          ? EmptyArtKind.done
-                          : EmptyArtKind.waiting,
-                      title: t.obEmptyUpcoming,
-                    ),
-                  )
-                else ...[
-                  if (thisRows.isNotEmpty) ...[
-                    heading(t.obGroupThis(monthLabel)),
-                    pad(
-                      RowsCard(
-                        children: [
-                          for (final i in thisRows) _row(i, today, arabic, t),
-                        ],
-                      ),
-                    ),
-                  ],
-                  if (nextRows.isNotEmpty) ...[
-                    collapsibleHeading(
-                      t.obGroupNext(
-                        monthName(nextCycle(today), arabic: arabic),
-                      ),
-                    ),
-                    pad(
-                      _nextOpen
-                          ? RowsCard(
-                              children: [
-                                for (final i in nextRows)
-                                  _row(i, today, arabic, t),
-                              ],
-                            )
-                          : GestureDetector(
-                              behavior: HitTestBehavior.opaque,
-                              onTap: () => setState(() => _nextOpen = true),
-                              child: AppCard(
-                                pressable: true,
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            t.obNextSummary(nextRows.length),
-                                            style: TextStyle(
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.w600,
-                                              color: AppTokens.text.resolveFrom(
-                                                context,
-                                              ),
-                                            ),
-                                          ),
-                                          Text(
-                                            t.obNextNote(
-                                              ltrIsolate(
-                                                formatSar(
-                                                  nextTotal,
-                                                  arabic: arabic,
-                                                ),
-                                              ),
-                                            ),
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              color: muted,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                    ),
-                  ],
-                ],
+                ),
+                historyButton,
               ];
             },
           ),
@@ -516,55 +288,62 @@ class _ObligationsPageState extends ConsumerState<ObligationsPage> {
       ),
     );
   }
+}
 
-  Widget _amount(int halalas, bool arabic, TextStyle style) => Directionality(
-    textDirection: TextDirection.ltr,
-    child: Text(formatSar(halalas, arabic: arabic), style: style),
-  );
-
-  Widget _row(
-    ObligationInstance i,
-    DateTime today,
-    bool arabic,
-    AppLocalizations t,
-  ) {
-    final status = effectiveStatus(i, today);
-    final label = switch (status) {
-      'paid' => t.obStatusPaid,
-      'overdue' => t.obStatusOverdue,
-      'skipped' => t.obStatusSkipped,
-      _ => t.obStatusPending,
-    };
-    final soon = status == 'pending' && i.dueDate.difference(today).inDays <= 7;
-    final tone = switch (status) {
-      'paid' => PillTone.ok,
-      'overdue' => PillTone.danger,
-      'skipped' => PillTone.muted,
-      _ => soon ? PillTone.warn : PillTone.muted,
-    };
-    // Only the amount, in bold: what was paid, else what is expected.
-    final shown = status == 'paid' && i.actualHalalas != null
-        ? i.actualHalalas
-        : i.expectedHalalas;
-    final amount = shown != null
-        ? ltrIsolate(formatSar(shown, arabic: arabic))
-        : '';
-    return ObligationRow(
-      onTap: () => showBillSheet(
-        context,
-        instance: i,
-        status: status,
-        statusLabel: label,
-        tone: tone,
-        today: today,
-      ),
-      name: i.name,
-      kind: i.kind,
+/// One bill with its own status: Paid, Overdue, Due today / tomorrow / in N days (the last week, warn tone), or
+/// Pending. Tapping it opens the bill sheet. Shared by Bills and Bill history.
+Widget billRow(
+  BuildContext context,
+  ObligationInstance i,
+  DateTime today,
+  bool arabic,
+  AppLocalizations t,
+) {
+  final status = effectiveStatus(i, today);
+  final days = daysUntilDue(i, today);
+  final soon = status == 'pending' && days <= billsSoonDays;
+  final label = switch (status) {
+    'paid' => t.obStatusPaid,
+    'overdue' => t.obStatusOverdue,
+    'skipped' => t.obStatusSkipped,
+    _ when isLeftover(i, today) => t.obStatusOverdue,
+    _ when soon =>
+      days <= 0
+          ? t.obDueToday
+          : days == 1
+          ? t.obDueTomorrow
+          : t.obDueInDays(days),
+    _ => t.obStatusPending,
+  };
+  final tone = switch (status) {
+    'paid' => PillTone.ok,
+    'overdue' => PillTone.danger,
+    'skipped' => PillTone.muted,
+    _ when isLeftover(i, today) => PillTone.danger,
+    _ => soon ? PillTone.warn : PillTone.muted,
+  };
+  // Only the amount, in bold: what was paid, else what is expected.
+  final shown = status == 'paid' && i.actualHalalas != null
+      ? i.actualHalalas
+      : i.expectedHalalas;
+  final amount = shown != null
+      ? ltrIsolate(formatSar(shown, arabic: arabic))
+      : '';
+  return ObligationRow(
+    onTap: () => showBillSheet(
+      context,
+      instance: i,
+      status: status,
       statusLabel: label,
       tone: tone,
-      detail: amount,
-    );
-  }
+      today: today,
+    ),
+    name: i.name,
+    kind: i.kind,
+    statusLabel: label,
+    tone: tone,
+    detail: amount,
+  );
 }
 
 /// An outlined progress bar on the gold hero: white track, emerald fill from the leading edge (the paid part).

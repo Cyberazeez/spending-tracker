@@ -396,6 +396,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get obEmptyHistory => 'No history yet';
 
   @override
+  String get obHistoryTitle => 'Bill history';
+
+  @override
+  String get obDueToday => 'Due today';
+
+  @override
+  String get obDueTomorrow => 'Due tomorrow';
+
+  @override
+  String obDueInDays(int count) {
+    return 'Due in $count days';
+  }
+
+  @override
+  String obOverdueCount(int count) {
+    return '$count overdue';
+  }
+
+  @override
   String get obMonthTitle => 'This month';
 
   @override
@@ -1042,6 +1061,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiTipsNone => 'No tips this time.';
 
   @override
+  String get aiTipsRowHint => 'Savings tips for this month, in the AI chat';
+
+  @override
+  String get aiTipsAsk => 'Give me savings tips for this month';
+
+  @override
+  String aiTipsFor(String month) {
+    return 'Tips for $month';
+  }
+
+  @override
+  String get aiTipsNew => 'New tips';
+
+  @override
   String aiSuggestTitle(String n) {
     return '$n transactions have no category';
   }
@@ -1301,6 +1334,32 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get banksEmpty => 'No accounts yet.';
+
+  @override
+  String get banksAccounts => 'Accounts';
+
+  @override
+  String get banksAccountsHint => 'Current and savings';
+
+  @override
+  String get banksCards => 'Cards';
+
+  @override
+  String get banksCardsHint => 'Credit, debit, mada and wallets';
+
+  @override
+  String banksCount(int count) {
+    return '$count added';
+  }
+
+  @override
+  String get banksWallets => 'Wallets';
+
+  @override
+  String get banksCardsEmpty => 'No cards yet.';
+
+  @override
+  String get bankAddCard => 'Add card';
 
   @override
   String get bankAdd => 'Add account';
@@ -1576,6 +1635,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get filterThisMonth => 'This month';
 
   @override
+  String filterOnCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count filters on',
+      one: '1 filter on',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get filterLastMonth => 'Last month';
 
   @override
@@ -1595,6 +1665,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get filterNoCategoryOnly => 'No category only';
+
+  @override
+  String get filterAiOnly => 'AI suggested only';
 
   @override
   String get filterIncludeTransfers => 'Include transfers between my accounts';

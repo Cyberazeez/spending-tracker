@@ -273,39 +273,13 @@ void main() {
           .firstWhere((d) => d.border != null)
           .color;
       expect(_v(filterFill()), 0xFFFFFFFF);
-      await t.tap(find.text('No category'));
+      await t.tap(find.byKey(const ValueKey('tx-filter')));
+      await t.pumpAndSettle();
+      await t.tap(find.byType(CupertinoSwitch).first); // No category only
+      await t.pumpAndSettle();
+      await t.tap(find.byKey(const ValueKey('filter-show')));
       await t.pumpAndSettle();
       expect(_v(filterFill()), 0xFF00A86B);
-    },
-  );
-
-  testWidgets(
-    'Activity: "No category" chip is gold, the chosen chip is emerald',
-    (t) async {
-      final h = Harness(signedIn: true);
-      h.data.txns = [_txn()];
-      await t.pumpWidget(await h.build());
-      await t.pumpAndSettle();
-      await t.tap(find.text('Activity').last);
-      await t.pumpAndSettle();
-
-      Color? fillOf(String label) => t
-          .widgetList<DecoratedBox>(
-            find.ancestor(
-              of: find.textContaining(label),
-              matching: find.byType(DecoratedBox),
-            ),
-          )
-          .map((d) => d.decoration)
-          .whereType<BoxDecoration>()
-          .firstWhere((d) => d.border != null)
-          .color;
-
-      expect(_v(fillOf('No category')), 0xFFFFC93C);
-      expect(_v(fillOf('This month')), 0xFF00A86B); // the period chip
-      await t.tap(find.textContaining('No category'));
-      await t.pumpAndSettle();
-      expect(_v(fillOf('No category')), 0xFF00A86B);
     },
   );
 }

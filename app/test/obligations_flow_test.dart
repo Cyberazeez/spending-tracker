@@ -40,59 +40,56 @@ Future<Harness> open(WidgetTester tester, List<ObligationInstance> list) async {
 }
 
 void main() {
-  testWidgets('upcoming lists what is due soon with a committed total', (
-    tester,
-  ) async {
-    final h = await open(tester, [
-      inst('1', 'Horse and foal', '2026-10-31'),
-      inst('2', 'Murabahah', '2026-10-31', expected: 385833),
-      inst('3', 'Old one', '2026-09-28', period: '2026-09-01'),
-    ]);
-    expect(h.data.refreshCalls, greaterThan(0));
-    expect(find.text('October · still to pay'), findsOneWidget);
-    expect(find.text('Horse and foal'), findsOneWidget);
-    expect(find.text('Murabahah'), findsOneWidget);
-    // an open item from an earlier cycle is not a row of this month: it is named once, in the reminder card
-    expect(find.text('1 unpaid from an earlier month'), findsOneWidget);
-    expect(find.text('Old one'), findsOneWidget);
-    expect(
-      find.text('Pending'),
-      findsNWidgets(2),
-    ); // only the two of this month
-    expect(find.text('⃁ 4,038.33'), findsOneWidget); // 180.00 + 3,858.33
-  });
-
   testWidgets(
-    'bills are grouped by cycle: this month, then next month folded',
+    'one list: this month with a status per bill, an earlier unpaid bill as Overdue',
     (tester) async {
-      await open(tester, [
-        inst('1', 'House Card', '2026-10-31'),
-        // issued in October, due in November: still this month's cycle
-        inst('2', 'Horse and foal', '2026-10-31'),
-        inst('3', 'Murabahah', '2026-11-28', period: '2026-11-01'),
-        inst('4', 'Far one', '2026-11-29', period: '2026-11-01'),
+      final h = await open(tester, [
+        inst('1', 'Horse and foal', '2026-10-31'),
+        inst('2', 'Murabahah', '2026-10-31', expected: 385833),
+        inst('3', 'Old one', '2026-09-28', period: '2026-09-01'),
+        inst('4', 'Later', '2026-10-31', period: '2026-10-01', status: 'paid'),
       ]);
-      expect(find.text('This month · October'), findsOneWidget);
-      expect(find.text('Next month · November'), findsOneWidget);
-      expect(find.text('House Card'), findsOneWidget);
-      expect(find.text('Horse and foal'), findsOneWidget);
-      // next month is one folded line until it is tapped
-      expect(find.text('2 bills'), findsOneWidget);
-      expect(find.text('Murabahah'), findsNothing);
-      await tester.tap(find.text('2 bills'));
-      await tester.pumpAndSettle();
-      expect(find.text('Murabahah'), findsOneWidget);
-      expect(find.text('Far one'), findsOneWidget);
-      // and it can be folded again by tapping its heading
-      await tester.tap(find.text('Next month · November'));
-      await tester.pumpAndSettle();
-      expect(find.text('Murabahah'), findsNothing);
-      expect(find.text('2 bills'), findsOneWidget);
-      await tester.tap(find.text('Next month · November'));
-      await tester.pumpAndSettle();
-      expect(find.text('Murabahah'), findsOneWidget);
+      expect(h.data.refreshCalls, greaterThan(0));
+      expect(find.text('October · still to pay'), findsOneWidget);
+      // no tabs any more
+      expect(find.text('Upcoming'), findsNothing);
+      expect(find.text('Overdue'), findsOneWidget); // the status of Old one
+      expect(find.text('Due tomorrow'), findsNWidgets(2));
+      expect(find.text('Paid'), findsOneWidget);
+      // still to pay counts the overdue one too: 180.00 + 3,858.33 + 180.00
+      expect(find.text('⃁ 4,218.33'), findsOneWidget);
+      expect(find.textContaining('1 overdue'), findsOneWidget);
+      // order: overdue first, then open, then paid
+      double y(String s) => tester.getTopLeft(find.text(s)).dy;
+      expect(y('Old one'), lessThan(y('Horse and foal')));
+      expect(y('Murabahah'), lessThan(y('Later')));
+      expect(find.byKey(const ValueKey('bills-history')), findsOneWidget);
     },
   );
+
+  testWidgets('next month stays hidden until 7 days before it is due', (
+    tester,
+  ) async {
+    // The test clock is 30 Oct.
+    await open(tester, [
+      inst('1', 'House Card', '2026-10-31'),
+      inst('2', 'In a week', '2026-11-06', period: '2026-11-01'),
+      inst('3', 'Too far', '2026-11-07', period: '2026-11-01'),
+      inst(
+        '4',
+        'Next paid',
+        '2026-11-03',
+        period: '2026-11-01',
+        status: 'paid',
+      ),
+    ]);
+    expect(find.text('House Card'), findsOneWidget);
+    expect(find.text('In a week'), findsOneWidget);
+    expect(find.text('Due in 7 days'), findsOneWidget);
+    expect(find.text('Too far'), findsNothing);
+    expect(find.text('Next paid'), findsNothing);
+    expect(find.text('Next month · November'), findsNothing);
+  });
 
   testWidgets('the cycle card shows what is paid and what is left', (
     tester,
@@ -174,25 +171,25 @@ void main() {
     expect(fillW.width / barW, closeTo(0.75, 0.01)); // 300 of 400 paid
   });
 
-  testWidgets('history is grouped by month, newest first', (tester) async {
+  testWidgets('History opens past months, newest first', (tester) async {
     await open(tester, [
       inst('1', 'Paid Oct', '2026-10-02', status: 'paid', period: '2026-10-01'),
       inst('2', 'Paid Sep', '2026-09-28', status: 'paid', period: '2026-09-01'),
-      inst(
-        '3',
-        'Paid Oct late',
-        '2026-10-28',
-        status: 'paid',
-        period: '2026-10-01',
-      ),
+      inst('3', 'Paid Aug', '2026-08-28', status: 'paid', period: '2026-08-01'),
     ]);
-    await tester.tap(find.text('History'));
+    // a paid bill of this month stays on Bills, with its status
+    expect(find.text('Paid Oct'), findsOneWidget);
+    expect(find.text('Paid Sep'), findsNothing);
+    await tester.ensureVisible(find.byKey(const ValueKey('bills-history')));
     await tester.pumpAndSettle();
-    expect(find.textContaining('October'), findsOneWidget);
-    expect(find.textContaining('September'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('bills-history')));
+    await tester.pumpAndSettle();
+    expect(find.text('Bill history'), findsOneWidget);
+    expect(find.text('Paid Oct'), findsNothing);
+    expect(find.text('Paid Sep'), findsOneWidget);
     expect(
-      tester.getTopLeft(find.textContaining('October')).dy,
-      lessThan(tester.getTopLeft(find.textContaining('September')).dy),
+      tester.getTopLeft(find.textContaining('September')).dy,
+      lessThan(tester.getTopLeft(find.textContaining('August')).dy),
     );
   });
 
@@ -209,21 +206,26 @@ void main() {
     expect(h.data.instanceCalls.where((c) => c.startsWith('amount')), isEmpty);
   });
 
-  testWidgets('overdue and history segments', (tester) async {
-    await open(tester, [
-      inst('1', 'Old one', '2026-10-01'),
-      inst('2', 'Paid one', '2026-10-02', status: 'paid'),
-    ]);
-    await tester.tap(find.text('Overdue').first);
-    await tester.pumpAndSettle();
-    expect(find.text('Old one'), findsOneWidget);
-    expect(find.text('Paid one'), findsNothing);
-    await tester.tap(find.text('History'));
-    await tester.pumpAndSettle();
-    expect(find.text('Paid one'), findsOneWidget);
-  });
+  testWidgets(
+    'an overdue bill stays on Bills until paid, and shows in History',
+    (tester) async {
+      await open(tester, [
+        inst('1', 'Old one', '2026-08-20', period: '2026-08-01'),
+        inst('2', 'Paid one', '2026-10-02', status: 'paid'),
+      ]);
+      expect(find.text('Old one'), findsOneWidget);
+      expect(find.text('Overdue'), findsOneWidget);
+      await tester.ensureVisible(find.byKey(const ValueKey('bills-history')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('bills-history')));
+      await tester.pumpAndSettle();
+      expect(find.text('Old one'), findsOneWidget);
+      expect(find.text('Overdue'), findsOneWidget);
+      expect(find.text('Paid one'), findsNothing);
+    },
+  );
 
-  testWidgets('mark paid from the row actions moves it to history', (
+  testWidgets('mark paid from the row actions keeps it on Bills as Paid', (
     tester,
   ) async {
     final h = await open(tester, [inst('1', 'Horse and foal', '2026-10-31')]);
@@ -237,8 +239,6 @@ void main() {
     expect(h.data.instanceCalls, ['paid:1']);
     // it stays in this month's list, now as paid
     expect(find.text('Paid'), findsWidgets);
-    await tester.tap(find.text('History'));
-    await tester.pumpAndSettle();
     expect(find.text('Horse and foal'), findsOneWidget);
   });
 
@@ -304,7 +304,8 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('الفواتير').last);
     await tester.pumpAndSettle();
-    expect(find.text('القادمة'), findsOneWidget);
+    expect(find.text('القادمة'), findsNothing); // no tabs
+    expect(find.text('تستحق غدًا'), findsOneWidget);
     expect(find.textContaining('المتوقع'), findsNothing);
   });
 
