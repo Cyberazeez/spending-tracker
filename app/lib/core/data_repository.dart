@@ -88,6 +88,7 @@ abstract class DataRepository {
     String? reader,
     DateTime? receivedAt,
     bool ai = false,
+    bool force = false,
   });
 
   Future<String> saveObligation(String? id, ObligationDef d);
@@ -544,12 +545,14 @@ class SupabaseDataRepository implements DataRepository {
     String? reader,
     DateTime? receivedAt, {
     bool ai = false,
+    bool force = false,
   }) => {
     'action': action,
     'body': body,
     'reader': ?reader,
     'received_at': ?receivedAt?.toUtc().toIso8601String(),
     if (ai) 'ai': true,
+    if (force) 'force': true,
   };
 
   @override
@@ -571,12 +574,35 @@ class SupabaseDataRepository implements DataRepository {
     String? reader,
     DateTime? receivedAt,
     bool ai = false,
+    bool force = false,
   }) async {
-    final res = await _db.functions.invoke(
-      'paste-sms',
-      body: _pasteBody('commit', body, reader, receivedAt, ai: ai),
-    );
-    return PasteResult.fromJson((res.data as Map).cast<String, dynamic>());
+    try {
+      final res = await _db.functions.invoke(
+        'paste-sms',
+        body: _pasteBody(
+          'commit',
+          body,
+          reader,
+          receivedAt,
+          ai: ai,
+          force: force,
+        ),
+      );
+      return PasteResult.fromJson((res.data as Map).cast<String, dynamic>());
+    } on FunctionException catch (e) {
+      // 409: the server found a stored purchase that looks the same (checked again on save, not only on Read).
+      final d = e.details;
+      if (e.status == 409 && d is Map && d['duplicates'] is List) {
+        return PasteResult(
+          outcome: 'same',
+          same: [
+            for (final x in d['duplicates'] as List)
+              PasteDuplicate.fromJson((x as Map).cast<String, dynamic>()),
+          ],
+        );
+      }
+      rethrow;
+    }
   }
 
   @override

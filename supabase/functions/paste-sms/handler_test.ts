@@ -223,7 +223,7 @@ Deno.test("paste commit: a bill updates that month's bill and keeps only the fac
 Deno.test("paste: an unknown message offers AI only while it is on; nothing is guessed", async () => {
   const off = await setup().call({ action: "preview", body: "Hello, your parcel is on the way" });
   assert.equal(off.json.reader, null);
-  assert.deepEqual(off.json.result, { kind: "unparsed", aiAvailable: false });
+  assert.deepEqual(off.json.result, { kind: "unparsed", ambiguous: false, aiAvailable: false });
   const on = await setup({ aiAvailable: true }).call({
     action: "preview",
     body: "Hello, your parcel is on the way",
@@ -270,4 +270,55 @@ Deno.test("paste: a one-time code is never read or stored", async () => {
 Deno.test("paste: a chosen bank must be one we read", async () => {
   const r = await setup().call({ action: "preview", body: "x", reader: "constructor" });
   assert.equal(r.status, 400);
+});
+
+Deno.test("paste commit: checks for the same purchase again; Add anyway (force) saves it", async () => {
+  const dup = {
+    id: "t9",
+    merchant: "MCDONALDS",
+    amountHalalas: 3900,
+    occurredAt: "2026-10-28T18:32:00.000Z",
+    categoryId: null,
+  };
+  const s = setup({ duplicates: [dup] });
+  const r = await s.call({
+    action: "commit",
+    body: PURCHASE.body,
+    received_at: PURCHASE.receivedAt,
+  });
+  assert.equal(r.status, 409);
+  assert.deepEqual(r.json.duplicates, [dup]);
+  assert.equal(s.raws.length, 0);
+  const f = await s.call({
+    action: "commit",
+    body: PURCHASE.body,
+    received_at: PURCHASE.receivedAt,
+    force: true,
+  });
+  assert.equal(f.status, 200);
+  assert.equal(s.saved.length, 1);
+});
+
+Deno.test("paste: preview answers with the time it read with, and refuses a very old one", async () => {
+  const ok = await setup().call({
+    action: "preview",
+    body: PURCHASE.body,
+    received_at: PURCHASE.receivedAt,
+  });
+  assert.equal(ok.json.receivedAt, PURCHASE.receivedAt);
+  const old = await setup().call({
+    action: "preview",
+    body: PURCHASE.body,
+    received_at: "1990-01-01T00:00:00Z",
+  });
+  assert.equal(old.status, 400);
+  assert.equal(old.json.error, "too_old");
+});
+
+Deno.test("paste with AI and a chosen bank: stored under the pasted sender, never the bank's", async () => {
+  const s = setup({
+    aiParse: () => Promise.resolve({ ok: false, reason: "not_allowed" } as AiParseOutcome),
+  });
+  await s.call({ action: "commit", body: "Unknown text", reader: "alinma", ai: true });
+  assert.equal(s.raws[0].sender, PASTED_SENDER);
 });

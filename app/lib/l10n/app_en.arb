@@ -1124,5 +1124,6 @@
   "pasteLineInUse": "Another bill already uses this number.",
   "pasteReaderStc900": "STC bills",
   "pasteReaderSe": "Saudi Electricity",
-  "pasteBillUpdated": "Bill updated"
+  "pasteBillUpdated": "Bill updated",
+  "pasteAmbiguous": "More than one bank reads this message. Pick the bank under From."
 }

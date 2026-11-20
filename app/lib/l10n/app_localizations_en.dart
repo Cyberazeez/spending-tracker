@@ -2171,4 +2171,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pasteBillUpdated => 'Bill updated';
+
+  @override
+  String get pasteAmbiguous =>
+      'More than one bank reads this message. Pick the bank under From.';
 }

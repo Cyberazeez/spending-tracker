@@ -3883,6 +3883,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Bill updated'**
   String get pasteBillUpdated;
+
+  /// No description provided for @pasteAmbiguous.
+  ///
+  /// In en, this message translates to:
+  /// **'More than one bank reads this message. Pick the bank under From.'**
+  String get pasteAmbiguous;
 }
 
 class _AppLocalizationsDelegate

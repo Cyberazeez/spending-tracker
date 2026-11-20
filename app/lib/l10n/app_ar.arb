@@ -757,5 +757,6 @@
   "pasteLineInUse": "هناك فاتورة أخرى تستخدم هذا الرقم.",
   "pasteReaderStc900": "فواتير STC",
   "pasteReaderSe": "السعودية للطاقة",
-  "pasteBillUpdated": "تم تحديث الفاتورة"
+  "pasteBillUpdated": "تم تحديث الفاتورة",
+  "pasteAmbiguous": "أكثر من بنك يقرأ هذه الرسالة. اختر البنك من خانة «من»."
 }

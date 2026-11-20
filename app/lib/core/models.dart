@@ -671,7 +671,15 @@ class PastePreview {
     this.billExpectedHalalas,
     this.billPeriodStart,
     this.billDueDate,
+    this.receivedAt,
+    this.ambiguous = false,
   });
+
+  /// The time the server read it with: sent back on commit, so the same message always has the same fingerprint.
+  final DateTime? receivedAt;
+
+  /// Not read because several banks' readers understood it: the person picks the bank.
+  final bool ambiguous;
 
   /// transaction | bill | statement | ignored | unparsed
   final String kind;
@@ -741,6 +749,8 @@ class PastePreview {
       billExpectedHalalas: n(bill?['expectedHalalas']),
       billPeriodStart: d(bill?['periodStart']),
       billDueDate: d(bill?['dueDate']),
+      receivedAt: d(j['receivedAt']),
+      ambiguous: r['ambiguous'] == true,
     );
   }
 }
@@ -748,10 +758,16 @@ class PastePreview {
 /// What saving a pasted message did: parsed (saved), review (an AI reading waits for a check), notice (a bill was
 /// updated), ignored, unparsed (kept in Needs review). [duplicate]: the very same message was already stored.
 class PasteResult {
-  const PasteResult({required this.outcome, this.duplicate = false});
+  const PasteResult({
+    required this.outcome,
+    this.duplicate = false,
+    this.same = const [],
+  });
 
+  /// parsed | review | notice | ignored | unparsed, or `same`: not saved, a stored purchase looks the same ([same]).
   final String outcome;
   final bool duplicate;
+  final List<PasteDuplicate> same;
 
   factory PasteResult.fromJson(Map<String, dynamic> j) => PasteResult(
     outcome: (j['outcome'] as String?) ?? 'unparsed',

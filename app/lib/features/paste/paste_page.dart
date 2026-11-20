@@ -59,6 +59,9 @@ class _PastePageState extends ConsumerState<PastePage> {
   String? _error;
   int? _dueDay;
 
+  /// The bill was created from this message; a failed save of the message itself retries only that.
+  bool _billSaved = false;
+
   @override
   void dispose() {
     _text.dispose();
@@ -71,6 +74,9 @@ class _PastePageState extends ConsumerState<PastePage> {
   void _changed() => setState(() {
     _preview = null;
     _error = null;
+    _billSaved = false;
+    _billName.clear();
+    _dueDay = null;
   });
 
   Future<void> _paste() async {
@@ -97,12 +103,15 @@ class _PastePageState extends ConsumerState<PastePage> {
       if (!mounted) return;
       setState(() {
         _preview = p;
+        // Defaults only: a name or day the person already chose survives reading again (a new time or bank).
         if (p.kind == 'bill' && p.billId == null) {
-          _billName.text = p.biller == 'se'
-              ? t.pasteReaderSe
-              : '${t.pasteBillerStc} ${p.lineLast4 ?? ''}'.trim();
+          if (_billName.text.trim().isEmpty) {
+            _billName.text = p.biller == 'se'
+                ? t.pasteReaderSe
+                : '${t.pasteBillerStc} ${p.lineLast4 ?? ''}'.trim();
+          }
           final issued = toRiyadh(p.issuedAt ?? DateTime.now());
-          _dueDay = p.biller == 'se' ? issued.day : 2;
+          _dueDay ??= p.biller == 'se' ? issued.day.clamp(1, 28) : 2;
         }
       });
     } catch (_) {
@@ -112,8 +121,8 @@ class _PastePageState extends ConsumerState<PastePage> {
     }
   }
 
-  /// Saves the message; [ai] when Read with AI was tapped.
-  Future<void> _commit({bool ai = false}) async {
+  /// Saves the message; [ai] when Read with AI was tapped, [force] for Add anyway.
+  Future<void> _commit({bool ai = false, bool force = false}) async {
     if (_busy) return;
     final t = AppLocalizations.of(context);
     setState(() {
@@ -126,10 +135,38 @@ class _PastePageState extends ConsumerState<PastePage> {
           .pasteCommit(
             _text.text.trim(),
             reader: _reader ?? _preview?.reader,
-            receivedAt: _receivedAt,
+            // The time the message was read with, so a retry or a second paste is the same message.
+            receivedAt: _receivedAt ?? _preview?.receivedAt,
             ai: ai,
+            force: force,
           );
       if (!mounted) return;
+      if (r.outcome == 'same') {
+        // The server found a look-alike on save: show it and ask, as on Read.
+        final p = _preview;
+        setState(() {
+          _busy = false;
+          if (p != null) {
+            _preview = PastePreview(
+              kind: p.kind,
+              reader: p.reader,
+              detected: p.detected,
+              type: p.type,
+              direction: p.direction,
+              bank: p.bank,
+              amountHalalas: p.amountHalalas,
+              merchant: p.merchant,
+              cardLast4: p.cardLast4,
+              accountLast4: p.accountLast4,
+              occurredAt: p.occurredAt,
+              categoryId: p.categoryId,
+              receivedAt: p.receivedAt,
+              duplicates: r.same,
+            );
+          }
+        });
+        return;
+      }
       ref
         ..invalidate(transactionsProvider)
         ..invalidate(obligationsProvider);
@@ -162,7 +199,12 @@ class _PastePageState extends ConsumerState<PastePage> {
     if (p == null || name.isEmpty || _busy) return;
     final t = AppLocalizations.of(context);
     final issued = toRiyadh(p.issuedAt ?? DateTime.now());
-    final day = _dueDay ?? issued.day;
+    final day = _dueDay ?? issued.day.clamp(1, 28);
+    if (_billSaved) {
+      // The bill exists already (the message's own save failed last time): only save the message.
+      await _commit();
+      return;
+    }
     setState(() {
       _busy = true;
       _error = null;
@@ -204,7 +246,10 @@ class _PastePageState extends ConsumerState<PastePage> {
       return;
     }
     if (!mounted) return;
-    setState(() => _busy = false);
+    setState(() {
+      _busy = false;
+      _billSaved = true;
+    });
     await _commit();
   }
 
@@ -610,7 +655,7 @@ class _PastePageState extends ConsumerState<PastePage> {
               key: const ValueKey('paste-add-anyway'),
               label: t.pasteAddAnyway,
               busy: _busy,
-              onPressed: _busy ? null : _commit,
+              onPressed: _busy ? null : () => _commit(force: true),
             ),
           ] else ...[
             note(t.pasteAddHint),
@@ -731,20 +776,22 @@ class _PastePageState extends ConsumerState<PastePage> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  t.pasteUnreadTitle,
+                  p.ambiguous ? t.pasteAmbiguous : t.pasteUnreadTitle,
                   style: TextStyle(
                     color: text,
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
-                const SizedBox(height: 6),
-                Text(
-                  t.pasteUnreadBody,
-                  style: TextStyle(color: muted, fontSize: 14, height: 1.4),
-                ),
+                if (!p.ambiguous) ...[
+                  const SizedBox(height: 6),
+                  Text(
+                    t.pasteUnreadBody,
+                    style: TextStyle(color: muted, fontSize: 14, height: 1.4),
+                  ),
+                ],
                 const SizedBox(height: 12),
-                if (p.aiAvailable) ...[
+                if (p.aiAvailable && !p.ambiguous) ...[
                   PrimaryButton(
                     key: const ValueKey('paste-ai'),
                     label: t.pasteReadAi,

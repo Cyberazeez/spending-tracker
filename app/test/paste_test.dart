@@ -270,6 +270,79 @@ void main() {
     expect(d.toRpc().containsKey('next_month'), isFalse);
   });
 
+  testWidgets(
+    'Add sends back the time it was read with; a look-alike found on save asks first',
+    (t) async {
+      final h = await _open(t, path: pastePath);
+      final readAt = DateTime.utc(2026, 11, 20, 9, 30);
+      h.data.pasteResult = PastePreview(
+        kind: 'transaction',
+        reader: 'alinma',
+        type: 'purchase',
+        direction: 'out',
+        amountHalalas: 3900,
+        receivedAt: readAt,
+      );
+      h.data.pasteSaved = PasteResult(
+        outcome: 'same',
+        same: [
+          PasteDuplicate(id: 't1', amountHalalas: 3900, occurredAt: readAt),
+        ],
+      );
+      await _readMessage(t);
+      await t.tap(find.byKey(const ValueKey('paste-add')));
+      await t.pumpAndSettle();
+      expect(h.data.pasteCommitTimes.single, readAt);
+      expect(h.data.pasteForced.single, isFalse);
+      expect(find.text('This looks already recorded'), findsOneWidget);
+      h.data.pasteSaved = const PasteResult(outcome: 'parsed');
+      await t.tap(find.byKey(const ValueKey('paste-add-anyway')));
+      await t.pumpAndSettle();
+      expect(h.data.pasteForced.last, isTrue);
+    },
+  );
+
+  testWidgets('two banks read it: the person is asked to pick, no AI offered', (
+    t,
+  ) async {
+    final h = await _open(t, path: pastePath);
+    h.data.pasteResult = const PastePreview(
+      kind: 'unparsed',
+      ambiguous: true,
+      aiAvailable: true,
+    );
+    await _readMessage(t, 'something');
+    expect(find.textContaining('More than one bank'), findsOneWidget);
+    expect(find.byKey(const ValueKey('paste-ai')), findsNothing);
+  });
+
+  testWidgets(
+    'a bill made but its message not saved: trying again only saves the message',
+    (t) async {
+      final h = await _open(t, path: pasteBillPath);
+      h.data.pasteResult = PastePreview(
+        kind: 'bill',
+        reader: 'stc900',
+        biller: 'stc',
+        lineLast4: '0569',
+        amountHalalas: 27893,
+        issuedAt: DateTime.utc(2026, 11, 20, 9),
+      );
+      await _readMessage(t, 'stc bill');
+      h.data.pasteFails = true;
+      await t.tap(find.byKey(const ValueKey('paste-create-bill')));
+      await t.pumpAndSettle();
+      expect(h.data.savedObligations, hasLength(1));
+      expect(find.byKey(const ValueKey('paste-error')), findsOneWidget);
+      h.data.pasteFails = false;
+      h.data.pasteSaved = const PasteResult(outcome: 'notice');
+      await t.tap(find.byKey(const ValueKey('paste-create-bill')));
+      await t.pumpAndSettle();
+      expect(h.data.savedObligations, hasLength(1));
+      expect(find.text('Bill updated'), findsOneWidget);
+    },
+  );
+
   final shapes = {
     'purchase': _purchase,
     'new bill': PastePreview(

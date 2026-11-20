@@ -19,6 +19,8 @@ const PARSERS: Record<string, (body: string, receivedAt: Date) => ParseResult> =
   "snb-alahli": parseSnb,
   "alrajhibank": parseAlRajhi,
   "900": parseStc900,
+  // Not a real sender ID yet: the sender a pasted Saudi Electricity notice is stored under (see SENDER_OF).
+  "se": parseSe,
 };
 
 /** Never throws: any parser error becomes `unparsed`, which lands in Needs review. */
@@ -70,14 +72,19 @@ export function parseWith(code: string, body: string, receivedAt: Date): ParseRe
   }
 }
 
-/**
- * Which reader understands a pasted message: the code when exactly one reader returns a transaction or a notice,
- * else null (none, or several: the person picks the bank). Never guessed from words in the text.
- */
-export function detectReader(body: string, receivedAt: Date): string | null {
-  const hits = Object.keys(READERS).filter((c) => {
+/** Every reader that understands [body] as a transaction or a notice. Never guessed from words in the text. */
+export function matchingReaders(body: string, receivedAt: Date): string[] {
+  return Object.keys(READERS).filter((c) => {
     const r = parseWith(c, body, receivedAt);
     return r.kind === "transaction" || r.kind === "notice";
   });
+}
+
+/**
+ * Which reader understands a pasted message: the code when exactly one reader does, else null (none, or several:
+ * the person picks the bank).
+ */
+export function detectReader(body: string, receivedAt: Date): string | null {
+  const hits = matchingReaders(body, receivedAt);
   return hits.length === 1 ? hits[0] : null;
 }

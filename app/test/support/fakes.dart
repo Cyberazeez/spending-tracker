@@ -800,6 +800,8 @@ class FakeDataRepository implements DataRepository {
   PastePreview pasteResult = const PastePreview(kind: 'unparsed');
   PasteResult pasteSaved = const PasteResult(outcome: 'parsed');
   bool pasteFails = false;
+  final pasteForced = <bool>[];
+  final pasteCommitTimes = <DateTime?>[];
 
   @override
   Future<PastePreview> pastePreview(
@@ -818,8 +820,11 @@ class FakeDataRepository implements DataRepository {
     String? reader,
     DateTime? receivedAt,
     bool ai = false,
+    bool force = false,
   }) async {
     pasteCalls.add(('commit', body, reader, ai));
+    pasteForced.add(force);
+    pasteCommitTimes.add(receivedAt);
     if (pasteFails) throw Exception('offline');
     return pasteSaved;
   }

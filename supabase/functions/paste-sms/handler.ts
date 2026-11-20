@@ -1,17 +1,26 @@
 import { isOtpLike } from "../_shared/otp.ts";
 import { MAX_BODY } from "../_shared/request.ts";
-import { applyCategories, buildRows, type OwnAccount } from "../_shared/enrich.ts";
+import { applyCategories, buildRows, type OwnAccount, type TxRow } from "../_shared/enrich.ts";
 import type { CategoryIds, Rule } from "../_shared/categorize.ts";
 import { instanceFromBill, type Ob, obligationForBill } from "../_shared/obligations.ts";
-import { detectReader, parseWith, READERS, SENDER_OF } from "../_shared/parsers/index.ts";
+import {
+  matchingReaders,
+  type ParsedTxn,
+  parseWith,
+  READERS,
+  SENDER_OF,
+} from "../_shared/parsers/index.ts";
 import { type IngestDeps, storeAndParse, type StoreOutcome } from "../ingest/handler.ts";
+import { PASTED_SENDER } from "../ingest/deps.ts";
 
 /** How close in time a stored purchase must be to count as the same one (owner's pick 2026-11-20). */
 export const DUPLICATE_WINDOW_MS = 10 * 60 * 1000;
 export const PASTE_LIMIT_PER_DAY = 200;
 const MAX_FUTURE_MS = 10 * 60 * 1000;
-/** The sender a pasted message is stored under when no reader understood it (only an AI reading can save it). */
-export const PASTED_SENDER = "pasted";
+/** A pasted message may be at most this old (each new date is a new message, and old months are closed). */
+const MAX_AGE_MS = 90 * 24 * 3600 * 1000;
+/** The sender a pasted message is stored under when it is read with AI (never a bank's, so a bank's trust stays its own). */
+export { PASTED_SENDER };
 
 export interface Duplicate {
   id: string;
@@ -51,6 +60,8 @@ interface PasteRequest {
   reader: string | null;
   receivedAt: Date;
   ai: boolean;
+  /** Add anyway: save even though a stored purchase looks the same. */
+  force: boolean;
 }
 
 export function parsePasteRequest(
@@ -76,11 +87,19 @@ export function parsePasteRequest(
   if (r.received_at !== undefined && r.received_at !== null) {
     const d = new Date(String(r.received_at));
     if (Number.isNaN(d.getTime())) return { ok: false, error: "invalid_received_at" };
+    if (now.getTime() - d.getTime() > MAX_AGE_MS) return { ok: false, error: "too_old" };
     receivedAt = d.getTime() - now.getTime() > MAX_FUTURE_MS ? now : d;
   }
   return {
     ok: true,
-    value: { action: r.action, body: r.body, reader, receivedAt, ai: r.ai === true },
+    value: {
+      action: r.action,
+      body: r.body,
+      reader,
+      receivedAt,
+      ai: r.ai === true,
+      force: r.force === true,
+    },
   };
 }
 
@@ -104,17 +123,30 @@ export async function handlePaste(req: Request, deps: PasteDeps): Promise<Respon
   }
   const p = parsePasteRequest(payload);
   if (!p.ok) return json(400, { error: p.error });
-  const { action, body, receivedAt, ai } = p.value;
+  const { action, body, receivedAt, ai, force } = p.value;
   // A one-time code is never read or stored from a paste.
   if (isOtpLike(body)) {
     return json(200, { reader: null, result: { kind: "ignored", reason: "otp" } });
   }
-  const reader = p.value.reader ?? detectReader(body, receivedAt);
+  const hits = p.value.reader ? [p.value.reader] : matchingReaders(body, receivedAt);
+  const reader = hits.length === 1 ? hits[0] : null;
   const detected = p.value.reader === null && reader !== null;
+  // The time everything was read with: the app sends it back on commit, so a retry or a second paste of the same
+  // message has the same fingerprint (dedupe) and the same month.
+  const at = receivedAt.toISOString();
 
   if (action === "commit") {
     if (!reader && !ai) return json(400, { error: "no_reader" });
-    const sender = reader ? SENDER_OF[reader] : PASTED_SENDER;
+    // The same-purchase check runs again here, not only on preview: a copy of a message the Shortcut already stored
+    // has another time, so the fingerprint alone would save it twice. Add anyway sends force.
+    if (reader && !force) {
+      const r = parseWith(reader, body, receivedAt);
+      if (r.kind === "transaction") {
+        const duplicates = await findSame(deps, userId, await previewRow(deps, userId, r.txn));
+        if (duplicates.length) return json(409, { ok: false, error: "duplicates", duplicates });
+      }
+    }
+    const sender = ai || !reader ? PASTED_SENDER : SENDER_OF[reader];
     const out: StoreOutcome = await storeAndParse(
       deps.ingest(ai),
       userId,
@@ -129,23 +161,12 @@ export async function handlePaste(req: Request, deps: PasteDeps): Promise<Respon
 
   const r = reader ? parseWith(reader, body, receivedAt) : { kind: "unparsed" as const };
   if (r.kind === "transaction") {
-    const [own, cat] = await Promise.all([
-      deps.loadOwnAccounts(userId),
-      deps.loadCategorization(userId).catch(() => ({
-        ids: {} as CategoryIds,
-        rules: [] as Rule[],
-      })),
-    ]);
-    const head = applyCategories(buildRows(r.txn, own), cat.rules, cat.ids)[0];
-    const last4s = [head.card_last4, head.account_last4].filter((x): x is string => !!x);
-    const duplicates = await deps.findDuplicates(userId, {
-      amountHalalas: head.amount_halalas,
-      occurredAt: head.occurred_at,
-      last4s,
-    });
+    const head = await previewRow(deps, userId, r.txn);
+    const duplicates = await findSame(deps, userId, head);
     return json(200, {
       reader,
       detected,
+      receivedAt: at,
       result: {
         kind: "transaction",
         type: head.type,
@@ -169,6 +190,7 @@ export async function handlePaste(req: Request, deps: PasteDeps): Promise<Respon
     return json(200, {
       reader,
       detected,
+      receivedAt: at,
       result: {
         kind: "bill",
         biller: r.biller,
@@ -200,16 +222,45 @@ export async function handlePaste(req: Request, deps: PasteDeps): Promise<Respon
     });
   }
   if (r.kind === "ignored") {
-    return json(200, { reader, detected, result: { kind: "ignored", reason: r.reason } });
+    return json(200, {
+      reader,
+      detected,
+      receivedAt: at,
+      result: { kind: "ignored", reason: r.reason },
+    });
   }
   return json(200, {
     reader,
     detected,
-    result: { kind: "unparsed", aiAvailable: await deps.aiAvailable(userId).catch(() => false) },
+    receivedAt: at,
+    result: {
+      kind: "unparsed",
+      // Several banks' readers understood it: the person picks the bank (no AI needed).
+      ambiguous: hits.length > 1,
+      aiAvailable: await deps.aiAvailable(userId).catch(() => false),
+    },
   });
 }
 
 /** Within the duplicate window of [occurredAt], both ways (exactly 10 minutes counts). */
 export function withinWindow(a: string, b: string): boolean {
   return Math.abs(new Date(a).getTime() - new Date(b).getTime()) <= DUPLICATE_WINDOW_MS;
+}
+
+/** The row the message would be stored as (own accounts and category rules applied). */
+async function previewRow(deps: PasteDeps, userId: string, txn: ParsedTxn): Promise<TxRow> {
+  const [own, cat] = await Promise.all([
+    deps.loadOwnAccounts(userId),
+    deps.loadCategorization(userId).catch(() => ({ ids: {} as CategoryIds, rules: [] as Rule[] })),
+  ]);
+  return applyCategories(buildRows(txn, own), cat.rules, cat.ids)[0];
+}
+
+/** Stored purchases with the same amount and card or account within the window. */
+function findSame(deps: PasteDeps, userId: string, head: TxRow): Promise<Duplicate[]> {
+  return deps.findDuplicates(userId, {
+    amountHalalas: head.amount_halalas,
+    occurredAt: head.occurred_at,
+    last4s: [head.card_last4, head.account_last4].filter((x): x is string => !!x),
+  });
 }

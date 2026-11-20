@@ -5,6 +5,9 @@ import { createBudget } from "../_shared/ai_reserve.ts";
 import { parseWithAi } from "../_shared/ai_parse.ts";
 import { AI_TRUST_AFTER, type IngestDeps } from "./handler.ts";
 
+/** The sender of a pasted message no reader understood (paste-sms). Kept here so ingest needs no paste import. */
+export const PASTED_SENDER = "pasted";
+
 const AI_PARSE_LIMIT_PER_DAY = 100;
 
 /**
@@ -294,6 +297,8 @@ export function ingestDeps(
       );
     },
     async aiTrusted(userId, sender) {
+      // Pasted text has no sender: every unknown paste shares one, so its readings are always checked.
+      if (sender === PASTED_SENDER) return false;
       const { count, error } = await db.from("raw_messages").select("id", {
         count: "exact",
         head: true,

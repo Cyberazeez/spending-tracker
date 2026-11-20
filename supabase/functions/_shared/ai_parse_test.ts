@@ -269,3 +269,15 @@ Deno.test("provider failures, truncation and non-JSON replies fail closed", asyn
     )) as unknown as typeof fetch;
   assert.deepEqual(await parseWithAi(cut, "x", PURCHASE, NOW), { ok: false, reason: "failed" });
 });
+
+Deno.test("redactForAi drops the name after a greeting, keeps the amount", () => {
+  const ar = redactForAi("مرحبا PERSON NAME،\nصدرت فاتورة حسابك 00000004579 بمبلغ 500.16 ريال.");
+  assert.ok(!ar.includes("PERSON NAME"), ar);
+  assert.ok(ar.includes("مرحبا [name]"), ar);
+  assert.ok(ar.includes("500.16"), ar);
+  const en = redactForAi("Dear Jane Doe,\nYou paid 25.00 SAR at SHOP");
+  assert.ok(!en.includes("Jane"), en);
+  assert.ok(en.includes("25.00 SAR"), en);
+  // a line that only starts like a greeting word inside a sentence is left alone
+  assert.ok(redactForAi("Purchase at Hi-Fi Store 10.00 SAR").includes("Hi-Fi Store"));
+});

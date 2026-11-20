@@ -2164,4 +2164,8 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get pasteBillUpdated => 'تم تحديث الفاتورة';
+
+  @override
+  String get pasteAmbiguous =>
+      'أكثر من بنك يقرأ هذه الرسالة. اختر البنك من خانة «من».';
 }
