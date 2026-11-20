@@ -93,6 +93,7 @@ Unique `(user_id, bank, last4)`. Seed: Al Rajhi 6331 (account), 1271 (mada card)
 |---|---|---|
 | `ingest` | ingest token header (hash compare), no JWT | rate limit, dedupe, store raw, parse, categorize, match obligations, return minimal ack |
 | `rotate-token` | user JWT | create or rotate ingest token, return plaintext once |
+| `paste-sms` (2026-11-20) | user JWT (`getUser()`) | a message pasted in the app. `preview`: reads it with the detected or chosen reader and writes nothing (category from the rules, the bill it updates, stored purchases with the same amount and card within 10 minutes). `commit`: the same `storeAndParse` as `ingest` (OTP filter, balances stripped, dedupe, transfer pairing, categories, bill matching), stored under the reader's sender ID. Read with AI only when the person taps it (`ai: true`; needs `ai_allowed` and the AI switch `ai_enabled`); an AI reading waits for a check like any other. 200 pastes a day per user. |
 | `categorize-batch` | user JWT or service | AI merchant categorization (if enabled) |
 | `insights-weekly` | cron + user JWT on demand | build metrics, optional AI tips, cache |
 | `apns-send` (later) | service | budget/obligation pushes |

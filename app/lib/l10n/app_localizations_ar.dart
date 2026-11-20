@@ -2006,4 +2006,162 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get reviewDismissYes => 'نعم، أخفِها';
+
+  @override
+  String get pasteTitle => 'لصق رسالة البنك';
+
+  @override
+  String get pasteBillTitle => 'لصق رسالة الفاتورة';
+
+  @override
+  String get pasteRowHint => 'لعملية شراء لم يلتقطها الاختصار';
+
+  @override
+  String get pasteBillRowHint => 'يُعبّأ المبلغ والرقم تلقائيًا';
+
+  @override
+  String get pasteOrManual => 'أو أدخلها بنفسك';
+
+  @override
+  String get pasteIntro =>
+      'انسخ الرسالة من تطبيق الرسائل (اضغط مطولًا ثم نسخ)، ثم الصقها هنا.';
+
+  @override
+  String get pasteMessage => 'الرسالة';
+
+  @override
+  String get pastePaste => 'لصق';
+
+  @override
+  String get pasteFrom => 'من';
+
+  @override
+  String get pasteFindIt => 'تحديد من النص';
+
+  @override
+  String get pasteFoundInText => 'من النص';
+
+  @override
+  String get pasteWhen => 'الوقت';
+
+  @override
+  String get pasteNow => 'الآن';
+
+  @override
+  String get pasteRead => 'اقرأ الرسالة';
+
+  @override
+  String get pasteCategory => 'الفئة';
+
+  @override
+  String get pasteNoCategory => 'بدون فئة';
+
+  @override
+  String get pasteCard => 'البطاقة';
+
+  @override
+  String get pasteAccount => 'الحساب';
+
+  @override
+  String get pasteAddHint =>
+      'الفئة من قواعدك. يمكنك تعديل أي شيء لاحقًا من النشاط.';
+
+  @override
+  String get pasteAdd => 'إضافة';
+
+  @override
+  String get pasteDupTitle => 'يبدو أنها مسجلة من قبل';
+
+  @override
+  String get pasteKeepOne => 'أبقِ واحدة';
+
+  @override
+  String get pasteAddAnyway => 'أضفها على أي حال';
+
+  @override
+  String get pasteUnreadTitle => 'تعذّرت قراءة هذه الرسالة';
+
+  @override
+  String get pasteUnreadBody =>
+      'صيغتها غير معروفة لنا بعد. تأكد أنك نسخت الرسالة كاملة، أو:';
+
+  @override
+  String get pasteReadAi => 'اقرأها بالذكاء الاصطناعي';
+
+  @override
+  String get pasteByHand => 'أدخلها يدويًا';
+
+  @override
+  String get pasteNothing => 'لا يوجد ما يُضاف من هذه الرسالة.';
+
+  @override
+  String get pasteSaved => 'تمت الإضافة';
+
+  @override
+  String get pasteSavedReview => 'تم الحفظ، وتنتظر مراجعتك في النشاط.';
+
+  @override
+  String get pasteAlready => 'هذه الرسالة أُضيفت من قبل.';
+
+  @override
+  String get pasteFailed => 'تعذّر ذلك الآن. تحقق من الاتصال وحاول مرة أخرى.';
+
+  @override
+  String pasteBillFor(String biller, String last4) {
+    return 'فاتورة $biller للرقم ·· $last4';
+  }
+
+  @override
+  String get pasteBillerStc => 'STC';
+
+  @override
+  String get pasteBillerSe => 'السعودية للطاقة';
+
+  @override
+  String pasteDue(String date) {
+    return 'تستحق $date';
+  }
+
+  @override
+  String get pasteMatched => 'الفاتورة';
+
+  @override
+  String pasteUpdateBill(String month) {
+    return 'تحديث فاتورة $month';
+  }
+
+  @override
+  String get pasteMatchedHint =>
+      'تمت المطابقة بآخر 4 أرقام. نحتفظ بهذه الأرقام الأربعة والمبلغ فقط.';
+
+  @override
+  String pasteNewBillHint(String last4) {
+    return 'لا توجد فاتورة للرقم ·· $last4 بعد. عبّأنا البيانات من الرسالة.';
+  }
+
+  @override
+  String get pasteBillName => 'الاسم';
+
+  @override
+  String get pasteDueDay => 'يوم الاستحقاق';
+
+  @override
+  String pasteDueDayValue(int day) {
+    return 'يوم $day';
+  }
+
+  @override
+  String get pasteCreateBill => 'إنشاء الفاتورة';
+
+  @override
+  String get pasteLineInUse => 'هناك فاتورة أخرى تستخدم هذا الرقم.';
+
+  @override
+  String get pasteReaderStc900 => 'فواتير STC';
+
+  @override
+  String get pasteReaderSe => 'السعودية للطاقة';
+
+  @override
+  String get pasteBillUpdated => 'تم تحديث الفاتورة';
 }

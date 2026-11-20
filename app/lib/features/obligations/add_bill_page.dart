@@ -8,6 +8,7 @@ import '../../ui/app_card.dart';
 import '../../ui/app_form.dart';
 import '../../ui/icon_tile.dart';
 import '../../ui/tokens.dart';
+import '../paste/paste_entry_row.dart';
 import 'widgets/bills_widgets.dart' show kindStyle;
 
 /// "Add a bill": four starting points (bill, fixed cost, loan, card statement) as tiles, and "Start from scratch".
@@ -114,6 +115,12 @@ class AddBillPage extends StatelessWidget {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
           children: [
+            PasteEntryRow(
+              title: t.pasteBillTitle,
+              hint: t.pasteBillRowHint,
+              onTap: () => context.push(pasteBillPath),
+            ),
+            const SizedBox(height: 14),
             Padding(
               padding: const EdgeInsets.fromLTRB(2, 0, 2, 14),
               child: Text(

@@ -2012,4 +2012,163 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reviewDismissYes => 'Yes, hide it';
+
+  @override
+  String get pasteTitle => 'Paste a bank message';
+
+  @override
+  String get pasteBillTitle => 'Paste a bill message';
+
+  @override
+  String get pasteRowHint => 'For a purchase the Shortcut missed';
+
+  @override
+  String get pasteBillRowHint => 'The amount and number are filled in for you';
+
+  @override
+  String get pasteOrManual => 'or enter it yourself';
+
+  @override
+  String get pasteIntro =>
+      'Copy the SMS in Messages (press and hold, then Copy), then paste it here.';
+
+  @override
+  String get pasteMessage => 'Message';
+
+  @override
+  String get pastePaste => 'Paste';
+
+  @override
+  String get pasteFrom => 'From';
+
+  @override
+  String get pasteFindIt => 'Find it from the text';
+
+  @override
+  String get pasteFoundInText => 'Found in the text';
+
+  @override
+  String get pasteWhen => 'When';
+
+  @override
+  String get pasteNow => 'Now';
+
+  @override
+  String get pasteRead => 'Read message';
+
+  @override
+  String get pasteCategory => 'Category';
+
+  @override
+  String get pasteNoCategory => 'No category';
+
+  @override
+  String get pasteCard => 'Card';
+
+  @override
+  String get pasteAccount => 'Account';
+
+  @override
+  String get pasteAddHint =>
+      'The category comes from your rules. You can change anything later in Activity.';
+
+  @override
+  String get pasteAdd => 'Add';
+
+  @override
+  String get pasteDupTitle => 'This looks already recorded';
+
+  @override
+  String get pasteKeepOne => 'Keep one';
+
+  @override
+  String get pasteAddAnyway => 'Add anyway';
+
+  @override
+  String get pasteUnreadTitle => 'This message couldn\'t be read';
+
+  @override
+  String get pasteUnreadBody =>
+      'It is not a format we know yet. Check that you copied the whole message, or:';
+
+  @override
+  String get pasteReadAi => 'Read with AI';
+
+  @override
+  String get pasteByHand => 'Enter it by hand';
+
+  @override
+  String get pasteNothing => 'Nothing to add from this message.';
+
+  @override
+  String get pasteSaved => 'Added';
+
+  @override
+  String get pasteSavedReview => 'Saved. It waits for your check in Activity.';
+
+  @override
+  String get pasteAlready => 'This message was already added.';
+
+  @override
+  String get pasteFailed =>
+      'Couldn\'t do that now. Check your connection and try again.';
+
+  @override
+  String pasteBillFor(String biller, String last4) {
+    return '$biller bill for ·· $last4';
+  }
+
+  @override
+  String get pasteBillerStc => 'STC';
+
+  @override
+  String get pasteBillerSe => 'Saudi Electricity';
+
+  @override
+  String pasteDue(String date) {
+    return 'Due $date';
+  }
+
+  @override
+  String get pasteMatched => 'Bill';
+
+  @override
+  String pasteUpdateBill(String month) {
+    return 'Update $month\'s bill';
+  }
+
+  @override
+  String get pasteMatchedHint =>
+      'Matched by the last 4 digits. Only those 4 digits and the total are kept.';
+
+  @override
+  String pasteNewBillHint(String last4) {
+    return 'No bill uses ·· $last4 yet. We filled this in from the message.';
+  }
+
+  @override
+  String get pasteBillName => 'Name';
+
+  @override
+  String get pasteDueDay => 'Due day';
+
+  @override
+  String pasteDueDayValue(int day) {
+    return 'Day $day';
+  }
+
+  @override
+  String get pasteCreateBill => 'Create bill';
+
+  @override
+  String get pasteLineInUse => 'Another bill already uses this number.';
+
+  @override
+  String get pasteReaderStc900 => 'STC bills';
+
+  @override
+  String get pasteReaderSe => 'Saudi Electricity';
+
+  @override
+  String get pasteBillUpdated => 'Bill updated';
 }

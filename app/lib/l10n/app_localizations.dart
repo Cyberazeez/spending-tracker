@@ -3595,6 +3595,294 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Yes, hide it'**
   String get reviewDismissYes;
+
+  /// No description provided for @pasteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste a bank message'**
+  String get pasteTitle;
+
+  /// No description provided for @pasteBillTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste a bill message'**
+  String get pasteBillTitle;
+
+  /// No description provided for @pasteRowHint.
+  ///
+  /// In en, this message translates to:
+  /// **'For a purchase the Shortcut missed'**
+  String get pasteRowHint;
+
+  /// No description provided for @pasteBillRowHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The amount and number are filled in for you'**
+  String get pasteBillRowHint;
+
+  /// No description provided for @pasteOrManual.
+  ///
+  /// In en, this message translates to:
+  /// **'or enter it yourself'**
+  String get pasteOrManual;
+
+  /// No description provided for @pasteIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy the SMS in Messages (press and hold, then Copy), then paste it here.'**
+  String get pasteIntro;
+
+  /// No description provided for @pasteMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Message'**
+  String get pasteMessage;
+
+  /// No description provided for @pastePaste.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste'**
+  String get pastePaste;
+
+  /// No description provided for @pasteFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get pasteFrom;
+
+  /// No description provided for @pasteFindIt.
+  ///
+  /// In en, this message translates to:
+  /// **'Find it from the text'**
+  String get pasteFindIt;
+
+  /// No description provided for @pasteFoundInText.
+  ///
+  /// In en, this message translates to:
+  /// **'Found in the text'**
+  String get pasteFoundInText;
+
+  /// No description provided for @pasteWhen.
+  ///
+  /// In en, this message translates to:
+  /// **'When'**
+  String get pasteWhen;
+
+  /// No description provided for @pasteNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Now'**
+  String get pasteNow;
+
+  /// No description provided for @pasteRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Read message'**
+  String get pasteRead;
+
+  /// No description provided for @pasteCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get pasteCategory;
+
+  /// No description provided for @pasteNoCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'No category'**
+  String get pasteNoCategory;
+
+  /// No description provided for @pasteCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Card'**
+  String get pasteCard;
+
+  /// No description provided for @pasteAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get pasteAccount;
+
+  /// No description provided for @pasteAddHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The category comes from your rules. You can change anything later in Activity.'**
+  String get pasteAddHint;
+
+  /// No description provided for @pasteAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get pasteAdd;
+
+  /// No description provided for @pasteDupTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This looks already recorded'**
+  String get pasteDupTitle;
+
+  /// No description provided for @pasteKeepOne.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep one'**
+  String get pasteKeepOne;
+
+  /// No description provided for @pasteAddAnyway.
+  ///
+  /// In en, this message translates to:
+  /// **'Add anyway'**
+  String get pasteAddAnyway;
+
+  /// No description provided for @pasteUnreadTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This message couldn\'t be read'**
+  String get pasteUnreadTitle;
+
+  /// No description provided for @pasteUnreadBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It is not a format we know yet. Check that you copied the whole message, or:'**
+  String get pasteUnreadBody;
+
+  /// No description provided for @pasteReadAi.
+  ///
+  /// In en, this message translates to:
+  /// **'Read with AI'**
+  String get pasteReadAi;
+
+  /// No description provided for @pasteByHand.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter it by hand'**
+  String get pasteByHand;
+
+  /// No description provided for @pasteNothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to add from this message.'**
+  String get pasteNothing;
+
+  /// No description provided for @pasteSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Added'**
+  String get pasteSaved;
+
+  /// No description provided for @pasteSavedReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved. It waits for your check in Activity.'**
+  String get pasteSavedReview;
+
+  /// No description provided for @pasteAlready.
+  ///
+  /// In en, this message translates to:
+  /// **'This message was already added.'**
+  String get pasteAlready;
+
+  /// No description provided for @pasteFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t do that now. Check your connection and try again.'**
+  String get pasteFailed;
+
+  /// No description provided for @pasteBillFor.
+  ///
+  /// In en, this message translates to:
+  /// **'{biller} bill for ·· {last4}'**
+  String pasteBillFor(String biller, String last4);
+
+  /// No description provided for @pasteBillerStc.
+  ///
+  /// In en, this message translates to:
+  /// **'STC'**
+  String get pasteBillerStc;
+
+  /// No description provided for @pasteBillerSe.
+  ///
+  /// In en, this message translates to:
+  /// **'Saudi Electricity'**
+  String get pasteBillerSe;
+
+  /// No description provided for @pasteDue.
+  ///
+  /// In en, this message translates to:
+  /// **'Due {date}'**
+  String pasteDue(String date);
+
+  /// No description provided for @pasteMatched.
+  ///
+  /// In en, this message translates to:
+  /// **'Bill'**
+  String get pasteMatched;
+
+  /// No description provided for @pasteUpdateBill.
+  ///
+  /// In en, this message translates to:
+  /// **'Update {month}\'s bill'**
+  String pasteUpdateBill(String month);
+
+  /// No description provided for @pasteMatchedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Matched by the last 4 digits. Only those 4 digits and the total are kept.'**
+  String get pasteMatchedHint;
+
+  /// No description provided for @pasteNewBillHint.
+  ///
+  /// In en, this message translates to:
+  /// **'No bill uses ·· {last4} yet. We filled this in from the message.'**
+  String pasteNewBillHint(String last4);
+
+  /// No description provided for @pasteBillName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get pasteBillName;
+
+  /// No description provided for @pasteDueDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Due day'**
+  String get pasteDueDay;
+
+  /// No description provided for @pasteDueDayValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Day {day}'**
+  String pasteDueDayValue(int day);
+
+  /// No description provided for @pasteCreateBill.
+  ///
+  /// In en, this message translates to:
+  /// **'Create bill'**
+  String get pasteCreateBill;
+
+  /// No description provided for @pasteLineInUse.
+  ///
+  /// In en, this message translates to:
+  /// **'Another bill already uses this number.'**
+  String get pasteLineInUse;
+
+  /// No description provided for @pasteReaderStc900.
+  ///
+  /// In en, this message translates to:
+  /// **'STC bills'**
+  String get pasteReaderStc900;
+
+  /// No description provided for @pasteReaderSe.
+  ///
+  /// In en, this message translates to:
+  /// **'Saudi Electricity'**
+  String get pasteReaderSe;
+
+  /// No description provided for @pasteBillUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Bill updated'**
+  String get pasteBillUpdated;
 }
 
 class _AppLocalizationsDelegate

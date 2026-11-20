@@ -89,8 +89,14 @@ Two numeric orders appear for dates (`d-M-yy` and `yy-M-d`). Resolve with `recei
 ## 900 (STC telecom bill notices) - parser built in M4, fixtures `stc900/`
 `ونود فقط اشعارك بصدور فاتورة جديدة للرقم <line> بمبلغ إجمالي <amount> ريال (رقم الحساب: <acct>)`. Creates an obligation instance (expected amount = the bill total, period = the month it was issued, due the 2nd of the next month) matched by line last 4: **internet 7356, mobile 0569**. Not a transaction. Real samples received 2026-10-31 (internet 172.50, mobile 278.93); only the line's last 4 and the total are kept in the parsed result. The stored raw body still contains the payment links. Ownership-transfer OTP messages are ignored.
 
+## Saudi Electricity (bill notices) - parser built 2026-11-20, fixture `se/`
+`صدرت فاتورة حسابك <account> بمبلغ <amount> ريال.` followed by a link to the SE app and a note about paying with Qitaf or Al Rajhi points. Owner sample received 2026-11-20 (500.16 SAR); the fixture keeps the account's last 4 only (`00000004579`) and replaces the name. Becomes a bill notice with `biller: "se"`, matched to a bill by the account's last 4 **and** the biller, so an STC line with the same 4 digits never takes it. The message has **no due date**: the bill's own due rule sets it. **Sender ID not confirmed yet**: until it is, the reader is reachable only by pasting (reader code `se`, stored under sender `se`); once the owner confirms the sender as Messages shows it, add it to the parser table and to the Shortcut's sender list.
+
+## Pasted messages (2026-11-20)
+A message pasted in the app (Add a transaction or Add a bill > Paste) has no sender: the `paste-sms` function runs every reader and uses the one reader that returns a transaction or a notice; if none or several do, the person picks the bank. The message is then stored under that reader's sender ID, so it goes through exactly the same steps as a Shortcut message. Never guessed from words in the text (the electricity notice mentions stc and Al Rajhi).
+
 ## Not yet seen
-ATM withdrawal (any bank); salary from a bank other than Alinma; electricity bill notice; Nothing else blocking.
+ATM withdrawal (any bank); salary from a bank other than Alinma; Nothing else blocking.
 
 ### Alinma loan deductions (owner confirmed 2026-10-30)
 One loan, just started. A month's installment can be collected in more than one deduction (an 87 SAR deduction on the 28th with 227,641.48 remaining, then 3,858.33 on the 29th once salary landed). The `المبلغ المتبقي` figure on a deduction is what is still owed for that period: `0.00` means the month is fully collected. The obligation instance for the month therefore sums all `خصم قسط تمويل` deductions until the expected installment is covered.

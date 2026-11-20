@@ -139,13 +139,49 @@ export async function handleIngest(req: Request, deps: IngestDeps): Promise<Resp
   const parsed = parseIngestPayload(payload);
   if (!parsed.ok) return json(400, { error: parsed.error });
   const { sender, body, receivedAt } = parsed.value;
+  const { duplicate } = await storeAndParse(
+    deps,
+    found.userId,
+    sender,
+    body,
+    receivedAt,
+    () => deps.touchToken(found.id),
+  );
+  return json(200, { ok: true, duplicate });
+}
 
+/** What happened to one message, for a caller that shows it (the paste screen). */
+export interface StoreOutcome {
+  duplicate: boolean;
+  /** parsed: saved as a transaction or a bill; review: waiting for a check; ignored; unparsed: in Needs review. */
+  outcome: "parsed" | "review" | "ignored" | "unparsed" | "notice";
+  /** Ids of the stored transactions by type. */
+  ids: Record<string, string>;
+}
+
+/**
+ * Stores, dedupes and parses one message for [userId], exactly as the Shortcut's messages are: the OTP filter,
+ * balances stripped, transfer pairing, categories and bill matching. Shared by ingest (token) and paste-sms (JWT).
+ * Never logs or echoes the message body.
+ */
+export async function storeAndParse(
+  deps: IngestDeps,
+  userId: string,
+  sender: string,
+  body: string,
+  receivedAt: Date,
+  onStored?: () => Promise<void>,
+  /** The reader, when the sender ID does not pick it (a pasted message whose reader was detected or chosen). */
+  parse?: (body: string, receivedAt: Date) => ParseResult,
+): Promise<StoreOutcome> {
+  let outcome: StoreOutcome["outcome"] = "unparsed";
+  let savedIds: Record<string, string> = {};
   const otp = isOtpLike(body);
   const storedBody = otp ? REDACTED_BODY : stripBalances(body);
   // Hash what is stored, so a one-time code can never be recovered from the hash.
   const hash = await dedupeKey(sender, storedBody, receivedAt);
   let id = await deps.insertRaw({
-    user_id: found.userId,
+    user_id: userId,
     sender,
     body: storedBody,
     received_at: receivedAt.toISOString(),
@@ -154,21 +190,22 @@ export async function handleIngest(req: Request, deps: IngestDeps): Promise<Resp
     ignore_reason: otp ? "otp" : null,
   });
   const duplicate = id === null;
+  if (otp) outcome = "ignored";
   // A replay of a message whose first parse failed finishes the parse now (rows are unique per raw message and type).
-  if (id === null && !otp) id = await deps.findRetryableRaw(found.userId, hash);
+  if (id === null && !otp) id = await deps.findRetryableRaw(userId, hash);
   // The first attempt that fails is answered with an error so the app sends it again; a second failure is answered
   // with success so one message that can never be parsed does not stay in the app's queue forever.
   const retrying = duplicate && id !== null;
-  await deps.touchToken(found.id);
+  await onStored?.();
 
   if (id !== null && !otp) {
     try {
-      let r: ParseResult = parseSms(sender, body, receivedAt);
+      let r: ParseResult = parse ? parse(body, receivedAt) : parseSms(sender, body, receivedAt);
       let aiConfidence: number | undefined;
       let aiTrusted = false;
       if (r.kind === "unparsed" && deps.aiParse) {
         // The AI reading never blocks ingest: any problem leaves the message in Needs review as before.
-        const ai = await deps.aiParse(found.userId, sender, body, receivedAt).catch((e) => {
+        const ai = await deps.aiParse(userId, sender, body, receivedAt).catch((e) => {
           console.error("ai_parse_failed", (e as Error).message);
           return null;
         });
@@ -176,7 +213,7 @@ export async function handleIngest(req: Request, deps: IngestDeps): Promise<Resp
           const a = ai.result;
           if (a.kind === "transaction") {
             aiConfidence = a.confidence;
-            aiTrusted = await (deps.aiTrusted?.(found.userId, sender) ?? Promise.resolve(false))
+            aiTrusted = await (deps.aiTrusted?.(userId, sender) ?? Promise.resolve(false))
               .catch(
                 () => false,
               );
@@ -192,11 +229,11 @@ export async function handleIngest(req: Request, deps: IngestDeps): Promise<Resp
       }
       if (r.kind === "transaction") {
         // A failed rules load must not cost the transaction: save it uncategorised.
-        const cat = await deps.loadCategorization(found.userId).catch(() => ({
+        const cat = await deps.loadCategorization(userId).catch(() => ({
           ids: {} as CategoryIds,
           rules: [] as Rule[],
         }));
-        const built = buildRows(r.txn, await deps.loadOwnAccounts(found.userId));
+        const built = buildRows(r.txn, await deps.loadOwnAccounts(userId));
         // Every transfer is an expense (out) or income (in) until proven otherwise. It is proven internal when the
         // other side is a saved account (buildRows) or when the other bank's message of the same move is already
         // stored: an out and an in of the same amount a few minutes apart. Then both are internal, left out of the
@@ -205,7 +242,7 @@ export async function handleIngest(req: Request, deps: IngestDeps): Promise<Resp
         let toMark: string[] = [];
         let learned: OwnAccount[] = [];
         if (head.type === "transfer_in" || head.type === "transfer_out") {
-          const others = await deps.findTransferCounterparts(found.userId, {
+          const others = await deps.findTransferCounterparts(userId, {
             type: head.type === "transfer_in" ? "transfer_out" : "transfer_in",
             bank: head.bank,
             amountHalalas: head.amount_halalas,
@@ -227,20 +264,22 @@ export async function handleIngest(req: Request, deps: IngestDeps): Promise<Resp
         }
         const rows = applyCategories(built, cat.rules, cat.ids);
         const saved = await deps.saveParsed({
-          userId: found.userId,
+          userId: userId,
           rawId: id,
           parser: r.parser,
           status: aiConfidence === undefined || aiTrusted ? "parsed" : "ai_parsed",
           confidence: aiConfidence,
           rows,
         });
+        savedIds = saved.ids;
+        outcome = aiConfidence === undefined || aiTrusted ? "parsed" : "review";
         if (
           !toMark.length && !head.is_internal &&
           (head.type === "transfer_in" || head.type === "transfer_out")
         ) {
           // Two messages that arrive at the same moment both see no partner. Look again now that this one is stored.
           const mine = new Set(Object.values(saved.ids));
-          const again = await deps.findTransferCounterparts(found.userId, {
+          const again = await deps.findTransferCounterparts(userId, {
             type: head.type === "transfer_in" ? "transfer_out" : "transfer_in",
             bank: head.bank,
             amountHalalas: head.amount_halalas,
@@ -253,39 +292,40 @@ export async function handleIngest(req: Request, deps: IngestDeps): Promise<Resp
           }
         }
         if (toMark.length) {
-          await deps.markInternal(found.userId, toMark, cat.ids["Transfers"] ?? null).catch((e) =>
+          await deps.markInternal(userId, toMark, cat.ids["Transfers"] ?? null).catch((e) =>
             console.error("mark_internal_failed", (e as Error).message)
           );
         }
         if (learned.length) {
-          await deps.saveOwnAccounts(found.userId, learned).catch((e) =>
+          await deps.saveOwnAccounts(userId, learned).catch((e) =>
             console.error("save_own_accounts_failed", (e as Error).message)
           );
         }
         // The transaction is safe by now; tracking obligations is best effort and never fails the SMS.
-        await applyTransactions(deps.obligations, found.userId, rows, saved.ids).catch((e) =>
+        await applyTransactions(deps.obligations, userId, rows, saved.ids).catch((e) =>
           console.error("obligation_match_failed", (e as Error).message)
         );
       } else if (r.kind === "notice") {
         // The instance comes first and is not best effort: if it fails the raw row stays needs_review, the call
         // fails and the retry runs this again (the upsert is safe to repeat). Marking the SMS parsed first would
         // make the replay a plain duplicate and the bill or statement would never appear.
-        await applyNotice(deps.obligations, found.userId, id, receivedAt, r);
+        await applyNotice(deps.obligations, userId, id, receivedAt, r);
         await deps.saveParsed({
-          userId: found.userId,
+          userId: userId,
           rawId: id,
           parser: r.parser,
           status: "parsed",
           replaceBody: r.notice === "bill_issued"
-            ? `[bill notice] STC line ending ${r.lineLast4}, total ${
-              (r.totalHalalas / 100).toFixed(2)
-            } SAR`
+            ? `[bill notice] ${
+              r.biller === "se" ? "Saudi Electricity account" : "STC line"
+            } ending ${r.lineLast4}, total ${(r.totalHalalas / 100).toFixed(2)} SAR`
             : undefined,
           rows: [],
         });
+        outcome = "notice";
       } else if (r.kind === "ignored") {
         await deps.saveParsed({
-          userId: found.userId,
+          userId: userId,
           rawId: id,
           parser: r.parser,
           status: "ignored",
@@ -293,6 +333,7 @@ export async function handleIngest(req: Request, deps: IngestDeps): Promise<Resp
           redactBody: r.reason === "otp",
           rows: [],
         });
+        outcome = "ignored";
       }
     } catch (e) {
       // The raw message is stored; answering with an error makes the app send it again, and the retry parses it.
@@ -301,5 +342,5 @@ export async function handleIngest(req: Request, deps: IngestDeps): Promise<Resp
     }
   }
 
-  return json(200, { ok: true, duplicate });
+  return { duplicate, outcome, ids: savedIds };
 }

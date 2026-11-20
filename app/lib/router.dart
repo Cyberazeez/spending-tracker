@@ -18,6 +18,7 @@ import 'features/account/account_pages.dart';
 import 'features/account/delete_account_page.dart';
 import 'features/account/own_accounts_page.dart';
 import 'features/obligations/bills_history_page.dart';
+import 'features/paste/paste_page.dart';
 import 'features/transactions/quick_add_page.dart';
 import 'features/transactions/review_page.dart';
 import 'features/shell/shell_page.dart';
@@ -50,6 +51,8 @@ const obligationFormPath = '/home/obligation';
 
 /// "Add a bill": the starting-point tiles before the form.
 const addBillPath = '/home/add-bill';
+const pastePath = '/home/paste';
+const pasteBillPath = '$pastePath?bill=1';
 const billsHistoryPath = '/home/bills-history';
 const aiChatPath = '/home/ai-chat';
 
@@ -215,6 +218,13 @@ final routerProvider = Provider<GoRouter>((ref) {
             pageBuilder: (_, state) => _page(
               state,
               AiChatPage(withTips: state.uri.queryParameters['tips'] == '1'),
+            ),
+          ),
+          GoRoute(
+            path: 'paste',
+            pageBuilder: (_, state) => _page(
+              state,
+              PastePage(bill: state.uri.queryParameters['bill'] == '1'),
             ),
           ),
           GoRoute(

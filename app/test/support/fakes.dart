@@ -795,6 +795,35 @@ class FakeDataRepository implements DataRepository {
     return tipsResult;
   }
 
+  /// Paste: every call as (action, body, reader, ai), and what preview and commit answer.
+  final pasteCalls = <(String, String, String?, bool)>[];
+  PastePreview pasteResult = const PastePreview(kind: 'unparsed');
+  PasteResult pasteSaved = const PasteResult(outcome: 'parsed');
+  bool pasteFails = false;
+
+  @override
+  Future<PastePreview> pastePreview(
+    String body, {
+    String? reader,
+    DateTime? receivedAt,
+  }) async {
+    pasteCalls.add(('preview', body, reader, false));
+    if (pasteFails) throw Exception('offline');
+    return pasteResult;
+  }
+
+  @override
+  Future<PasteResult> pasteCommit(
+    String body, {
+    String? reader,
+    DateTime? receivedAt,
+    bool ai = false,
+  }) async {
+    pasteCalls.add(('commit', body, reader, ai));
+    if (pasteFails) throw Exception('offline');
+    return pasteSaved;
+  }
+
   final chatCalls = <(Map<String, dynamic>, List<Map<String, String>>)>[];
   AiOutcome chatResult = const AiOutcome.ok(reply: 'Dining is 900.00 SAR.');
 
@@ -813,6 +842,9 @@ class FakeDataRepository implements DataRepository {
       saved;
 
   final savedObligations = <(String?, ObligationDef)>[];
+
+  /// Thrown by saveObligation (e.g. the server's "line in use").
+  Object? saveObligationError;
   final stoppedObligations = <String>[];
   ObligationDef? editing;
 
@@ -831,6 +863,7 @@ class FakeDataRepository implements DataRepository {
       throw const PostgrestException(message: 'dup', code: '23505');
     }
     if (failSave) throw StateError('offline');
+    if (saveObligationError != null) throw saveObligationError!;
     savedObligations.add((id, d));
     return id ?? 'new-id';
   }

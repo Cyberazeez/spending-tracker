@@ -74,6 +74,22 @@ abstract class DataRepository {
   Future<ObligationDef> obligation(String id);
 
   /// Creates ([id] null) or edits one obligation; the server validates it and rebuilds its open instances.
+  /// Reads a pasted bank or bill message without saving anything ([reader]: a picked bank; [receivedAt]: when it
+  /// arrived, for a message without a date). Throws when offline or refused.
+  Future<PastePreview> pastePreview(
+    String body, {
+    String? reader,
+    DateTime? receivedAt,
+  });
+
+  /// Saves a pasted message through the same steps as the Shortcut's messages ([ai]: Read with AI was tapped).
+  Future<PasteResult> pasteCommit(
+    String body, {
+    String? reader,
+    DateTime? receivedAt,
+    bool ai = false,
+  });
+
   Future<String> saveObligation(String? id, ObligationDef d);
 
   /// Stops tracking: history stays, open instances go.
@@ -520,6 +536,47 @@ class SupabaseDataRepository implements DataRepository {
         .eq('id', id)
         .single();
     return ObligationDef.fromRow(row);
+  }
+
+  Map<String, dynamic> _pasteBody(
+    String action,
+    String body,
+    String? reader,
+    DateTime? receivedAt, {
+    bool ai = false,
+  }) => {
+    'action': action,
+    'body': body,
+    'reader': ?reader,
+    'received_at': ?receivedAt?.toUtc().toIso8601String(),
+    if (ai) 'ai': true,
+  };
+
+  @override
+  Future<PastePreview> pastePreview(
+    String body, {
+    String? reader,
+    DateTime? receivedAt,
+  }) async {
+    final res = await _db.functions.invoke(
+      'paste-sms',
+      body: _pasteBody('preview', body, reader, receivedAt),
+    );
+    return PastePreview.fromJson((res.data as Map).cast<String, dynamic>());
+  }
+
+  @override
+  Future<PasteResult> pasteCommit(
+    String body, {
+    String? reader,
+    DateTime? receivedAt,
+    bool ai = false,
+  }) async {
+    final res = await _db.functions.invoke(
+      'paste-sms',
+      body: _pasteBody('commit', body, reader, receivedAt, ai: ai),
+    );
+    return PasteResult.fromJson((res.data as Map).cast<String, dynamic>());
   }
 
   @override

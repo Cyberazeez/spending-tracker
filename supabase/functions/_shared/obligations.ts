@@ -28,8 +28,10 @@ export interface ObMatch {
   tolerance_pct?: number;
   /** Several payments add up to the expected amount (the loan can be collected in parts). */
   accumulate?: boolean;
-  /** Phone line (last 4) a bill notice is for. */
+  /** Phone line or electricity account (last 4) a bill notice is for. */
   line?: string;
+  /** Who sends the bill notices: "stc" (the default, the seeded lines) or "se" (Saudi Electricity). */
+  biller?: string;
   /**
    * An instalment plan on a credit card (Autopia). The statement's total includes the instalments still to come, but
    * the month's payment only the part billed so far: with `principal_halalas` the payable amount is the statement
@@ -134,8 +136,15 @@ export function effectiveStatus(
   return today > addDays(inst.dueDate, rule.grace ?? 0) ? "overdue" : "pending";
 }
 
-export function obligationForBill(obs: Ob[], lineLast4: string): Ob | undefined {
-  return obs.find((o) => o.kind === "bill" && o.match.line === lineLast4);
+/** The bill a notice is for: same last 4 and same biller, so an STC line never takes an electricity account's bill. */
+export function obligationForBill(
+  obs: Ob[],
+  lineLast4: string,
+  biller = "stc",
+): Ob | undefined {
+  return obs.find((o) =>
+    o.kind === "bill" && o.match.line === lineLast4 && (o.match.biller ?? "stc") === biller
+  );
 }
 
 export function obligationForStatement(obs: Ob[], cardLast4: string | undefined): Ob | undefined {

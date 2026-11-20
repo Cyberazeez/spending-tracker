@@ -1,17 +1,24 @@
 import assert from "node:assert/strict";
-import { parseSms } from "./index.ts";
+import { detectReader, parseSms, parseWith } from "./index.ts";
 
 const FIXTURES = new URL("../../../tests/fixtures/", import.meta.url);
 
 interface Fixture {
   sender: string;
+  /** A reader with no sender ID yet (read by code, as a pasted message is). */
+  parserCode?: string;
   receivedAt: string;
   body: string;
   expected: Record<string, unknown>;
 }
 
-const SENDERS = ["alinma", "alrajhi", "barq", "d360", "snb", "stc", "stc900"];
+const SENDERS = ["alinma", "alrajhi", "barq", "d360", "snb", "stc", "stc900", "se"];
 let total = 0;
+
+const read = (f: Fixture) =>
+  f.parserCode
+    ? parseWith(f.parserCode, f.body, new Date(f.receivedAt))
+    : parseSms(f.sender, f.body, new Date(f.receivedAt));
 
 for (const dir of SENDERS) {
   for (const entry of Deno.readDirSync(new URL(`${dir}/`, FIXTURES))) {
@@ -21,7 +28,7 @@ for (const dir of SENDERS) {
       const f: Fixture = JSON.parse(
         Deno.readTextFileSync(new URL(`${dir}/${entry.name}`, FIXTURES)),
       );
-      const r = parseSms(f.sender, f.body, new Date(f.receivedAt)) as unknown as Record<
+      const r = read(f) as unknown as Record<
         string,
         unknown
       >;
@@ -51,7 +58,7 @@ Deno.test("a parsed transaction never carries a balance", () => {
       const f: Fixture = JSON.parse(
         Deno.readTextFileSync(new URL(`${dir}/${entry.name}`, FIXTURES)),
       );
-      const r = parseSms(f.sender, f.body, new Date(f.receivedAt));
+      const r = read(f);
       assert.ok(
         !/balance|رصيد/i.test(JSON.stringify(r)),
         `${dir}/${entry.name} leaked a balance field`,
@@ -227,4 +234,24 @@ Deno.test("barq local transfer: a fee line above zero becomes the fee, zero adds
 Deno.test("barq local transfer without an amount or date is left for review", () => {
   const r = parseSms("barq app", "Debit Transfer local\nTo: PERSON A\na/c: **1234", new Date());
   assert.equal(r.kind, "unparsed");
+});
+
+Deno.test("a pasted message finds its one reader, by format, not by words", () => {
+  for (const dir of SENDERS) {
+    for (const entry of Deno.readDirSync(new URL(`${dir}/`, FIXTURES))) {
+      const f: Fixture = JSON.parse(
+        Deno.readTextFileSync(new URL(`${dir}/${entry.name}`, FIXTURES)),
+      );
+      const r = read(f);
+      if (r.kind !== "transaction" && r.kind !== "notice") continue;
+      const code = detectReader(f.body, new Date(f.receivedAt));
+      // Either the right reader, or none when two readers understand it (then the person picks the bank).
+      const want = f.parserCode ?? (dir === "stc900" ? "stc900" : dir);
+      assert.ok(code === null || code === want, `${dir}/${entry.name}: detected ${code}`);
+    }
+  }
+  // The electricity notice names stc and Al Rajhi in its text; it is still only the electricity reader's.
+  const se = JSON.parse(Deno.readTextFileSync(new URL("se/bill_issued.json", FIXTURES)));
+  assert.equal(detectReader(se.body, new Date(se.receivedAt)), "se");
+  assert.equal(detectReader("hello there", new Date()), null);
 });

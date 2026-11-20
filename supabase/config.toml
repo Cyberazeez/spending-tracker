@@ -39,3 +39,7 @@ verify_jwt = true
 
 [functions.ai-chat]
 verify_jwt = true
+
+[functions.paste-sms]
+# A message the person pasted in the app: the function checks the JWT with getUser() as well.
+verify_jwt = true
